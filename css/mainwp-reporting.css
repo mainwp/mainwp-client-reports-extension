@@ -1,0 +1,112 @@
+/* Token list */
+.creport_list_tokens {
+    font-family: sans-serif;
+    margin: 20px 0 0;
+    overflow: hidden;
+    padding: 0;
+}
+.creport_list_tokens tr:nth-child(2n+1) {
+    background: none repeat scroll 0 0 #FAFAFA;
+}
+.creport_list_tokens > table > tbody > tr > td.token-name {
+    width: 46%;
+}
+.creport_list_tokens > table > tbody > tr > td {
+    padding: 2px 10px;
+}
+.creport_list_tokens .managetoken-item .text {
+    padding-left: 8px;
+}
+.creport_list_tokens .token-name,  .creport_list_tokens .form-table th.token-name {
+    color: #7FB100;
+}
+.creport_list_tokens > table > tbody tr {
+    font-size: 13px;
+    line-height: 24px;
+}
+.creport_list_tokens .managetoken-item input[type="text"] {
+    border-radius: 5px !important;
+    height: 35px;
+    width: 93%;
+}
+.creport_list_tokens > table {
+    padding-bottom: 10px;
+}
+
+/* new report */
+.creport-option-row {
+    margin-top: 7px;
+}
+.creport-option-row input{
+    margin-right: 5px;    
+}
+.creport-option-row label {
+    width: 180px;
+    display: inline-block;
+}
+.creport-option-row.title input{
+    width: 500px;
+}
+.creport-option-row.date input{
+    width: 120px;
+}
+.mainwp-creport-report-setting-box .desc-light {
+    font-style:italic;
+    color: #DDDDDD;
+}
+.mainwp-creport-report-setting-box .title input{
+    width: 500px;
+}
+.mainwp-creport-report-setting-box .date input{
+    width: 120px;
+}
+.mainwp-creport-report-setting-box{
+    margin: 0px 272px 0 0;
+}
+.crp-editor-field {
+    float: left;    
+}
+#wpcr_new_tab tr th{
+    vertical-align: text-top;    
+}
+.creport_format_data_tokens {
+    background: none repeat scroll 0 0 #F5F5F5;
+    padding: 5px;
+}
+.creport_format_group_nav {
+    border-top: 1px solid #fff;
+    padding: 5px;
+}
+.creport_format_group_nav .current {
+    color: #AA0000;
+}
+.creport_format_token_desc {
+    font-style:italic;
+}
+a.creport_format_add_token{
+    padding: 0.2em 0.5em;
+}
+a.creport_format_add_token:hover {
+    background: #7FB100;
+    color: #fff !important;
+    cursor: pointer;
+}
+.creport_format_group_data_tokens {
+    display: none;
+    min-height: 180px;
+}
+.creport_format_group_data_tokens.current{
+    display: block;
+}
+.creport_format_group_data_tokens td {
+    padding: 3px;
+}
+.mwp_creport_logo_image img{
+    max-width: 800px;
+}
+#creport_select_sites_box {
+    margin-top: -12px;
+}
+#wpcr_report_tab tr .loading .status {
+    font-style: italic;
+}
