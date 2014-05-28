@@ -1,7 +1,7 @@
 <?php
 class MainWPCReportDB
 {    
-    private $mainwp_wpcreport_db_version = '1.1';
+    private $mainwp_wpcreport_db_version = '1.0';
     //Singleton
     private static $instance = null;
     private $table_prefix;
@@ -78,8 +78,8 @@ PRIMARY KEY  (`id`)  ';
         $tbl = 'CREATE TABLE `' . $this->tableName('client_report') . '` (
 `id` int(11) NOT NULL AUTO_INCREMENT,
 `title` text NOT NULL,
-`startdate` int(11) NOT NULL,
-`enddate` int(11) NOT NULL,
+`date_from` int(11) NOT NULL,
+`date_to` int(11) NOT NULL,
 `fname` VARCHAR(512),
 `fcompany` VARCHAR(512),
 `femail` VARCHAR(128),
@@ -92,8 +92,7 @@ PRIMARY KEY  (`id`)  ';
 `logo_file` VARCHAR(512),
 `lastsend` int(11) NOT NULL,
 `nextsend` int(11) NOT NULL,
-`sites` text NOT NULL,
-`groups` text NOT NULL';
+`selected_site` int(11) NOT NULL';
         if ($currentVersion == '')
                     $tbl .= ',
 PRIMARY KEY  (`id`)  ';

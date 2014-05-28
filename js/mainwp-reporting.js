@@ -199,6 +199,66 @@ jQuery(document).ready(function($) {
         }, 'json'); 
         return false;
     });    
+    
+    
+    $('#mwp-creport-send-btn').on('click' ,function(){
+        
+        $('#mwp_creport_title').removeClass('form-invalid');
+        
+        var errors = []; 
+                
+        if ($.trim($('#mwp_creport_title').val()) == '') {
+            errors.push(__('Title is required.'));
+            $('#mwp_creport_title').addClass('form-invalid');
+        } 
+        
+        
+        if (errors.length > 0) {
+            show_error('mwp-creport-error-box', errors.join('<br />'));        
+            return false;
+        } else {
+            jQuery('#mwp-creport-error-box').html("");
+            jQuery('#mwp-creport-error-box').hide();
+        }
+        $('#mwp_creport_send').val(1);        
+    });
+    
+    $('#mwp-creport-preview-btn').on('click' ,function(){
+        
+        $('#mwp_creport_title').removeClass('form-invalid');
+        $('#selected_sites').removeClass('form-invalid');
+        
+        var errors = []; 
+        var selected_sites = [];
+                
+        if ($.trim($('#mwp_creport_title').val()) == '') {
+            errors.push(__('Title is required.'));
+            $('#mwp_creport_title').addClass('form-invalid');
+        } 
+            
+        jQuery("#selected_sites input[name='selected_site']:checked").each(function (i) {
+            selected_sites.push(jQuery(this).val());                       
+        });  
+        
+        if (selected_sites.length == 0) {
+            errors.push(__("Please select a website."));  
+            $('#selected_sites').addClass('form-invalid'); 
+        }
+        
+        if (errors.length > 0) {
+            show_error('mwp-creport-error-box', errors.join('<br />'));
+            //jQuery('#mwp-creport-error-box').show();           
+            return false;
+        } else {
+            jQuery('#mwp-creport-error-box').html("");
+            jQuery('#mwp-creport-error-box').hide();
+        }
+        $('#mwp_creport_preview').val(1);        
+    });    
+    
+    $('#mwp-creport-preview-btn-close').on('click' ,function(){
+        jQuery('#mwp-creport-preview-box').dialog('destroy')
+    })
 });
 
 showCReportTab = function(report, new_report, token) {
@@ -247,5 +307,12 @@ function mainwp_creport_load_tokens()
     });
 }
 
-    
-
+mainwp_creport_preview_report = function() {   
+   jQuery('#mwp-creport-preview-box').dialog({
+        resizable: false,
+        height: "auto",
+        width: 800,
+        maxWidth: 800,
+        modal: true,
+        close: function(event, ui) {jQuery('#mwp-creport-preview-box').dialog('destroy');}});   
+}

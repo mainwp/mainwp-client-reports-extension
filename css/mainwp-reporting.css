@@ -80,7 +80,7 @@
 .creport_format_group_nav .current {
     color: #AA0000;
 }
-.creport_format_token_desc {
+.creport_stream_token_desc {
     font-style:italic;
 }
 a.creport_format_add_token{
@@ -109,4 +109,7 @@ a.creport_format_add_token:hover {
 }
 #wpcr_report_tab tr .loading .status {
     font-style: italic;
+}
+.mainwp_page_Extensions-Mainwp-Client-Reporting-Extension .ui-dialog {
+    width: 800px !important;    
 }
