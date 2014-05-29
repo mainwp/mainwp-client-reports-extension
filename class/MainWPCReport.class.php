@@ -496,7 +496,7 @@ class MainWPCReport
                           if (!empty($logo_url)) {
                             ?>                                      
                             <div style="float: right; margin-top: .6em ;">                                        
-                               <img src="<?php echo $logo_url ?>" alt="Logo" height="80"/>
+                               <img src="<?php echo $logo_url ?>" alt="Logo" height="100"/>
                             </div>
                             <?php
                           }
@@ -569,10 +569,11 @@ class MainWPCReport
             }                 
         } 
 
-        $report_tokens = self::get_report_stream_tokens($report, $all_tokens);
-        
+        $result = self::get_report_stream_tokens($report, $all_tokens);
+        $report_tokens = $result['valid_tokens'];
+        $section = $result['section'];
         if (is_array($report_tokens) && count($report_tokens) > 0)
-            $report = self::filter_stream_tokens($report, $report_tokens, $website);        
+            $report = self::filter_stream_tokens($report, $report_tokens, $website, $section);        
 
         return $report;
     } 
@@ -588,10 +589,11 @@ class MainWPCReport
 //            if (isset($matches[0]) && is_array($matches[0]) && count($matches[0]) > 0) {
 //                $report_tokens = $matches[0];
 //            }
-//        }
-        
+//        }        
         $matches = array();        
-        $report->body = self::remove_section_tokens($report->body);        
+        $result = self::remove_section_tokens($report->body);  
+        $report->body = $result['content'];
+        $section = $result['section'];
         if(preg_match_all("/\[[^\]]+\]/is" , $report->body, $matches)) {
             if (isset($matches[0]) && is_array($matches[0]) && count($matches[0]) >0 ) {
                 $report_tokens = array_merge($report_tokens, $matches[0]);
@@ -610,27 +612,32 @@ class MainWPCReport
             if (in_array($token, $all_tokens))
                 $valid_tokens[] = $token;
         }         
-        return $valid_tokens;        
+        return array('valid_tokens' => $valid_tokens, 'section' => $section);        
     }    
     
     public static function remove_section_tokens($content) {        
         $matches = array(); 
         $section_tokens = array();
+        $section = "";
         if(preg_match_all("/\[\/?section\.[^\]]+\]/is" , $content, $matches)) {
-            $section_tokens = $matches[0];
+            $section_tokens = $matches[0];            
+            $str_tmp = str_replace(array('[', ']'), "", $section_tokens[0]);
+            list($context, $action, $section) = explode(".", $str_tmp);
         }
-        return str_replace($section_tokens, "", $content);                
+        $content =  str_replace($section_tokens, "", $content);                
+        return array('content' => $content, 'section' => $section); 
     }
 
-    public static function filter_stream_tokens($report, $tokens, $website) {    
+    public static function filter_stream_tokens($report, $tokens, $website, $section) {    
         global $mainWPCReportExtensionActivator;
         $post_data = array( 'mwp_action' => 'get_stream',
+                            'section' => $section,
                             'stream_tokens' => base64_encode(serialize($tokens)),
                             'date_from' => date("Y-m-d H:i:s", $report->date_from),
                             'date_to' => date("Y-m-d H:i:s", $report->date_to));
         
         $information = apply_filters('mainwp_fetchurlauthed', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $website['id'], 'client_report', $post_data);			                             
-//        print_r($information);
+       // print_r($information);
         if (is_array($information) && isset($information['token_values'])) {            
             $token_values = $information['token_values'];
             if (is_array($token_values) && count($token_values) > 0) {
