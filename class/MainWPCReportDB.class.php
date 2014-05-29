@@ -197,7 +197,7 @@ PRIMARY KEY  (`id`)  ';
         $qry = " SELECT st.* FROM " . $this->tableName('client_report_site_token') . " st " .        
                 " WHERE st.site_url = '" . $site_url . "' ";
         //echo $qry;
-        $site_tokens = $wpdb->get_results($qry);                        
+        $site_tokens = $wpdb->get_results($qry);              
         $return = array();
         if (is_array($site_tokens)) {
             foreach($site_tokens as $token) {                

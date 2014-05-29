@@ -178,7 +178,10 @@ jQuery(document).ready(function($) {
         return false;
     });
     
-    $('.mwp-creport-report-item-delete-lnk').on('click' ,function(){
+    $('.mwp-creport-report-item-delete-lnk').on('click' ,function(){        
+        if (!confirm("Are you sure?"))
+            return false;
+        
         var row = $(this).closest('tr');
         var loaderEl = row.find('.loading img');
         var statusEl = row.find('.loading .status');
@@ -204,37 +207,22 @@ jQuery(document).ready(function($) {
     $('#mwp-creport-send-btn').on('click' ,function(){
         
         $('#mwp_creport_title').removeClass('form-invalid');
-        
-        var errors = []; 
-                
-        if ($.trim($('#mwp_creport_title').val()) == '') {
-            errors.push(__('Title is required.'));
-            $('#mwp_creport_title').addClass('form-invalid');
-        } 
-        
-        
-        if (errors.length > 0) {
-            show_error('mwp-creport-error-box', errors.join('<br />'));        
-            return false;
-        } else {
-            jQuery('#mwp-creport-error-box').html("");
-            jQuery('#mwp-creport-error-box').hide();
-        }
-        $('#mwp_creport_send').val(1);        
-    });
-    
-    $('#mwp-creport-preview-btn').on('click' ,function(){
-        
-        $('#mwp_creport_title').removeClass('form-invalid');
+        $('#mwp_creport_date_from').removeClass('form-invalid');
         $('#selected_sites').removeClass('form-invalid');
         
         var errors = []; 
         var selected_sites = [];
-                
+        
         if ($.trim($('#mwp_creport_title').val()) == '') {
             errors.push(__('Title is required.'));
             $('#mwp_creport_title').addClass('form-invalid');
         } 
+        
+        
+        if ($.trim($('#mwp_creport_date_from').val()) == '') {
+            errors.push(__('Date From is required.'));
+            $('#mwp_creport_date_from').addClass('form-invalid');
+        }
             
         jQuery("#selected_sites input[name='selected_site']:checked").each(function (i) {
             selected_sites.push(jQuery(this).val());                       
@@ -246,8 +234,46 @@ jQuery(document).ready(function($) {
         }
         
         if (errors.length > 0) {
-            show_error('mwp-creport-error-box', errors.join('<br />'));
-            //jQuery('#mwp-creport-error-box').show();           
+            show_error('mwp-creport-error-box', errors.join('<br />'));                    
+            return false;
+        } else {
+            jQuery('#mwp-creport-error-box').html("");
+            jQuery('#mwp-creport-error-box').hide();
+        }
+        
+        $('#mwp_creport_send').val(1);        
+    });
+    
+    $('#mwp-creport-preview-btn').on('click' ,function(){
+        
+        $('#mwp_creport_title').removeClass('form-invalid');
+        $('#mwp_creport_date_from').removeClass('form-invalid');
+        $('#selected_sites').removeClass('form-invalid');
+        
+        var errors = []; 
+        var selected_sites = [];
+                
+        if ($.trim($('#mwp_creport_title').val()) == '') {
+            errors.push(__('Title is required.'));
+            $('#mwp_creport_title').addClass('form-invalid');
+        } 
+        
+        if ($.trim($('#mwp_creport_date_from').val()) == '') {
+            errors.push(__('Date From is required.'));
+            $('#mwp_creport_date_from').addClass('form-invalid');
+        }
+            
+        jQuery("#selected_sites input[name='selected_site']:checked").each(function (i) {
+            selected_sites.push(jQuery(this).val());                       
+        });  
+        
+        if (selected_sites.length == 0) {
+            errors.push(__("Please select a website."));  
+            $('#selected_sites').addClass('form-invalid'); 
+        }
+        
+        if (errors.length > 0) {
+            show_error('mwp-creport-error-box', errors.join('<br />'));                    
             return false;
         } else {
             jQuery('#mwp-creport-error-box').html("");
@@ -256,9 +282,42 @@ jQuery(document).ready(function($) {
         $('#mwp_creport_preview').val(1);        
     });    
     
+    $('#mwp-creport-save-btn').on('click' ,function(){
+        
+        $('#mwp_creport_title').removeClass('form-invalid');
+        $('#mwp_creport_date_from').removeClass('form-invalid');
+        
+        var errors = []; 
+                
+        if ($.trim($('#mwp_creport_title').val()) == '') {
+            errors.push(__('Title is required.'));
+            $('#mwp_creport_title').addClass('form-invalid');
+        } 
+        
+        if ($.trim($('#mwp_creport_date_from').val()) == '') {
+            errors.push(__('Date From is required.'));
+            $('#mwp_creport_date_from').addClass('form-invalid');
+        }
+        
+        if (errors.length > 0) {
+            show_error('mwp-creport-error-box', errors.join('<br />'));                     
+            return false;
+        } else {
+            jQuery('#mwp-creport-error-box').html("");
+            jQuery('#mwp-creport-error-box').hide();
+        }              
+    });    
+    
     $('#mwp-creport-preview-btn-close').on('click' ,function(){
-        jQuery('#mwp-creport-preview-box').dialog('destroy')
+        jQuery('#mwp-creport-preview-box').dialog('destroy');        
     })
+    
+    $('#mwp-creport-preview-btn-send').on('click' ,function(){
+        jQuery('#mwp-creport-preview-box').dialog('destroy');
+        jQuery('#mwp_creport_do_not_save').val(1);         
+        jQuery('#mwp-creport-send-btn').click();                 
+    })    
+ 
 });
 
 showCReportTab = function(report, new_report, token) {
