@@ -647,7 +647,7 @@ class MainWPCReport
                     $replace = "";
                     $values = isset($token_values[$token]) ? $token_values[$token] : array();                    
                     foreach ($values as $value) {
-                        $replace .= $website['name'] . " - " . $value ."<br>";
+                        $replace .=  $value ."<br>";
                     }   
                     $replace_values[] = $replace;            
                 }                  
