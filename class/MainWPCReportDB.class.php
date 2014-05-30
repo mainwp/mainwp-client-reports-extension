@@ -209,8 +209,12 @@ PRIMARY KEY  (`id`)  ';
         if (is_array($tokens)) {
             foreach($tokens as $token) {
                 // check default tokens if it is empty
-                if ($token->type == 1 && (!isset($return[$token->id]) || empty($return[$token->id]))) {
-                    $return[$token->id]->token_value = $this->_getDefaultTokenSite($token->token_name, $site_url);
+                if (is_object($token)) {
+                    if ($token->type == 1 && (!isset($return[$token->id]) || empty($return[$token->id]))) {
+                        if (!isset($return[$token->id]))
+                            $return[$token->id] = new stdClass();
+                        $return[$token->id]->token_value = $this->_getDefaultTokenSite($token->token_name, $site_url);
+                    }
                 }
             }
         }

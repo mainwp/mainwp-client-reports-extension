@@ -607,14 +607,15 @@ class MainWPCReport
     public static function section_mark($matches) {
         $content = $matches[0];
         $sec = $matches[1];        
-        $sec_content = $matches[2];                
+        $sec_content = trim($matches[2]);                
         if (isset(self::$buffer['sections_data'][$sec])) {
             $search = self::$buffer['sections'][$sec];            
             $loop = self::$buffer['sections_data'][$sec]; 
-            $replace_content = "";
+            $replaced_content = "";
             if (is_array($loop)) {                
                 foreach($loop as $replace) {
-                    $replaced_content .= self::replace_content($sec_content, $search, $replace);
+                    $replaced = self::replace_content($sec_content, $search, $replace);                    
+                    $replaced_content .= $replaced . "<br>";
                 }               
             }
             return $replaced_content;            
@@ -702,7 +703,7 @@ class MainWPCReport
                             'date_to' => $report->date_to);
         
         $information = apply_filters('mainwp_fetchurlauthed', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $website['id'], 'client_report', $post_data);			                             
-        
+        //print_r($information);
         if (is_array($information) && !isset($information['error'])) {
             return $information;
         } else {
