@@ -3,6 +3,7 @@ class MainWPCReport
 {    
     private $clientReportExt;
     private static $stream_tokens = array();
+    private static $buffer = array();
     
     public function __construct($ext) {    
         $this->clientReportExt = $ext;
@@ -559,29 +560,93 @@ class MainWPCReport
             $replace_values[] = isset($site_tokens[$token->id]) ? $site_tokens[$token->id]->token_value : "";            
         }    
         $report->header = self::replace_content($report->header, $search_tokens, $replace_values);        
-        $report->body = self::replace_content($report->body, $search_tokens, $replace_values);        
+        //$report->body = self::replace_content($report->body, $search_tokens, $replace_values);        
         $report->footer = self::replace_content($report->footer, $search_tokens, $replace_values);        
 
-        $all_tokens = array();
-        foreach (self::$stream_tokens as $group => $tokens) {
-            foreach($tokens as $token) {                
-                $all_tokens[] = '[' . $token['name'] . ']';
-            }                 
-        } 
-
-        $result = self::get_report_stream_tokens($report, $all_tokens);
-        $report_tokens = $result['valid_tokens'];
-        $section = $result['section'];
-        if (is_array($report_tokens) && count($report_tokens) > 0)
-            $report = self::filter_stream_tokens($report, $report_tokens, $website, $section);        
-
+//        $all_tokens = array();
+//        foreach (self::$stream_tokens as $group => $tokens) {
+//            foreach($tokens as $token) {                
+//                $all_tokens[] = '[' . $token['name'] . ']';
+//            }                 
+//        } 
+        $result = self::parse_report_content($report->body);
+        //print_r($result);
+        self::$buffer['sections'] = $sections = $result['sections'];
+        $other_tokens = $result['other_tokens'];  
+        unset($result);
+        $report_body = $report->body;
+        if ((is_array($sections) && count($sections) > 0) || (is_array($other_tokens) && count($other_tokens) > 0)) {
+            $sections_data = $other_tokens_data = array();
+            $information = self::fetch_stream_data($website, $report, $sections, $other_tokens);                    
+            print_r($information);
+            if (is_array($information)) {                
+                self::$buffer['sections_data'] = $sections_data = isset($information['sections_data']) ? $information['sections_data'] : array();
+                $other_tokens_data = isset($information['other_tokens_data']) ? $information['other_tokens_data'] : array();
+            }
+            unset($information);
+            if (is_array($sections_data) && count($sections_data) > 0) {
+                $report_body = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is",  array('MainWPCReport', 'section_mark'), $report_body);
+            }      
+            
+            if (is_array($other_tokens_data) && count($other_tokens_data) > 0) {
+                foreach ($other_tokens_data as $token => $value) {
+                    if (in_array($token, $other_tokens)) {
+                        $search[] = $token;
+                        $replace[] = $value;
+                    }
+                }
+                $report_body = self::replace_content($report_body, $search, $replace);
+            }
+        }
+        
+        $report->body = $report_body;
+        self::$buffer = array();
         return $report;
     } 
     
+    public static function section_mark($matches) {
+        $content = $matches[0];
+        $sec = $matches[1];        
+        $sec_content = $matches[2];                
+        if (isset(self::$buffer['sections_data'][$sec])) {
+            $search = self::$buffer['sections'][$sec];            
+            $loop = self::$buffer['sections_data'][$sec]; 
+            $replace_content = "";
+            if (is_array($loop)) {                
+                foreach($loop as $replace) {
+                    $replaced_content .= self::replace_content($sec_content, $search, $replace);
+                }               
+            }
+            return $replaced_content;            
+        }        
+        return $content;
+    }
+
     public static function replace_content($content, $tokens, $replace_tokens) {
         return str_replace($tokens, $replace_tokens, $content);                
     }
     
+    public static function parse_report_content($content) {
+        $sections = array();
+        if (preg_match_all("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is", $content, $matches)) {            
+            for ($i = 0; $i < count($matches[1]) ; $i++) {
+                $sec = $matches[1][$i];
+                $sec_content = $matches[2][$i];
+                $sec_tokens = array();
+                if(preg_match_all("/\[[^\]]+\]/is" , $sec_content, $matches2)) {
+                    $sec_tokens = $matches2[0];
+                }                 
+                $sections[$sec] = $sec_tokens;            
+            }            
+        }        
+        $removed_sections = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is", create_function('$matches', 'return "";'), $content);
+        $other_tokens = array();
+        if(preg_match_all("/\[[^\]]+\]/is" , $removed_sections, $matches)) {
+            $other_tokens = $matches[0];
+        }       
+        return array('sections' => $sections, 'other_tokens' => $other_tokens);
+    }
+   
     public static function get_report_stream_tokens($report, $all_tokens) {
         $matches = array();
         $report_tokens = array();
@@ -627,39 +692,23 @@ class MainWPCReport
         $content =  str_replace($section_tokens, "", $content);                
         return array('content' => $content, 'section' => $section); 
     }
-
-    public static function filter_stream_tokens($report, $tokens, $website, $section) {    
+    
+    public static function fetch_stream_data($website, $report, $sections, $tokens) {
         global $mainWPCReportExtensionActivator;
-        $post_data = array( 'mwp_action' => 'get_stream',
-                            'section' => $section,
-                            'stream_tokens' => base64_encode(serialize($tokens)),
-                            'date_from' => date("Y-m-d H:i:s", $report->date_from),
-                            'date_to' => date("Y-m-d H:i:s", $report->date_to));
+        $post_data = array( 'mwp_action' => 'get_stream',                           
+                            'sections' => base64_encode(serialize($sections)),
+                            'other_tokens' => base64_encode(serialize($tokens)),
+                            'date_from' =>  $report->date_from,
+                            'date_to' => $report->date_to);
         
         $information = apply_filters('mainwp_fetchurlauthed', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $website['id'], 'client_report', $post_data);			                             
-       // print_r($information);
-        if (is_array($information) && isset($information['token_values'])) {            
-            $token_values = $information['token_values'];
-            if (is_array($token_values) && count($token_values) > 0) {
-                $search_tokens = $replace_values = array();
-                foreach ($tokens as $token) {                   
-                    $search_tokens[] = $token;       
-                    $replace = "";
-                    $values = isset($token_values[$token]) ? $token_values[$token] : array();                    
-                    foreach ($values as $value) {
-                        $replace .=  $value ."<br>";
-                    }   
-                    $replace_values[] = $replace;            
-                }                  
-                //$report->header = self::replace_content($report->header, $search_tokens, $replace_values);        
-                $report->body = self::replace_content($report->body, $search_tokens, $replace_values);        
-                //$report->footer = self::replace_content($report->footer, $search_tokens, $replace_values);        
-            }
+        
+        if (is_array($information) && !isset($information['error'])) {
+            return $information;
         } else {
             $error = is_array($information) ? @implode("<br>", $information) : $information;
             throw new Exception($error);
-        }       
-        return $report;
+        }
     }
     
     public static function reportTab() {
