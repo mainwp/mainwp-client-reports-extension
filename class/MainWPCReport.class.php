@@ -578,7 +578,7 @@ class MainWPCReport
         if ((is_array($sections) && count($sections) > 0) || (is_array($other_tokens) && count($other_tokens) > 0)) {
             $sections_data = $other_tokens_data = array();
             $information = self::fetch_stream_data($website, $report, $sections, $other_tokens);                    
-            print_r($information);
+            //print_r($information);
             if (is_array($information)) {                
                 self::$buffer['sections_data'] = $sections_data = isset($information['sections_data']) ? $information['sections_data'] : array();
                 $other_tokens_data = isset($information['other_tokens_data']) ? $information['other_tokens_data'] : array();
