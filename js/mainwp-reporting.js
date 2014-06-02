@@ -241,7 +241,7 @@ jQuery(document).ready(function($) {
             jQuery('#mwp-creport-error-box').hide();
         }
         
-        $('#mwp_creport_send').val(1);        
+        $('#mwp_creport_report_submit_action').val('send');        
     });
     
     $('#mwp-creport-preview-btn').on('click' ,function(){
@@ -279,7 +279,7 @@ jQuery(document).ready(function($) {
             jQuery('#mwp-creport-error-box').html("");
             jQuery('#mwp-creport-error-box').hide();
         }
-        $('#mwp_creport_preview').val(1);        
+        $('#mwp_creport_report_submit_action').val('preview');        
     });    
     
     $('#mwp-creport-save-btn').on('click' ,function(){
@@ -305,7 +305,8 @@ jQuery(document).ready(function($) {
         } else {
             jQuery('#mwp-creport-error-box').html("");
             jQuery('#mwp-creport-error-box').hide();
-        }              
+        }   
+        $('#mwp_creport_report_submit_action').val('save');
     });    
     
     $('#mwp-creport-preview-btn-close').on('click' ,function(){
@@ -313,11 +314,11 @@ jQuery(document).ready(function($) {
     })
     
     $('#mwp-creport-preview-btn-send').on('click' ,function(){
-        jQuery('#mwp-creport-preview-box').dialog('destroy');
-        jQuery('#mwp_creport_do_not_save').val(1);         
+        jQuery('#mwp-creport-preview-box').dialog('destroy');                 
         jQuery('#mwp-creport-send-btn').click();                 
-    })    
- 
+    }) 
+    
+     
 });
 
 showCReportTab = function(report, new_report, token) {
@@ -375,3 +376,28 @@ mainwp_creport_preview_report = function() {
         modal: true,
         close: function(event, ui) {jQuery('#mwp-creport-preview-box').dialog('destroy');}});   
 }
+
+mainwp_creport_client_change = function() {
+    var data = {
+        action: 'mainwp_creport_load_client',
+        client: jQuery('#mainwp_creport_autocomplete_client').val()
+    }
+    jQuery('#mainwp_creport_client_loading').find('img').show();
+    jQuery.post(ajaxurl, data , function(response) {
+        jQuery('#mainwp_creport_client_loading').find('img').hide();
+        if (response && response.clientid) {                        
+            jQuery('input[name="mwp_creport_client_id"]').val(response.clientid);
+            if (response.name)
+                jQuery('input[name="mwp_creport_name"]').val(response.name);
+            if (response.name)
+                jQuery('input[name="mwp_creport_company"]').val(response.company);
+            if (response.name)
+                jQuery('input[name="mwp_creport_email"]').val(response.email);                        
+        } else {
+            jQuery('input[name="mwp_creport_name"]').val('');
+            jQuery('input[name="mwp_creport_company"]').val('');
+            jQuery('input[name="mwp_creport_email"]').val('');                        
+        }
+    }, 'json');
+} 
+            

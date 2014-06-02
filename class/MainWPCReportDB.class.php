@@ -1,7 +1,7 @@
 <?php
 class MainWPCReportDB
 {    
-    private $mainwp_wpcreport_db_version = '1.0';
+    private $mainwp_wpcreport_db_version = '1.8';
     //Singleton
     private static $instance = null;
     private $table_prefix;
@@ -83,17 +83,29 @@ PRIMARY KEY  (`id`)  ';
 `fname` VARCHAR(512),
 `fcompany` VARCHAR(512),
 `femail` VARCHAR(128),
-`name` VARCHAR(512),
-`company` VARCHAR(512),
-`email` VARCHAR(128),
+`client_id` int(11) NOT NULL,
 `header` text NOT NULL,
 `body` text NOT NULL,
 `footer` text NOT NULL,
 `logo_file` VARCHAR(512),
+`logo_file_temp` VARCHAR(512),
 `lastsend` int(11) NOT NULL,
 `nextsend` int(11) NOT NULL,
 `selected_site` int(11) NOT NULL';
-        if ($currentVersion == '')
+        
+            if ($currentVersion == '')
+                    $tbl .= ',
+PRIMARY KEY  (`id`)  ';
+        $tbl .= ') ' . $charset_collate;
+        $sql[] = $tbl;
+        
+        $tbl = 'CREATE TABLE `' . $this->tableName('client_report_client') . '` (
+`clientid` int(11) NOT NULL AUTO_INCREMENT,
+`client` text NOT NULL,
+`name` VARCHAR(512),
+`company` VARCHAR(512),
+`email` VARCHAR(128)';
+        if (version_compare("1.5", $currentVersion))
                     $tbl .= ',
 PRIMARY KEY  (`id`)  ';
         $tbl .= ') ' . $charset_collate;
@@ -105,6 +117,9 @@ PRIMARY KEY  (`id`)  ';
         {
             dbDelta($query);
         }
+        
+        //$wpdb->query("ALTER TABLE " . $this->tableName('client_report_client') . " CHANGE `id` `clientid` INT( 11 ) NOT NULL AUTO_INCREMENT"); 
+        
 //        global $wpdb;
 //        echo $wpdb->last_error;
 //        exit(); 
@@ -318,8 +333,22 @@ PRIMARY KEY  (`id`)  ';
         global $wpdb;  
         $id = isset($report['id']) ? $report['id'] : 0;
         
-        if (!isset($report['title']) || empty($report['title'])) {
-            return false;
+        if (!empty($report["client"])) {
+            $update_client = array(
+                                    'client' => $report["client"],
+                                    'name' => $report["name"],
+                                    'company' => $report["company"],
+                                    'email' => $report["email"],
+                                );
+            
+            if (isset($report['client_id']) && !empty($report['client_id']))
+                $update_client['clientid'] = $report['client_id'];
+            else {
+                $client = $this->getClientBy('client', $report["client"]);
+                if (!empty($client)) 
+                    $update_client['clientid'] = $client->client;                
+            }            
+            $this->updateClient($update_client);            
         }
         
         if (!empty($id)) {
@@ -342,16 +371,28 @@ PRIMARY KEY  (`id`)  ';
         
         $_order_by = "";
         if (!empty($orderby)) {
+            if ($orderby === "client" || $orderby === "name") {
+                $orderby = "c." . $orderby;
+            } else {
+                $orderby = "rp." . $orderby;
+            }
             $_order_by = " ORDER BY " . $orderby;        
-            if (!empty($order))
+            if (!empty($order)) 
                 $_order_by .= " " . $order;
         }
         
         $sql = "";
         if ($by == 'id') {
-            $sql = $wpdb->prepare("SELECT * FROM " . $this->tableName('client_report') . " WHERE `id`=%d " . $_order_by , $value);
+            $sql = $wpdb->prepare("SELECT rp.*, c.* FROM " . $this->tableName('client_report') . " rp "
+                    . " LEFT JOIN " . $this->tableName('client_report_client') . " c "
+                    . " ON rp.client_id = c.clientid "
+                    . " WHERE `id`=%d " . $_order_by , $value);
         } else if ($by == 'all') {
-            $sql = "SELECT * FROM " . $this->tableName('client_report') . " WHERE 1 = 1 " . $_order_by;
+            $sql = "SELECT * FROM " . $this->tableName('client_report') . " rp "
+                    . "LEFT JOIN " . $this->tableName('client_report_client') . " c "
+                    . " ON rp.client_id = c.clientid "                    
+                    . " WHERE 1 = 1 " . $_order_by;
+            //echo $sql;
             return $wpdb->get_results($sql);  
         }         
         
@@ -369,6 +410,52 @@ PRIMARY KEY  (`id`)  ';
             }                    
         }
         return false;        
+    }
+    
+    public function getClients() {
+        global $wpdb;        
+        return $wpdb->get_results("SELECT * FROM " . $this->tableName('client_report_client') . " WHERE 1 = 1 ORDER BY client ASC");                
+    }
+    
+    public function getClientBy($by = 'clientid', $value = null) {
+        global $wpdb;
+        
+        if (empty($value))
+            return false;       
+        
+        $sql = "";
+        if ($by == 'clientid') {
+            $sql = $wpdb->prepare("SELECT * FROM " . $this->tableName('client_report_client')
+                    . " WHERE `clientid` =%d " , $value);
+        } else if ($by == 'client') {
+            $sql = $wpdb->prepare("SELECT * FROM " . $this->tableName('client_report_client')
+                    . " WHERE `client` = %s " , $value);
+        }       
+        
+        if (!empty($sql))
+            return $wpdb->get_row($sql);        
+           
+        return false;
+    }
+    
+    public function updateClient($client)
+    {
+         /** @var $wpdb wpdb */
+        global $wpdb;  
+        $id = isset($client['clientid']) ? $client['clientid'] : 0;
+        
+        if (!empty($id)) {
+            if ($wpdb->update($this->tableName('client_report_client'), $client, array('clientid' => intval($id))))
+                return $this->getClientBy('clientid', $id); 
+        } else {            
+            if ($wpdb->insert($this->tableName('client_report_client'), $client)) 
+            {
+                //echo $wpdb->last_error;
+                return $this->getClientBy('clientid', $wpdb->insert_id); 
+            }
+            //echo $wpdb->last_error;
+        }              
+        return false;
     }
     
     protected function escape($data)

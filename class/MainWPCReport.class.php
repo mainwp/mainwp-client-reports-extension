@@ -53,7 +53,7 @@ class MainWPCReport
         add_action('wp_ajax_mainwp_creport_delete_token', array(&$this, 'delete_token')); 
         add_action('wp_ajax_mainwp_creport_save_token', array(&$this, 'save_token'));
         add_action('wp_ajax_mainwp_creport_delete_report', array(&$this, 'delete_report')); 
-        
+        add_action('wp_ajax_mainwp_creport_load_client', array(&$this, 'load_client'));        
         add_action('mainwp_update_site', array(&$this, 'update_site_update_tokens'), 8, 1);
         add_action('mainwp_delete_site', array(&$this, 'delete_site_delete_tokens'), 8, 1);
         
@@ -97,6 +97,10 @@ class MainWPCReport
             
             $report['date_from'] = $start_time;
             $report['date_to'] = $end_time + 24 * 3600  - 1;  // end of day              
+            
+            if(isset($_POST['mwp_creport_client'])) {
+                $report['client'] = trim($_POST['mwp_creport_client']);                
+            }            
             
             if(isset($_POST['mwp_creport_fname'])) {
                 $report['fname'] = trim($_POST['mwp_creport_fname']);                
@@ -157,42 +161,42 @@ class MainWPCReport
                 @touch($creport_dir . '/index.php');
             }
             
-            $old_logo = "";
+            $old_logo = $old_logo_temp = "";
             if (isset($_POST['id']) && $_POST['id']) {
                 $current_report = MainWPCReportDB::Instance()->getReportBy('id', $_POST['id']);
-                if ($current_report && is_object($current_report) && !empty($current_report->logo_file)) {
-                    $old_logo = $creport_dir . $current_report->logo_file;                    
+                if ($current_report && is_object($current_report)) {
+                    if (!empty($current_report->logo_file)) {                
+                        $old_logo = $creport_dir . $current_report->logo_file;                    
+                    }
+                    if (!empty($current_report->logo_file_temp)) {                
+                        $old_logo_temp = $creport_dir . $current_report->logo_file_temp;                    
+                    }                    
                 }
             }
-           
             
-            $image_logo = "NOTCHANGE";  
-            $del_logo = false;
-            if (isset($_POST['mainwp_creport_delete_logo_image']) && $_POST['mainwp_creport_delete_logo_image'] == "1") {
-                $image_logo = "";
-                $del_logo = true;
-            }     
-
+            if (isset($_POST['mainwp_creport_delete_logo_image']) && intval($_POST['mainwp_creport_delete_logo_image']) === 1) {
+                if (file_exists($old_logo)) {
+                    @unlink($old_logo);
+                }
+            }
+            
+            $image_logo = "NOTCHANGE";              
             if($_FILES && $_FILES['mainwp_creport_logo_file']['error'] == UPLOAD_ERR_OK) {                          
-                $del_logo = true;
                 $output = self::handleUploadImage($_FILES['mainwp_creport_logo_file'], $creport_dir);
                 if (is_array($output) && isset($output['filename']) && !empty($output['filename'])) {                    
-                    $image_logo = $output['filename'];                    
+                    $image_logo = $output['filename'];                      
                 } else if (isset($output['error'])) {
                     foreach ($output['error'] as $e) {
                         $errors[] = $e;
                     }
                 }
-            }
-
-            if ($del_logo && file_exists($old_logo)) {
-                @unlink($old_logo);
-            }
-
-            if ($image_logo !== "NOTCHANGE") {
-                $report['logo_file'] = $image_logo;
+            } else if (isset($_POST['mainwp_creport_logo_file_name']) && !empty($_POST['mainwp_creport_logo_file_name'])) {
+                $image_logo = $_POST['mainwp_creport_logo_file_name'];                
             }
             
+            if ($image_logo !== "NOTCHANGE") {
+                $report['logo_file'] = $image_logo;                
+            }    
             
             $selected_site = 0; 
             if (isset($_POST['select_by'])) {                            
@@ -202,23 +206,45 @@ class MainWPCReport
             }               
             $report['selected_site'] = $selected_site;
             
-            $return = array();            
+            $return = array(); 
             
-            if($result = MainWPCReportDB::Instance()->updateReport($report)) {                    
-                $return['id'] = $result->id;                    
-                $messages[] = 'Report saved.';  
-            } else {
-                $messages[] = "Report not change.";            
+            if ("save" === ($_POST['mwp_creport_report_submit_action'])) {
+                if($result = MainWPCReportDB::Instance()->updateReport($report)) {                    
+                    $return['id'] = $result->id;                    
+                    $messages[] = 'Report saved.';                   
+                    if (file_exists($old_logo)) {
+                        @unlink($old_logo);
+                    }
+                    if (!empty($result->logo_file_temp) && $result->logo_file_temp != $result->logo_file) {
+                        $tmp_logo = $creport_dir . $result->logo_file_temp;
+                        if (file_exists($tmp_logo)) {
+                            @unlink($tmp_logo);
+                        }
+                    }                        
+                } else {
+                    $messages[] = "Report not change.";            
+                }                  
+            } else if ("send" === (string)$_POST['mwp_creport_report_submit_action'] || "preview" === (string)$_POST['mwp_creport_report_submit_action']) {
+                $submit_report = json_decode(json_encode($report));
+                $return['submit_report'] = $submit_report;
+                if (isset($report['id']) && !empty($report['id'])) {
+                    $temp_logo = isset($report['logo_file']) ? $report['logo_file'] : "";
+                    if (!empty($temp_logo)) {
+                        $update_report = array('id' => $report['id'], 'logo_file_temp' => $temp_logo);
+                        MainWPCReportDB::Instance()->updateReport($update_report);
+                    }
+                    
+                    if (!empty($old_logo_temp) && $old_logo_temp !== $temp_logo) {
+                        if (file_exists($old_logo_temp)) {
+                            @unlink($old_logo_temp);
+                        }
+                    }                   
+                }
             }
-            
+               
             if (!isset($return['id']) && isset($report['id'])) {
                 $return['id'] = $report['id'];
             }
-            
-            $return['updated'] = true;
-            if (isset($_POST['mwp_creport_preview']) && !empty($_POST['mwp_creport_preview'])) {
-                $return['do_preview'] = true;
-            }     
             
             if (count($errors) > 0) 
                 $return['error'] = $errors;  
@@ -248,8 +274,14 @@ class MainWPCReport
      
         if (!empty($content) && !empty($email))
         {   
-            if (wp_mail($email, 'Website Report', $content, array($from, 'content-type: text/html'))) ;
+            if (wp_mail($email, 'Website Report', $content, array($from, 'content-type: text/html'))) { 
+                if (!empty($report->id)) {
+                    $report->lastsend = time();                    
+                    $update_report = array('id' => $report->id, 'lastsend' => $report->lastsend);
+                    MainWPCReportDB::Instance()->updateReport($update_report);                    
+                }
                 return true;
+            }
         }
         return false;
     }
@@ -281,7 +313,7 @@ class MainWPCReport
                     $dest_file = dirname( $dest_file ) . '/' . wp_unique_filename( dirname( $dest_file ), basename( $dest_file ) );
                     
                     if (move_uploaded_file($tmp_file, $dest_file)) {  
-                        $output["filename"] = basename($dest_file);                        
+                        $output["filename"] = basename($dest_file);                                                
                     } else                         
                         $output["error"][] = "Can not copy file.";
                 }
@@ -298,33 +330,70 @@ class MainWPCReport
         global $current_user;              
         
         $messages = $errors = array();               
-        $do_preview = false;              
+        $do_preview = $do_send = false;              
         $report_id = 0;
-        
-        // if send report from preview screen do not need to save report
-        if (empty($_POST['mwp_creport_do_not_save'])) {
-            $result = self::saveReport();           
-            if (is_array($result)) {
-                $report_id = isset($result['id']) ? $result['id'] : 0;             
-                if (isset($result['message']))                 
-                    $messages = $result['message'];
-
-                if (isset($result['error'])) 
-                    $errors = $result['error'];
-
-                if (isset($result['do_preview']) && $result['do_preview']) {
-                    $do_preview = true;
-                } 
-            } 
+        $report = null;
+      
+        if ((isset($_GET['action']) && "sendreport" === (string)$_GET['action']) || (isset($_POST['mwp_creport_report_submit_action']) && "send" === ($_POST['mwp_creport_report_submit_action']))) {                                
+            $do_send = true;                 
+        } 
+        if ((isset($_GET['action']) && "preview" === (string)$_GET['action']) || isset($_POST['mwp_creport_report_submit_action']) && "preview" === (string)$_POST['mwp_creport_report_submit_action']) {
+            $do_preview = true;
         }
         
-        if (empty($report_id))
+            
+        // if send report from preview screen do not need to save report
+        if (isset($_POST['mwp_creport_report_submit_action']) && !empty($_POST['mwp_creport_report_submit_action'])) {
+            $result = self::saveReport(); 
+            $report_id = isset($result['id']) && $result['id'] ? $result['id'] : 0;
+            
+            if (isset($result['message']))                 
+                $messages = $result['message'];
+
+            if (isset($result['error'])) 
+                $errors = $result['error'];
+
+            if (isset($result['submit_report']) && is_object($result['submit_report'])) {
+                $report = $result['submit_report'];
+            } else if ($report_id) {                
+                $report = MainWPCReportDB::Instance()->getReportBy('id', $report_id); 
+            }
+        } else if (isset($_REQUEST['id'])) {
             $report_id = isset($_REQUEST['id']) ? $_REQUEST['id'] : 0;
+            $report = MainWPCReportDB::Instance()->getReportBy('id', $report_id); 
+        }
+       
+        $style_tab_report = $style_tab_new = $style_tab_token = ' style="display: none" ';                
         
-        $report = null;
-        if ($report_id) {
-            $report = MainWPCReportDB::Instance()->getReportBy('id', $report_id);  
-            if ((isset($_GET['action']) && $_GET['action'] == 'sendreport') || (isset($_POST['mwp_creport_send']) && !empty($_POST['mwp_creport_send']))) {                                
+        if (isset($_REQUEST['action'])) {                
+            if ($_REQUEST['action'] == "token") {            
+                $style_tab_token = '';                
+            } else if ($_REQUEST['action'] == "editreport" || $do_preview) {               
+                $style_tab_new = '';            
+            } else if ($do_send) {
+                $style_tab_report = "";
+            }
+        } else {
+            $style_tab_report = "";
+        }
+        
+        if ($do_preview || $do_send) {
+            if (empty($report) || !is_object($report)) {
+                $errors[] = __('Error report data');
+                $do_preview = $do_send = false;
+            } else if (empty($report->selected_site)) {
+                $errors[] = __('Please select a website');
+                $do_preview = $do_send = false;
+            } 
+            
+            if ($do_send && empty($report->email)) {
+                $errors[] = __('Send To Email can not be empty');
+                $do_send = false;
+            } 
+        }   
+        
+        if (!empty($report) && is_object($report)) {                          
+            if ($do_send) {                     
                 if (self::send_report_mail($report)) {                        
                     $messages[] = 'Send Report successful.';  
                 } else {
@@ -332,23 +401,10 @@ class MainWPCReport
                 }                
             }   
         }
-           
+              
         $str_error = (count($errors) > 0) ? implode("<br/>", $errors) : "";
         $str_message = (count($messages) > 0) ? implode("<br/>", $messages) : "";
-        
-        $style_tab_report = $style_tab_new = $style_tab_token = ' style="display: none" ';                
-        
-        if (isset($_REQUEST['action'])) {                
-            if ($_REQUEST['action'] == "token") {            
-                $style_tab_token = '';                
-            } else if ($_REQUEST['action'] == "editreport") {               
-                $style_tab_new = '';            
-            } else if ($_GET['action'] == 'sendreport') {
-                $style_tab_report = "";
-            }
-        } else {
-            $style_tab_report = "";
-        }
+      
         
         $selected_site = 0;          
         if ($report && is_object($report)) {
@@ -368,6 +424,7 @@ class MainWPCReport
 //            $records = wp_stream_query( $args );
 //            print_r($records);
 //        }
+        
         ?>
             <div class="wrap" id="mainwp-ap-option">
             <div class="clearfix"></div>           
@@ -400,9 +457,7 @@ class MainWPCReport
                                     </span>
                                 </p>
                             </div>   
-                            <input type="hidden" name="mwp_creport_send" id="mwp_creport_send" value="0">
-                            <input type="hidden" name="mwp_creport_preview" id="mwp_creport_preview" value="0">
-                            <input type="hidden" name="mwp_creport_do_not_save" id="mwp_creport_do_not_save" value="0">
+                            <input type="hidden" name="mwp_creport_report_submit_action" id="mwp_creport_report_submit_action" value="">
                             <input type="hidden" name="id" value="<?php echo (is_object($report) && $report->id) ? $report->id : "0"; ?>">
                             <input type="hidden" name="nonce" value="<?php echo wp_create_nonce('mwp_creport_nonce') ?>">
                         </form>
@@ -491,7 +546,7 @@ class MainWPCReport
                     <div style="display: block; width: 100% ; ">
                       <div style="display: block; width: 100% ; padding: .5em 0 ;">
                           <div style="float: left;">
-                              <?php echo nl2br($report->header); ?>
+                              <?php echo nl2br($report->filtered_header); ?>
                           </div>
                           <?php 
                           if (!empty($logo_url)) {
@@ -507,11 +562,11 @@ class MainWPCReport
                     </div>
                     <br><br><br>
                     <div>
-                        <?php echo nl2br($report->body); ?>
+                        <?php echo nl2br($report->filtered_body); ?>
                     </div>
                     <br><br><br>
                     <div style="display: block; width: 100% ;">
-                        <?php echo nl2br($report->footer); ?>
+                        <?php echo nl2br($report->filtered_footer); ?>
                    </div>                                
                     <br><br><br>
                     <?php
@@ -559,16 +614,10 @@ class MainWPCReport
             $search_tokens[] = '[' . $token->token_name . ']';            
             $replace_values[] = isset($site_tokens[$token->id]) ? $site_tokens[$token->id]->token_value : "";            
         }    
-        $report->header = self::replace_content($report->header, $search_tokens, $replace_values);        
+        $report->filtered_header = self::replace_content($report->header, $search_tokens, $replace_values);        
         //$report->body = self::replace_content($report->body, $search_tokens, $replace_values);        
-        $report->footer = self::replace_content($report->footer, $search_tokens, $replace_values);        
+        $report->filtered_footer = self::replace_content($report->footer, $search_tokens, $replace_values);        
 
-//        $all_tokens = array();
-//        foreach (self::$stream_tokens as $group => $tokens) {
-//            foreach($tokens as $token) {                
-//                $all_tokens[] = '[' . $token['name'] . ']';
-//            }                 
-//        } 
         $result = self::parse_report_content($report->body);
         //print_r($result);
         self::$buffer['sections'] = $sections = $result['sections'];
@@ -599,7 +648,8 @@ class MainWPCReport
             }
         }
         
-        $report->body = $report_body;
+        $report->filtered_body = $report_body;
+        
         self::$buffer = array();
         return $report;
     } 
@@ -723,7 +773,7 @@ class MainWPCReport
             $order = $_GET['order'];
         }        
         
-        $title_order = $name_order = $lastsend_order = $nextsend_order = "";                     
+        $title_order = $name_order = $lastsend_order = $nextsend_order = $client_order = "";                     
         if (isset($_GET['orderby']) && $_GET['orderby'] == "title") {            
             $title_order = ($order == "desc") ? "asc" : "desc";                     
         } else if (isset($_GET['orderby']) && $_GET['orderby'] == "name") {            
@@ -732,6 +782,8 @@ class MainWPCReport
             $lastsend_order = ($order == "desc") ? "asc" : "desc";                     
         } else if (isset($_GET['orderby']) && $_GET['orderby'] == "nextsend") {
             $nextsend_order = ($order == "desc") ? "asc" : "desc";                     
+        } else if (isset($_GET['orderby']) && $_GET['orderby'] == "client") {
+            $client_order = ($order == "desc") ? "asc" : "desc";                     
         } 
         
         $reports = MainWPCReportDB::Instance()->getReportBy('all', null, $orderby, $order);
@@ -742,6 +794,9 @@ class MainWPCReport
                     <th scope="col" class="manage-column sortable <?php echo $title_order; ?>">
                         <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=title&order=<?php echo (empty($title_order) ? 'asc' : $title_order); ?>"><span><?php _e('Title','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>
+                    <th scope="col" class="manage-column sortable <?php echo $client_order; ?>">
+                        <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=client&order=<?php echo (empty($client_order) ? 'asc' : $client_order); ?>"><span><?php _e('Client','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                    </th>                
                     <th scope="col" class="manage-column sortable <?php echo $name_order; ?>">
                         <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=name&order=<?php echo (empty($name_order) ? 'asc' : $name_order); ?>"><span><?php _e('Send To','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>                
@@ -758,6 +813,9 @@ class MainWPCReport
                     <th scope="col" class="manage-column sortable <?php echo $title_order; ?>">
                         <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=title&order=<?php echo (empty($title_order) ? 'asc' : $title_order); ?>"><span><?php _e('Title','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>
+                     <th scope="col" class="manage-column sortable <?php echo $client_order; ?>">
+                        <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=client&order=<?php echo (empty($client_order) ? 'asc' : $client_order); ?>"><span><?php _e('Client','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                    </th>   
                     <th scope="col" class="manage-column sortable <?php echo $name_order; ?>">
                         <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=send&order=<?php echo (empty($name_order) ? 'asc' : $name_order); ?>"><span><?php _e('Send To','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>                
@@ -784,7 +842,7 @@ class MainWPCReport
         if (!is_array($reports) || count($reports) == 0)
         { 
         ?>
-            <tr><td colspan="4"><?php _e("No reports were found.");?></td></tr>
+            <tr><td colspan="5"><?php _e("No reports were found.");?></td></tr>
         <?php
             return;            
         }   
@@ -794,11 +852,15 @@ class MainWPCReport
         <tr id="<?php echo $report->id; ?>">            
             <td>
                 <a href="admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&action=editreport&id=<?php echo $report->id; ?>"><strong><?php echo stripslashes($report->title); ?></strong></a>
-                <div class="row-actions"><a href="admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&action=editreport&id=<?php echo $report->id; ?>"><?php _e("Edit");?></a></span> |  
+                <div class="row-actions"><a href="admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&action=preview&id=<?php echo $report->id; ?>"><?php _e("Preview");?></a></span> |  
+                    <a href="admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&action=editreport&id=<?php echo $report->id; ?>"><?php _e("Edit");?></a></span> |  
                     <a href="admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&action=sendreport&id=<?php echo $report->id; ?>"><?php _e("Send");?></a> | 
                     <span class="delete"><a href="#" class="mwp-creport-report-item-delete-lnk"><?php _e("Delete");?></a></span> 
                 </div>                     
                 <span class="loading"><span class="status hidden-field"></span><img src="<?php echo $url_loader; ?>" class="hidden-field"></span>
+            </td> 
+            <td>
+                <?php echo stripslashes($report->client); ?>
             </td> 
             <td>
                 <?php echo $report->name . " - " . $report->company ."<br>" . (!empty($report->email) ? "<a href=\"mailto:" . $report->email ."\">" . $report->email . "</a>" : ""); ?>
@@ -842,6 +904,25 @@ class MainWPCReport
                 </tbody>
             </table>         
         </fieldset>
+        <script>    
+            jQuery(document).ready(function() {
+                jQuery('#mainwp_creport_autocomplete_client').each(function(key, value) {
+                    var autocompleteList = jQuery(value).attr('autocompletelist');
+                    var realList = jQuery('#' + autocompleteList);
+                    var text = [];
+                    var foundOptions = realList.find('option');
+                    for (var i = 0; i < foundOptions.length; i++)
+                    {
+                        text.push(jQuery(foundOptions[i]).val());
+                    }
+                    jQuery(value).autocomplete({
+                            source:text,
+                            change : mainwp_creport_client_change
+                    });
+                });                
+                //$("#mainwp_creport_autocomplete_client").data("ui-autocomplete")._trigger("change");                
+            });        
+        </script>  
      <?php
     }
     
@@ -872,7 +953,8 @@ class MainWPCReport
     public static function newReportSettingTableContent($report = null) {
         $title = $date_from = $date_to = "";
         $from_name = $from_company = $from_email = "";
-        $to_name = $to_company = $to_email = "";
+        $to_client = $to_name = $to_company = $to_email = "";
+        $client_id = 0;
         
         if ($report && is_object($report)) {
             $title = $report->title;
@@ -884,18 +966,25 @@ class MainWPCReport
             $to_name = $report->name;
             $to_company = $report->company;
             $to_email = $report->email;
-        } else if (isset($_POST['submit'])){
-            $title =  isset($_POST['mwp_creport_title']) ? trim($_POST['mwp_creport_title']) : "";
-            $date_from =  isset($_POST['mwp_creport_date_from']) ? trim($_POST['mwp_creport_date_from']) : "";
-            $date_to =  isset($_POST['mwp_creport_date_to']) ? trim($_POST['mwp_creport_date_to']) : "";
-            $from_name =  isset($_POST['mwp_creport_fname']) ? trim($_POST['mwp_creport_fname']) : "";
-            $from_company =  isset($_POST['mwp_creport_fcompany']) ? trim($_POST['mwp_creport_fcompany']) : "";
-            $from_email =  isset($_POST['mwp_creport_femail']) ? trim($_POST['mwp_creport_femail']) : "";
-            $to_name =  isset($_POST['mwp_creport_name']) ? trim($_POST['mwp_creport_name']) : "";
-            $to_company =  isset($_POST['mwp_creport_company']) ? trim($_POST['mwp_creport_company']) : "";
-            $to_email =  isset($_POST['mwp_creport_email']) ? trim($_POST['mwp_creport_email']) : "";
-        }
+            $to_client = $report->client;            
+            $client_id = intval($report->client_id);
+        } 
+//        else if (isset($_POST['submit'])){
+//            $title =  isset($_POST['mwp_creport_title']) ? trim($_POST['mwp_creport_title']) : "";
+//            $date_from =  isset($_POST['mwp_creport_date_from']) ? trim($_POST['mwp_creport_date_from']) : "";
+//            $date_to =  isset($_POST['mwp_creport_date_to']) ? trim($_POST['mwp_creport_date_to']) : "";
+//            $from_name =  isset($_POST['mwp_creport_fname']) ? trim($_POST['mwp_creport_fname']) : "";
+//            $from_company =  isset($_POST['mwp_creport_fcompany']) ? trim($_POST['mwp_creport_fcompany']) : "";
+//            $from_email =  isset($_POST['mwp_creport_femail']) ? trim($_POST['mwp_creport_femail']) : "";
+//            $to_name =  isset($_POST['mwp_creport_name']) ? trim($_POST['mwp_creport_name']) : "";
+//            $to_company =  isset($_POST['mwp_creport_company']) ? trim($_POST['mwp_creport_company']) : "";
+//            $to_email =  isset($_POST['mwp_creport_email']) ? trim($_POST['mwp_creport_email']) : "";
+//        }
             
+        $clients = MainWPCReportDB::Instance()->getClients();
+        if (!is_array($clients)) 
+            $clients = array();
+        
     ?>  
         <tr>
             <td colspan="2">&nbsp;</td>
@@ -921,13 +1010,31 @@ class MainWPCReport
             </td>
         </tr>
         <tr>
+            <th><span><?php _e("Client"); ?></span></th>
+            <td>
+                <input type="text" name="mwp_creport_client" value="<?php echo stripslashes($to_client); ?>" 
+                       autocompletelist="clients_list" id="mainwp_creport_autocomplete_client" />   
+                <span id="mainwp_creport_client_loading"><img src="<?php echo plugins_url('images/loader.gif', dirname(__FILE__)); ?>" class="hidden-field"></span> 
+                    <datalist id="clients_list">
+                    <?php
+                        foreach($clients as $client) {
+                            echo '<option>' . $client->client . '</option>';
+                        }
+                    ?>
+                    </datalist>
+                
+                
+            </td>
+        </tr>
+        <tr>
             <th><span><?php _e("Send To"); ?></span></th>
             <td>
                 <input type="text" name="mwp_creport_name" placeholder="Name" value="<?php echo stripslashes($to_name); ?>" />&nbsp;&nbsp;
                 <input type="text" name="mwp_creport_company" placeholder="Company" value="<?php echo stripslashes($to_company); ?>" />&nbsp;&nbsp;
                 <input type="text" name="mwp_creport_email" placeholder="Email" value="<?php echo stripslashes($to_email); ?>" />
             </td>
-        </tr>
+        </tr>        
+        <input type="hidden" name="mwp_creport_client_id" value="<?php echo $client_id; ?>">
     <?php
     }            
     
@@ -939,11 +1046,12 @@ class MainWPCReport
             $body = $report->body;
             $footer = $report->footer;
             $file_logo = $report->logo_file;            
-        } else if (isset($_POST['submit'])){
-            $header = $_POST['mainwp_creport_report_header'];
-            $body = $_POST['mainwp_creport_report_body'];
-            $footer = $_POST['mainwp_creport_report_footer'];            
-        }
+        } 
+//        else if (isset($_POST['submit'])){
+//            $header = $_POST['mainwp_creport_report_header'];
+//            $body = $_POST['mainwp_creport_report_body'];
+//            $footer = $_POST['mainwp_creport_report_footer'];            
+//        }
             
     ?>  
         <tr>
@@ -1038,6 +1146,7 @@ class MainWPCReport
                         <input type="checkbox" class="mainwp-checkbox2" value="1" id="mainwp_creport_delete_logo_image" name="mainwp_creport_delete_logo_image">
                         <label class="mainwp-label2" for="mainwp_creport_delete_logo_image"><?php _e("Delete Logo", "mainwp");?></label>
                     </p><br/>
+                    <input type="hidden" name="mainwp_creport_logo_file_name" value="<?php echo $file_logo ?>"/>
                 <?php                      
                 }
                 ?>                                
@@ -1164,7 +1273,22 @@ class MainWPCReport
         exit; 
     }
     
-     public function delete_token() {
+    public function load_client() {
+        if (isset($_POST['client'])) {
+            $client = MainWPCReportDB::Instance()->getClientBy('client' , $_POST['client']);
+            if (!empty($client)) {
+                $result = array('clientid' => $client->clientid,
+                                'name' => $client->name,
+                                'company' => $client->company,
+                                'email' => $client->email
+                                );
+                die(json_encode($result));
+            }
+        }
+        die(json_encode('EMPTY'));
+    }
+    
+    public function delete_token() {
         global $wpdb;
         $ret = array('success' => false);        
         $token_id = intval($_POST['token_id']);
