@@ -1,7 +1,7 @@
 <?php
 class MainWPCReportDB
 {    
-    private $mainwp_wpcreport_db_version = '2.0';
+    private $mainwp_wpcreport_db_version = '2.1';
     //Singleton
     private static $instance = null;
     private $table_prefix;
