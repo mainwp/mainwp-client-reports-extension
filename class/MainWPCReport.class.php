@@ -165,42 +165,38 @@ class MainWPCReport
                 @touch($creport_dir . '/index.php');
             }
             
-            $old_logo = $old_logo_temp = "";
+            $old_logo = "";
             if (isset($_POST['id']) && $_POST['id']) {
                 $current_report = MainWPCReportDB::Instance()->getReportBy('id', $_POST['id']);
                 if ($current_report && is_object($current_report)) {
                     if (!empty($current_report->logo_file)) {                
                         $old_logo = $creport_dir . $current_report->logo_file;                    
-                    }
-                    if (!empty($current_report->logo_file_temp)) {                
-                        $old_logo_temp = $creport_dir . $current_report->logo_file_temp;                    
-                    }                    
+                    }                                        
                 }
             }
             $delete_logo = false;
             if (isset($_POST['mainwp_creport_delete_logo_image']) && intval($_POST['mainwp_creport_delete_logo_image']) === 1) {
-                if (file_exists($old_logo)) {
-                    @unlink($old_logo);
-                }
+                $delete_logo = true;
             }
             
             $image_logo = "NOTCHANGE";              
             if($_FILES && $_FILES['mainwp_creport_logo_file']['error'] == UPLOAD_ERR_OK) {                          
                 $output = self::handleUploadImage($_FILES['mainwp_creport_logo_file'], $creport_dir);
                 if (is_array($output) && isset($output['filename']) && !empty($output['filename'])) {                    
-                    $image_logo = $output['filename'];                      
+                    $image_logo = $output['filename'];  
+                    $delete_logo = true; // delete old logo
                 } else if (isset($output['error'])) {
                     foreach ($output['error'] as $e) {
                         $errors[] = $e;
                     }
                 }
-            } else if (isset($_POST['mainwp_creport_logo_file_name']) && !empty($_POST['mainwp_creport_logo_file_name'])) {
-                $image_logo = $_POST['mainwp_creport_logo_file_name'];                
-            }
+            } 
             
             if ($image_logo !== "NOTCHANGE") {
                 $report['logo_file'] = $image_logo;                
-            }    
+            } else if ($delete_logo) {
+                $report['logo_file'] = $image_logo = "";
+            }   
             
             $selected_site = 0; 
             if (isset($_POST['select_by'])) {                            
@@ -215,37 +211,29 @@ class MainWPCReport
             if ("save" === ($_POST['mwp_creport_report_submit_action'])) {
                 if($result = MainWPCReportDB::Instance()->updateReport($report)) {                    
                     $return['id'] = $result->id;                    
-                    $messages[] = 'Report saved.';                   
-                    if (file_exists($old_logo)) {
-                        @unlink($old_logo);
-                    }
-                    if (!empty($result->logo_file_temp) && $result->logo_file_temp != $result->logo_file) {
-                        $tmp_logo = $creport_dir . $result->logo_file_temp;
-                        if (file_exists($tmp_logo)) {
-                            @unlink($tmp_logo);
-                        }
-                    }                        
+                    $messages[] = 'Report saved.';             
                 } else {
                     $messages[] = "Report not change.";            
                 }                  
-            } else if ("send" === (string)$_POST['mwp_creport_report_submit_action'] || "preview" === (string)$_POST['mwp_creport_report_submit_action']) {
+            } else if ("send" === (string)$_POST['mwp_creport_report_submit_action'] || "preview" === (string)$_POST['mwp_creport_report_submit_action']) {                
+                $_logo = isset($report['logo_file']) ? $report['logo_file'] : "";
+                if (isset($report['id']) && !empty($report['id'])) {                    
+                    $update_logo = array('id' => $report['id'], 'logo_file' => $_logo);
+                    MainWPCReportDB::Instance()->updateReport($update_logo);
+                } else {
+                    if ($image_logo !== "NOTCHANGE") {
+                        update_option('mainwp_creport_report_temp_logo', $image_logo);
+                    }                                         
+                    $report['logo_file'] = get_option('mainwp_creport_report_temp_logo');                    
+                }
                 $submit_report = json_decode(json_encode($report));
                 $return['submit_report'] = $submit_report;
-                if (isset($report['id']) && !empty($report['id'])) {
-                    $temp_logo = isset($report['logo_file']) ? $report['logo_file'] : "";
-                    if (!empty($temp_logo)) {
-                        $update_report = array('id' => $report['id'], 'logo_file_temp' => $temp_logo);
-                        MainWPCReportDB::Instance()->updateReport($update_report);
-                    }
-                    
-                    if (!empty($old_logo_temp) && $old_logo_temp !== $temp_logo) {
-                        if (file_exists($old_logo_temp)) {
-                            @unlink($old_logo_temp);
-                        }
-                    }                   
-                }
             }
-               
+            
+            if (file_exists($old_logo)) {
+                @unlink($old_logo);
+            }
+                    
             if (!isset($return['id']) && isset($report['id'])) {
                 $return['id'] = $report['id'];
             }
@@ -257,6 +245,16 @@ class MainWPCReport
                 $return['message'] = $messages;
             
             return $return;
+        } else {            
+            $tmp_logo = get_option('mainwp_creport_report_temp_logo');
+            if (!empty($tmp_logo)) {
+                $creport_dir = apply_filters('mainwp_getspecificdir',"client_report/");
+                $tmp_logo = $creport_dir.$tmp_logo;
+                if (file_exists($tmp_logo)) {
+                    @unlink($tmp_logo);
+                }
+                delete_option('mainwp_creport_report_temp_logo'); // delete temp 
+            }
         }
         return null;
     }
@@ -780,7 +778,8 @@ class MainWPCReport
                             'date_to' => $report->date_to);
         
         $information = apply_filters('mainwp_fetchurlauthed', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $website['id'], 'client_report', $post_data);			                             
-        //print_r($information);
+//        print_r($sections);
+//        print_r($information);
         if (is_array($information) && !isset($information['error'])) {
             return $information;
         } else {
@@ -1081,6 +1080,8 @@ class MainWPCReport
             $footer = $report->footer;
             $file_logo = $report->logo_file;            
         } 
+       
+        
 //        else if (isset($_POST['submit'])){
 //            $header = $_POST['mainwp_creport_report_header'];
 //            $body = $_POST['mainwp_creport_report_body'];
@@ -1180,7 +1181,7 @@ class MainWPCReport
                         <input type="checkbox" class="mainwp-checkbox2" value="1" id="mainwp_creport_delete_logo_image" name="mainwp_creport_delete_logo_image">
                         <label class="mainwp-label2" for="mainwp_creport_delete_logo_image"><?php _e("Delete Logo", "mainwp");?></label>
                     </p><br/>
-                    <input type="hidden" name="mainwp_creport_logo_file_name" value="<?php echo $file_logo ?>"/>
+                    <input type="hidden" name="mainwp_creport_report_temp_logo" value="<?php echo $file_logo ?>"/>
                 <?php                      
                 }
                 ?>                                

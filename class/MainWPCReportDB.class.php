@@ -1,7 +1,7 @@
 <?php
 class MainWPCReportDB
 {    
-    private $mainwp_wpcreport_db_version = '1.9';
+    private $mainwp_wpcreport_db_version = '2.0';
     //Singleton
     private static $instance = null;
     private $table_prefix;
@@ -88,7 +88,6 @@ PRIMARY KEY  (`id`)  ';
 `body` text NOT NULL,
 `footer` text NOT NULL,
 `logo_file` VARCHAR(512),
-`logo_file_temp` VARCHAR(512),
 `lastsend` int(11) NOT NULL,
 `nextsend` int(11) NOT NULL,
 `selected_site` int(11) NOT NULL';
