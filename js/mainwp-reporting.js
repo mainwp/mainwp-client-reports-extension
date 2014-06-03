@@ -167,12 +167,26 @@ jQuery(document).ready(function($) {
         $('.creport_nav_group_lnk').removeClass('current');
         $(this).addClass('current');
         $('.creport_format_group_data_tokens').removeClass('current');
+        $('.creport_format_group_data_tokens[group="' + gr + '_sections"]').addClass('current');
+        return false;        
+    })
+    
+    $('.creport_nav_bottom_group_lnk ').on('click' ,function(){
+        var gr = $(this).attr('group');
+        $('.creport_nav_bottom_group_lnk').removeClass('current');
+        $(this).addClass('current');
+        $('.creport_format_group_data_tokens').removeClass('current');
         $('.creport_format_group_data_tokens[group="' + gr + '"]').addClass('current');
         return false;        
     })
     
     $( 'a.creport_format_add_token' ).on( 'click', function( e ) {   
-        var replace_text = jQuery(this).html();       
+        var replace_text = jQuery(this).html(); 
+        if (replace_text.indexOf("[section.") == 0) {
+            var end_section =  replace_text.replace("[section.", "[/section.");
+            replace_text = replace_text + '<br/><br/>' + end_section;
+        }
+        
         var editor = tinyMCE.get('mainwp_creport_report_body');
         if (typeof(editor) != "undefined")
             editor.execCommand('mceInsertContent', false, replace_text);        

@@ -73,10 +73,15 @@
     background: none repeat scroll 0 0 #F5F5F5;
     padding: 5px;
 }
-.creport_format_group_nav {
-    border-top: 1px solid #fff;
+
+.creport_format_group_nav.top {
+    border-bottom: 1px solid #fff;
     padding: 5px;
 }
+.creport_format_group_nav.bottom {    
+    padding: 5px;
+}
+
 .creport_format_group_nav .current {
     color: #AA0000;
 }

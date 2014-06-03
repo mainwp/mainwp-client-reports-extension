@@ -3,43 +3,458 @@ class MainWPCReport
 {    
     private $clientReportExt;
     private static $stream_tokens = array();
+    private static $tokens_nav_top = array();    
     private static $buffer = array();
     
     public function __construct($ext) {    
         $this->clientReportExt = $ext;
-        self::$stream_tokens = array(            
-            "Post Sections" => array(array("name" => "section.post.updated", "desc" => "Token Description"),
-                                array("name" => "section.post.added", "desc" => "Token Description")),
-            "Theme Sections" => array(array("name" => "section.theme.updated", "desc" => "Token Description"),
-                                array("name" => "section.theme.added", "desc" => "Token Description")),
-            "WordPress" => array(),
-            "plugins"=>array(array("name" => "plugin.name", "desc" => "Token Description"),
-                            array("name" => "plugins.activated", "desc" => "Token Description"),
-                            array("name" => "plugins.activated.date", "desc" => "Token Description"),
-                            array("name" => "plugins.installed", "desc" => "Token Description"),
-                            array("name" => "plugins.installed.date", "desc" => "Token Description"),                
-                            array("name" => "plugins.oldversion", "desc" => "Token Description"),
-                            array("name" => "plugin.currentversion", "desc" => "Token Description"),
-                            array("name" => "plugin.upgrade.date", "desc" => "Token Description"),
-                            array("name" => "plugin.add.date", "desc" => "Token Description"),
-                            array("name" => "plugin.add.count", "desc" => "Token Description")),                                    
-            "themes"=>array(array("name" => "theme.name", "desc" => "Token Description"),
-                            array("name" => "theme.oldversion", "desc" => "Token Description"),
-                            array("name" => "theme.currentversion", "desc" => "Token Description"),
-                            array("name" => "theme.upgrade.date", "desc" => "Token Description"),
-                            array("name" => "theme.upgrade.count", "desc" => "Token Description"),
-                            array("name" => "theme.add.date", "desc" => "Token Description"),
-                            array("name" => "theme.add.count", "desc" => "Token Description")),
-            "users"=>array(),
-            "posts"=>array(array("name" => "post.updated", "desc" => "Token Description"),                
-                           array("name" => "post.updated.date", "desc" => "Token Description"),                
-                           array("name" => "post.add.count", "desc" => "Token Description")),
-            "pages"=>array(array("name" => "page.title", "desc" => "Token Description"),
-                            array("name" => "page.add.date", "desc" => "Token Description"),
-                            array("name" => "page.add.count", "desc" => "Token Description")),
-            "backups"=>array(),
-            "settings"=>array(array("name" => "settings.updated", "desc" => "Setting Updated")),
-            "security_scan"=>array() );
+        self::$stream_tokens = array(                        
+            "plugins"=>array(   "sections" => array(
+                                                array("name" => "section.plugins.installed", "desc" => "Token Description"),
+                                                array("name" => "section.plugins.activated", "desc" => "Token Description"),
+                                                array("name" => "section.plugins.edited", "desc" => "Token Description"),
+                                                array("name" => "section.plugins.deactivated", "desc" => "Token Description"),
+                                                array("name" => "section.plugins.updated", "desc" => "Token Description"),
+                                                array("name" => "section.plugins.deleted", "desc" => "Token Description")
+                                            ),
+                                'nav_group_tokens' => array(array("name" => "sections", "title" => "Sections"),
+                                                            array("name" => "installed", "title" => "Installed"),
+                                                            array("name" => "activated", "title" => "Activated"),
+                                                            array("name" => "edited", "title" => "edited"),
+                                                            array("name" => "deactivated", "title" => "deactivated"),
+                                                            array("name" => "updated", "title" => "updated"),
+                                                            array("name" => "deleted", "title" => "deleted"),
+                                                            array("name" => "additional", "title" => "Additional"),
+                                                    ),   
+                                "installed" => array(
+                                                array("name" => "plugin.name", "desc" => "Token Description"),
+                                                array("name" => "plugin.installed.date", "desc" => "Token Description"),
+                                                array("name" => "plugin.installed.author", "desc" => "Token Description")                                               
+                                            ),
+                                "activated" => array(
+                                                array("name" => "plugin.name", "desc" => "Token Description"),
+                                                array("name" => "plugin.activated.date", "desc" => "Token Description"),
+                                                array("name" => "plugin.activated.author", "desc" => "Token Description")                                               
+                                            ),
+                                "edited" => array(
+                                                array("name" => "plugin.name", "desc" => "Token Description"),
+                                                array("name" => "plugin.edited.date", "desc" => "Token Description"),
+                                                array("name" => "plugin.edited.author", "desc" => "Token Description")                                               
+                                            ),
+                                "deactivated" => array(
+                                                array("name" => "plugin.name", "desc" => "Token Description"),
+                                                array("name" => "plugin.deactivated.date", "desc" => "Token Description"),
+                                                array("name" => "plugin.deactivated.author", "desc" => "Token Description")                                               
+                                            ),
+                                "updated" => array(
+                                                array("name" => "plugin.name", "desc" => "Token Description"),
+                                                array("name" => "plugin.updated.date", "desc" => "Token Description"),
+                                                array("name" => "plugin.updated.author", "desc" => "Token Description")                                               
+                                            ),
+                                "deleted" => array(
+                                                array("name" => "plugin.name", "desc" => "Token Description"),
+                                                array("name" => "plugin.deleted.date", "desc" => "Token Description"),
+                                                array("name" => "plugin.deleted.author", "desc" => "Token Description")                                               
+                                            ),
+                                "additional" => array(
+                                                array("name" => "plugin.old.version", "desc" => "Token Description"),
+                                                array("name" => "plugin.current.version", "desc" => "Token Description"),
+                                                array("name" => "plugin.installed.count", "desc" => "Token Description"),                                               
+                                                array("name" => "plugin.edited.count", "desc" => "Token Description"),
+                                                array("name" => "plugin.activated.count", "desc" => "Token Description"),
+                                                array("name" => "plugin.deactivated.count", "desc" => "Token Description"),
+                                                array("name" => "plugin.deleted.count", "desc" => "Token Description"),
+                                                array("name" => "plugin.updated.count", "desc" => "Token Description")                                                
+                                            ),                                         
+                            ),
+           "themes"=>array(     "sections" => array(
+                                                array("name" => "section.themes.installed", "desc" => "Token Description"),
+                                                array("name" => "section.themes.activated", "desc" => "Token Description"),
+                                                array("name" => "section.themes.edited", "desc" => "Token Description"),                                                
+                                                array("name" => "section.themes.updated", "desc" => "Token Description"),
+                                                array("name" => "section.themes.deleted", "desc" => "Token Description")
+                                            ),  
+                                'nav_group_tokens' => array(array("name" => "sections", "title" => "Sections"),
+                                                            array("name" => "installed", "title" => "Installed"),
+                                                            array("name" => "activated", "title" => "Activated"),
+                                                            array("name" => "edited", "title" => "edited"),                                                           
+                                                            array("name" => "updated", "title" => "updated"),
+                                                            array("name" => "deleted", "title" => "deleted"),
+                                                            array("name" => "additional", "title" => "Additional"),
+                                                    ),
+                                "installed" => array(
+                                                array("name" => "theme.name", "desc" => "Token Description"),
+                                                array("name" => "theme.installed.date", "desc" => "Token Description"),
+                                                array("name" => "theme.installed.author", "desc" => "Token Description")                                               
+                                            ),
+                                "activated" => array(
+                                                array("name" => "theme.name", "desc" => "Token Description"),
+                                                array("name" => "theme.activated.date", "desc" => "Token Description"),
+                                                array("name" => "theme.activated.author", "desc" => "Token Description")                                               
+                                            ),
+                                "edited" => array(
+                                                array("name" => "theme.name", "desc" => "Token Description"),
+                                                array("name" => "theme.edited.date", "desc" => "Token Description"),
+                                                array("name" => "theme.edited.author", "desc" => "Token Description")                                               
+                                            ),
+                                "updated" => array(
+                                                array("name" => "theme.name", "desc" => "Token Description"),
+                                                array("name" => "theme.updated.date", "desc" => "Token Description"),
+                                                array("name" => "theme.updated.author", "desc" => "Token Description")                                               
+                                            ),
+                                "deleted" => array(
+                                                array("name" => "theme.name", "desc" => "Token Description"),
+                                                array("name" => "theme.deleted.date", "desc" => "Token Description"),
+                                                array("name" => "theme.deleted.author", "desc" => "Token Description")                                               
+                                            ),
+                                "additional" => array(
+                                                array("name" => "theme.old.version", "desc" => "Token Description"),
+                                                array("name" => "theme.current.version", "desc" => "Token Description"),
+                                                array("name" => "theme.installed.count", "desc" => "Token Description"),                                               
+                                                array("name" => "theme.edited.count", "desc" => "Token Description"),
+                                                array("name" => "theme.activated.count", "desc" => "Token Description"),                                                
+                                                array("name" => "theme.deleted.count", "desc" => "Token Description"),
+                                                array("name" => "theme.updated.count", "desc" => "Token Description")                                                
+                                            )
+                            ),
+                "posts"=>array("sections" => array(
+                                                array("name" => "section.posts.created", "desc" => "Token Description"),
+                                                array("name" => "section.posts.updated", "desc" => "Token Description"),
+                                                array("name" => "section.posts.trashed", "desc" => "Token Description"),                                                
+                                                array("name" => "section.posts.deleted", "desc" => "Token Description"),
+                                                array("name" => "section.posts.restored", "desc" => "Token Description")
+                                            ),  
+                                'nav_group_tokens' => array(array("name" => "sections", "title" => "Sections"),
+                                                     array("name" => "created", "title" => "Created"),
+                                                     array("name" => "updated", "title" => "Updated"),
+                                                     array("name" => "trashed", "title" => "Trashed"),                                                           
+                                                     array("name" => "deleted", "title" => "Deleted"),
+                                                     array("name" => "restored", "title" => "Restored"),
+                                                     array("name" => "additional", "title" => "Additional"),
+                                            ),
+                                "created" => array(
+                                                array("name" => "post.title", "desc" => "Token Description"),
+                                                array("name" => "post.created.date", "desc" => "Token Description"),
+                                                array("name" => "post.created.author", "desc" => "Token Description")                                               
+                                            ),
+                                "updated" => array(
+                                                array("name" => "post.title", "desc" => "Token Description"),
+                                                array("name" => "post.updated.date", "desc" => "Token Description"),
+                                                array("name" => "post.updated.author", "desc" => "Token Description")                                               
+                                            ),
+                                "trashed" => array(
+                                                array("name" => "post.name", "desc" => "Token Description"),
+                                                array("name" => "post.trashed.date", "desc" => "Token Description"),
+                                                array("name" => "post.trashed.author", "desc" => "Token Description")                                               
+                                            ),
+                                "deleted" => array(
+                                                array("name" => "post.name", "desc" => "Token Description"),
+                                                array("name" => "post.deleted.date", "desc" => "Token Description"),
+                                                array("name" => "post.deleted.author", "desc" => "Token Description")                                               
+                                            ),
+                                "restored" => array(
+                                                array("name" => "post.name", "desc" => "Token Description"),
+                                                array("name" => "post.restored.date", "desc" => "Token Description"),
+                                                array("name" => "post.restored.author", "desc" => "Token Description")                                               
+                                            ),
+                                "additional" => array(
+                                                array("name" => "post.created.count", "desc" => "Token Description"),                                               
+                                                array("name" => "post.updated.count", "desc" => "Token Description"),
+                                                array("name" => "post.trashed.count", "desc" => "Token Description"),                                                
+                                                array("name" => "post.restored.count", "desc" => "Token Description"),
+                                                array("name" => "post.deleted.count", "desc" => "Token Description")                                                
+                                            )
+                            ),   
+            "pages"=>array("sections" => array(
+                                                array("name" => "section.pages.created", "desc" => "Token Description"),
+                                                array("name" => "section.pages.updated", "desc" => "Token Description"),
+                                                array("name" => "section.pages.trashed", "desc" => "Token Description"),                                                
+                                                array("name" => "section.pages.deleted", "desc" => "Token Description"),
+                                                array("name" => "section.pages.restored", "desc" => "Token Description")
+                                            ),  
+                                 'nav_group_tokens' => array(array("name" => "sections", "title" => "Sections"),
+                                                     array("name" => "created", "title" => "Created"),
+                                                     array("name" => "updated", "title" => "Updated"),
+                                                     array("name" => "trashed", "title" => "Trashed"),                                                           
+                                                     array("name" => "deleted", "title" => "Deleted"),
+                                                     array("name" => "restored", "title" => "Restored"),
+                                                     array("name" => "additional", "title" => "Additional"),
+                                                    ),                                     
+                                "created" => array(
+                                                array("name" => "page.title", "desc" => "Token Description"),
+                                                array("name" => "page.created.date", "desc" => "Token Description"),
+                                                array("name" => "page.created.author", "desc" => "Token Description")                                               
+                                            ),
+                                "updated" => array(
+                                                array("name" => "page.title", "desc" => "Token Description"),
+                                                array("name" => "page.updated.date", "desc" => "Token Description"),
+                                                array("name" => "page.updated.author", "desc" => "Token Description")                                               
+                                            ),
+                                "trashed" => array(
+                                                array("name" => "page.name", "desc" => "Token Description"),
+                                                array("name" => "page.trashed.date", "desc" => "Token Description"),
+                                                array("name" => "page.trashed.author", "desc" => "Token Description")                                               
+                                            ),
+                                "deleted" => array(
+                                                array("name" => "page.name", "desc" => "Token Description"),
+                                                array("name" => "page.deleted.date", "desc" => "Token Description"),
+                                                array("name" => "page.deleted.author", "desc" => "Token Description")                                               
+                                            ),
+                                "restored" => array(
+                                                array("name" => "page.name", "desc" => "Token Description"),
+                                                array("name" => "page.restored.date", "desc" => "Token Description"),
+                                                array("name" => "page.restored.author", "desc" => "Token Description")                                               
+                                            ),
+                                "additional" => array(
+                                                array("name" => "page.created.count", "desc" => "Token Description"),                                               
+                                                array("name" => "page.updated.count", "desc" => "Token Description"),
+                                                array("name" => "page.trashed.count", "desc" => "Token Description"),                                                
+                                                array("name" => "page.restored.count", "desc" => "Token Description"),
+                                                array("name" => "page.deleted.count", "desc" => "Token Description")                                                
+                                            )
+                            ),
+            "comments"=>array("sections" => array(
+                                                array("name" => "section.comments.created", "desc" => "Token Description"),
+                                                array("name" => "section.comments.updated", "desc" => "Token Description"),
+                                                array("name" => "section.comments.trashed", "desc" => "Token Description"),                                                
+                                                array("name" => "section.comments.deleted", "desc" => "Token Description"),
+                                                array("name" => "section.comments.edited", "desc" => "Token Description"),
+                                                array("name" => "section.comments.restored", "desc" => "Token Description"),
+                                                array("name" => "section.comments.approved", "desc" => "Token Description"),
+                                                array("name" => "section.comments.spam", "desc" => "Token Description"),
+                                                array("name" => "section.comments.replied", "desc" => "Token Description")                                                
+                                            ),  
+                                'nav_group_tokens' => array(array("name" => "sections", "title" => "Sections"),
+                                                     array("name" => "created", "title" => "Created"),
+                                                     array("name" => "updated", "title" => "Updated"),
+                                                     array("name" => "trashed", "title" => "Trashed"),                                                           
+                                                     array("name" => "deleted", "title" => "Deleted"),
+                                                     array("name" => "edited", "title" => "Edited"),
+                                                     array("name" => "restored", "title" => "Restored"),
+                                                     array("name" => "approved", "title" => "Approved"),
+                                                     array("name" => "spam", "title" => "Spam"),
+                                                     array("name" => "replied", "title" => "replied"),
+                                                     array("name" => "additional", "title" => "Additional"),
+                                                    ),
+                                "created" => array(
+                                                array("name" => "comment.title", "desc" => "Title of post or page where commented"),
+                                                array("name" => "comment.created.date", "desc" => "Token Description"),
+                                                array("name" => "comment.created.author", "desc" => "Token Description")                                               
+                                            ),
+                                "updated" => array(
+                                                array("name" => "comment.title", "desc" => "Title of post or page where commented"),
+                                                array("name" => "comment.updated.date", "desc" => "Token Description"),
+                                                array("name" => "comment.updated.author", "desc" => "Token Description")                                               
+                                            ),
+                                "trashed" => array(
+                                                array("name" => "comment.title", "desc" => "Title of post or page where commented"),
+                                                array("name" => "comment.trashed.date", "desc" => "Token Description"),
+                                                array("name" => "comment.trashed.author", "desc" => "Token Description")                                               
+                                            ),
+                                "deleted" => array(
+                                                array("name" => "comment.title", "desc" => "Title of post or page where commented"),
+                                                array("name" => "comment.deleted.date", "desc" => "Token Description"),
+                                                array("name" => "comment.deleted.author", "desc" => "Token Description")                                               
+                                            ),
+                                "edited" => array(
+                                                array("name" => "comment.title", "desc" => "Title of post or page where commented"),
+                                                array("name" => "comment.edited.date", "desc" => "Token Description"),
+                                                array("name" => "comment.edited.author", "desc" => "Token Description")                                               
+                                            ),
+                                "restored" => array(
+                                                array("name" => "comment.title", "desc" => "Title of post or page where commented"),
+                                                array("name" => "comment.restored.date", "desc" => "Token Description"),
+                                                array("name" => "comment.restored.author", "desc" => "Token Description")                                               
+                                            ),
+                                "approved" => array(
+                                                array("name" => "comment.title", "desc" => "Title of post or page where commented"),
+                                                array("name" => "comment.approved.date", "desc" => "Token Description"),
+                                                array("name" => "comment.approved.author", "desc" => "Token Description")                                               
+                                            ),
+                                "spam" => array(
+                                                array("name" => "comment.title", "desc" => "Title of post or page where commented"),
+                                                array("name" => "comment.spam.date", "desc" => "Token Description"),
+                                                array("name" => "comment.spam.author", "desc" => "Token Description")                                               
+                                            ),
+                                "replied" => array(
+                                                array("name" => "comment.title", "desc" => "Title of post or page where commented"),
+                                                array("name" => "comment.replied.date", "desc" => "Token Description"),
+                                                array("name" => "comment.replied.author", "desc" => "Token Description")                                               
+                                            ),
+                                "additional" => array(
+                                                array("name" => "comment.created.count", "desc" => "Token Description"),                                                                                               
+                                                array("name" => "comment.trashed.count", "desc" => "Token Description"),                                               
+                                                array("name" => "comment.deleted.count", "desc" => "Token Description"),
+                                                array("name" => "comment.edited.count", "desc" => "Token Description"),
+                                                array("name" => "comment.restored.count", "desc" => "Token Description"),
+                                                array("name" => "comment.deleted.count", "desc" => "Token Description"),
+                                                array("name" => "comment.approved.count", "desc" => "Token Description"),
+                                                array("name" => "comment.spam.count", "desc" => "Token Description"),
+                                                array("name" => "comment.replied.count", "desc" => "Token Description")
+                                            )
+                            ),
+             "users"=>array(   "sections" => array(
+                                                array("name" => "section.users.created", "desc" => "Token Description"),
+                                                array("name" => "section.users.updated", "desc" => "Token Description"),
+                                                array("name" => "section.users.deleted", "desc" => "Token Description")                                                
+                                            ),
+                                'nav_group_tokens' => array(array("name" => "sections", "title" => "Sections"),
+                                                     array("name" => "created", "title" => "Created"),
+                                                     array("name" => "updated", "title" => "Updated"),
+                                                     array("name" => "deleted", "title" => "Deleted"),
+                                                     array("name" => "additional", "title" => "Additional"),
+                                                    ),
+                                "created" => array(
+                                                array("name" => "user.name", "desc" => "Token Description"),
+                                                array("name" => "user.created.date", "desc" => "Token Description"),
+                                                array("name" => "user.created.author", "desc" => "Token Description"),
+                                                array("name" => "user.updated.role", "desc" => "Token Description")   
+                                            ),
+                                "updated" => array(
+                                                array("name" => "user.name", "desc" => "Token Description"),
+                                                array("name" => "user.updated.date", "desc" => "Token Description"),
+                                                array("name" => "user.updated.author", "desc" => "Token Description"),
+                                                array("name" => "user.updated.role", "desc" => "Token Description")                                    
+                                            ),
+                                "deleted" => array(
+                                                array("name" => "user.name", "desc" => "Token Description"),
+                                                array("name" => "user.deleted.date", "desc" => "Token Description"),
+                                                array("name" => "user.deleted.author", "desc" => "Token Description")                                               
+                                            ),                                
+                                "additional" => array(
+                                                array("name" => "user.created.count", "desc" => "Token Description"),
+                                                array("name" => "user.updated.count", "desc" => "Token Description"),
+                                                array("name" => "user.deleted.count", "desc" => "Token Description")                                                                                               
+                                            )
+                            ),   
+             "media"=>array(   "sections" => array(
+                                                array("name" => "section.media.uploaded", "desc" => "Token Description"),
+                                                array("name" => "section.media.updated", "desc" => "Token Description"),
+                                                array("name" => "section.media.deleted", "desc" => "Token Description")                                                
+                                            ),  
+                                 'nav_group_tokens' => array(array("name" => "sections", "title" => "Sections"),
+                                                     array("name" => "uploaded", "title" => "Uploaded"),
+                                                     array("name" => "updated", "title" => "Updated"),
+                                                     array("name" => "deleted", "title" => "Deleted"),
+                                                     array("name" => "additional", "title" => "Additional"),
+                                                    ),
+                                "uploaded" => array(
+                                                array("name" => "media.name", "desc" => "Token Description"),
+                                                array("name" => "media.uploaded.date", "desc" => "Token Description"),
+                                                array("name" => "media.uploaded.author", "desc" => "Token Description")                                                
+                                            ),
+                                "updated" => array(
+                                                array("name" => "media.name", "desc" => "Token Description"),
+                                                array("name" => "media.updated.date", "desc" => "Token Description"),
+                                                array("name" => "media.updated.author", "desc" => "Token Description")
+                                            ),
+                                "deleted" => array(
+                                                array("name" => "media.name", "desc" => "Token Description"),
+                                                array("name" => "media.deleted.date", "desc" => "Token Description"),
+                                                array("name" => "media.deleted.author", "desc" => "Token Description")                                               
+                                            ),                                
+                                "additional" => array(
+                                                array("name" => "media.uploaded.count", "desc" => "Token Description"),
+                                                array("name" => "media.updated.count", "desc" => "Token Description"),
+                                                array("name" => "media.deleted.count", "desc" => "Token Description")                                                                                               
+                                            )
+                            ),   
+            "widgets"=>array(   "sections" => array(
+                                                array("name" => "section.media.added", "desc" => "Token Description"),
+                                                array("name" => "section.media.updated", "desc" => "Token Description"),
+                                                array("name" => "section.media.deleted", "desc" => "Token Description")                                                
+                                            ), 
+                                 'nav_group_tokens' => array(array("name" => "sections", "title" => "Sections"),
+                                                     array("name" => "added", "title" => "Added"),
+                                                     array("name" => "updated", "title" => "Updated"),
+                                                     array("name" => "deleted", "title" => "Deleted"),
+                                                     array("name" => "additional", "title" => "Additional"),
+                                                    ),
+                                "added" => array(
+                                                array("name" => "media.name", "desc" => "Token Description"),
+                                                array("name" => "media.added.date", "desc" => "Token Description"),
+                                                array("name" => "media.added.author", "desc" => "Token Description")                                                
+                                            ),
+                                "updated" => array(
+                                                array("name" => "media.name", "desc" => "Token Description"),
+                                                array("name" => "media.updated.date", "desc" => "Token Description"),
+                                                array("name" => "media.updated.author", "desc" => "Token Description")                                                
+                                            ),
+                                "deleted" => array(
+                                                array("name" => "media.name", "desc" => "Token Description"),
+                                                array("name" => "media.deleted.date", "desc" => "Token Description"),
+                                                array("name" => "media.deleted.author", "desc" => "Token Description")                                               
+                                            ),                                
+                                "additional" => array(
+                                                array("name" => "media.added.count", "desc" => "Token Description"),
+                                                array("name" => "media.updated.count", "desc" => "Token Description"),
+                                                array("name" => "media.deleted.count", "desc" => "Token Description")                                                                                               
+                                            )
+                            ),  
+              "menus"=>array(   "sections" => array(
+                                                array("name" => "section.menus.created", "desc" => "Token Description"),
+                                                array("name" => "section.menus.updated", "desc" => "Token Description"),
+                                                array("name" => "section.menus.deleted", "desc" => "Token Description")                                                
+                                            ),
+                               'nav_group_tokens' => array(array("name" => "sections", "title" => "Sections"),
+                                                     array("name" => "created", "title" => "Created"),
+                                                     array("name" => "updated", "title" => "Updated"),
+                                                     array("name" => "deleted", "title" => "Deleted"),
+                                                     array("name" => "additional", "title" => "Additional"),
+                                                    ),
+                                "created" => array(
+                                                array("name" => "menu.title", "desc" => "Token Description"),
+                                                array("name" => "menu.created.date", "desc" => "Token Description"),
+                                                array("name" => "menu.created.author", "desc" => "Token Description")                                                
+                                            ),
+                                "updated" => array(
+                                                array("name" => "menu.title", "desc" => "Token Description"),
+                                                array("name" => "menu.updated.date", "desc" => "Token Description"),
+                                                array("name" => "menu.updated.author", "desc" => "Token Description")                                                
+                                            ),
+                                "deleted" => array(
+                                                array("name" => "menu.title", "desc" => "Token Description"),
+                                                array("name" => "menu.deleted.date", "desc" => "Token Description"),
+                                                array("name" => "menu.deleted.author", "desc" => "Token Description")                                               
+                                            ),                                
+                                "additional" => array(
+                                                array("name" => "menu.created.count", "desc" => "Token Description"),
+                                                array("name" => "menu.updated.count", "desc" => "Token Description"),
+                                                array("name" => "menu.deleted.count", "desc" => "Token Description")                                                                                               
+                                            )
+                            ), 
+            "wordpress" => array("sections" => array(                                                
+                                                array("name" => "section.wordpress.updated", "desc" => "Token Description")                                                
+                                            ),  
+                               'nav_group_tokens' => array(array("name" => "sections", "title" => "Sections"),                                                     
+                                                     array("name" => "updated", "title" => "Updated"),                                                     
+                                                     array("name" => "additional", "title" => "Additional"),
+                                                    ),
+                                "updated" => array(                                                
+                                                array("name" => "wordpress.updated.date", "desc" => "Token Description"),
+                                                array("name" => "wordpress.updated.author", "desc" => "Token Description")                                                
+                                            ),
+                                "additional" => array(
+                                                array("name" => "wordpress.old.version", "desc" => "Token Description"),
+                                                array("name" => "wordpress.current.version", "desc" => "Token Description"),
+                                                array("name" => "wordpress.updated.count", "desc" => "Token Description")                                                                                               
+                                            )
+                            )
+            
+            );
+        
+            self::$tokens_nav_top = array(array("name" => "plugins", "title" => "Plugins"),
+                                        array("name" => "themes", "title" => "Themes"),
+                                        array("name" => "posts", "title" => "Posts"),
+                                        array("name" => "pages", "title" => "Pages"),
+                                        array("name" => "comments", "title" => "Comments"),
+                                        array("name" => "users", "title" => "Users"),
+                                        array("name" => "media", "title" => "Media"),
+                                        array("name" => "widgets", "title" => "Widgets"),
+                                        array("name" => "menus", "title" => "Menus"),
+                                        array("name" => "wordpress", "title" => "WordPress")                
+                                    );           
+        
     }
     
     
@@ -632,23 +1047,40 @@ class MainWPCReport
         if (!is_array($website) || empty($website['id']))
             return $report;
         
-        $tokens = MainWPCReportDB::Instance()->getTokens();
-        $site_tokens = MainWPCReportDB::Instance()->getSiteTokens($website['url']);        
-        $search_tokens = $replace_values = array();
-        foreach ($tokens as $token) {            
-            $search_tokens[] = '[' . $token->token_name . ']';            
-            $replace_values[] = isset($site_tokens[$token->id]) ? $site_tokens[$token->id]->token_value : "";            
-        }    
-        $report->filtered_header = self::replace_content($report->header, $search_tokens, $replace_values);        
+//        $tokens = MainWPCReportDB::Instance()->getTokens();
+//        $site_tokens = MainWPCReportDB::Instance()->getSiteTokens($website['url']);        
+//        $search_tokens = $replace_values = array();
+//        foreach ($tokens as $token) {            
+//            $search_tokens[] = '[' . $token->token_name . ']';            
+//            $replace_values[] = isset($site_tokens[$token->id]) ? $site_tokens[$token->id]->token_value : "";            
+//        }    
+        
+        //$report->filtered_header = self::replace_content($report->header, $search_tokens, $replace_values);        
         //$report->body = self::replace_content($report->body, $search_tokens, $replace_values);        
-        $report->filtered_footer = self::replace_content($report->footer, $search_tokens, $replace_values);        
+        //$report->filtered_footer = self::replace_content($report->footer, $search_tokens, $replace_values);        
 
+        $result = self::parse_report_content($report->header);
+        //print_r($result);
+        self::$buffer['sections']['header'] = $sections['header'] = $result['sections'];
+        $other_tokens['header'] = $result['other_tokens'];  
+        unset($result);
+        
         $result = self::parse_report_content($report->body);
         //print_r($result);
-        self::$buffer['sections'] = $sections = $result['sections'];
-        $other_tokens = $result['other_tokens'];  
+        self::$buffer['sections']['body'] = $sections['body'] = $result['sections'];
+        $other_tokens['body'] = $result['other_tokens'];  
         unset($result);
+        
+        $result = self::parse_report_content($report->footer);
+        //print_r($result);
+        self::$buffer['sections']['footer'] = $sections['footer'] = $result['sections'];
+        $other_tokens['footer'] = $result['other_tokens'];  
+        unset($result);
+        
+         
+        $report_header = $report->header;
         $report_body = $report->body;
+        $report_footer = $report->footer;
         if ((is_array($sections) && count($sections) > 0) || (is_array($other_tokens) && count($other_tokens) > 0)) {
             $sections_data = $other_tokens_data = array();
             $information = self::fetch_stream_data($website, $report, $sections, $other_tokens);                    
@@ -658,34 +1090,64 @@ class MainWPCReport
                 $other_tokens_data = isset($information['other_tokens_data']) ? $information['other_tokens_data'] : array();
             }
             unset($information);
-            if (is_array($sections_data) && count($sections_data) > 0) {
-                $report_body = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is",  array('MainWPCReport', 'section_mark'), $report_body);
+            if (isset($sections_data['header']) && is_array($sections_data['header']) && count($sections_data['header']) > 0) {
+                $report_header = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is",  array('MainWPCReport', 'section_mark_header'), $report_header);
+            }      
+
+            if (isset($sections_data['body']) && is_array($sections_data['body']) && count($sections_data['body']) > 0) {
+                $report_body = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is",  array('MainWPCReport', 'section_mark_body'), $report_body);
+            }      
+
+            if (isset($sections_data['footer']) && is_array($sections_data['footer']) && count($sections_data['footer']) > 0) {
+                $report_footer = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is",  array('MainWPCReport', 'section_mark_footer'), $report_footer);
             }      
             
-            if (is_array($other_tokens_data) && count($other_tokens_data) > 0) {
-                foreach ($other_tokens_data as $token => $value) {
-                    if (in_array($token, $other_tokens)) {
+            if (isset($other_tokens_data['header']) && is_array($other_tokens_data['header']) && count($other_tokens_data['header']) > 0) {
+                foreach ($other_tokens_data['header'] as $token => $value) {
+                    if (in_array($token, $other_tokens['header'])) {
+                        $search[] = $token;
+                        $replace[] = $value;
+                    }
+                }
+                $report_header = self::replace_content($report_body, $search, $replace);
+            }
+            
+            if (isset($other_tokens_data['body']) && is_array($other_tokens_data['body']) && count($other_tokens_data['body']) > 0) {
+                foreach ($other_tokens_data['body'] as $token => $value) {
+                    if (in_array($token, $other_tokens['body'])) {
                         $search[] = $token;
                         $replace[] = $value;
                     }
                 }
                 $report_body = self::replace_content($report_body, $search, $replace);
             }
+            
+            if (isset($other_tokens_data['footer']) && is_array($other_tokens_data['footer']) && count($other_tokens_data['footer']) > 0) {
+                foreach ($other_tokens_data['footer'] as $token => $value) {
+                    if (in_array($token, $other_tokens['footer'])) {
+                        $search[] = $token;
+                        $replace[] = $value;
+                    }
+                }
+                $report_body = self::replace_content($report_footer, $search, $replace);
+            }
+            
         }
-        
+        $report->filtered_header = $report_header;
         $report->filtered_body = $report_body;
+        $report->filtered_footer = $report_footer;
         
         self::$buffer = array();
         return $report;
     } 
     
-    public static function section_mark($matches) {
+    public static function section_mark_header($matches) {
         $content = $matches[0];
         $sec = $matches[1];        
         $sec_content = trim($matches[2]);                
-        if (isset(self::$buffer['sections_data'][$sec])) {
-            $search = self::$buffer['sections'][$sec];            
-            $loop = self::$buffer['sections_data'][$sec]; 
+        if (isset(self::$buffer['sections_data']['header'][$sec])) {
+            $search = self::$buffer['sections']['header'][$sec];            
+            $loop = self::$buffer['sections_data']['header'][$sec]; 
             $replaced_content = "";
             if (is_array($loop)) {                
                 foreach($loop as $replace) {
@@ -697,6 +1159,45 @@ class MainWPCReport
         }        
         return $content;
     }
+    
+    public static function section_mark_body($matches) {
+        $content = $matches[0];
+        $sec = $matches[1];        
+        $sec_content = trim($matches[2]);                
+        if (isset(self::$buffer['sections_data']['body'][$sec])) {
+            $search = self::$buffer['sections']['body'][$sec];            
+            $loop = self::$buffer['sections_data']['body'][$sec]; 
+            $replaced_content = "";
+            if (is_array($loop)) {                
+                foreach($loop as $replace) {
+                    $replaced = self::replace_content($sec_content, $search, $replace);                    
+                    $replaced_content .= $replaced . "<br>";
+                }               
+            }
+            return $replaced_content;            
+        }        
+        return $content;
+    }
+    
+    public static function section_mark_footer($matches) {
+        $content = $matches[0];
+        $sec = $matches[1];        
+        $sec_content = trim($matches[2]);                
+        if (isset(self::$buffer['sections_data']['footer'][$sec])) {
+            $search = self::$buffer['sections']['footer'][$sec];            
+            $loop = self::$buffer['sections_data']['footer'][$sec]; 
+            $replaced_content = "";
+            if (is_array($loop)) {                
+                foreach($loop as $replace) {
+                    $replaced = self::replace_content($sec_content, $search, $replace);                    
+                    $replaced_content .= $replaced . "<br>";
+                }               
+            }
+            return $replaced_content;            
+        }        
+        return $content;
+    }
+    
 
     public static function replace_content($content, $tokens, $replace_tokens) {
         return str_replace($tokens, $replace_tokens, $content);                
@@ -1119,37 +1620,52 @@ class MainWPCReport
             ?>
                 <br/>
                 <div class="creport_format_data_tokens">
-                <?php
-                    $visible = "Plugin Sections";
-                    foreach (self::$stream_tokens as $group => $tokens) {
-                        ?>
-                        <div class="creport_format_group_data_tokens <?php echo ($visible == $group) ? "current" : ""; ?>" group="<?php echo $group; ?>">
-                            <table>
-                            <?php                            
-                            foreach($tokens as $token) {
-                               echo "<tr><td><a href=\"#\" class=\"creport_format_add_token\">[" . $token["name"] . "]</a></td>"
-                                       . "<td class=\"creport_stream_token_desc\">" . $token["desc"] ."</td>"
-                                       . "</tr>";
-                            }
-                            ?>
-                            </table>
-                        </div>
+                    <div class="creport_format_group_nav top">
                         <?php
-                    }                
-                ?>                
-                    <div class="creport_format_group_nav">
-                        <?php
+                            $visible = "plugins";
                             $nav_group = "";
-                            foreach (self::$stream_tokens as $group => $tokens) {
-                                $gname = str_replace("_", " ", $group);
-                                $gname = ucwords($gname);
-                                $current = ($visible == $group) ? "current" : "";
-                                $nav_group .= '<a href="#" group="' . $group . '" class="creport_nav_group_lnk ' . $current . '">' . $gname . '</a> | ';                                
+                            foreach (self::$tokens_nav_top as $group) {                                                                
+                                $current = ($visible == $group['name']) ? "current" : "";
+                                $nav_group .= '<a href="#" group="' . $group['name'] . '" class="creport_nav_group_lnk ' . $current . '">' . $group['title'] . '</a> | ';                                
                             }  
                             $nav_group = rtrim($nav_group, ' | ');
                             echo $nav_group;
                         ?>                
                     </div>
+                <?php
+                    $visible_group = $visible."_sections";
+                    foreach (self::$stream_tokens as $group => $group_tokens) {
+                        foreach($group_tokens as $key => $tokens) {   
+                            if ($key == "nav_group_tokens")
+                                continue;
+                        ?>
+                            <div class="creport_format_group_data_tokens <?php echo ($visible_group == $group . "_" . $key) ? "current" : ""; ?>" group="<?php echo $group . "_" . $key; ?>">
+                                <table>
+                                <?php                            
+                                    foreach($tokens as $token) {
+                                       echo "<tr><td><a href=\"#\" class=\"creport_format_add_token\">[" . $token["name"] . "]</a></td>"
+                                               . "<td class=\"creport_stream_token_desc\">" . $token["desc"] ."</td>"
+                                               . "</tr>";
+                                    }
+                                ?>
+                                </table>
+                                <div class="creport_format_group_nav bottom">
+                                    <?php
+                                    $visible_nav = "plugins_sections";
+                                    $nav_group_bottom = "";
+                                    foreach ($group_tokens['nav_group_tokens'] as $nav_group) {                                            
+                                        $current = ($visible_nav ==  $group . "_" . $nav_group['name']) ? "current" : "";
+                                        $nav_group_bottom .= '<a href="#" group="' . $group . "_" . $nav_group['name'] . '" class="creport_nav_bottom_group_lnk ' . $current . '">' . $nav_group['title'] . '</a> | ';                                                                        
+                                    }  
+                                    $nav_group_bottom = rtrim($nav_group_bottom, ' | ');
+                                    echo $nav_group_bottom;                                
+                                    ?>  
+                                </div>
+                            </div>
+                        <?php
+                        }
+                    }           
+                ?>
                 </div>
                 
             </td> 

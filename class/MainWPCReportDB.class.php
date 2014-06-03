@@ -1,7 +1,7 @@
 <?php
 class MainWPCReportDB
 {    
-    private $mainwp_wpcreport_db_version = '2.1';
+    private $mainwp_wpcreport_db_version = "1.1";
     //Singleton
     private static $instance = null;
     private $table_prefix;
@@ -18,7 +18,9 @@ class MainWPCReportDB
     {
         global $wpdb;
         $this->table_prefix = $wpdb->prefix . "mainwp_"; 
-        $this->default_tokens = array(  "client.name" => "Display Client Name",
+        $this->default_tokens = array(  "client.site.name" => "Display Site Name",
+                                        "client.site.url" => "Display Site Url",
+                                        "client.name" => "Display Client Name",
                                         "client.contact.name" => "Display Client Contact Name",
                                         "client.contact.address.1" => "Display Client Contact Address 1",
                                         "client.contact.address.2" => "Display Client Contact Address 2",
@@ -49,7 +51,17 @@ class MainWPCReportDB
     {
         global $wpdb;
         $currentVersion = get_site_option('mainwp_wpcreport_db_version');
-        if ($currentVersion == $this->mainwp_wpcreport_db_version) return;        
+        if ($currentVersion == $this->mainwp_wpcreport_db_version) return;    
+        
+//        if ($currentVersion !== "1.0") {
+//            $wpdb->query("DROP TABLE " . $this->tableName('client_report_token')); 
+//            $wpdb->query("DROP TABLE " . $this->tableName('client_report_site_token')); 
+//            $wpdb->query("DROP TABLE " . $this->tableName('client_report')); 
+//            $wpdb->query("DROP TABLE " . $this->tableName('client_report_client'));                      
+//            $currentVersion = "";
+//        }
+        
+        
         $charset_collate = $wpdb->get_charset_collate();        
         $sql = array();
         
@@ -104,9 +116,9 @@ PRIMARY KEY  (`id`)  ';
 `name` VARCHAR(512),
 `company` VARCHAR(512),
 `email` VARCHAR(128)';
-        if (version_compare("1.5", $currentVersion))
+        if ($currentVersion == '')
                     $tbl .= ',
-PRIMARY KEY  (`id`)  ';
+PRIMARY KEY  (`clientid`)  ';
         $tbl .= ') ' . $charset_collate;
         $sql[] = $tbl;
         
@@ -117,12 +129,6 @@ PRIMARY KEY  (`id`)  ';
             dbDelta($query);
         }
         
-        if (version_compare("1.9", $currentVersion)) {
-            $wpdb->query("ALTER TABLE " . $this->tableName('client_report_client') . " CHANGE `id` `clientid` INT( 11 ) NOT NULL AUTO_INCREMENT"); 
-            $wpdb->query("ALTER TABLE " . $this->tableName('client_report') . " DROP COLUMN name"); 
-            $wpdb->query("ALTER TABLE " . $this->tableName('client_report') . " DROP COLUMN company"); 
-            $wpdb->query("ALTER TABLE " . $this->tableName('client_report') . " DROP COLUMN email"); 
-        }
         
 //        global $wpdb;
 //        echo $wpdb->last_error;
@@ -252,10 +258,10 @@ PRIMARY KEY  (`id`)  ';
             return false;
         
         switch ($token_name) {
-            case 'url.site':
+            case 'client.site.url':
                 $token_value = $url_site;
                 break;
-            case 'name.site':
+            case 'client.site.name':
                 $token_value = $name_site;
                 break;
             default:
