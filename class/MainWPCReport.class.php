@@ -100,7 +100,11 @@ class MainWPCReport
             
             if(isset($_POST['mwp_creport_client'])) {
                 $report['client'] = trim($_POST['mwp_creport_client']);                
-            }            
+            }  
+            
+            if(isset($_POST['mwp_creport_client_id'])) {
+                $report['client_id'] = intval($_POST['mwp_creport_client_id']);                
+            }  
             
             if(isset($_POST['mwp_creport_fname'])) {
                 $report['fname'] = trim($_POST['mwp_creport_fname']);                
@@ -132,7 +136,7 @@ class MainWPCReport
             $to_email = "";
             if(!empty($_POST['mwp_creport_email'])) {                
                 $to_email = trim($_POST['mwp_creport_email']);								
-                if (!preg_match("/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/", $from_email))				
+                if (!preg_match("/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/", $to_email))				
                 {
                     $to_email = "";
                     $errors[] = "Incorrect Send To email address.";
@@ -173,7 +177,7 @@ class MainWPCReport
                     }                    
                 }
             }
-            
+            $delete_logo = false;
             if (isset($_POST['mainwp_creport_delete_logo_image']) && intval($_POST['mainwp_creport_delete_logo_image']) === 1) {
                 if (file_exists($old_logo)) {
                     @unlink($old_logo);
@@ -337,10 +341,10 @@ class MainWPCReport
         if ((isset($_GET['action']) && "sendreport" === (string)$_GET['action']) || (isset($_POST['mwp_creport_report_submit_action']) && "send" === ($_POST['mwp_creport_report_submit_action']))) {                                
             $do_send = true;                 
         } 
+        
         if ((isset($_GET['action']) && "preview" === (string)$_GET['action']) || isset($_POST['mwp_creport_report_submit_action']) && "preview" === (string)$_POST['mwp_creport_report_submit_action']) {
             $do_preview = true;
-        }
-        
+        }        
             
         // if send report from preview screen do not need to save report
         if (isset($_POST['mwp_creport_report_submit_action']) && !empty($_POST['mwp_creport_report_submit_action'])) {
@@ -425,6 +429,11 @@ class MainWPCReport
 //            print_r($records);
 //        }
         
+        $clients = MainWPCReportDB::Instance()->getClients();
+        if (!is_array($clients)) 
+            $clients = array();
+        
+        
         ?>
             <div class="wrap" id="mainwp-ap-option">
             <div class="clearfix"></div>           
@@ -438,7 +447,25 @@ class MainWPCReport
                         <br />
                         <a id="wpcr_report_tab_lnk" href="#" class="mainwp_action left <?php  echo (empty($style_tab_report) ? "mainwp_action_down" : ""); ?>"><?php _e("Client Reports"); ?></a><a id="wpcr_new_tab_lnk" href="#" class="mainwp_action mid <?php  echo (empty($style_tab_new) ? "mainwp_action_down" : ""); ?>"><?php _e("New Report"); ?></a><a id="wpcr_token_tab_lnk" href="#" class="mainwp_action right <?php  echo (empty($style_tab_token) ? "mainwp_action_down" : ""); ?>"><?php _e("Report Tokens"); ?></a>
                         <br /><br />                              
-                        <div id="wpcr_report_tab" <?php echo $style_tab_report; ?>>                          
+                        <div id="wpcr_report_tab" <?php echo $style_tab_report; ?>>                             
+                                <div class="tablenav top">
+                                    <select name="mainwp_creport_select_client" id="mainwp_creport_select_client">
+                                        <option value="0"><?php _e("Select a Client"); ?></option>
+                                    <?php
+                                    foreach ($clients as $client) {
+                                        $_select = "";
+                                        if (isset($_GET['client']) && $client->clientid == intval($_GET['client'])) {
+                                            $_select = "selected";
+                                        }                                        
+                                    ?>
+                                        <option value="<?php echo $client->clientid; ?>" <?php echo $_select; ?>><?php echo stripslashes($client->client); ?></option>
+                                    <?php
+                                    }
+                                    ?>
+                                    </select>
+                                    <input type="button" name="mainwp_creport_select_client_btn_display" id="mainwp_creport_select_client_btn_display" class="button" value="<?php _e("Display"); ?>" />
+                                </div>
+                            
                             <?php self::reportTab(); ?>                            
                         </div>
                         <form method="post" enctype="multipart/form-data" id="mwp_creport_edit_form" action="admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&action=editreport<?php echo !empty($report_id) ? "&id=" . $report_id : ""; ?>">
@@ -483,7 +510,7 @@ class MainWPCReport
         
         <script>
             jQuery(document).ready(function($){    
-                mainwp_creport_load_tokens();    
+                mainwp_creport_load_tokens();  
                 <?php if ($do_preview) { ?>
                         mainwp_creport_preview_report();
                 <?php } ?>
@@ -786,7 +813,14 @@ class MainWPCReport
             $client_order = ($order == "desc") ? "asc" : "desc";                     
         } 
         
-        $reports = MainWPCReportDB::Instance()->getReportBy('all', null, $orderby, $order);
+        $get_by = 'all';
+        $value = null;
+        if (isset($_GET['client']) && !empty($_GET['client'])) {
+            $get_by = 'client';
+            $value = $_GET['client'];
+        }
+        
+        $reports = MainWPCReportDB::Instance()->getReportBy($get_by, $value, $orderby, $order);
     ?>
          <table id="mainwp-table" class="wp-list-table widefat" cellspacing="0">
             <thead>
@@ -954,8 +988,8 @@ class MainWPCReport
         $title = $date_from = $date_to = "";
         $from_name = $from_company = $from_email = "";
         $to_client = $to_name = $to_company = $to_email = "";
-        $client_id = 0;
-        
+        $client_id = 0;  
+        //print_r($report);
         if ($report && is_object($report)) {
             $title = $report->title;
             $date_from = !empty($report->date_from) ? date("Y-m-d", $report->date_from) : "";

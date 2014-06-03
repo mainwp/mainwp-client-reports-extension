@@ -1,7 +1,7 @@
 <?php
 class MainWPCReportDB
 {    
-    private $mainwp_wpcreport_db_version = '1.8';
+    private $mainwp_wpcreport_db_version = '1.9';
     //Singleton
     private static $instance = null;
     private $table_prefix;
@@ -118,7 +118,12 @@ PRIMARY KEY  (`id`)  ';
             dbDelta($query);
         }
         
-        //$wpdb->query("ALTER TABLE " . $this->tableName('client_report_client') . " CHANGE `id` `clientid` INT( 11 ) NOT NULL AUTO_INCREMENT"); 
+        if (version_compare("1.9", $currentVersion)) {
+            $wpdb->query("ALTER TABLE " . $this->tableName('client_report_client') . " CHANGE `id` `clientid` INT( 11 ) NOT NULL AUTO_INCREMENT"); 
+            $wpdb->query("ALTER TABLE " . $this->tableName('client_report') . " DROP COLUMN name"); 
+            $wpdb->query("ALTER TABLE " . $this->tableName('client_report') . " DROP COLUMN company"); 
+            $wpdb->query("ALTER TABLE " . $this->tableName('client_report') . " DROP COLUMN email"); 
+        }
         
 //        global $wpdb;
 //        echo $wpdb->last_error;
@@ -348,14 +353,49 @@ PRIMARY KEY  (`id`)  ';
                 if (!empty($client)) 
                     $update_client['clientid'] = $client->client;                
             }            
-            $this->updateClient($update_client);            
+            $updated = $this->updateClient($update_client);   
+            
+            if (!isset($report['client_id']) || empty($report['client_id'])) {
+                if ($updated && $updated->clientid) {
+                    $report['client_id'] = $updated->clientid;
+                } else if (isset($update_client['clientid'])) {
+                    $report['client_id'] = $update_client['clientid'];
+                }
+            }            
+        } else {
+            $report['client_id'] = 0;
         }
         
+        $report_fields = array('id',
+                                'title',
+                                'date_from',
+                                'date_to',
+                                'fname',
+                                'fcompany',
+                                'femail',
+                                'client_id',
+                                'header',
+                                'body',
+                                'footer',
+                                'logo_file',
+                                'logo_file_temp',
+                                'lastsend',
+                                'nextsend',
+                                'selected_site'
+                            );
+        
+        $update_report = array();
+        foreach ($report as $key => $value) {
+            if (in_array($key, $report_fields))
+                    $update_report[$key] = $value;
+        }
+         
         if (!empty($id)) {
-            if ($wpdb->update($this->tableName('client_report'), $report, array('id' => intval($id))))
-                return $this->getReportBy('id', $id); 
+            if ($wpdb->update($this->tableName('client_report'), $update_report, array('id' => intval($id)))) {
+                return $this->getReportBy('id', $id);                                 
+            }
         } else {
-            if ($wpdb->insert($this->tableName('client_report'), $report)) 
+            if ($wpdb->insert($this->tableName('client_report'), $update_report)) 
             {
                 return $this->getReportBy('id', $wpdb->insert_id); 
             }
@@ -387,15 +427,20 @@ PRIMARY KEY  (`id`)  ';
                     . " LEFT JOIN " . $this->tableName('client_report_client') . " c "
                     . " ON rp.client_id = c.clientid "
                     . " WHERE `id`=%d " . $_order_by , $value);
+        } if ($by == 'client') {
+            $sql = $wpdb->prepare("SELECT rp.*, c.* FROM " . $this->tableName('client_report') . " rp "
+                    . " LEFT JOIN " . $this->tableName('client_report_client') . " c "
+                    . " ON rp.client_id = c.clientid "
+                    . " WHERE `client_id` = %d " . $_order_by , $value);
+             return $wpdb->get_results($sql);  
         } else if ($by == 'all') {
             $sql = "SELECT * FROM " . $this->tableName('client_report') . " rp "
                     . "LEFT JOIN " . $this->tableName('client_report_client') . " c "
                     . " ON rp.client_id = c.clientid "                    
-                    . " WHERE 1 = 1 " . $_order_by;
-            //echo $sql;
+                    . " WHERE 1 = 1 " . $_order_by;            
             return $wpdb->get_results($sql);  
         }         
-        
+        //echo $sql;
         if (!empty($sql))
             return $wpdb->get_row($sql);        
            

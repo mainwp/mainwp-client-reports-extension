@@ -1,5 +1,6 @@
 
-jQuery(document).ready(function($) {      
+jQuery(document).ready(function($) {  
+    
     jQuery('.mainwp_creport_datepicker').datepicker({dateFormat:"yy-mm-dd"});
     
     $('#wpcr_report_tab_lnk').on('click', function () {   
@@ -17,7 +18,7 @@ jQuery(document).ready(function($) {
         return false;
     });
     
-     $('#creport_managetoken_btn_add_token').on('click', function()
+     $('#creport_managetoken_btn_add_token').live('click', function()
         {   
             var parent = jQuery(this).parents('.managetoken-item');                            
             $('#mwp-creport-error-box').hide();
@@ -64,7 +65,7 @@ jQuery(document).ready(function($) {
             return false;            
         });
         
-        $('.creport_managetoken-edit').on('click', function()
+        $('.creport_managetoken-edit').live('click', function()
         {            
             var parent = jQuery(this).closest('.managetoken-item');
             parent.find('.text').hide();
@@ -74,7 +75,7 @@ jQuery(document).ready(function($) {
             return false;
         });
         
-        $('.creport_managetoken-cancel').on('click', function()
+        $('.creport_managetoken-cancel').live('click', function()
         {            
             var parent = jQuery(this).closest('.managetoken-item');
             parent.find('.input').hide();
@@ -87,7 +88,7 @@ jQuery(document).ready(function($) {
         });
         
         
-        $('.creport_managetoken-save').on('click', function()
+        $('.creport_managetoken-save').live('click', function()
         {            
             var parent = jQuery(this).closest('.managetoken-item');
             $('#mwp-creport-error-box').hide();
@@ -137,7 +138,7 @@ jQuery(document).ready(function($) {
             return false;
         });
         
-    $('.creport_managetoken-delete').on('click' ,function(){
+    $('.creport_managetoken-delete').live('click' ,function(){
         $('#mwp-creport-error-box').hide();
         $('#mwp-creport-info-box').hide();   
         if (confirm(__('Are you sure?'))) {
@@ -282,7 +283,7 @@ jQuery(document).ready(function($) {
         $('#mwp_creport_report_submit_action').val('preview');        
     });    
     
-    $('#mwp-creport-save-btn').on('click' ,function(){
+    $('#mwp-creport-save-btn').live('click' ,function(){
         
         $('#mwp_creport_title').removeClass('form-invalid');
         $('#mwp_creport_date_from').removeClass('form-invalid');
@@ -316,9 +317,12 @@ jQuery(document).ready(function($) {
     $('#mwp-creport-preview-btn-send').on('click' ,function(){
         jQuery('#mwp-creport-preview-box').dialog('destroy');                 
         jQuery('#mwp-creport-send-btn').click();                 
-    }) 
+    })
     
-     
+    $('#mainwp_creport_select_client_btn_display').on('click' ,function(){
+        var client = $('#mainwp_creport_select_client').val();
+        location.href = 'admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&client=' + client;
+    })
 });
 
 showCReportTab = function(report, new_report, token) {
@@ -385,6 +389,10 @@ mainwp_creport_client_change = function() {
     jQuery('#mainwp_creport_client_loading').find('img').show();
     jQuery.post(ajaxurl, data , function(response) {
         jQuery('#mainwp_creport_client_loading').find('img').hide();
+        jQuery('input[name="mwp_creport_name"]').val('');
+        jQuery('input[name="mwp_creport_company"]').val('');
+        jQuery('input[name="mwp_creport_email"]').val('');  
+        jQuery('input[name="mwp_creport_client_id"]').val(0);
         if (response && response.clientid) {                        
             jQuery('input[name="mwp_creport_client_id"]').val(response.clientid);
             if (response.name)
@@ -393,11 +401,7 @@ mainwp_creport_client_change = function() {
                 jQuery('input[name="mwp_creport_company"]').val(response.company);
             if (response.name)
                 jQuery('input[name="mwp_creport_email"]').val(response.email);                        
-        } else {
-            jQuery('input[name="mwp_creport_name"]').val('');
-            jQuery('input[name="mwp_creport_company"]').val('');
-            jQuery('input[name="mwp_creport_email"]').val('');                        
-        }
+        } 
     }, 'json');
 } 
             
