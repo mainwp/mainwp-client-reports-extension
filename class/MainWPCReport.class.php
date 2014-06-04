@@ -1588,7 +1588,7 @@ class MainWPCReport
         $client_tokens = MainWPCReportDB::Instance()->getTokens();
         $client_tokens_values = array();  
         
-        if ($report->selected_site) {
+        if ($report && $report->selected_site) {
             $website = null;
             global $mainWPCReportExtensionActivator;
             $website = apply_filters('mainwp-getsites', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $report->selected_site);            
