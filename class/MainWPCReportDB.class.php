@@ -438,7 +438,7 @@ PRIMARY KEY  (`clientid`)  ';
                     . " ON rp.client_id = c.clientid "
                     . " WHERE `client_id` = %d " . $_order_by , $value);
              return $wpdb->get_results($sql);  
-        } else if ($by == 'all') {
+        } else if ($by == 'all') {            
             $sql = "SELECT * FROM " . $this->tableName('client_report') . " rp "
                     . "LEFT JOIN " . $this->tableName('client_report_client') . " c "
                     . " ON rp.client_id = c.clientid "                    

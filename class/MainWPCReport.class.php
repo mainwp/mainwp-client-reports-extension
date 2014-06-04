@@ -1277,15 +1277,15 @@ class MainWPCReport
             $order = $_GET['order'];
         }        
         
-        $title_order = $name_order = $lastsend_order = $nextsend_order = $client_order = "";                     
+        $title_order = $name_order = $lastsend_order = $datefrom_order = $client_order = "";                     
         if (isset($_GET['orderby']) && $_GET['orderby'] == "title") {            
             $title_order = ($order == "desc") ? "asc" : "desc";                     
         } else if (isset($_GET['orderby']) && $_GET['orderby'] == "name") {            
             $name_order = ($order == "desc") ? "asc" : "desc";                     
         } else if (isset($_GET['orderby']) && $_GET['orderby'] == "lastsend") {
             $lastsend_order = ($order == "desc") ? "asc" : "desc";                     
-        } else if (isset($_GET['orderby']) && $_GET['orderby'] == "nextsend") {
-            $nextsend_order = ($order == "desc") ? "asc" : "desc";                     
+        } else if (isset($_GET['orderby']) && $_GET['orderby'] == "date_from") {
+            $datefrom_order = ($order == "desc") ? "asc" : "desc";                     
         } else if (isset($_GET['orderby']) && $_GET['orderby'] == "client") {
             $client_order = ($order == "desc") ? "asc" : "desc";                     
         } 
@@ -1295,9 +1295,17 @@ class MainWPCReport
         if (isset($_GET['client']) && !empty($_GET['client'])) {
             $get_by = 'client';
             $value = $_GET['client'];
+        }        
+        $reports = MainWPCReportDB::Instance()->getReportBy($get_by, $value, $orderby, $order);
+        global $mainWPCReportExtensionActivator;
+        $websites = apply_filters('mainwp-getsites', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), null);                
+        $all_sites = array();
+        if (is_array($websites)) {
+            foreach ($websites as $website) {
+                $all_sites[$website['id']] = $website;
+            }                
         }
         
-        $reports = MainWPCReportDB::Instance()->getReportBy($get_by, $value, $orderby, $order);
     ?>
          <table id="mainwp-table" class="wp-list-table widefat" cellspacing="0">
             <thead>
@@ -1314,8 +1322,11 @@ class MainWPCReport
                     <th scope="col" class="manage-column sortable <?php echo $lastsend_order; ?>">
                         <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=lastsend&order=<?php echo (empty($lastsend_order) ? 'asc' : $lastsend_order); ?>"><span><?php _e('Last Report Send','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>
-                    <th scope="col" class="manage-column sortable <?php echo $nextsend_order; ?>">
-                        <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=nextsend&order=<?php echo (empty($nextsend_order) ? 'asc' : $nextsend_order); ?>"><span><?php _e('Next Report','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                    <th scope="col" class="manage-column sortable <?php echo $datefrom_order; ?>">
+                        <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=date_from&order=<?php echo (empty($datefrom_order) ? 'asc' : $datefrom_order); ?>"><span><?php _e('Report For','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                    </th>
+                    <th scope="col" class="manage-column">
+                        <span><?php _e('Site','mainwp'); ?></span>
                     </th>
                 </tr>
             </thead>
@@ -1333,14 +1344,17 @@ class MainWPCReport
                     <th scope="col" class="manage-column sortable <?php echo $lastsend_order; ?>">
                         <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=lastsend&order=<?php echo (empty($lastsend_order) ? 'asc' : $lastsend_order); ?>"><span><?php _e('Last Report Send','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>
-                    <th scope="col" class="manage-column sortable <?php echo $nextsend_order; ?>">
-                        <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=nextsend&order=<?php echo (empty($nextsend_order) ? 'asc' : $nextsend_order); ?>"><span><?php _e('Next Report','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                    <th scope="col" class="manage-column sortable <?php echo $datefrom_order; ?>">
+                        <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=date_from&order=<?php echo (empty($datefrom_order) ? 'asc' : $datefrom_order); ?>"><span><?php _e('Report For','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                    </th>
+                    <th scope="col" class="manage-column">
+                        <span><?php _e('Site','mainwp'); ?></span>
                     </th>
                 </tr>
             </tfoot>
             <tbody>
              <?php                             
-                self::reportTableContent($reports);                               
+                self::reportTableContent($reports, $all_sites);                               
              ?>
             </tbody>
         </table>     
@@ -1348,17 +1362,24 @@ class MainWPCReport
     }
     
     
-    public static function reportTableContent($reports) {
+    public static function reportTableContent($reports, $websites) {
         
         if (!is_array($reports) || count($reports) == 0)
         { 
         ?>
-            <tr><td colspan="5"><?php _e("No reports were found.");?></td></tr>
+            <tr><td colspan="6"><?php _e("No reports were found.");?></td></tr>
         <?php
             return;            
         }   
         $url_loader = plugins_url('images/loader.gif', dirname(__FILE__));
         foreach ($reports as $report) {
+            $website = ($report->selected_site && isset($websites[$report->selected_site])) ? $websites[$report->selected_site] : null;
+            $site_column  = "";
+            if (!empty($website)) {
+                $site_column = '<a href="admin.php?page=managesites&dashboard=' . $website['id']. '">' .  $website['name'] . "</a><br>" .
+                        '<div class="row-actions"><span class="dashboard"><a href="admin.php?page=managesites&dashboard=' . $website['id'] . '">' .  __("Dashboard") . '</a></span> | ' . 
+                        '<span class="edit"><a href="admin.php?page=managesites&id=' .  $website['id'] . '">' . __("Edit") . '</a></span></div>';                    
+            }
     ?>   
         <tr id="<?php echo $report->id; ?>">            
             <td>
@@ -1380,7 +1401,11 @@ class MainWPCReport
                 <?php echo !empty($report->lastsend) ? MainWPCReportUtility::formatTimestamp($report->lastsend) : ""; ?>
             </td>
             <td> 
-                <?php echo !empty($report->nextsend) ? MainWPCReportUtility::formatTimestamp($report->nextsend) : ""; ?>
+                <?php echo !empty($report->date_from) ? "From: " . MainWPCReportUtility::formatTimestamp($report->date_from) . "<br>" : ""; ?>
+                <?php echo !empty($report->date_to) ? "To: " . MainWPCReportUtility::formatTimestamp($report->date_to) : ""; ?>
+            </td>
+            <td> 
+                <?php echo $site_column; ?>
             </td>
         </tr>
     <?php
@@ -1415,6 +1440,7 @@ class MainWPCReport
                 </tbody>
             </table>         
         </fieldset>
+        <br>
         <script>    
             jQuery(document).ready(function() {
                 jQuery('#mainwp_creport_autocomplete_client').each(function(key, value) {
