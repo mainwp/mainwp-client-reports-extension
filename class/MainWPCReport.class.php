@@ -1720,8 +1720,8 @@ class MainWPCReport
                                         }
                                     } else if (is_array($client_tokens) && count($client_tokens) > 0) {
                                         foreach($client_tokens as $token) {                                    
-                                           echo "<tr><td><a href=\"#\" token-value =\"\" class=\"creport_format_add_token\">[" . $token['token_name'] . "]</a></td>"
-                                                   . "<td class=\"creport_stream_token_desc\">" . $token['token_description'] ."</td>"
+                                           echo "<tr><td><a href=\"#\" token-value =\"\" class=\"creport_format_add_token\">[" . $token->token_name . "]</a></td>"
+                                                   . "<td class=\"creport_stream_token_desc\">" . $token->token_description ."</td>"
                                                    . "</tr>";
                                         }
                                     }                                    
