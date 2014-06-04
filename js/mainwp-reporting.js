@@ -162,34 +162,66 @@ jQuery(document).ready(function($) {
         return false;        
     });
 
-    $('.creport_nav_group_lnk ').on('click' ,function(){
+    $('.creport_nav_group_lnk').on('click' ,function(){
+        var parent = $(this).closest('.creport_format_insert_tokens_box');
         var gr = $(this).attr('group');
-        $('.creport_nav_group_lnk').removeClass('current');
+        var gr_title = $(this).attr('group-title');       
+        parent.find('.creport_nav_group_lnk').removeClass('current');
         $(this).addClass('current');
-        $('.creport_format_group_data_tokens').removeClass('current');
-        $('.creport_format_group_data_tokens[group="' + gr + '_sections"]').addClass('current');
+        parent.find('.creport_format_group_data_tokens').removeClass('current');
+        parent.find('.creport_format_group_data_tokens[group="' + gr + '_sections"]').addClass('current');
+        parent.find('.creport_format_group_nav.bottom').removeClass('current');
+        parent.find('.creport_format_group_nav.bottom[group="' + gr + '"]').addClass('current');
+        parent.find('.creport_nav_bottom_group_lnk[group="' + gr + '_sections"]').addClass('current');
+        mainwp_creport_insert_token_set_breadcrumb(parent, gr_title, 'Sections');
         return false;        
     })
     
     $('.creport_nav_bottom_group_lnk ').on('click' ,function(){
+        var parent = $(this).closest('.creport_format_insert_tokens_box');
         var gr = $(this).attr('group');
-        $('.creport_nav_bottom_group_lnk').removeClass('current');
+        var gr_title = $(this).attr('group-title');
+        var gr2_title = $(this).attr('group2-title');        
+        parent.find('.creport_nav_bottom_group_lnk').removeClass('current');
         $(this).addClass('current');
-        $('.creport_format_group_data_tokens').removeClass('current');
-        $('.creport_format_group_data_tokens[group="' + gr + '"]').addClass('current');
+        parent.find('.creport_format_group_data_tokens').removeClass('current');
+        parent.find('.creport_format_group_data_tokens[group="' + gr + '"]').addClass('current');
+        mainwp_creport_insert_token_set_breadcrumb(parent, gr_title, gr2_title);
         return false;        
     })
     
+    mainwp_creport_insert_token_set_breadcrumb = function(parent, group, group2) {
+        parent.find('.creport_format_nav_bottom_breadcrumb .group').text(group);
+        parent.find('.creport_format_nav_bottom_breadcrumb .group2').text(group2);
+    }
+    
+    $('.mainwp_creport_show_insert_tokens_book_lnk').on('click', function() {        
+        var box = $(this).closest('tr').find('.creport_format_insert_tokens_box');
+        if (box.hasClass('hidden-field')) {
+            box.removeClass('hidden-field');
+            $(this).text(__("Hide Available Tokens"));
+        } else {
+            box.addClass('hidden-field');
+            $(this).text(__("Show Available Tokens"));
+        }
+        return false;
+    })
+    
     $( 'a.creport_format_add_token' ).on( 'click', function( e ) {   
+        var parent = $(this).closest('.creport_format_insert_tokens_box');
         var replace_text = jQuery(this).html(); 
         if (replace_text.indexOf("[section.") == 0) {
             var end_section =  replace_text.replace("[section.", "[/section.");
-            replace_text = replace_text + '<br/><br/>' + end_section;
+            replace_text = replace_text + '<br/><span id="crp_ed_cursor"></span><br/>' + end_section;
         }
+        var name = parent.attr('editor');
+        var editor = tinyMCE.get('mainwp_creport_report_' + name);
         
-        var editor = tinyMCE.get('mainwp_creport_report_body');
-        if (typeof(editor) != "undefined")
+        if (typeof(editor) != "undefined") {
             editor.execCommand('mceInsertContent', false, replace_text);        
+            var cursor = editor.dom.select('span#crp_ed_cursor');
+            editor.selection.select(cursor[0]);            
+        }
         return false;
     });
     

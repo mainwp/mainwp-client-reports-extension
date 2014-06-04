@@ -72,14 +72,21 @@
 .creport_format_data_tokens {
     background: none repeat scroll 0 0 #F5F5F5;
     padding: 5px;
+    min-height: 280px;
 }
 
 .creport_format_group_nav.top {
     border-bottom: 1px solid #fff;
     padding: 5px;
 }
-.creport_format_group_nav.bottom {    
-    padding: 5px;
+.creport_format_group_nav.bottom {        
+    display: none;
+    background: none repeat scroll 0 0 #F5F5F5;
+    padding: 2px 10px;
+}
+
+.creport_format_group_nav.bottom.current {        
+    display: block;
 }
 
 .creport_format_group_nav .current {
@@ -117,4 +124,13 @@ a.creport_format_add_token:hover {
 }
 .mainwp_page_Extensions-Mainwp-Client-Reporting-Extension .ui-dialog {
     width: 800px !important;    
+}
+.creport_format_nav_bottom{
+    background: none repeat scroll 0 0 #F5F5F5;
+    padding-bottom: 2px;
+}
+.creport_format_nav_bottom_breadcrumb {
+    padding: 5px;
+    margin: 5px;
+    border: 2px solid #DDDDDD;
 }

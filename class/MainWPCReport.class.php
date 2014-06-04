@@ -17,14 +17,14 @@ class MainWPCReport
                                                 array("name" => "section.plugins.updated", "desc" => "Token Description"),
                                                 array("name" => "section.plugins.deleted", "desc" => "Token Description")
                                             ),
-                                'nav_group_tokens' => array(array("name" => "sections", "title" => "Sections"),
-                                                            array("name" => "installed", "title" => "Installed"),
-                                                            array("name" => "activated", "title" => "Activated"),
-                                                            array("name" => "edited", "title" => "edited"),
-                                                            array("name" => "deactivated", "title" => "deactivated"),
-                                                            array("name" => "updated", "title" => "updated"),
-                                                            array("name" => "deleted", "title" => "deleted"),
-                                                            array("name" => "additional", "title" => "Additional"),
+                                'nav_group_tokens' => array("sections" => "Sections",
+                                                            "installed" => "Installed",
+                                                            "activated" => "Activated",
+                                                            "edited" => "Edited",
+                                                            "deactivated" => "Deactivated",
+                                                            "updated" => "Updated",
+                                                            "deleted" => "Deleted",
+                                                            "additional" => "Additional",
                                                     ),   
                                 "installed" => array(
                                                 array("name" => "plugin.name", "desc" => "Token Description"),
@@ -74,13 +74,13 @@ class MainWPCReport
                                                 array("name" => "section.themes.updated", "desc" => "Token Description"),
                                                 array("name" => "section.themes.deleted", "desc" => "Token Description")
                                             ),  
-                                'nav_group_tokens' => array(array("name" => "sections", "title" => "Sections"),
-                                                            array("name" => "installed", "title" => "Installed"),
-                                                            array("name" => "activated", "title" => "Activated"),
-                                                            array("name" => "edited", "title" => "edited"),                                                           
-                                                            array("name" => "updated", "title" => "updated"),
-                                                            array("name" => "deleted", "title" => "deleted"),
-                                                            array("name" => "additional", "title" => "Additional"),
+                                'nav_group_tokens' => array("sections"=> "Sections",
+                                                            "installed"=> "Installed",
+                                                            "activated"=> "Activated",
+                                                            "edited"=> "Edited",                                                           
+                                                            "updated"=> "Updated",
+                                                            "deleted"=> "Deleted",
+                                                            "additional"=> "Additional",
                                                     ),
                                 "installed" => array(
                                                 array("name" => "theme.name", "desc" => "Token Description"),
@@ -124,13 +124,13 @@ class MainWPCReport
                                                 array("name" => "section.posts.deleted", "desc" => "Token Description"),
                                                 array("name" => "section.posts.restored", "desc" => "Token Description")
                                             ),  
-                                'nav_group_tokens' => array(array("name" => "sections", "title" => "Sections"),
-                                                     array("name" => "created", "title" => "Created"),
-                                                     array("name" => "updated", "title" => "Updated"),
-                                                     array("name" => "trashed", "title" => "Trashed"),                                                           
-                                                     array("name" => "deleted", "title" => "Deleted"),
-                                                     array("name" => "restored", "title" => "Restored"),
-                                                     array("name" => "additional", "title" => "Additional"),
+                                'nav_group_tokens' => array("sections" => "Sections",
+                                                     "created" => "Created",
+                                                     "updated" => "Updated",
+                                                     "trashed" => "Trashed",                                                           
+                                                     "deleted" => "Deleted",
+                                                     "restored" => "Restored",
+                                                     "additional" => "Additional",
                                             ),
                                 "created" => array(
                                                 array("name" => "post.title", "desc" => "Token Description"),
@@ -172,13 +172,13 @@ class MainWPCReport
                                                 array("name" => "section.pages.deleted", "desc" => "Token Description"),
                                                 array("name" => "section.pages.restored", "desc" => "Token Description")
                                             ),  
-                                 'nav_group_tokens' => array(array("name" => "sections", "title" => "Sections"),
-                                                     array("name" => "created", "title" => "Created"),
-                                                     array("name" => "updated", "title" => "Updated"),
-                                                     array("name" => "trashed", "title" => "Trashed"),                                                           
-                                                     array("name" => "deleted", "title" => "Deleted"),
-                                                     array("name" => "restored", "title" => "Restored"),
-                                                     array("name" => "additional", "title" => "Additional"),
+                                 'nav_group_tokens' => array("sections" => "Sections",
+                                                     "created" => "Created",
+                                                     "updated" => "Updated",
+                                                     "trashed" => "Trashed",                                                           
+                                                     "deleted" => "Deleted",
+                                                     "restored" => "Restored",
+                                                     "additional" => "Additional",
                                                     ),                                     
                                 "created" => array(
                                                 array("name" => "page.title", "desc" => "Token Description"),
@@ -224,17 +224,17 @@ class MainWPCReport
                                                 array("name" => "section.comments.spam", "desc" => "Token Description"),
                                                 array("name" => "section.comments.replied", "desc" => "Token Description")                                                
                                             ),  
-                                'nav_group_tokens' => array(array("name" => "sections", "title" => "Sections"),
-                                                     array("name" => "created", "title" => "Created"),
-                                                     array("name" => "updated", "title" => "Updated"),
-                                                     array("name" => "trashed", "title" => "Trashed"),                                                           
-                                                     array("name" => "deleted", "title" => "Deleted"),
-                                                     array("name" => "edited", "title" => "Edited"),
-                                                     array("name" => "restored", "title" => "Restored"),
-                                                     array("name" => "approved", "title" => "Approved"),
-                                                     array("name" => "spam", "title" => "Spam"),
-                                                     array("name" => "replied", "title" => "replied"),
-                                                     array("name" => "additional", "title" => "Additional"),
+                                'nav_group_tokens' => array("sections"=> "Sections",
+                                                     "created"=> "Created",
+                                                     "updated"=> "Updated",
+                                                     "trashed"=> "Trashed",                                                           
+                                                     "deleted"=> "Deleted",
+                                                     "edited"=> "Edited",
+                                                     "restored"=> "Restored",
+                                                     "approved"=> "Approved",
+                                                     "spam"=> "Spam",
+                                                     "replied"=> "replied",
+                                                     "additional"=> "Additional",
                                                     ),
                                 "created" => array(
                                                 array("name" => "comment.title", "desc" => "Title of post or page where commented"),
@@ -298,11 +298,11 @@ class MainWPCReport
                                                 array("name" => "section.users.updated", "desc" => "Token Description"),
                                                 array("name" => "section.users.deleted", "desc" => "Token Description")                                                
                                             ),
-                                'nav_group_tokens' => array(array("name" => "sections", "title" => "Sections"),
-                                                     array("name" => "created", "title" => "Created"),
-                                                     array("name" => "updated", "title" => "Updated"),
-                                                     array("name" => "deleted", "title" => "Deleted"),
-                                                     array("name" => "additional", "title" => "Additional"),
+                                'nav_group_tokens' => array("sections" => "Sections",
+                                                     "created" => "Created",
+                                                     "updated" => "Updated",
+                                                     "deleted" => "Deleted",
+                                                     "additional" => "Additional",
                                                     ),
                                 "created" => array(
                                                 array("name" => "user.name", "desc" => "Token Description"),
@@ -332,11 +332,11 @@ class MainWPCReport
                                                 array("name" => "section.media.updated", "desc" => "Token Description"),
                                                 array("name" => "section.media.deleted", "desc" => "Token Description")                                                
                                             ),  
-                                 'nav_group_tokens' => array(array("name" => "sections", "title" => "Sections"),
-                                                     array("name" => "uploaded", "title" => "Uploaded"),
-                                                     array("name" => "updated", "title" => "Updated"),
-                                                     array("name" => "deleted", "title" => "Deleted"),
-                                                     array("name" => "additional", "title" => "Additional"),
+                                 'nav_group_tokens' => array("sections"=> "Sections",
+                                                     "uploaded"=> "Uploaded",
+                                                     "updated"=> "Updated",
+                                                     "deleted"=> "Deleted",
+                                                     "additional"=> "Additional",
                                                     ),
                                 "uploaded" => array(
                                                 array("name" => "media.name", "desc" => "Token Description"),
@@ -364,11 +364,11 @@ class MainWPCReport
                                                 array("name" => "section.media.updated", "desc" => "Token Description"),
                                                 array("name" => "section.media.deleted", "desc" => "Token Description")                                                
                                             ), 
-                                 'nav_group_tokens' => array(array("name" => "sections", "title" => "Sections"),
-                                                     array("name" => "added", "title" => "Added"),
-                                                     array("name" => "updated", "title" => "Updated"),
-                                                     array("name" => "deleted", "title" => "Deleted"),
-                                                     array("name" => "additional", "title" => "Additional"),
+                                 'nav_group_tokens' => array("sections" => "Sections",
+                                                     "added" => "Added",
+                                                     "updated" => "Updated",
+                                                     "deleted" => "Deleted",
+                                                     "additional" => "Additional",
                                                     ),
                                 "added" => array(
                                                 array("name" => "media.name", "desc" => "Token Description"),
@@ -396,11 +396,11 @@ class MainWPCReport
                                                 array("name" => "section.menus.updated", "desc" => "Token Description"),
                                                 array("name" => "section.menus.deleted", "desc" => "Token Description")                                                
                                             ),
-                               'nav_group_tokens' => array(array("name" => "sections", "title" => "Sections"),
-                                                     array("name" => "created", "title" => "Created"),
-                                                     array("name" => "updated", "title" => "Updated"),
-                                                     array("name" => "deleted", "title" => "Deleted"),
-                                                     array("name" => "additional", "title" => "Additional"),
+                               'nav_group_tokens' => array("sections" => "Sections",
+                                                     "created" => "Created",
+                                                     "updated" => "Updated",
+                                                     "deleted" => "Deleted",
+                                                     "additional" => "Additional",
                                                     ),
                                 "created" => array(
                                                 array("name" => "menu.title", "desc" => "Token Description"),
@@ -426,10 +426,10 @@ class MainWPCReport
             "wordpress" => array("sections" => array(                                                
                                                 array("name" => "section.wordpress.updated", "desc" => "Token Description")                                                
                                             ),  
-                               'nav_group_tokens' => array(array("name" => "sections", "title" => "Sections"),                                                     
-                                                     array("name" => "updated", "title" => "Updated"),                                                     
-                                                     array("name" => "additional", "title" => "Additional"),
-                                                    ),
+                               'nav_group_tokens' => array("sections" => "Sections",                                                     
+                                                            "updated" => "Updated",                                                     
+                                                            "additional" => "Additional"
+                                                        ),
                                 "updated" => array(                                                
                                                 array("name" => "wordpress.updated.date", "desc" => "Token Description"),
                                                 array("name" => "wordpress.updated.author", "desc" => "Token Description")                                                
@@ -443,16 +443,16 @@ class MainWPCReport
             
             );
         
-            self::$tokens_nav_top = array(array("name" => "plugins", "title" => "Plugins"),
-                                        array("name" => "themes", "title" => "Themes"),
-                                        array("name" => "posts", "title" => "Posts"),
-                                        array("name" => "pages", "title" => "Pages"),
-                                        array("name" => "comments", "title" => "Comments"),
-                                        array("name" => "users", "title" => "Users"),
-                                        array("name" => "media", "title" => "Media"),
-                                        array("name" => "widgets", "title" => "Widgets"),
-                                        array("name" => "menus", "title" => "Menus"),
-                                        array("name" => "wordpress", "title" => "WordPress")                
+            self::$tokens_nav_top = array("plugins" => "Plugins",
+                                        "themes" => "Themes",
+                                        "posts" => "Posts",
+                                        "pages" => "Pages",
+                                        "comments" => "Comments",
+                                        "users" => "Users",
+                                        "media" => "Media",
+                                        "widgets" => "Widgets",
+                                        "menus" => "Menus",
+                                        "wordpress" => "WordPress"                
                                     );           
         
     }
@@ -986,7 +986,7 @@ class MainWPCReport
                     <div style="display: block; width: 100% ; ">
                       <div style="display: block; width: 100% ; padding: .5em 0 ;">
                           <div style="float: left;">
-                              <?php echo nl2br($report->filtered_header); ?>
+                              <?php echo stripslashes(nl2br($report->filtered_header)); ?>
                           </div>
                           <?php 
                           if (!empty($logo_url)) {
@@ -1002,11 +1002,11 @@ class MainWPCReport
                     </div>
                     <br><br><br>
                     <div>
-                        <?php echo nl2br($report->filtered_body); ?>
+                        <?php echo stripslashes(nl2br($report->filtered_body)); ?>
                     </div>
                     <br><br><br>
                     <div style="display: block; width: 100% ;">
-                        <?php echo nl2br($report->filtered_footer); ?>
+                        <?php echo stripslashes(nl2br($report->filtered_footer)); ?>
                    </div>                                
                     <br><br><br>
                     <?php
@@ -1603,6 +1603,10 @@ class MainWPCReport
                     )
                 );                
             ?>
+            <br/>
+                <p><a href="#" style="float: right" class="mainwp_creport_show_insert_tokens_book_lnk"><?php _e("Show Available Tokens"); ?></a></p>
+                <br class="clearfix"/>
+               <?php self::gen_insert_tokens_box("header", true); ?>
             </td> 
         </tr>    
         <tr>
@@ -1619,55 +1623,7 @@ class MainWPCReport
                 );                
             ?>
                 <br/>
-                <div class="creport_format_data_tokens">
-                    <div class="creport_format_group_nav top">
-                        <?php
-                            $visible = "plugins";
-                            $nav_group = "";
-                            foreach (self::$tokens_nav_top as $group) {                                                                
-                                $current = ($visible == $group['name']) ? "current" : "";
-                                $nav_group .= '<a href="#" group="' . $group['name'] . '" class="creport_nav_group_lnk ' . $current . '">' . $group['title'] . '</a> | ';                                
-                            }  
-                            $nav_group = rtrim($nav_group, ' | ');
-                            echo $nav_group;
-                        ?>                
-                    </div>
-                <?php
-                    $visible_group = $visible."_sections";
-                    foreach (self::$stream_tokens as $group => $group_tokens) {
-                        foreach($group_tokens as $key => $tokens) {   
-                            if ($key == "nav_group_tokens")
-                                continue;
-                        ?>
-                            <div class="creport_format_group_data_tokens <?php echo ($visible_group == $group . "_" . $key) ? "current" : ""; ?>" group="<?php echo $group . "_" . $key; ?>">
-                                <table>
-                                <?php                            
-                                    foreach($tokens as $token) {
-                                       echo "<tr><td><a href=\"#\" class=\"creport_format_add_token\">[" . $token["name"] . "]</a></td>"
-                                               . "<td class=\"creport_stream_token_desc\">" . $token["desc"] ."</td>"
-                                               . "</tr>";
-                                    }
-                                ?>
-                                </table>
-                                <div class="creport_format_group_nav bottom">
-                                    <?php
-                                    $visible_nav = "plugins_sections";
-                                    $nav_group_bottom = "";
-                                    foreach ($group_tokens['nav_group_tokens'] as $nav_group) {                                            
-                                        $current = ($visible_nav ==  $group . "_" . $nav_group['name']) ? "current" : "";
-                                        $nav_group_bottom .= '<a href="#" group="' . $group . "_" . $nav_group['name'] . '" class="creport_nav_bottom_group_lnk ' . $current . '">' . $nav_group['title'] . '</a> | ';                                                                        
-                                    }  
-                                    $nav_group_bottom = rtrim($nav_group_bottom, ' | ');
-                                    echo $nav_group_bottom;                                
-                                    ?>  
-                                </div>
-                            </div>
-                        <?php
-                        }
-                    }           
-                ?>
-                </div>
-                
+               <?php self::gen_insert_tokens_box("body"); ?>
             </td> 
         </tr>   
         <tr>
@@ -1683,6 +1639,10 @@ class MainWPCReport
                     )
                 );                
             ?>
+            <br/>
+                <p><a href="#" style="float: right" class="mainwp_creport_show_insert_tokens_book_lnk"><?php _e("Show Available Tokens"); ?></a></p>
+                <br class="clearfix"/>            
+               <?php self::gen_insert_tokens_box("footer", true); ?>
             </td> 
         </tr> 
         <tr>
@@ -1707,6 +1667,71 @@ class MainWPCReport
     <?php
     
     }       
+    
+    public static function gen_insert_tokens_box($editor, $hide = false) {
+    ?>
+     <div class="creport_format_insert_tokens_box <?php echo $hide ? "hidden-field" : ""; ?>" editor="<?php echo $editor; ?>">
+         <div class="creport_format_data_tokens">
+            <div class="creport_format_group_nav top">
+                <?php
+                    $visible = "plugins";
+                    $nav_group = "";
+                    foreach (self::$tokens_nav_top as $group => $group_title) {                                                                
+                        $current = ($visible == $group) ? "current" : "";
+                        $nav_group .= '<a href="#" group="' . $group . '" group-title="' . $group_title . '" class="creport_nav_group_lnk ' . $current . '">' . $group_title . '</a> | ';                                
+                    }  
+                    $nav_group = rtrim($nav_group, ' | ');
+                    echo $nav_group;
+                ?>                
+            </div>
+            <?php
+                $visible_group = $visible."_sections";
+                foreach (self::$stream_tokens as $group => $group_tokens) {
+                    foreach($group_tokens as $key => $tokens) {   
+                        if ($key == "nav_group_tokens")
+                            continue;
+                    ?>
+                        <div class="creport_format_group_data_tokens <?php echo ($visible_group == $group . "_" . $key) ? "current" : ""; ?>" group="<?php echo $group . "_" . $key; ?>">
+                            <table>
+                            <?php                            
+                                foreach($tokens as $token) {
+                                   echo "<tr><td><a href=\"#\" class=\"creport_format_add_token\">[" . $token["name"] . "]</a></td>"
+                                           . "<td class=\"creport_stream_token_desc\">" . $token["desc"] ."</td>"
+                                           . "</tr>";
+                                }
+                            ?>
+                            </table>                               
+                        </div>
+                    <?php
+                    }
+                }           
+            ?>
+            </div>
+            <div class="creport_format_nav_bottom">
+            <?php
+                $visible = "plugins";
+                $visible_nav = "sections";                                                       
+                foreach (self::$stream_tokens as $group => $group_tokens) {                        
+                    $nav_group_bottom = '';
+                    $group_title = self::$tokens_nav_top[$group];
+                    foreach ($group_tokens['nav_group_tokens'] as $nav_key => $nav_value) {                                            
+                        $current_nav = ($visible . "_" . $visible_nav ==  $group . "_" . $nav_key) ? "current" : "";
+                        $nav_group_bottom .= '<a href="#" group="' . $group . "_" . $nav_key . '" group-title="' . $group_title . '" group2-title="' . $nav_value . '" class="creport_nav_bottom_group_lnk ' . $current_nav . '">' . $nav_value . '</a> | ';                                                                        
+                    }  
+                    $nav_group_bottom = rtrim($nav_group_bottom, ' | ');
+                    $current = ($visible ==  $group) ? "current" : "";
+                    echo '<div class="creport_format_group_nav bottom ' . $current . '" group="' . $group . '">' . $nav_group_bottom . '</div>';        
+                }
+                $breadcrumb = '<a href="javascript:void(0)" class="group" >' . self::$tokens_nav_top[$visible] . "</a> > " . '<a href="javascript:void(0)" class="group2">' . self::$stream_tokens[$visible]['nav_group_tokens'][$visible_nav] . '</a>';
+
+            ?>    
+                <div class="creport_format_nav_bottom_breadcrumb">
+                    <?php _e("You are currently here:") ?> <span><?php echo $breadcrumb; ?></span>
+                </div> 
+            </div>         
+        </div> 
+        <?php
+    }
     
     public function site_token($website) {          
         global $wpdb;         
