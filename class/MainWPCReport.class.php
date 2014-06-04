@@ -439,10 +439,13 @@ class MainWPCReport
                                                 array("name" => "wordpress.current.version", "desc" => "Token Description"),
                                                 array("name" => "wordpress.updated.count", "desc" => "Token Description")                                                                                               
                                             )
-                            )
-            
+                            ),
+                    "client" => array("tokens" => array(),
+                                'nav_group_tokens' => array()
+                            ),              
             );
-        
+       
+            
             self::$tokens_nav_top = array("plugins" => "Plugins",
                                         "themes" => "Themes",
                                         "posts" => "Posts",
@@ -452,7 +455,8 @@ class MainWPCReport
                                         "media" => "Media",
                                         "widgets" => "Widgets",
                                         "menus" => "Menus",
-                                        "wordpress" => "WordPress"                
+                                        "wordpress" => "WordPress",
+                                        "client" => "Client Tokens"  
                                     );           
         
     }
@@ -468,7 +472,9 @@ class MainWPCReport
         add_action('wp_ajax_mainwp_creport_delete_token', array(&$this, 'delete_token')); 
         add_action('wp_ajax_mainwp_creport_save_token', array(&$this, 'save_token'));
         add_action('wp_ajax_mainwp_creport_delete_report', array(&$this, 'delete_report')); 
-        add_action('wp_ajax_mainwp_creport_load_client', array(&$this, 'load_client'));        
+        add_action('wp_ajax_mainwp_creport_load_client', array(&$this, 'load_client'));    
+        add_action('wp_ajax_mainwp_creport_load_site_tokens', array(&$this, 'load_site_tokens')); 
+        
         add_action('mainwp_update_site', array(&$this, 'update_site_update_tokens'), 8, 1);
         add_action('mainwp_delete_site', array(&$this, 'delete_site_delete_tokens'), 8, 1);
         
@@ -1047,40 +1053,43 @@ class MainWPCReport
         if (!is_array($website) || empty($website['id']))
             return $report;
         
-//        $tokens = MainWPCReportDB::Instance()->getTokens();
-//        $site_tokens = MainWPCReportDB::Instance()->getSiteTokens($website['url']);        
-//        $search_tokens = $replace_values = array();
-//        foreach ($tokens as $token) {            
-//            $search_tokens[] = '[' . $token->token_name . ']';            
-//            $replace_values[] = isset($site_tokens[$token->id]) ? $site_tokens[$token->id]->token_value : "";            
-//        }    
+        $tokens = MainWPCReportDB::Instance()->getTokens();
+        $site_tokens = MainWPCReportDB::Instance()->getSiteTokens($website['url']);        
+        $search_tokens = $replace_values = array();
+        foreach ($tokens as $token) {            
+            $search_tokens[] = '[' . $token->token_name . ']';            
+            $replace_values[] = isset($site_tokens[$token->id]) ? $site_tokens[$token->id]->token_value : "";            
+        }    
         
         //$report->filtered_header = self::replace_content($report->header, $search_tokens, $replace_values);        
         //$report->body = self::replace_content($report->body, $search_tokens, $replace_values);        
         //$report->filtered_footer = self::replace_content($report->footer, $search_tokens, $replace_values);        
-
-        $result = self::parse_report_content($report->header);
-        //print_r($result);
-        self::$buffer['sections']['header'] = $sections['header'] = $result['sections'];
-        $other_tokens['header'] = $result['other_tokens'];  
-        unset($result);
         
-        $result = self::parse_report_content($report->body);
-        //print_r($result);
-        self::$buffer['sections']['body'] = $sections['body'] = $result['sections'];
-        $other_tokens['body'] = $result['other_tokens'];  
-        unset($result);
-        
-        $result = self::parse_report_content($report->footer);
-        //print_r($result);
-        self::$buffer['sections']['footer'] = $sections['footer'] = $result['sections'];
-        $other_tokens['footer'] = $result['other_tokens'];  
-        unset($result);
-        
-         
         $report_header = $report->header;
         $report_body = $report->body;
         $report_footer = $report->footer;
+        
+        $result = self::parse_report_content($report_header, $search_tokens, $replace_values);
+        //print_r($result);
+        self::$buffer['sections']['header'] = $sections['header'] = $result['sections'];
+        $other_tokens['header'] = $result['other_tokens']; 
+        $report_header = $result['filtered_content'];
+        unset($result);
+        
+        $result = self::parse_report_content($report_body, $search_tokens, $replace_values);
+        //print_r($result);
+        self::$buffer['sections']['body'] = $sections['body'] = $result['sections'];
+        $other_tokens['body'] = $result['other_tokens']; 
+        $report_body = $result['filtered_content'];
+        unset($result);
+        
+        $result = self::parse_report_content($report_footer, $search_tokens, $replace_values);
+        //print_r($result);
+        self::$buffer['sections']['footer'] = $sections['footer'] = $result['sections'];
+        $other_tokens['footer'] = $result['other_tokens'];  
+        $report_footer = $result['filtered_content'];
+        unset($result);
+        
         if ((is_array($sections) && count($sections) > 0) || (is_array($other_tokens) && count($other_tokens) > 0)) {
             $sections_data = $other_tokens_data = array();
             $information = self::fetch_stream_data($website, $report, $sections, $other_tokens);                    
@@ -1203,7 +1212,8 @@ class MainWPCReport
         return str_replace($tokens, $replace_tokens, $content);                
     }
     
-    public static function parse_report_content($content) {
+    public static function parse_report_content($content, $client_tokens, $replace) {
+        $filtered_content = $content = str_replace($client_tokens, $replace, $content);
         $sections = array();
         if (preg_match_all("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is", $content, $matches)) {            
             for ($i = 0; $i < count($matches[1]) ; $i++) {
@@ -1221,42 +1231,9 @@ class MainWPCReport
         if(preg_match_all("/\[[^\]]+\]/is" , $removed_sections, $matches)) {
             $other_tokens = $matches[0];
         }       
-        return array('sections' => $sections, 'other_tokens' => $other_tokens);
+        return array('sections' => $sections, 'other_tokens' => $other_tokens, 'filtered_content' => $filtered_content);
     }
    
-    public static function get_report_stream_tokens($report, $all_tokens) {
-        $matches = array();
-        $report_tokens = array();
-//        if(preg_match_all("/\[[^\]]+\]/is" , $report->header, $matches)) {
-//            if (isset($matches[0]) && is_array($matches[0]) && count($matches[0]) > 0) {
-//                $report_tokens = $matches[0];
-//            }
-//        }        
-        $matches = array();        
-        $result = self::remove_section_tokens($report->body);  
-        $report->body = $result['content'];
-        $section = $result['section'];
-        if(preg_match_all("/\[[^\]]+\]/is" , $report->body, $matches)) {
-            if (isset($matches[0]) && is_array($matches[0]) && count($matches[0]) >0 ) {
-                $report_tokens = array_merge($report_tokens, $matches[0]);
-            }
-        }
-        
-//        $matches = array();        
-//        if(preg_match_all("/\[[^\]]+\]/is" , $report->footer, $matches)) {
-//            if (isset($matches[0]) && is_array($matches[0]) && count($matches[0]) > 0) {
-//                $report_tokens = array_merge($report_tokens, $matches[0]);
-//            }
-//        }
-            
-        $valid_tokens = array();
-        foreach($report_tokens as $token) {
-            if (in_array($token, $all_tokens))
-                $valid_tokens[] = $token;
-        }         
-        return array('valid_tokens' => $valid_tokens, 'section' => $section);        
-    }    
-    
     public static function remove_section_tokens($content) {        
         $matches = array(); 
         $section_tokens = array();
@@ -1581,14 +1558,27 @@ class MainWPCReport
             $footer = $report->footer;
             $file_logo = $report->logo_file;            
         } 
-       
-        
-//        else if (isset($_POST['submit'])){
-//            $header = $_POST['mainwp_creport_report_header'];
-//            $body = $_POST['mainwp_creport_report_body'];
-//            $footer = $_POST['mainwp_creport_report_footer'];            
-//        }
             
+        $client_tokens = MainWPCReportDB::Instance()->getTokens();
+        $client_tokens_values = array();  
+        
+        if ($report->selected_site) {
+            $website = null;
+            global $mainWPCReportExtensionActivator;
+            $website = apply_filters('mainwp-getsites', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $report->selected_site);            
+            if ($website && is_array($website)) {
+                $website = current($website);
+            }           
+        
+            if (is_array($website) && isset($website['url'])) {            
+                $site_tokens = MainWPCReportDB::Instance()->getSiteTokens($website['url']);                
+                foreach ($client_tokens as $token) {             
+                    $client_tokens_values[] = array('token_name' => $token->token_name,
+                                                    'token_value' => isset($site_tokens[$token->id]) ? $site_tokens[$token->id]->token_value : ""
+                                                    );
+                }  
+            }
+        }
     ?>  
         <tr>
             <th><span><?php _e("Report Header"); ?></span></th>
@@ -1606,7 +1596,7 @@ class MainWPCReport
             <br/>
                 <p><a href="#" style="float: right" class="mainwp_creport_show_insert_tokens_book_lnk"><?php _e("Show Available Tokens"); ?></a></p>
                 <br class="clearfix"/>
-               <?php self::gen_insert_tokens_box("header", true); ?>
+               <?php self::gen_insert_tokens_box("header", true, $client_tokens_values, $client_tokens); ?>
             </td> 
         </tr>    
         <tr>
@@ -1623,7 +1613,7 @@ class MainWPCReport
                 );                
             ?>
                 <br/>
-               <?php self::gen_insert_tokens_box("body"); ?>
+               <?php self::gen_insert_tokens_box("body", false, $client_tokens_values, $client_tokens); ?>
             </td> 
         </tr>   
         <tr>
@@ -1642,7 +1632,7 @@ class MainWPCReport
             <br/>
                 <p><a href="#" style="float: right" class="mainwp_creport_show_insert_tokens_book_lnk"><?php _e("Show Available Tokens"); ?></a></p>
                 <br class="clearfix"/>            
-               <?php self::gen_insert_tokens_box("footer", true); ?>
+               <?php self::gen_insert_tokens_box("footer", true, $client_tokens_values, $client_tokens); ?>
             </td> 
         </tr> 
         <tr>
@@ -1668,7 +1658,7 @@ class MainWPCReport
     
     }       
     
-    public static function gen_insert_tokens_box($editor, $hide = false) {
+    public static function gen_insert_tokens_box($editor, $hide = false, $client_tokens_values, $client_tokens) {
     ?>
      <div class="creport_format_insert_tokens_box <?php echo $hide ? "hidden-field" : ""; ?>" editor="<?php echo $editor; ?>">
          <div class="creport_format_data_tokens">
@@ -1690,14 +1680,31 @@ class MainWPCReport
                     foreach($group_tokens as $key => $tokens) {   
                         if ($key == "nav_group_tokens")
                             continue;
+                        
                     ?>
                         <div class="creport_format_group_data_tokens <?php echo ($visible_group == $group . "_" . $key) ? "current" : ""; ?>" group="<?php echo $group . "_" . $key; ?>">
-                            <table>
-                            <?php                            
-                                foreach($tokens as $token) {
-                                   echo "<tr><td><a href=\"#\" class=\"creport_format_add_token\">[" . $token["name"] . "]</a></td>"
-                                           . "<td class=\"creport_stream_token_desc\">" . $token["desc"] ."</td>"
-                                           . "</tr>";
+                            <table>                                
+                            <?php    
+                                if ($group == "client" && $key == "tokens" && is_array($client_tokens)) {
+                                    if (is_array($client_tokens_values) && count($client_tokens_values) > 0) {
+                                        foreach($client_tokens_values as $token) {                                    
+                                           echo "<tr><td><a href=\"#\" token-value = \"" . $token['token_value'] . "\"class=\"creport_format_add_token\">[" . $token['token_name'] . "]</a></td>"
+                                                   . "<td class=\"creport_stream_token_desc\">" . $token['token_value'] ."</td>"
+                                                   . "</tr>";
+                                        }
+                                    } else if (is_array($client_tokens) && count($client_tokens) > 0) {
+                                        foreach($client_tokens as $token) {                                    
+                                           echo "<tr><td><a href=\"#\" token-value =\"\" class=\"creport_format_add_token\">[" . $token['token_name'] . "]</a></td>"
+                                                   . "<td class=\"creport_stream_token_desc\">" . $token['token_description'] ."</td>"
+                                                   . "</tr>";
+                                        }
+                                    }                                    
+                                } else {
+                                    foreach($tokens as $token) {
+                                       echo "<tr><td><a href=\"#\" token-value =\"\" class=\"creport_format_add_token\">[" . $token["name"] . "]</a></td>"
+                                               . "<td class=\"creport_stream_token_desc\">" . $token["desc"] ."</td>"
+                                               . "</tr>";
+                                    }
                                 }
                             ?>
                             </table>                               
@@ -1722,7 +1729,9 @@ class MainWPCReport
                     $current = ($visible ==  $group) ? "current" : "";
                     echo '<div class="creport_format_group_nav bottom ' . $current . '" group="' . $group . '">' . $nav_group_bottom . '</div>';        
                 }
-                $breadcrumb = '<a href="javascript:void(0)" class="group" >' . self::$tokens_nav_top[$visible] . "</a> > " . '<a href="javascript:void(0)" class="group2">' . self::$stream_tokens[$visible]['nav_group_tokens'][$visible_nav] . '</a>';
+                $breadcrumb = '<a href="javascript:void(0)" class="group" >' . self::$tokens_nav_top[$visible] . 
+                        "</a><span class=\"crp_content_group2\"> > " . '<a href="javascript:void(0)" class="group2">' . 
+                        self::$stream_tokens[$visible]['nav_group_tokens'][$visible_nav] . '</a></span>';
 
             ?>    
                 <div class="creport_format_nav_bottom_breadcrumb">
@@ -1848,6 +1857,39 @@ class MainWPCReport
          <?php        
         exit; 
     }
+    
+    public function load_site_tokens() {
+        
+        $site_id = isset($_POST['siteId']) ? $_POST['siteId'] : 0;
+        if ($site_id) {
+            $website = null;
+            global $mainWPCReportExtensionActivator;
+            $website = apply_filters('mainwp-getsites', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $site_id);            
+            if ($website && is_array($website)) {
+                $website = current($website);
+            }           
+        
+            if (is_array($website) && isset($website['url'])) {    
+                $client_tokens = MainWPCReportDB::Instance()->getTokens();
+                $client_tokens_values = array();
+                $site_tokens = MainWPCReportDB::Instance()->getSiteTokens($website['url']);                
+                foreach ($client_tokens as $token) {             
+                    $client_tokens_values[] = array('token_name' => $token->token_name,
+                                                    'token_value' => isset($site_tokens[$token->id]) ? $site_tokens[$token->id]->token_value : ""
+                                                    );
+                }                  
+                if (count($client_tokens_values) > 0) {              
+                    foreach($client_tokens_values as $token) {                                    
+                        echo "<tr><td><a href=\"#\" token-value = \"" . $token['token_value'] . "\"class=\"creport_format_add_token\">[" . $token['token_name'] . "]</a></td>"
+                                . "<td class=\"creport_stream_token_desc\">" . $token['token_value'] ."</td>"
+                                . "</tr>";
+                    }
+                }
+                die();
+            }
+        }        
+        die('EMPTY');
+    }            
     
     public function load_client() {
         if (isset($_POST['client'])) {

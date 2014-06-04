@@ -167,13 +167,20 @@ jQuery(document).ready(function($) {
         var gr = $(this).attr('group');
         var gr_title = $(this).attr('group-title');       
         parent.find('.creport_nav_group_lnk').removeClass('current');
-        $(this).addClass('current');
+        $(this).addClass('current');        
+        var gr2 = 'sections';
+        var gr2_title = 'Sections';        
+        if (gr == 'client') {
+            gr2 = 'tokens';
+            gr2_title = '';
+        }        
         parent.find('.creport_format_group_data_tokens').removeClass('current');
-        parent.find('.creport_format_group_data_tokens[group="' + gr + '_sections"]').addClass('current');
+        parent.find('.creport_format_group_data_tokens[group="' + gr + '_' + gr2 + '"]').addClass('current');
         parent.find('.creport_format_group_nav.bottom').removeClass('current');
-        parent.find('.creport_format_group_nav.bottom[group="' + gr + '"]').addClass('current');
-        parent.find('.creport_nav_bottom_group_lnk[group="' + gr + '_sections"]').addClass('current');
-        mainwp_creport_insert_token_set_breadcrumb(parent, gr_title, 'Sections');
+        parent.find('.creport_format_group_nav.bottom[group="' + gr + '"]').addClass('current');       
+        parent.find('.creport_nav_bottom_group_lnk').removeClass('current');
+        parent.find('.creport_nav_bottom_group_lnk[group="' + gr + '_' + gr2 + '"]').addClass('current');
+        mainwp_creport_insert_token_set_breadcrumb(parent, gr_title, gr2_title);
         return false;        
     })
     
@@ -192,7 +199,12 @@ jQuery(document).ready(function($) {
     
     mainwp_creport_insert_token_set_breadcrumb = function(parent, group, group2) {
         parent.find('.creport_format_nav_bottom_breadcrumb .group').text(group);
-        parent.find('.creport_format_nav_bottom_breadcrumb .group2').text(group2);
+        if (group2 == '') {
+            parent.find('.creport_format_nav_bottom_breadcrumb .crp_content_group2').hide();
+        } else {
+            parent.find('.creport_format_nav_bottom_breadcrumb .group2').text(group2);
+            parent.find('.creport_format_nav_bottom_breadcrumb .crp_content_group2').show();            
+        }
     }
     
     $('.mainwp_creport_show_insert_tokens_book_lnk').on('click', function() {        
@@ -207,23 +219,71 @@ jQuery(document).ready(function($) {
         return false;
     })
     
-    $( 'a.creport_format_add_token' ).on( 'click', function( e ) {   
+    $( 'a.creport_format_add_token' ).live( 'click', function( e ) {   
         var parent = $(this).closest('.creport_format_insert_tokens_box');
-        var replace_text = jQuery(this).html(); 
-        if (replace_text.indexOf("[section.") == 0) {
-            var end_section =  replace_text.replace("[section.", "[/section.");
-            replace_text = replace_text + '<br/><span id="crp_ed_cursor"></span><br/>' + end_section;
-        }
+        var replace_text = jQuery(this).html();  
+        var token_value = jQuery(this).attr('token-value');
+        if (token_value !== '')
+            replace_text = token_value;
         var name = parent.attr('editor');
         var editor = tinyMCE.get('mainwp_creport_report_' + name);
-        
-        if (typeof(editor) != "undefined") {
+        var set_new_pos = replace_text.length;
+        if (editor != null && typeof(editor) !== "undefined" && editor.isHidden() == false) {
+            if (replace_text.indexOf("[section.") !== -1) {
+                var end_section =  replace_text.replace("[section.", "[/section.");
+                replace_text = replace_text + '<br/><span id="crp_ed_cursor"></span><br/>' + end_section;
+            }
             editor.execCommand('mceInsertContent', false, replace_text);        
             var cursor = editor.dom.select('span#crp_ed_cursor');
-            editor.selection.select(cursor[0]);            
+            if (cursor != null && typeof(cursor[0]) !== "undefined") {                               
+                editor.selection.select(cursor[0]).remove();                                      
+            }
+        } else {            
+            if (replace_text.indexOf("[section.") !== -1) {
+                var end_section =  replace_text.replace("[section.", "[/section.");
+                set_new_pos++;
+                replace_text = replace_text + '\n\n' + end_section;             
+            }
+            var obj = $('#mainwp_creport_report_' + name);
+            var str = obj.val();  
+            var pos = creport_getPos(obj[0]);
+            str = str.substring(0,pos) + replace_text + str.substring(pos, str.length)
+            obj.val(str);       
+            set_new_pos += pos;
+            creport_setPos(obj[0], set_new_pos, set_new_pos);            
         }
         return false;
     });
+       
+    function creport_getPos(obj) {
+            var pos = 0;	// IE Support
+            if (document.selection) {
+                obj.focus();
+                var range = document.selection.createRange ();
+                range.moveStart ('character', -obj.value.length);
+                pos = range.text.length;
+            }
+            // Firefox support
+            else if (obj.selectionStart || obj.selectionStart == '0')
+                pos = obj.selectionStart;
+            return (pos);
+    }
+    
+    function creport_setPos(obj, selectionStart, selectionEnd) {           
+        if (document.selection) {           
+            obj.focus();
+            var range = document.selection.createRange();
+            range.collapse(true);
+            range.moveEnd('character', selectionEnd);
+            range.moveStart('character', selectionStart);
+            range.select();                
+        }
+        // Firefox support
+        else {                
+            obj.focus();            
+            obj.setSelectionRange(selectionStart, selectionEnd);
+        }        
+    }
     
     $('.mwp-creport-report-item-delete-lnk').on('click' ,function(){        
         if (!confirm("Are you sure?"))
@@ -369,6 +429,18 @@ jQuery(document).ready(function($) {
         var client = $('#mainwp_creport_select_client').val();
         location.href = 'admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&client=' + client;
     })
+    
+    $('#mwp_creport_edit_form .mainwp_selected_sites_item input[type="radio"]').on('click',function(){
+        var data = {
+            action: 'mainwp_creport_load_site_tokens',
+            siteId: $(this).attr('siteid')
+        }
+        $.post(ajaxurl, data, function(response) { 
+           if (response && response !== 'EMPTY') {
+               $('.creport_format_group_data_tokens[group="client_tokens"] table tbody').html(response);
+           }                                 
+        }); 
+    })    
 });
 
 showCReportTab = function(report, new_report, token) {
