@@ -431,13 +431,15 @@ jQuery(document).ready(function($) {
     })
     
     $('#mwp_creport_edit_form .mainwp_selected_sites_item input[type="radio"]').on('click',function(){
+        var site_Id = $(this).attr('siteid');
         var data = {
             action: 'mainwp_creport_load_site_tokens',
-            siteId: $(this).attr('siteid')
+            siteId: site_Id
         }
         $.post(ajaxurl, data, function(response) { 
            if (response && response !== 'EMPTY') {
                $('.creport_format_group_data_tokens[group="client_tokens"] table tbody').html(response);
+               $('.mwp_creport_edit_client_tokens').html('<a href="admin.php?page=managesites&id=' + site_Id + '">' + __("Edit Client Tokens") + '</a>');
            }                                 
         }); 
     })    

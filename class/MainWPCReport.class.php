@@ -1587,9 +1587,8 @@ class MainWPCReport
             
         $client_tokens = MainWPCReportDB::Instance()->getTokens();
         $client_tokens_values = array();  
-        
-        if ($report && $report->selected_site) {
-            $website = null;
+        $website = null;
+        if ($report && $report->selected_site) {            
             global $mainWPCReportExtensionActivator;
             $website = apply_filters('mainwp-getsites', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $report->selected_site);            
             if ($website && is_array($website)) {
@@ -1622,7 +1621,7 @@ class MainWPCReport
             <br/>
                 <p><a href="#" style="float: right" class="mainwp_creport_show_insert_tokens_book_lnk"><?php _e("Show Available Tokens"); ?></a></p>
                 <br class="clearfix"/>
-               <?php self::gen_insert_tokens_box("header", true, $client_tokens_values, $client_tokens); ?>
+               <?php self::gen_insert_tokens_box("header", true, $client_tokens_values, $client_tokens, $website); ?>
             </td> 
         </tr>    
         <tr>
@@ -1639,7 +1638,7 @@ class MainWPCReport
                 );                
             ?>
                 <br/>
-               <?php self::gen_insert_tokens_box("body", false, $client_tokens_values, $client_tokens); ?>
+               <?php self::gen_insert_tokens_box("body", false, $client_tokens_values, $client_tokens, $website); ?>
             </td> 
         </tr>   
         <tr>
@@ -1658,7 +1657,7 @@ class MainWPCReport
             <br/>
                 <p><a href="#" style="float: right" class="mainwp_creport_show_insert_tokens_book_lnk"><?php _e("Show Available Tokens"); ?></a></p>
                 <br class="clearfix"/>            
-               <?php self::gen_insert_tokens_box("footer", true, $client_tokens_values, $client_tokens); ?>
+               <?php self::gen_insert_tokens_box("footer", true, $client_tokens_values, $client_tokens, $website); ?>
             </td> 
         </tr> 
         <tr>
@@ -1684,7 +1683,7 @@ class MainWPCReport
     
     }       
     
-    public static function gen_insert_tokens_box($editor, $hide = false, $client_tokens_values, $client_tokens) {
+    public static function gen_insert_tokens_box($editor, $hide = false, $client_tokens_values, $client_tokens, $website) {
     ?>
      <div class="creport_format_insert_tokens_box <?php echo $hide ? "hidden-field" : ""; ?>" editor="<?php echo $editor; ?>">
          <div class="creport_format_data_tokens">
@@ -1762,6 +1761,7 @@ class MainWPCReport
             ?>    
                 <div class="creport_format_nav_bottom_breadcrumb">
                     <?php _e("You are currently here:") ?> <span><?php echo $breadcrumb; ?></span>
+                    <span class="mwp_creport_edit_client_tokens" style="float: right"><?php echo !empty($website) ?  '<a href="admin.php?page=managesites&id=' . $website['id']. '">' . __("Edit Client Tokens") . "</a>" : "" ?></span>
                 </div> 
             </div>         
         </div> 
