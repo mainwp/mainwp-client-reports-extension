@@ -13,12 +13,12 @@ class MainWPCReport
                                 'nav_group_tokens' => array()
                             ),            
             "plugins"=>array(   "sections" => array(
-                                                array("name" => "section.plugins.installed", "desc" => "Token Description"),
-                                                array("name" => "section.plugins.activated", "desc" => "Token Description"),
-                                                array("name" => "section.plugins.edited", "desc" => "Token Description"),
-                                                array("name" => "section.plugins.deactivated", "desc" => "Token Description"),
-                                                array("name" => "section.plugins.updated", "desc" => "Token Description"),
-                                                array("name" => "section.plugins.deleted", "desc" => "Token Description")
+                                                array("name" => "section.plugins.installed", "desc" => "Loops through Plugins Installed during the selected date range"),
+                                                array("name" => "section.plugins.activated", "desc" => "Loops through Plugins Activated during the selected date range"),
+                                                array("name" => "section.plugins.edited", "desc" => "Loops through Plugins Edited during the selected date range"),
+                                                array("name" => "section.plugins.deactivated", "desc" => "Loops through Plugins Deactivated during the selected date range"),
+                                                array("name" => "section.plugins.updated", "desc" => "Loops through Plugins Updated during the selected date range"),
+                                                array("name" => "section.plugins.deleted", "desc" => "Loops through Plugins Deleted during the selected date range")
                                             ),
                                 'nav_group_tokens' => array("sections" => "Sections",
                                                             "installed" => "Installed",
@@ -30,52 +30,52 @@ class MainWPCReport
                                                             "additional" => "Additional",
                                                     ),   
                                 "installed" => array(
-                                                array("name" => "plugin.name", "desc" => "Token Description"),
-                                                array("name" => "plugin.installed.date", "desc" => "Token Description"),
-                                                array("name" => "plugin.installed.author", "desc" => "Token Description")                                               
+                                                array("name" => "plugin.name", "desc" => "Displays the Plugin Name"),
+                                                array("name" => "plugin.installed.date", "desc" => "Displays the Plugin Installation Date"),
+                                                array("name" => "plugin.installed.author", "desc" => "Displays the User who Installed the Plugin")                                               
                                             ),
                                 "activated" => array(
-                                                array("name" => "plugin.name", "desc" => "Token Description"),
-                                                array("name" => "plugin.activated.date", "desc" => "Token Description"),
-                                                array("name" => "plugin.activated.author", "desc" => "Token Description")                                               
+                                                array("name" => "plugin.name", "desc" => "Displays the Plugin Name"),
+                                                array("name" => "plugin.activated.date", "desc" => "Displays the Plugin Activation Date"),
+                                                array("name" => "plugin.activated.author", "desc" => "Displays the User who Activated the Plugin")                                               
                                             ),
                                 "edited" => array(
-                                                array("name" => "plugin.name", "desc" => "Token Description"),
-                                                array("name" => "plugin.edited.date", "desc" => "Token Description"),
-                                                array("name" => "plugin.edited.author", "desc" => "Token Description")                                               
+                                                array("name" => "plugin.name", "desc" => "Displays the Plugin Name"),
+                                                array("name" => "plugin.edited.date", "desc" => "Displays the Plugin Editing Date"),
+                                                array("name" => "plugin.edited.author", "desc" => "Displays the User who Edited the Plugin")                                               
                                             ),
                                 "deactivated" => array(
-                                                array("name" => "plugin.name", "desc" => "Token Description"),
-                                                array("name" => "plugin.deactivated.date", "desc" => "Token Description"),
-                                                array("name" => "plugin.deactivated.author", "desc" => "Token Description")                                               
+                                                array("name" => "plugin.name", "desc" => "Displays the Plugin Name"),
+                                                array("name" => "plugin.deactivated.date", "desc" => "Displays the Plugin Deactivation Date"),
+                                                array("name" => "plugin.deactivated.author", "desc" => "Displays the User who Deactivated the Plugin")                                               
                                             ),
                                 "updated" => array(
-                                                array("name" => "plugin.name", "desc" => "Token Description"),
-                                                array("name" => "plugin.updated.date", "desc" => "Token Description"),
-                                                array("name" => "plugin.updated.author", "desc" => "Token Description")                                               
+                                                array("name" => "plugin.name", "desc" => "Displays the Plugin Name"),
+                                                array("name" => "plugin.updated.date", "desc" => "Displays the Plugin Update Date"),
+                                                array("name" => "plugin.updated.author", "desc" => "Displays the User who Updated the Plugin")                                               
                                             ),
                                 "deleted" => array(
-                                                array("name" => "plugin.name", "desc" => "Token Description"),
-                                                array("name" => "plugin.deleted.date", "desc" => "Token Description"),
-                                                array("name" => "plugin.deleted.author", "desc" => "Token Description")                                               
+                                                array("name" => "plugin.name", "desc" => "Displays the Plugin Name"),
+                                                array("name" => "plugin.deleted.date", "desc" => "Displays the Plugin Deliting Date"),
+                                                array("name" => "plugin.deleted.author", "desc" => "Displays the User who Deleted the Plugin")                                               
                                             ),
                                 "additional" => array(
-                                                array("name" => "plugin.old.version", "desc" => "Token Description"),
-                                                array("name" => "plugin.current.version", "desc" => "Token Description"),
-                                                array("name" => "plugin.installed.count", "desc" => "Token Description"),                                               
-                                                array("name" => "plugin.edited.count", "desc" => "Token Description"),
-                                                array("name" => "plugin.activated.count", "desc" => "Token Description"),
-                                                array("name" => "plugin.deactivated.count", "desc" => "Token Description"),
-                                                array("name" => "plugin.deleted.count", "desc" => "Token Description"),
-                                                array("name" => "plugin.updated.count", "desc" => "Token Description")                                                
+                                                array("name" => "plugin.old.version", "desc" => "Displays the Plugin Version Before Update"),
+                                                array("name" => "plugin.current.version", "desc" => "Displays the Plugin Current Vesion"),
+                                                array("name" => "plugin.installed.count", "desc" => "Displays the Number of Installed Plugins"),                                               
+                                                array("name" => "plugin.edited.count", "desc" => "Displays the Number of Edited Plugins"),
+                                                array("name" => "plugin.activated.count", "desc" => "Displays the Number of Activated Plugins"),
+                                                array("name" => "plugin.deactivated.count", "desc" => "Displays the Number of Deactivated Plugins"),
+                                                array("name" => "plugin.deleted.count", "desc" => "Displays the Number of Deleted Plugins"),
+                                                array("name" => "plugin.updated.count", "desc" => "Displays the Number of Updated Plugins")                                                
                                             ),                                         
                             ),
            "themes"=>array(     "sections" => array(
-                                                array("name" => "section.themes.installed", "desc" => "Token Description"),
-                                                array("name" => "section.themes.activated", "desc" => "Token Description"),
-                                                array("name" => "section.themes.edited", "desc" => "Token Description"),                                                
-                                                array("name" => "section.themes.updated", "desc" => "Token Description"),
-                                                array("name" => "section.themes.deleted", "desc" => "Token Description")
+                                                array("name" => "section.themes.installed", "desc" => "Loops through Themes Installed during the selected date range"),
+                                                array("name" => "section.themes.activated", "desc" => "Loops through Themes Activated during the selected date range"),
+                                                array("name" => "section.themes.edited", "desc" => "Loops through Themes Edited during the selected date range"),                                                
+                                                array("name" => "section.themes.updated", "desc" => "Loops through Themes Updated during the selected date range"),
+                                                array("name" => "section.themes.deleted", "desc" => "Loops through Themes Deleted during the selected date range")
                                             ),  
                                 'nav_group_tokens' => array("sections"=> "Sections",
                                                             "installed"=> "Installed",
@@ -86,46 +86,46 @@ class MainWPCReport
                                                             "additional"=> "Additional",
                                                     ),
                                 "installed" => array(
-                                                array("name" => "theme.name", "desc" => "Token Description"),
-                                                array("name" => "theme.installed.date", "desc" => "Token Description"),
-                                                array("name" => "theme.installed.author", "desc" => "Token Description")                                               
+                                                array("name" => "theme.name", "desc" => "Displays the Theme Name"),
+                                                array("name" => "theme.installed.date", "desc" => "Displays the Theme Installation Date"),
+                                                array("name" => "theme.installed.author", "desc" => "Displays the User who Installed the Theme")                                               
                                             ),
                                 "activated" => array(
-                                                array("name" => "theme.name", "desc" => "Token Description"),
-                                                array("name" => "theme.activated.date", "desc" => "Token Description"),
-                                                array("name" => "theme.activated.author", "desc" => "Token Description")                                               
+                                                array("name" => "theme.name", "desc" => "Displays the Theme Name"),
+                                                array("name" => "theme.activated.date", "desc" => "Displays the Theme Activation Date"),
+                                                array("name" => "theme.activated.author", "desc" => "Displays the User who Activated the Theme")                                               
                                             ),
                                 "edited" => array(
-                                                array("name" => "theme.name", "desc" => "Token Description"),
-                                                array("name" => "theme.edited.date", "desc" => "Token Description"),
-                                                array("name" => "theme.edited.author", "desc" => "Token Description")                                               
+                                                array("name" => "theme.name", "desc" => "Displays the Theme Name"),
+                                                array("name" => "theme.edited.date", "desc" => "Displays the Theme Editing Date"),
+                                                array("name" => "theme.edited.author", "desc" => "Displays the User who Edited the Theme")                                               
                                             ),
                                 "updated" => array(
-                                                array("name" => "theme.name", "desc" => "Token Description"),
-                                                array("name" => "theme.updated.date", "desc" => "Token Description"),
-                                                array("name" => "theme.updated.author", "desc" => "Token Description")                                               
+                                                array("name" => "theme.name", "desc" => "Displays the Theme Name"),
+                                                array("name" => "theme.updated.date", "desc" => "Displays the Theme Update Date"),
+                                                array("name" => "theme.updated.author", "desc" => "Displays the User who Updated the Theme")                                               
                                             ),
                                 "deleted" => array(
-                                                array("name" => "theme.name", "desc" => "Token Description"),
-                                                array("name" => "theme.deleted.date", "desc" => "Token Description"),
-                                                array("name" => "theme.deleted.author", "desc" => "Token Description")                                               
+                                                array("name" => "theme.name", "desc" => "Displays the Theme Name"),
+                                                array("name" => "theme.deleted.date", "desc" => "Displays the Theme Deleting Date"),
+                                                array("name" => "theme.deleted.author", "desc" => "Displays the User who Deleted the Theme")                                               
                                             ),
                                 "additional" => array(
-                                                array("name" => "theme.old.version", "desc" => "Token Description"),
-                                                array("name" => "theme.current.version", "desc" => "Token Description"),
-                                                array("name" => "theme.installed.count", "desc" => "Token Description"),                                               
-                                                array("name" => "theme.edited.count", "desc" => "Token Description"),
-                                                array("name" => "theme.activated.count", "desc" => "Token Description"),                                                
-                                                array("name" => "theme.deleted.count", "desc" => "Token Description"),
-                                                array("name" => "theme.updated.count", "desc" => "Token Description")                                                
+                                                array("name" => "theme.old.version", "desc" => "Displays the Theme Version Before Update"),
+                                                array("name" => "theme.current.version", "desc" => "Displays the Theme Current Version"),
+                                                array("name" => "theme.installed.count", "desc" => "Displays the Number of Installed Themes"),                                               
+                                                array("name" => "theme.edited.count", "desc" => "Displays the Number of Edited Themes"),
+                                                array("name" => "theme.activated.count", "desc" => "Displays the Number of Activated Themes"),                                                
+                                                array("name" => "theme.deleted.count", "desc" => "Displays the Number of Deleted Themes"),
+                                                array("name" => "theme.updated.count", "desc" => "Displays the Number of Updated Themes")                                                
                                             )
                             ),
                 "posts"=>array("sections" => array(
-                                                array("name" => "section.posts.created", "desc" => "Token Description"),
-                                                array("name" => "section.posts.updated", "desc" => "Token Description"),
-                                                array("name" => "section.posts.trashed", "desc" => "Token Description"),                                                
-                                                array("name" => "section.posts.deleted", "desc" => "Token Description"),
-                                                array("name" => "section.posts.restored", "desc" => "Token Description")
+                                                array("name" => "section.posts.created", "desc" => "Loops through Posts Created during the selected date range"),
+                                                array("name" => "section.posts.updated", "desc" => "Loops through Posts Updated during the selected date range"),
+                                                array("name" => "section.posts.trashed", "desc" => "Loops through Posts Trashed during the selected date range"),                                                
+                                                array("name" => "section.posts.deleted", "desc" => "Loops through Posts Deleted during the selected date range"),
+                                                array("name" => "section.posts.restored", "desc" => "Loops through Posts Restored during the selected date range")
                                             ),  
                                 'nav_group_tokens' => array("sections" => "Sections",
                                                      "created" => "Created",
@@ -136,44 +136,44 @@ class MainWPCReport
                                                      "additional" => "Additional",
                                             ),
                                 "created" => array(
-                                                array("name" => "post.title", "desc" => "Token Description"),
-                                                array("name" => "post.created.date", "desc" => "Token Description"),
-                                                array("name" => "post.created.author", "desc" => "Token Description")                                               
+                                                array("name" => "post.title", "desc" => "Displays the Post Title"),
+                                                array("name" => "post.created.date", "desc" => "Displays the Post Createion Date"),
+                                                array("name" => "post.created.author", "desc" => "Displays the User who Created the Post")                                               
                                             ),
                                 "updated" => array(
-                                                array("name" => "post.title", "desc" => "Token Description"),
-                                                array("name" => "post.updated.date", "desc" => "Token Description"),
-                                                array("name" => "post.updated.author", "desc" => "Token Description")                                               
+                                                array("name" => "post.title", "desc" => "Displays the Post Title"),
+                                                array("name" => "post.updated.date", "desc" => "Displays the Post Update Date"),
+                                                array("name" => "post.updated.author", "desc" => "Displays the User who Updated the Post")                                               
                                             ),
                                 "trashed" => array(
-                                                array("name" => "post.name", "desc" => "Token Description"),
-                                                array("name" => "post.trashed.date", "desc" => "Token Description"),
-                                                array("name" => "post.trashed.author", "desc" => "Token Description")                                               
+                                                array("name" => "post.name", "desc" => "Displays the Post Title"),
+                                                array("name" => "post.trashed.date", "desc" => "Displays the Post Trashing Date"),
+                                                array("name" => "post.trashed.author", "desc" => "Displays the User who Trashed the Post")                                               
                                             ),
                                 "deleted" => array(
-                                                array("name" => "post.name", "desc" => "Token Description"),
-                                                array("name" => "post.deleted.date", "desc" => "Token Description"),
-                                                array("name" => "post.deleted.author", "desc" => "Token Description")                                               
+                                                array("name" => "post.name", "desc" => "Displays the Post Title"),
+                                                array("name" => "post.deleted.date", "desc" => "Displays the Post Deleting Date"),
+                                                array("name" => "post.deleted.author", "desc" => "Displays the User who Deleted the Post")                                               
                                             ),
                                 "restored" => array(
-                                                array("name" => "post.name", "desc" => "Token Description"),
-                                                array("name" => "post.restored.date", "desc" => "Token Description"),
-                                                array("name" => "post.restored.author", "desc" => "Token Description")                                               
+                                                array("name" => "post.name", "desc" => "Displays Post Title"),
+                                                array("name" => "post.restored.date", "desc" => "Displays the Post Restoring Date"),
+                                                array("name" => "post.restored.author", "desc" => "Displays the User who Restored the Post")                                               
                                             ),
                                 "additional" => array(
-                                                array("name" => "post.created.count", "desc" => "Token Description"),                                               
-                                                array("name" => "post.updated.count", "desc" => "Token Description"),
-                                                array("name" => "post.trashed.count", "desc" => "Token Description"),                                                
-                                                array("name" => "post.restored.count", "desc" => "Token Description"),
-                                                array("name" => "post.deleted.count", "desc" => "Token Description")                                                
+                                                array("name" => "post.created.count", "desc" => "Displays the Number of Created Posts"),                                               
+                                                array("name" => "post.updated.count", "desc" => "Displays the Number of Updated Posts"),
+                                                array("name" => "post.trashed.count", "desc" => "Displays the Number of Trashed Posts"),                                                
+                                                array("name" => "post.restored.count", "desc" => "Displays the Number of Restored Posts"),
+                                                array("name" => "post.deleted.count", "desc" => "Displays the Number of Deleted Posts")                                                
                                             )
                             ),   
             "pages"=>array("sections" => array(
-                                                array("name" => "section.pages.created", "desc" => "Token Description"),
-                                                array("name" => "section.pages.updated", "desc" => "Token Description"),
-                                                array("name" => "section.pages.trashed", "desc" => "Token Description"),                                                
-                                                array("name" => "section.pages.deleted", "desc" => "Token Description"),
-                                                array("name" => "section.pages.restored", "desc" => "Token Description")
+                                                array("name" => "section.pages.created", "desc" => "Loops through Pages Created during the selected date range"),
+                                                array("name" => "section.pages.updated", "desc" => "Loops through Pages Updated during the selected date range"),
+                                                array("name" => "section.pages.trashed", "desc" => "Loops through Pages Trashed during the selected date range"),                                                
+                                                array("name" => "section.pages.deleted", "desc" => "Loops through Pages Deleted during the selected date range"),
+                                                array("name" => "section.pages.restored", "desc" => "Loops through Pages Restored during the selected date range")
                                             ),  
                                  'nav_group_tokens' => array("sections" => "Sections",
                                                      "created" => "Created",
@@ -184,48 +184,48 @@ class MainWPCReport
                                                      "additional" => "Additional",
                                                     ),                                     
                                 "created" => array(
-                                                array("name" => "page.title", "desc" => "Token Description"),
-                                                array("name" => "page.created.date", "desc" => "Token Description"),
-                                                array("name" => "page.created.author", "desc" => "Token Description")                                               
+                                                array("name" => "page.title", "desc" => "Displays the Page Title"),
+                                                array("name" => "page.created.date", "desc" => "Displays the Page Createion Date"),
+                                                array("name" => "page.created.author", "desc" => "Displays the User who Created the Page")                                               
                                             ),
                                 "updated" => array(
-                                                array("name" => "page.title", "desc" => "Token Description"),
-                                                array("name" => "page.updated.date", "desc" => "Token Description"),
-                                                array("name" => "page.updated.author", "desc" => "Token Description")                                               
+                                                array("name" => "page.title", "desc" => "Displays the Page Title"),
+                                                array("name" => "page.updated.date", "desc" => "Displays the Page Updating Date"),
+                                                array("name" => "page.updated.author", "desc" => "Displays the User who Updated the Page")                                               
                                             ),
                                 "trashed" => array(
-                                                array("name" => "page.name", "desc" => "Token Description"),
-                                                array("name" => "page.trashed.date", "desc" => "Token Description"),
-                                                array("name" => "page.trashed.author", "desc" => "Token Description")                                               
+                                                array("name" => "page.name", "desc" => "Displays the Page Title"),
+                                                array("name" => "page.trashed.date", "desc" => "Displays the Page Trashing Date"),
+                                                array("name" => "page.trashed.author", "desc" => "Displays the User who Trashed the Page")                                               
                                             ),
                                 "deleted" => array(
-                                                array("name" => "page.name", "desc" => "Token Description"),
-                                                array("name" => "page.deleted.date", "desc" => "Token Description"),
-                                                array("name" => "page.deleted.author", "desc" => "Token Description")                                               
+                                                array("name" => "page.name", "desc" => "Displays the Page Title"),
+                                                array("name" => "page.deleted.date", "desc" => "Displays the Page Deleting Date"),
+                                                array("name" => "page.deleted.author", "desc" => "Displays the User who Deleted the Page")                                               
                                             ),
                                 "restored" => array(
-                                                array("name" => "page.name", "desc" => "Token Description"),
-                                                array("name" => "page.restored.date", "desc" => "Token Description"),
-                                                array("name" => "page.restored.author", "desc" => "Token Description")                                               
+                                                array("name" => "page.name", "desc" => "Displays the Page Title"),
+                                                array("name" => "page.restored.date", "desc" => "Displays the Page Restoring Date"),
+                                                array("name" => "page.restored.author", "desc" => "Displays the User who Restored the Page")                                               
                                             ),
                                 "additional" => array(
-                                                array("name" => "page.created.count", "desc" => "Token Description"),                                               
-                                                array("name" => "page.updated.count", "desc" => "Token Description"),
-                                                array("name" => "page.trashed.count", "desc" => "Token Description"),                                                
-                                                array("name" => "page.restored.count", "desc" => "Token Description"),
-                                                array("name" => "page.deleted.count", "desc" => "Token Description")                                                
+                                                array("name" => "page.created.count", "desc" => "Displays the Number of Created Pages"),                                               
+                                                array("name" => "page.updated.count", "desc" => "Displays the Number of Updated Pages"),
+                                                array("name" => "page.trashed.count", "desc" => "Displays the Number of Trashed Pages"),                                                
+                                                array("name" => "page.restored.count", "desc" => "Displays the Number of Restored Pages"),
+                                                array("name" => "page.deleted.count", "desc" => "Displays the Number of Deleted Pages")                                                
                                             )
                             ),
             "comments"=>array("sections" => array(
-                                                array("name" => "section.comments.created", "desc" => "Token Description"),
-                                                array("name" => "section.comments.updated", "desc" => "Token Description"),
-                                                array("name" => "section.comments.trashed", "desc" => "Token Description"),                                                
-                                                array("name" => "section.comments.deleted", "desc" => "Token Description"),
-                                                array("name" => "section.comments.edited", "desc" => "Token Description"),
-                                                array("name" => "section.comments.restored", "desc" => "Token Description"),
-                                                array("name" => "section.comments.approved", "desc" => "Token Description"),
-                                                array("name" => "section.comments.spam", "desc" => "Token Description"),
-                                                array("name" => "section.comments.replied", "desc" => "Token Description")                                                
+                                                array("name" => "section.comments.created", "desc" => "Loops through Comments Created during the selected date range"),
+                                                array("name" => "section.comments.updated", "desc" => "Loops through Comments Updated during the selected date range"),
+                                                array("name" => "section.comments.trashed", "desc" => "Loops through Comments Trashed during the selected date range"),                                                
+                                                array("name" => "section.comments.deleted", "desc" => "Loops through Comments Deleted during the selected date range"),
+                                                array("name" => "section.comments.edited", "desc" => "Loops through Comments Edited during the selected date range"),
+                                                array("name" => "section.comments.restored", "desc" => "Loops through Comments Restored during the selected date range"),
+                                                array("name" => "section.comments.approved", "desc" => "Loops through Comments Approved during the selected date range"),
+                                                array("name" => "section.comments.spam", "desc" => "Loops through Comments Spammed during the selected date range"),
+                                                array("name" => "section.comments.replied", "desc" => "Loops through Comments Replied during the selected date range")                                                
                                             ),  
                                 'nav_group_tokens' => array("sections"=> "Sections",
                                                      "created"=> "Created",
@@ -240,66 +240,66 @@ class MainWPCReport
                                                      "additional"=> "Additional",
                                                     ),
                                 "created" => array(
-                                                array("name" => "comment.title", "desc" => "Title of post or page where commented"),
-                                                array("name" => "comment.created.date", "desc" => "Token Description"),
-                                                array("name" => "comment.created.author", "desc" => "Token Description")                                               
+                                                array("name" => "comment.title", "desc" => "Displays the Title of the Post or the Page where the Comment is Created"),
+                                                array("name" => "comment.created.date", "desc" => "Displays the Comment Creating Date"),
+                                                array("name" => "comment.created.author", "desc" => "Displays the User who Created the Comment")                                               
                                             ),
                                 "updated" => array(
-                                                array("name" => "comment.title", "desc" => "Title of post or page where commented"),
-                                                array("name" => "comment.updated.date", "desc" => "Token Description"),
-                                                array("name" => "comment.updated.author", "desc" => "Token Description")                                               
+                                                array("name" => "comment.title", "desc" => "Displays the Title of the Post or the Page where the Comment is Updated"),
+                                                array("name" => "comment.updated.date", "desc" => "Displays the Comment Updating Date"),
+                                                array("name" => "comment.updated.author", "desc" => "Displays the User who Updated the Comment")                                               
                                             ),
                                 "trashed" => array(
-                                                array("name" => "comment.title", "desc" => "Title of post or page where commented"),
-                                                array("name" => "comment.trashed.date", "desc" => "Token Description"),
-                                                array("name" => "comment.trashed.author", "desc" => "Token Description")                                               
+                                                array("name" => "comment.title", "desc" => "Displays the Title of the Post or the Page where the Comment is Trashed"),
+                                                array("name" => "comment.trashed.date", "desc" => "Displays the Comment Trashing Date"),
+                                                array("name" => "comment.trashed.author", "desc" => "Displays the User who Trashed the Comment")                                               
                                             ),
                                 "deleted" => array(
-                                                array("name" => "comment.title", "desc" => "Title of post or page where commented"),
-                                                array("name" => "comment.deleted.date", "desc" => "Token Description"),
-                                                array("name" => "comment.deleted.author", "desc" => "Token Description")                                               
+                                                array("name" => "comment.title", "desc" => "Displays the Title of the Post or the Page where the Comment is Deleted"),
+                                                array("name" => "comment.deleted.date", "desc" => "Displays the Comment Deleting Date"),
+                                                array("name" => "comment.deleted.author", "desc" => "Displays the User who Deleted the Comment")                                               
                                             ),
                                 "edited" => array(
-                                                array("name" => "comment.title", "desc" => "Title of post or page where commented"),
-                                                array("name" => "comment.edited.date", "desc" => "Token Description"),
-                                                array("name" => "comment.edited.author", "desc" => "Token Description")                                               
+                                                array("name" => "comment.title", "desc" => "Displays the Title of the Post or the Page where the Comment is Edited"),
+                                                array("name" => "comment.edited.date", "desc" => "Displays the Comment Editing Date"),
+                                                array("name" => "comment.edited.author", "desc" => "Displays the User who Edited the Comment")                                               
                                             ),
                                 "restored" => array(
-                                                array("name" => "comment.title", "desc" => "Title of post or page where commented"),
-                                                array("name" => "comment.restored.date", "desc" => "Token Description"),
-                                                array("name" => "comment.restored.author", "desc" => "Token Description")                                               
+                                                array("name" => "comment.title", "desc" => "Displays the Title of the Post or the Page where the Comment is Restored"),
+                                                array("name" => "comment.restored.date", "desc" => "Displays the Comment Restoring Date"),
+                                                array("name" => "comment.restored.author", "desc" => "Displays the User who Restored the Comment")                                               
                                             ),
                                 "approved" => array(
-                                                array("name" => "comment.title", "desc" => "Title of post or page where commented"),
-                                                array("name" => "comment.approved.date", "desc" => "Token Description"),
-                                                array("name" => "comment.approved.author", "desc" => "Token Description")                                               
+                                                array("name" => "comment.title", "desc" => "Displays the Title of the Post or the Page where the Comment is Approved"),
+                                                array("name" => "comment.approved.date", "desc" => "Displays the Comment Approving Date"),
+                                                array("name" => "comment.approved.author", "desc" => "Displays the User who Approved the Comment")                                               
                                             ),
                                 "spam" => array(
-                                                array("name" => "comment.title", "desc" => "Title of post or page where commented"),
-                                                array("name" => "comment.spam.date", "desc" => "Token Description"),
-                                                array("name" => "comment.spam.author", "desc" => "Token Description")                                               
+                                                array("name" => "comment.title", "desc" => "Displays the Title of the Post or the Page where the Comment is Spammed"),
+                                                array("name" => "comment.spam.date", "desc" => "Displays the Comment Spamming Date"),
+                                                array("name" => "comment.spam.author", "desc" => "Displays the User who Spammed the Comment")                                               
                                             ),
                                 "replied" => array(
-                                                array("name" => "comment.title", "desc" => "Title of post or page where commented"),
-                                                array("name" => "comment.replied.date", "desc" => "Token Description"),
-                                                array("name" => "comment.replied.author", "desc" => "Token Description")                                               
+                                                array("name" => "comment.title", "desc" => "Displays the Title of the Post or the Page where the Comment is Replied"),
+                                                array("name" => "comment.replied.date", "desc" => "Displays the Comment Replying Date"),
+                                                array("name" => "comment.replied.author", "desc" => "Displays the User who Replied the Comment")                                               
                                             ),
                                 "additional" => array(
-                                                array("name" => "comment.created.count", "desc" => "Token Description"),                                                                                               
-                                                array("name" => "comment.trashed.count", "desc" => "Token Description"),                                               
-                                                array("name" => "comment.deleted.count", "desc" => "Token Description"),
-                                                array("name" => "comment.edited.count", "desc" => "Token Description"),
-                                                array("name" => "comment.restored.count", "desc" => "Token Description"),
-                                                array("name" => "comment.deleted.count", "desc" => "Token Description"),
-                                                array("name" => "comment.approved.count", "desc" => "Token Description"),
-                                                array("name" => "comment.spam.count", "desc" => "Token Description"),
-                                                array("name" => "comment.replied.count", "desc" => "Token Description")
+                                                array("name" => "comment.created.count", "desc" => "Displays the Number of Created Comments"),                                                                                               
+                                                array("name" => "comment.trashed.count", "desc" => "Displays the Number of Trashed Comments"),                                               
+                                                array("name" => "comment.deleted.count", "desc" => "Displays the Number of Deleted Comments"),
+                                                array("name" => "comment.edited.count", "desc" => "Displays the Number of Edited Comments"),
+                                                array("name" => "comment.restored.count", "desc" => "Displays the Number of Restored Comments"),
+                                                array("name" => "comment.deleted.count", "desc" => "Displays the Number of Deleted Comments"),
+                                                array("name" => "comment.approved.count", "desc" => "Displays the Number of Approved Comments"),
+                                                array("name" => "comment.spam.count", "desc" => "Displays the Number of Spammed Comments"),
+                                                array("name" => "comment.replied.count", "desc" => "Displays the Number of Replied Comments")
                                             )
                             ),
              "users"=>array(   "sections" => array(
-                                                array("name" => "section.users.created", "desc" => "Token Description"),
-                                                array("name" => "section.users.updated", "desc" => "Token Description"),
-                                                array("name" => "section.users.deleted", "desc" => "Token Description")                                                
+                                                array("name" => "section.users.created", "desc" => "Loops through Users Created during the selected date range"),
+                                                array("name" => "section.users.updated", "desc" => "Loops through Users Updated during the selected date range"),
+                                                array("name" => "section.users.deleted", "desc" => "Loops through Users Deleted during the selected date range")                                                
                                             ),
                                 'nav_group_tokens' => array("sections" => "Sections",
                                                      "created" => "Created",
@@ -308,32 +308,32 @@ class MainWPCReport
                                                      "additional" => "Additional",
                                                     ),
                                 "created" => array(
-                                                array("name" => "user.name", "desc" => "Token Description"),
-                                                array("name" => "user.created.date", "desc" => "Token Description"),
-                                                array("name" => "user.created.author", "desc" => "Token Description"),
-                                                array("name" => "user.updated.role", "desc" => "Token Description")   
+                                                array("name" => "user.name", "desc" => "Displays the User Name"),
+                                                array("name" => "user.created.date", "desc" => "Displays the User Creation Date"),
+                                                array("name" => "user.created.author", "desc" => "Displays the User who Created the new User"),
+                                                array("name" => "user.created.role", "desc" => "Displays the Role of the Created User")   
                                             ),
                                 "updated" => array(
-                                                array("name" => "user.name", "desc" => "Token Description"),
-                                                array("name" => "user.updated.date", "desc" => "Token Description"),
-                                                array("name" => "user.updated.author", "desc" => "Token Description"),
-                                                array("name" => "user.updated.role", "desc" => "Token Description")                                    
+                                                array("name" => "user.name", "desc" => "Displays the User Name"),
+                                                array("name" => "user.updated.date", "desc" => "Displays the User Updating Date"),
+                                                array("name" => "user.updated.author", "desc" => "Displays the User who Updated the new User"),
+                                                array("name" => "user.updated.role", "desc" => "Displays the Role of the Updated User")                                    
                                             ),
                                 "deleted" => array(
-                                                array("name" => "user.name", "desc" => "Token Description"),
-                                                array("name" => "user.deleted.date", "desc" => "Token Description"),
-                                                array("name" => "user.deleted.author", "desc" => "Token Description")                                               
+                                                array("name" => "user.name", "desc" => "Displays the User Name"),
+                                                array("name" => "user.deleted.date", "desc" => "Displays the User Deleting Date"),
+                                                array("name" => "user.deleted.author", "desc" => "Displays the User who Deleted the new User")                                               
                                             ),                                
                                 "additional" => array(
-                                                array("name" => "user.created.count", "desc" => "Token Description"),
-                                                array("name" => "user.updated.count", "desc" => "Token Description"),
-                                                array("name" => "user.deleted.count", "desc" => "Token Description")                                                                                               
+                                                array("name" => "user.created.count", "desc" => "Displays the Number of Created Users"),
+                                                array("name" => "user.updated.count", "desc" => "Displays the Number of Updated Users"),
+                                                array("name" => "user.deleted.count", "desc" => "Displays the Number of Deleted Users")                                                                                               
                                             )
                             ),   
              "media"=>array(   "sections" => array(
-                                                array("name" => "section.media.uploaded", "desc" => "Token Description"),
-                                                array("name" => "section.media.updated", "desc" => "Token Description"),
-                                                array("name" => "section.media.deleted", "desc" => "Token Description")                                                
+                                                array("name" => "section.media.uploaded", "desc" => "Loops through Media Uploaded during the selected date range"),
+                                                array("name" => "section.media.updated", "desc" => "Loops through Media Updated during the selected date range"),
+                                                array("name" => "section.media.deleted", "desc" => "Loops through Media Deleted during the selected date range")                                                
                                             ),  
                                  'nav_group_tokens' => array("sections"=> "Sections",
                                                      "uploaded"=> "Uploaded",
@@ -342,30 +342,30 @@ class MainWPCReport
                                                      "additional"=> "Additional",
                                                     ),
                                 "uploaded" => array(
-                                                array("name" => "media.name", "desc" => "Token Description"),
-                                                array("name" => "media.uploaded.date", "desc" => "Token Description"),
-                                                array("name" => "media.uploaded.author", "desc" => "Token Description")                                                
+                                                array("name" => "media.name", "desc" => "Displays the Media Name"),
+                                                array("name" => "media.uploaded.date", "desc" => "Displays the Media Uploading Date"),
+                                                array("name" => "media.uploaded.author", "desc" => "Displays the User who Uploaded the Media File")                                                
                                             ),
                                 "updated" => array(
-                                                array("name" => "media.name", "desc" => "Token Description"),
-                                                array("name" => "media.updated.date", "desc" => "Token Description"),
-                                                array("name" => "media.updated.author", "desc" => "Token Description")
+                                                array("name" => "media.name", "desc" => "Displays the Media Name"),
+                                                array("name" => "media.updated.date", "desc" => "Displays the Media Updating Date"),
+                                                array("name" => "media.updated.author", "desc" => "Displays the User who Updted the Media File")
                                             ),
                                 "deleted" => array(
-                                                array("name" => "media.name", "desc" => "Token Description"),
-                                                array("name" => "media.deleted.date", "desc" => "Token Description"),
-                                                array("name" => "media.deleted.author", "desc" => "Token Description")                                               
+                                                array("name" => "media.name", "desc" => "Displays the Media Name"),
+                                                array("name" => "media.deleted.date", "desc" => "Displays the Media Deleting Date"),
+                                                array("name" => "media.deleted.author", "desc" => "Displays the User who Deleted the Media File")                                               
                                             ),                                
                                 "additional" => array(
-                                                array("name" => "media.uploaded.count", "desc" => "Token Description"),
-                                                array("name" => "media.updated.count", "desc" => "Token Description"),
-                                                array("name" => "media.deleted.count", "desc" => "Token Description")                                                                                               
+                                                array("name" => "media.uploaded.count", "desc" => "Displays the Number of Uploaded Media Files"),
+                                                array("name" => "media.updated.count", "desc" => "Displays the Number of Updated Media Files"),
+                                                array("name" => "media.deleted.count", "desc" => "Displays the Number of Deleted Media Files")                                                                                               
                                             )
                             ),   
             "widgets"=>array(   "sections" => array(
-                                                array("name" => "section.widgets.added", "desc" => "Token Description"),
-                                                array("name" => "section.widgets.updated", "desc" => "Token Description"),
-                                                array("name" => "section.widgets.deleted", "desc" => "Token Description")                                                
+                                                array("name" => "section.widgets.added", "desc" => "Loops through Widgets Added during the selected date range"),
+                                                array("name" => "section.widgets.updated", "desc" => "Loops through Widgets Updated during the selected date range"),
+                                                array("name" => "section.widgets.deleted", "desc" => "Loops through Widgets Deleted during the selected date range")                                                
                                             ), 
                                  'nav_group_tokens' => array("sections" => "Sections",
                                                      "added" => "Added",
@@ -374,33 +374,33 @@ class MainWPCReport
                                                      "additional" => "Additional",
                                                     ),
                                 "added" => array(
-                                                array("name" => "widget.title", "desc" => "Token Description"),
-                                                array("name" => "widget.added.area", "desc" => "Token Description"),
-                                                array("name" => "widget.added.date", "desc" => "Token Description"),
-                                                array("name" => "widget.added.author", "desc" => "Token Description")                                                
+                                                array("name" => "widget.title", "desc" => "Displays the Widget Title"),
+                                                array("name" => "widget.added.area", "desc" => "Displays the Widget Adding Area"),
+                                                array("name" => "widget.added.date", "desc" => "Displays the Widget Adding Date"),
+                                                array("name" => "widget.added.author", "desc" => "Displays the User who Added the Widget")                                                
                                             ),
                                 "updated" => array(
-                                                array("name" => "widget.title", "desc" => "Token Description"),
-                                                array("name" => "widget.updated.area", "desc" => "Token Description"),
-                                                array("name" => "widget.updated.date", "desc" => "Token Description"),
-                                                array("name" => "widget.updated.author", "desc" => "Token Description")                                                
+                                                array("name" => "widget.title", "desc" => "Displays the Widget Name"),
+                                                array("name" => "widget.updated.area", "desc" => "Displays the Widget Updating Area"),
+                                                array("name" => "widget.updated.date", "desc" => "Displays the Widget Updating Date"),
+                                                array("name" => "widget.updated.author", "desc" => "Displays the User who Updated the Widget")                                                
                                             ),
                                 "deleted" => array(
-                                                array("name" => "widget.title", "desc" => "Token Description"),
-                                                array("name" => "widget.deleted.area", "desc" => "Token Description"),
-                                                array("name" => "widget.deleted.date", "desc" => "Token Description"),
-                                                array("name" => "widget.deleted.author", "desc" => "Token Description")                                               
+                                                array("name" => "widget.title", "desc" => "Displays the Widget Name"),
+                                                array("name" => "widget.deleted.area", "desc" => "Displays the Widget Deleting Area"),
+                                                array("name" => "widget.deleted.date", "desc" => "Displays the Widget Deleting Date"),
+                                                array("name" => "widget.deleted.author", "desc" => "Displays the User who Deleted the Widget")                                               
                                             ),                                
                                 "additional" => array(
-                                                array("name" => "widget.added.count", "desc" => "Token Description"),
-                                                array("name" => "widget.updated.count", "desc" => "Token Description"),
-                                                array("name" => "widget.deleted.count", "desc" => "Token Description")                                                                                               
+                                                array("name" => "media.added.count", "desc" => "Displays the Number of Added Widgets"),
+                                                array("name" => "media.updated.count", "desc" => "Displays the Number of Updated Widgets"),
+                                                array("name" => "media.deleted.count", "desc" => "Displays the Number of Deleted Widgets")                                                                                               
                                             )
                             ),  
               "menus"=>array(   "sections" => array(
-                                                array("name" => "section.menus.created", "desc" => "Token Description"),
-                                                array("name" => "section.menus.updated", "desc" => "Token Description"),
-                                                array("name" => "section.menus.deleted", "desc" => "Token Description")                                                
+                                                array("name" => "section.menus.created", "desc" => "Loops through Menus Created during the selected date range"),
+                                                array("name" => "section.menus.updated", "desc" => "Loops through Menus Updated during the selected date range"),
+                                                array("name" => "section.menus.deleted", "desc" => "Loops through Menus Deleted during the selected date range")                                                
                                             ),
                                'nav_group_tokens' => array("sections" => "Sections",
                                                      "created" => "Created",
@@ -409,41 +409,41 @@ class MainWPCReport
                                                      "additional" => "Additional",
                                                     ),
                                 "created" => array(
-                                                array("name" => "menu.title", "desc" => "Token Description"),
-                                                array("name" => "menu.created.date", "desc" => "Token Description"),
-                                                array("name" => "menu.created.author", "desc" => "Token Description")                                                
+                                                array("name" => "menu.title", "desc" => "Displays the Menu Name"),
+                                                array("name" => "menu.created.date", "desc" => "Displays the Menu Creation Date"),
+                                                array("name" => "menu.created.author", "desc" => "Displays the User who Created the Menu")                                                
                                             ),
                                 "updated" => array(
-                                                array("name" => "menu.title", "desc" => "Token Description"),
-                                                array("name" => "menu.updated.date", "desc" => "Token Description"),
-                                                array("name" => "menu.updated.author", "desc" => "Token Description")                                                
+                                                array("name" => "menu.title", "desc" => "Displays the Menu Name"),
+                                                array("name" => "menu.updated.date", "desc" => "Displays the Menu Updating Date"),
+                                                array("name" => "menu.updated.author", "desc" => "Displays the User who Updated the Menu")                                                
                                             ),
                                 "deleted" => array(
-                                                array("name" => "menu.title", "desc" => "Token Description"),
-                                                array("name" => "menu.deleted.date", "desc" => "Token Description"),
-                                                array("name" => "menu.deleted.author", "desc" => "Token Description")                                               
+                                                array("name" => "menu.title", "desc" => "Displays the Menu Name"),
+                                                array("name" => "menu.deleted.date", "desc" => "Displays the Menu Deleting Date"),
+                                                array("name" => "menu.deleted.author", "desc" => "Displays the User who Deleted the Menu")                                               
                                             ),                                
                                 "additional" => array(
-                                                array("name" => "menu.created.count", "desc" => "Token Description"),
-                                                array("name" => "menu.updated.count", "desc" => "Token Description"),
-                                                array("name" => "menu.deleted.count", "desc" => "Token Description")                                                                                               
+                                                array("name" => "menu.created.count", "desc" => "Displays the Number of Created Menus"),
+                                                array("name" => "menu.updated.count", "desc" => "Displays the Number of Updated Menus"),
+                                                array("name" => "menu.deleted.count", "desc" => "Displays the Number of Deleted Menus")                                                                                               
                                             )
                             ), 
             "wordpress" => array("sections" => array(                                                
-                                                array("name" => "section.wordpress.updated", "desc" => "Token Description")                                                
+                                                array("name" => "section.wordpress.updated", "desc" => "Loops through WordPress Updates during the selected date range")                                                
                                             ),  
                                'nav_group_tokens' => array("sections" => "Sections",                                                     
                                                             "updated" => "Updated",                                                     
                                                             "additional" => "Additional"
                                                         ),
                                 "updated" => array(                                                
-                                                array("name" => "wordpress.updated.date", "desc" => "Token Description"),
-                                                array("name" => "wordpress.updated.author", "desc" => "Token Description")                                                
+                                                array("name" => "wordpress.updated.date", "desc" => "Displays the WordPress Update Date"),
+                                                array("name" => "wordpress.updated.author", "desc" => "Displays the User who Updated the Site")                                                
                                             ),
                                 "additional" => array(
-                                                array("name" => "wordpress.old.version", "desc" => "Token Description"),
-                                                array("name" => "wordpress.current.version", "desc" => "Token Description"),
-                                                array("name" => "wordpress.updated.count", "desc" => "Token Description")                                                                                               
+                                                array("name" => "wordpress.old.version", "desc" => "Displays the WordPress Version Before Update"),
+                                                array("name" => "wordpress.current.version", "desc" => "Displays the Current WordPress Version"),
+                                                array("name" => "wordpress.updated.count", "desc" => "Displays the Number of WordPress Updates")                                                                                               
                                             )
                             )                                  
             );       

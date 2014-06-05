@@ -18,18 +18,18 @@ class MainWPCReportDB
     {
         global $wpdb;
         $this->table_prefix = $wpdb->prefix . "mainwp_"; 
-        $this->default_tokens = array(  "client.site.name" => "Display Site Name",
-                                        "client.site.url" => "Display Site Url",
-                                        "client.name" => "Display Client Name",
-                                        "client.contact.name" => "Display Client Contact Name",
-                                        "client.contact.address.1" => "Display Client Contact Address 1",
-                                        "client.contact.address.2" => "Display Client Contact Address 2",
-                                        "client.company" => "Display Client Company",
-                                        "client.city" => "Display Client City",
-                                        "client.state" => "Display Client State",
-                                        "client.zip" => "Display Client Zip",
-                                        "client.phone" => "Display Client Phone",
-                                        "client.email" => "Display Client Email");
+        $this->default_tokens = array(  "client.site.name" => "Displays the Site Name",
+                                        "client.site.url" => "Displays the Site Url",
+                                        "client.name" => "Displays the Client Name",
+                                        "client.contact.name" => "Displays the Client Contact Name",
+                                        "client.contact.address.1" => "Displays the Client Contact Address 1",
+                                        "client.contact.address.2" => "Displays the Client Contact Address 2",
+                                        "client.company" => "Displays the Client Company",
+                                        "client.city" => "Displays the Client City",
+                                        "client.state" => "Displays the Client State",
+                                        "client.zip" => "Displays the Client Zip",
+                                        "client.phone" => "Displays the Client Phone",
+                                        "client.email" => "Displays the Client Email");
     }
 	
     function tableName($suffix)
