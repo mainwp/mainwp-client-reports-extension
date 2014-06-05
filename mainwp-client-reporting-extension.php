@@ -40,7 +40,16 @@ class MainWPCReportExtension
         add_action('mainwp_admin_menu', array(&$this, 'initMenu'), 9);
 
         MainWPCReportDB::Instance()->install();
-        $this->mainwpCReport = new MainWPCReport($this);          
+        $this->mainwpCReport = new MainWPCReport($this); 
+        
+        if (isset($_GET['page']) && $_GET['page'] == "Extensions-Mainwp-Client-Reporting-Extension" &&
+            isset($_GET['action']) && $_GET['action'] == "savepdf" &&
+            isset($_GET['id']) && $_GET['id'])
+        {   
+            $report = MainWPCReportDB::Instance()->getReportBy('id', $_GET['id']);
+            if (!empty($report))
+                require_once $this->plugin_dir.'/includes/save_as_pdf.php';
+        }
     }
 
     public function init()

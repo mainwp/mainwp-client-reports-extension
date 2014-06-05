@@ -222,9 +222,9 @@ jQuery(document).ready(function($) {
     $( 'a.creport_format_add_token' ).live( 'click', function( e ) {   
         var parent = $(this).closest('.creport_format_insert_tokens_box');
         var replace_text = jQuery(this).html();  
-        var token_value = jQuery(this).attr('token-value');
-        if (token_value !== '')
-            replace_text = token_value;
+//        var token_value = jQuery(this).attr('token-value');
+//        if (token_value !== '')
+//            replace_text = token_value;
         var name = parent.attr('editor');
         var editor = tinyMCE.get('mainwp_creport_report_' + name);
         var set_new_pos = replace_text.length;
@@ -310,12 +310,11 @@ jQuery(document).ready(function($) {
         return false;
     });    
     
-    
-    $('#mwp-creport-send-btn').on('click' ,function(){
-        
+    mainwp_creport_valid_report_data = function(action) {
         $('#mwp_creport_title').removeClass('form-invalid');
         $('#mwp_creport_date_from').removeClass('form-invalid');
         $('#selected_sites').removeClass('form-invalid');
+        $('#mwp_creport_email').removeClass('form-invalid');
         
         var errors = []; 
         var selected_sites = [];
@@ -330,14 +329,23 @@ jQuery(document).ready(function($) {
             errors.push(__('Date From is required.'));
             $('#mwp_creport_date_from').addClass('form-invalid');
         }
-            
-        jQuery("#selected_sites input[name='selected_site']:checked").each(function (i) {
-            selected_sites.push(jQuery(this).val());                       
-        });  
         
-        if (selected_sites.length == 0) {
-            errors.push(__("Please select a website."));  
-            $('#selected_sites').addClass('form-invalid'); 
+        if (action !== 'save') {    
+            jQuery("#selected_sites input[name='selected_site']:checked").each(function (i) {
+                selected_sites.push(jQuery(this).val());                       
+            });  
+
+            if (selected_sites.length == 0) {
+                errors.push(__("Please select a website."));  
+                $('#selected_sites').addClass('form-invalid'); 
+            }
+        }
+        
+        if (action == 'send') {
+            if ($.trim($('#mwp_creport_email').val()) == '') {
+                errors.push(__('Send To email is required.'));
+                $('#mwp_creport_email').addClass('form-invalid');
+            }
         }
         
         if (errors.length > 0) {
@@ -347,74 +355,40 @@ jQuery(document).ready(function($) {
             jQuery('#mwp-creport-error-box').html("");
             jQuery('#mwp-creport-error-box').hide();
         }
-        
+        return true;
+    }
+    
+    $('#mwp-creport-send-btn').on('click' ,function(){ 
+        if (mainwp_creport_valid_report_data('send') === false)
+            return false;
         $('#mwp_creport_report_submit_action').val('send');        
     });
     
-    $('#mwp-creport-preview-btn').on('click' ,function(){
-        
-        $('#mwp_creport_title').removeClass('form-invalid');
-        $('#mwp_creport_date_from').removeClass('form-invalid');
-        $('#selected_sites').removeClass('form-invalid');
-        
-        var errors = []; 
-        var selected_sites = [];
-                
-        if ($.trim($('#mwp_creport_title').val()) == '') {
-            errors.push(__('Title is required.'));
-            $('#mwp_creport_title').addClass('form-invalid');
-        } 
-        
-        if ($.trim($('#mwp_creport_date_from').val()) == '') {
-            errors.push(__('Date From is required.'));
-            $('#mwp_creport_date_from').addClass('form-invalid');
-        }
-            
-        jQuery("#selected_sites input[name='selected_site']:checked").each(function (i) {
-            selected_sites.push(jQuery(this).val());                       
-        });  
-        
-        if (selected_sites.length == 0) {
-            errors.push(__("Please select a website."));  
-            $('#selected_sites').addClass('form-invalid'); 
-        }
-        
-        if (errors.length > 0) {
-            show_error('mwp-creport-error-box', errors.join('<br />'));                    
-            return false;
-        } else {
-            jQuery('#mwp-creport-error-box').html("");
-            jQuery('#mwp-creport-error-box').hide();
-        }
+    $('#mwp-creport-preview-btn').on('click' ,function(){        
+        if (mainwp_creport_valid_report_data() === false)
+            return false;       
         $('#mwp_creport_report_submit_action').val('preview');        
     });    
     
-    $('#mwp-creport-save-btn').live('click' ,function(){
-        
-        $('#mwp_creport_title').removeClass('form-invalid');
-        $('#mwp_creport_date_from').removeClass('form-invalid');
-        
-        var errors = []; 
-                
-        if ($.trim($('#mwp_creport_title').val()) == '') {
-            errors.push(__('Title is required.'));
-            $('#mwp_creport_title').addClass('form-invalid');
-        } 
-        
-        if ($.trim($('#mwp_creport_date_from').val()) == '') {
-            errors.push(__('Date From is required.'));
-            $('#mwp_creport_date_from').addClass('form-invalid');
-        }
-        
-        if (errors.length > 0) {
-            show_error('mwp-creport-error-box', errors.join('<br />'));                     
-            return false;
-        } else {
-            jQuery('#mwp-creport-error-box').html("");
-            jQuery('#mwp-creport-error-box').hide();
-        }   
-        $('#mwp_creport_report_submit_action').val('save');
+    $('#mwp-creport-send-test-email-btn').on('click' ,function(){        
+        if (mainwp_creport_valid_report_data() === false)
+            return false;        
+        $('#mwp_creport_report_submit_action').val('send_test_email');        
     });    
+    
+    
+    $('#mwp-creport-save-btn').live('click' ,function(){        
+        if (mainwp_creport_valid_report_data('save') === false)
+            return false; 
+        $('#mwp_creport_report_submit_action').val('save');
+    });   
+    
+     $('#mwp-creport-save-pdf-btn').live('click' ,function(){        
+        if (mainwp_creport_valid_report_data() === false)
+            return false; 
+        $('#mwp_creport_report_submit_action').val('save_pdf');
+    }); 
+    
     
     $('#mwp-creport-preview-btn-close').on('click' ,function(){
         jQuery('#mwp-creport-preview-box').dialog('destroy');        

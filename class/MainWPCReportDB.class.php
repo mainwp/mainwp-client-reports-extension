@@ -383,8 +383,7 @@ PRIMARY KEY  (`clientid`)  ';
                                 'header',
                                 'body',
                                 'footer',
-                                'logo_file',
-                                'logo_file_temp',
+                                'logo_file',                                
                                 'lastsend',
                                 'nextsend',
                                 'selected_site'

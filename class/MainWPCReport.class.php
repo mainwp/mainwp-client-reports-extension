@@ -4,11 +4,14 @@ class MainWPCReport
     private $clientReportExt;
     private static $stream_tokens = array();
     private static $tokens_nav_top = array();    
-    private static $buffer = array();
+    private static $buffer = array();    
     
     public function __construct($ext) {    
-        $this->clientReportExt = $ext;
-        self::$stream_tokens = array(                        
+        $this->clientReportExt = $ext;       
+        self::$stream_tokens = array(     
+            "client" => array("tokens" => array(),
+                                'nav_group_tokens' => array()
+                            ),            
             "plugins"=>array(   "sections" => array(
                                                 array("name" => "section.plugins.installed", "desc" => "Token Description"),
                                                 array("name" => "section.plugins.activated", "desc" => "Token Description"),
@@ -360,9 +363,9 @@ class MainWPCReport
                                             )
                             ),   
             "widgets"=>array(   "sections" => array(
-                                                array("name" => "section.media.added", "desc" => "Token Description"),
-                                                array("name" => "section.media.updated", "desc" => "Token Description"),
-                                                array("name" => "section.media.deleted", "desc" => "Token Description")                                                
+                                                array("name" => "section.widgets.added", "desc" => "Token Description"),
+                                                array("name" => "section.widgets.updated", "desc" => "Token Description"),
+                                                array("name" => "section.widgets.deleted", "desc" => "Token Description")                                                
                                             ), 
                                  'nav_group_tokens' => array("sections" => "Sections",
                                                      "added" => "Added",
@@ -371,24 +374,27 @@ class MainWPCReport
                                                      "additional" => "Additional",
                                                     ),
                                 "added" => array(
-                                                array("name" => "media.name", "desc" => "Token Description"),
-                                                array("name" => "media.added.date", "desc" => "Token Description"),
-                                                array("name" => "media.added.author", "desc" => "Token Description")                                                
+                                                array("name" => "widget.title", "desc" => "Token Description"),
+                                                array("name" => "widget.added.area", "desc" => "Token Description"),
+                                                array("name" => "widget.added.date", "desc" => "Token Description"),
+                                                array("name" => "widget.added.author", "desc" => "Token Description")                                                
                                             ),
                                 "updated" => array(
-                                                array("name" => "media.name", "desc" => "Token Description"),
-                                                array("name" => "media.updated.date", "desc" => "Token Description"),
-                                                array("name" => "media.updated.author", "desc" => "Token Description")                                                
+                                                array("name" => "widget.title", "desc" => "Token Description"),
+                                                array("name" => "widget.updated.area", "desc" => "Token Description"),
+                                                array("name" => "widget.updated.date", "desc" => "Token Description"),
+                                                array("name" => "widget.updated.author", "desc" => "Token Description")                                                
                                             ),
                                 "deleted" => array(
-                                                array("name" => "media.name", "desc" => "Token Description"),
-                                                array("name" => "media.deleted.date", "desc" => "Token Description"),
-                                                array("name" => "media.deleted.author", "desc" => "Token Description")                                               
+                                                array("name" => "widget.title", "desc" => "Token Description"),
+                                                array("name" => "widget.deleted.area", "desc" => "Token Description"),
+                                                array("name" => "widget.deleted.date", "desc" => "Token Description"),
+                                                array("name" => "widget.deleted.author", "desc" => "Token Description")                                               
                                             ),                                
                                 "additional" => array(
-                                                array("name" => "media.added.count", "desc" => "Token Description"),
-                                                array("name" => "media.updated.count", "desc" => "Token Description"),
-                                                array("name" => "media.deleted.count", "desc" => "Token Description")                                                                                               
+                                                array("name" => "widget.added.count", "desc" => "Token Description"),
+                                                array("name" => "widget.updated.count", "desc" => "Token Description"),
+                                                array("name" => "widget.deleted.count", "desc" => "Token Description")                                                                                               
                                             )
                             ),  
               "menus"=>array(   "sections" => array(
@@ -439,14 +445,12 @@ class MainWPCReport
                                                 array("name" => "wordpress.current.version", "desc" => "Token Description"),
                                                 array("name" => "wordpress.updated.count", "desc" => "Token Description")                                                                                               
                                             )
-                            ),
-                    "client" => array("tokens" => array(),
-                                'nav_group_tokens' => array()
-                            ),              
-            );
-       
+                            )                                  
+            );       
             
-            self::$tokens_nav_top = array("plugins" => "Plugins",
+            self::$tokens_nav_top = array(
+                                        "client" => "Client Tokens", 
+                                        "plugins" => "Plugins",
                                         "themes" => "Themes",
                                         "posts" => "Posts",
                                         "pages" => "Pages",
@@ -455,10 +459,8 @@ class MainWPCReport
                                         "media" => "Media",
                                         "widgets" => "Widgets",
                                         "menus" => "Menus",
-                                        "wordpress" => "WordPress",
-                                        "client" => "Client Tokens"  
+                                        "wordpress" => "WordPress",                                         
                                     );           
-        
     }
     
     
@@ -595,9 +597,9 @@ class MainWPCReport
                     }                                        
                 }
             }
-            $delete_logo = false;
+            $delete_old_logo = false;
             if (isset($_POST['mainwp_creport_delete_logo_image']) && intval($_POST['mainwp_creport_delete_logo_image']) === 1) {
-                $delete_logo = true;
+                $delete_old_logo = true;
             }
             
             $image_logo = "NOTCHANGE";              
@@ -605,7 +607,7 @@ class MainWPCReport
                 $output = self::handleUploadImage($_FILES['mainwp_creport_logo_file'], $creport_dir);
                 if (is_array($output) && isset($output['filename']) && !empty($output['filename'])) {                    
                     $image_logo = $output['filename'];  
-                    $delete_logo = true; // delete old logo
+                    $delete_old_logo = true; // delete old logo
                 } else if (isset($output['error'])) {
                     foreach ($output['error'] as $e) {
                         $errors[] = $e;
@@ -615,7 +617,7 @@ class MainWPCReport
             
             if ($image_logo !== "NOTCHANGE") {
                 $report['logo_file'] = $image_logo;                
-            } else if ($delete_logo) {
+            } else if ($delete_old_logo) {
                 $report['logo_file'] = $image_logo = "";
             }   
             
@@ -629,14 +631,18 @@ class MainWPCReport
             
             $return = array(); 
             
-            if ("save" === ($_POST['mwp_creport_report_submit_action'])) {
+            if ("save" === $_POST['mwp_creport_report_submit_action'] || "save_pdf" === $_POST['mwp_creport_report_submit_action']) {
                 if($result = MainWPCReportDB::Instance()->updateReport($report)) {                    
-                    $return['id'] = $result->id;                    
-                    $messages[] = 'Report saved.';             
+                    $return['id'] = $result->id;   
+                    $messages[] = 'Report saved.';                      
                 } else {
                     $messages[] = "Report not change.";            
-                }                  
-            } else if ("send" === (string)$_POST['mwp_creport_report_submit_action'] || "preview" === (string)$_POST['mwp_creport_report_submit_action']) {                
+                }                 
+                $return['saved'] = true;
+            } else if ("send" === (string)$_POST['mwp_creport_report_submit_action'] || 
+                        "preview" === (string)$_POST['mwp_creport_report_submit_action'] || 
+                        "send_test_email" === (string)$_POST['mwp_creport_report_submit_action']
+                       ) {                
                 $_logo = isset($report['logo_file']) ? $report['logo_file'] : "";
                 if (isset($report['id']) && !empty($report['id'])) {                    
                     $update_logo = array('id' => $report['id'], 'logo_file' => $_logo);
@@ -680,12 +686,14 @@ class MainWPCReport
         return null;
     }
     
-    public static function send_report_mail($report)
+    public static function send_report_mail($report, $email = "", $subject = "")
     {
         if (!is_object($report))
             return false;
         
-        $email = $report->email;
+        $email = empty($email) ? $report->email : $email;
+        $subject = empty($subject) ? "Website Report" : $subject;
+        
         $content = self::gen_email_content($report);
         $from = "";
         if (!empty($report->fname)) {
@@ -697,7 +705,7 @@ class MainWPCReport
      
         if (!empty($content) && !empty($email))
         {   
-            if (wp_mail($email, 'Website Report', $content, array($from, 'content-type: text/html'))) { 
+            if (wp_mail($email, $subject, $content, array($from, 'content-type: text/html'))) { 
                 if (!empty($report->id)) {
                     $report->lastsend = time();                    
                     $update_report = array('id' => $report->id, 'lastsend' => $report->lastsend);
@@ -753,13 +761,21 @@ class MainWPCReport
         global $current_user;              
         
         $messages = $errors = array();               
-        $do_preview = $do_send = false;              
+        $do_preview = $do_send = $do_send_test_email = false;              
         $report_id = 0;
         $report = null;
       
-        if ((isset($_GET['action']) && "sendreport" === (string)$_GET['action']) || (isset($_POST['mwp_creport_report_submit_action']) && "send" === ($_POST['mwp_creport_report_submit_action']))) {                                
+        if ((isset($_GET['action']) && "sendreport" === (string)$_GET['action']) || (isset($_POST['mwp_creport_report_submit_action']) && "send" === (string)$_POST['mwp_creport_report_submit_action'])) {                                
             $do_send = true;                 
         } 
+        
+        if (isset($_POST['mwp_creport_report_submit_action']) && "send_test_email" === (string)$_POST['mwp_creport_report_submit_action']) {
+            $do_send_test_email = true;
+        }
+        
+        if (isset($_POST['mwp_creport_report_submit_action']) && "save_pdf" === (string)$_POST['mwp_creport_report_submit_action']) {
+            $do_save_pdf = true;
+        }        
         
         if ((isset($_GET['action']) && "preview" === (string)$_GET['action']) || isset($_POST['mwp_creport_report_submit_action']) && "preview" === (string)$_POST['mwp_creport_report_submit_action']) {
             $do_preview = true;
@@ -775,7 +791,21 @@ class MainWPCReport
 
             if (isset($result['error'])) 
                 $errors = $result['error'];
-
+            
+            if ($do_save_pdf && isset($result['saved']) && $result['saved'] == true && $report_id ) {
+            ?>
+                <script>
+                    jQuery(document).ready(function($) {                         
+                        window.open(
+                            '<?php echo get_site_url(); ?>/wp-admin/admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&action=savepdf&id=<?php echo $report_id; ?>',
+                            '_blank' 
+                        );                        
+                    });
+                </script>
+            <?php
+                $messages[] = __('PDF downloading...');
+            }
+            
             if (isset($result['submit_report']) && is_object($result['submit_report'])) {
                 $report = $result['submit_report'];
             } else if ($report_id) {                
@@ -791,7 +821,7 @@ class MainWPCReport
         if (isset($_REQUEST['action'])) {                
             if ($_REQUEST['action'] == "token") {            
                 $style_tab_token = '';                
-            } else if ($_REQUEST['action'] == "editreport" || $do_preview) {               
+            } else if ($_REQUEST['action'] == "editreport" || $do_preview || $_REQUEST['action'] == "savepdf") {               
                 $style_tab_new = '';            
             } else if ($do_send) {
                 $style_tab_report = "";
@@ -800,7 +830,7 @@ class MainWPCReport
             $style_tab_report = "";
         }
         
-        if ($do_preview || $do_send) {
+        if ($do_preview || $do_send || $do_send_test_email) {
             if (empty($report) || !is_object($report)) {
                 $errors[] = __('Error report data');
                 $do_preview = $do_send = false;
@@ -813,16 +843,28 @@ class MainWPCReport
                 $errors[] = __('Send To Email can not be empty');
                 $do_send = false;
             } 
+           
         }   
         
         if (!empty($report) && is_object($report)) {                          
             if ($do_send) {                     
                 if (self::send_report_mail($report)) {                        
-                    $messages[] = 'Send Report successful.';  
+                    $messages[] = __('Send Report successful.');  
                 } else {
-                    $errors[] = 'Send Report failed.';  
+                    $errors[] = __('Send Report failed.');  
                 }                
-            }   
+            } else if ($do_send_test_email) {
+                $email = get_option('mainwp_updatescheck_mail_email');                
+                if (!empty($email)) {                    
+                    if (self::send_report_mail($report, $email, "Website Report - Send Test Email"))
+                    {
+                        $messages[] = __('Send Test Email successful.');  
+                    } else 
+                        $errors[] = __('Send Test Email failed.');  
+                } else {
+                    $errors[] = __('Notification email is empty. Test Email does not send.');
+                }                    
+            }  
         }
               
         $str_error = (count($errors) > 0) ? implode("<br/>", $errors) : "";
@@ -896,8 +938,10 @@ class MainWPCReport
                                 <p class="submit">                                    
                                     <span style="float:left;">
                                         <input type="submit" value="<?php _e("Preview Report"); ?>" class="button-primary" id="mwp-creport-preview-btn" name="button_preview">                                        
+                                        <input type="submit" value="<?php _e("Send Test Email"); ?>" class="button" id="mwp-creport-send-test-email-btn" name="button_send_test_email">                                        
                                     </span>
-                                    <span style="float:right;">
+                                    <span style="float:right;">                                         
+                                        <input type="submit" value="<?php _e("Save as PDF"); ?>" class="button" id="mwp-creport-save-pdf-btn" name="button_save_pdf">
                                         <input type="submit" value="<?php _e("Save Report"); ?>" class="button" id="mwp-creport-save-btn" name="button_save">
                                         <input type="submit" value="<?php _e("Send Report"); ?>" class="button-primary" id="mwp-creport-send-btn" name="submit">
                                     </span>
@@ -975,7 +1019,7 @@ class MainWPCReport
         }        
         return false;        
     }
-    
+          
     public static function gen_report_content($report) {  
         $logo_url = "";
         if (!empty($report->logo_file)) {
@@ -1036,6 +1080,72 @@ class MainWPCReport
         </div>               
     <?php
         $output = ob_get_clean();
+        return $output; 
+    }
+    
+     public static function gen_email_content_pdf($report) {      
+        if (is_object($report)) {                
+            try {
+                $filtered_report = self::filter_report($report);                
+                $report = $filtered_report;
+            } catch (Exception $e) 
+            {                
+            }                        
+            return self::gen_report_content_pdf($report);            
+        }        
+        return "";        
+    }
+    
+     public static function gen_report_content_pdf($report) {  
+        $logo_url = "";
+        if (!empty($report->logo_file)) {
+            $creport_url = apply_filters('mainwp_getspecificurl',"client_report");
+            //$logo_url = $creport_url.$report->logo_file;
+        } 
+        $output = array();       
+        ob_start();  
+        ?>
+        <table>
+        <tr>
+            <td width="200"><?php echo stripslashes(nl2br($report->filtered_header)); ?></td>
+            <td width="200">
+            <?php
+            if (!empty($logo_url)) {
+            ?>    
+                <img src="<?php echo $logo_url ?>" alt="Logo" height="100"/>
+            <?php
+            }
+            ?>
+            </td>
+        </tr>
+        </table>
+       <?php     
+        echo '<br>';
+        echo stripslashes(nl2br($report->filtered_body)); 
+        echo '<br>';
+        echo stripslashes(nl2br($report->filtered_footer)); 
+        
+        $body = ob_get_clean();  
+        $output['body'] = $body;   
+        
+        $preriod = !empty($report->date_from) ? date("m/d/Y", $report->date_from) : "";
+        $preriod .= !empty($report->date_to) ? " to " . date("m/d/Y", $report->date_to) : "";
+       
+        ob_start();    
+        ?>
+        <div style="color:#858585;font-size:11px;line-height:150%;padding-bottom:5px;text-align:left">
+            <?php echo (!empty($report->name)) ? stripslashes($report->fname) . "<br>" : ""; ?>
+            <?php echo (!empty($report->name)) ? stripslashes($report->fcompany) . "<br>" : ""; ?>
+            <?php echo (!empty($report->name)) ? stripslashes($report->femail) . "<br>" : ""; ?>
+            <?php echo _e("Report Created on") . " " . date("m/d/Y").  "<br>"; ?>
+            <?php echo _e("For Period from ") . " " . $preriod . "<br>"; ?>                                    
+            <br>
+            <br>
+        </div>         
+        <?php        
+        $footer_page = ob_get_clean();        
+        
+        $output['footer_page'] = $footer_page;        
         return $output; 
     }
     
@@ -1568,7 +1678,7 @@ class MainWPCReport
             <td>
                 <input type="text" name="mwp_creport_name" placeholder="Name" value="<?php echo stripslashes($to_name); ?>" />&nbsp;&nbsp;
                 <input type="text" name="mwp_creport_company" placeholder="Company" value="<?php echo stripslashes($to_company); ?>" />&nbsp;&nbsp;
-                <input type="text" name="mwp_creport_email" placeholder="Email" value="<?php echo stripslashes($to_email); ?>" />
+                <input type="text" name="mwp_creport_email" id="mwp_creport_email" placeholder="Email" value="<?php echo stripslashes($to_email); ?>" />
             </td>
         </tr>        
         <input type="hidden" name="mwp_creport_client_id" value="<?php echo $client_id; ?>">
@@ -1689,7 +1799,7 @@ class MainWPCReport
          <div class="creport_format_data_tokens">
             <div class="creport_format_group_nav top">
                 <?php
-                    $visible = "plugins";
+                    $visible = "client";
                     $nav_group = "";
                     foreach (self::$tokens_nav_top as $group => $group_title) {                                                                
                         $current = ($visible == $group) ? "current" : "";
@@ -1700,7 +1810,7 @@ class MainWPCReport
                 ?>                
             </div>
             <?php
-                $visible_group = $visible."_sections";
+                $visible_group = $visible."_tokens";
                 foreach (self::$stream_tokens as $group => $group_tokens) {
                     foreach($group_tokens as $key => $tokens) {   
                         if ($key == "nav_group_tokens")
@@ -1741,8 +1851,8 @@ class MainWPCReport
             </div>
             <div class="creport_format_nav_bottom">
             <?php
-                $visible = "plugins";
-                $visible_nav = "sections";                                                       
+                $visible = "client";
+                $visible_nav = "tokens";                                                       
                 foreach (self::$stream_tokens as $group => $group_tokens) {                        
                     $nav_group_bottom = '';
                     $group_title = self::$tokens_nav_top[$group];
@@ -1755,8 +1865,9 @@ class MainWPCReport
                     echo '<div class="creport_format_group_nav bottom ' . $current . '" group="' . $group . '">' . $nav_group_bottom . '</div>';        
                 }
                 $breadcrumb = '<a href="javascript:void(0)" class="group" >' . self::$tokens_nav_top[$visible] . 
-                        "</a><span class=\"crp_content_group2\"> > " . '<a href="javascript:void(0)" class="group2">' . 
-                        self::$stream_tokens[$visible]['nav_group_tokens'][$visible_nav] . '</a></span>';
+                        "</a><span class=\"crp_content_group2 hidden-field\"> > " . '<a href="javascript:void(0)" class="group2">' . 
+                       //self::$stream_tokens[$visible]['nav_group_tokens'][$visible_nav] . 
+                        '</a></span>';
 
             ?>    
                 <div class="creport_format_nav_bottom_breadcrumb">
