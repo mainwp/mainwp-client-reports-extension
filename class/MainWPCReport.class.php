@@ -947,7 +947,7 @@ class MainWPCReport
                                 </p>
                             </div>   
                             <input type="hidden" name="mwp_creport_report_submit_action" id="mwp_creport_report_submit_action" value="">
-                            <input type="hidden" name="id" value="<?php echo (is_object($report) && $report->id) ? $report->id : "0"; ?>">
+                            <input type="hidden" name="id" value="<?php echo (is_object($report) && isset($report->id)) ? $report->id : "0"; ?>">
                             <input type="hidden" name="nonce" value="<?php echo wp_create_nonce('mwp_creport_nonce') ?>">
                         </form>
                         <div id="wpcr_token_tab"  <?php echo $style_tab_token; ?>>
