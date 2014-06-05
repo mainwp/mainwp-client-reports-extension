@@ -236,7 +236,7 @@ class MainWPCReport
                                                      "restored"=> "Restored",
                                                      "approved"=> "Approved",
                                                      "spam"=> "Spam",
-                                                     "replied"=> "replied",
+                                                     "replied"=> "Replied",
                                                      "additional"=> "Additional",
                                                     ),
                                 "created" => array(
@@ -761,7 +761,7 @@ class MainWPCReport
         global $current_user;              
         
         $messages = $errors = array();               
-        $do_preview = $do_send = $do_send_test_email = false;              
+        $do_preview = $do_send = $do_send_test_email = $do_save_pdf = false;              
         $report_id = 0;
         $report = null;
         if ((isset($_GET['action']) && "sendreport" === (string)$_GET['action']) || (isset($_POST['mwp_creport_report_submit_action']) && "send" === (string)$_POST['mwp_creport_report_submit_action'])) {                                
