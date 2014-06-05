@@ -764,11 +764,10 @@ class MainWPCReport
         $do_preview = $do_send = $do_send_test_email = false;              
         $report_id = 0;
         $report = null;
-      
         if ((isset($_GET['action']) && "sendreport" === (string)$_GET['action']) || (isset($_POST['mwp_creport_report_submit_action']) && "send" === (string)$_POST['mwp_creport_report_submit_action'])) {                                
             $do_send = true;                 
         } 
-        
+   
         if (isset($_POST['mwp_creport_report_submit_action']) && "send_test_email" === (string)$_POST['mwp_creport_report_submit_action']) {
             $do_send_test_email = true;
         }
@@ -854,7 +853,7 @@ class MainWPCReport
                     $errors[] = __('Send Report failed.');  
                 }                
             } else if ($do_send_test_email) {
-                $email = get_option('mainwp_updatescheck_mail_email');                
+                $email = apply_filters('mainwp_getnotificationemail');                
                 if (!empty($email)) {                    
                     if (self::send_report_mail($report, $email, "Website Report - Send Test Email"))
                     {
