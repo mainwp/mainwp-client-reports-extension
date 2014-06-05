@@ -1,7 +1,7 @@
 <?php
 class MainWPCReportDB
 {    
-    private $mainwp_wpcreport_db_version = "1.1";
+    private $mainwp_wpcreport_db_version = "1.2";
     //Singleton
     private static $instance = null;
     private $table_prefix;
@@ -24,6 +24,7 @@ class MainWPCReportDB
                                         "client.contact.name" => "Display Client Contact Name",
                                         "client.contact.address.1" => "Display Client Contact Address 1",
                                         "client.contact.address.2" => "Display Client Contact Address 2",
+                                        "client.company" => "Display Client Company",
                                         "client.city" => "Display Client City",
                                         "client.state" => "Display Client State",
                                         "client.zip" => "Display Client Zip",

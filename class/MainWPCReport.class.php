@@ -1900,21 +1900,31 @@ class MainWPCReport
                 $client_tokens_values = array();
                 $site_tokens = MainWPCReportDB::Instance()->getSiteTokens($website['url']);                
                 foreach ($client_tokens as $token) {             
-                    $client_tokens_values[] = array('token_name' => $token->token_name,
+                    $client_tokens_values[$token->token_name] = array('token_name' => $token->token_name,
                                                     'token_value' => isset($site_tokens[$token->id]) ? $site_tokens[$token->id]->token_value : ""
                                                     );
-                }                  
+                }     
+                
+                $html = "";
+                $tokens = array();
                 if (count($client_tokens_values) > 0) {              
                     foreach($client_tokens_values as $token) {                                    
-                        echo "<tr><td><a href=\"#\" token-value = \"" . $token['token_value'] . "\"class=\"creport_format_add_token\">[" . $token['token_name'] . "]</a></td>"
+                        $html .= "<tr><td><a href=\"#\" token-value = \"" . $token['token_value'] . "\"class=\"creport_format_add_token\">[" . $token['token_name'] . "]</a></td>"
                                 . "<td class=\"creport_stream_token_desc\">" . $token['token_value'] ."</td>"
                                 . "</tr>";
                     }
+                    $tokens = array('client.name' => $client_tokens_values['client.name']['token_value'],
+                                            'client.contact.name' => $client_tokens_values['client.contact.name']['token_value'],
+                                            'client.company' => $client_tokens_values['client.company']['token_value'],
+                                            'client.email' => $client_tokens_values['client.email']['token_value']
+                                        );
+                    
                 }
-                die();
+                
+                die(json_encode(array('tokens' => $tokens, 'html_tokens' => $html)));
             }
         }        
-        die('EMPTY');
+        die(json_encode('EMPTY'));
     }            
     
     public function load_client() {

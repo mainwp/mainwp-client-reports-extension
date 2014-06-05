@@ -438,10 +438,27 @@ jQuery(document).ready(function($) {
         }
         $.post(ajaxurl, data, function(response) { 
            if (response && response !== 'EMPTY') {
-               $('.creport_format_group_data_tokens[group="client_tokens"] table tbody').html(response);
-               $('.mwp_creport_edit_client_tokens').html('<a href="admin.php?page=managesites&id=' + site_Id + '">' + __("Edit Client Tokens") + '</a>');
+                if (response.html_tokens) {
+                    $('.creport_format_group_data_tokens[group="client_tokens"] table tbody').html(response.html_tokens);
+                    $('.mwp_creport_edit_client_tokens').html('<a href="admin.php?page=managesites&id=' + site_Id + '">' + __("Edit Client Tokens") + '</a>');
+                }
+                if (response.tokens) {
+                    $('input[name="mwp_creport_client"]').val('');
+                    $('input[name="mwp_creport_name"]').val('');
+                    $('input[name="mwp_creport_company"]').val('');
+                    $('input[name="mwp_creport_email"]').val('');
+                    
+                    if (response.tokens['client.name'])
+                        $('input[name="mwp_creport_client"]').val(response.tokens['client.name']);
+                    if (response.tokens['client.contact.name'])
+                        $('input[name="mwp_creport_name"]').val(response.tokens['client.contact.name']);
+                    if (response.tokens['client.company'])
+                        $('input[name="mwp_creport_company"]').val(response.tokens['client.company']);
+                    if (response.tokens['client.email'])
+                        $('input[name="mwp_creport_email"]').val(response.tokens['client.email']);
+                }
            }                                 
-        }); 
+        }, 'json'); 
     })    
 });
 
