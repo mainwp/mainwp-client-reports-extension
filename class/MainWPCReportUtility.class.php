@@ -19,5 +19,5 @@ class MainWPCReportUtility
             $outputSite[$key] = $website->$key;
         }
         return $outputSite;
-    }    
+    }  
 }

@@ -6,6 +6,8 @@ class MainWPCReport
     private static $tokens_nav_top = array();    
     private static $buffer = array();    
     private static $plugin_url = "";
+    private static $order = "";
+    private static $orderby = "";
     
     public function __construct($ext) {    
         $this->clientReportExt = $ext;  
@@ -713,7 +715,7 @@ class MainWPCReport
                 if (!empty($report->id)) {
                     $report->lastsend = time();                    
                     $update_report = array('id' => $report->id, 'lastsend' => $report->lastsend);
-                    MainWPCReportDB::Instance()->updateReport($update_report);                    
+                    MainWPCReportDB::Instance()->updateReportLastSend($update_report);                    
                 }
                 return true;
             }
@@ -849,19 +851,23 @@ class MainWPCReport
             $report = MainWPCReportDB::Instance()->getReportBy('id', $report_id); 
         }
        
-        $style_tab_report = $style_tab_new = $style_tab_token = ' style="display: none" ';                
-        
+        $style_tab_report = $style_tab_edit = $style_tab_token = $style_tab_stream = ' style="display: none" ';                
+        $do_create_new = false;
         if (isset($_REQUEST['action'])) {                
             if ($_REQUEST['action'] == "token") {            
                 $style_tab_token = '';                
             } else if ($_REQUEST['action'] == "editreport" || $do_preview || $_REQUEST['action'] == "savepdf") {               
-                $style_tab_new = '';            
+                $style_tab_edit = '';                   
+            } else if ($_REQUEST['action'] == "newreport" ) { 
+                $do_create_new = true;
+                $style_tab_edit = '';                   
             } else if ($do_send) {
                 $style_tab_report = "";
             }
-        } else {
+        } else if(isset($_POST['mainwp_creport_stream_groups_select']) || isset($_GET['s'])){
+            $style_tab_stream = "";
+        } else 
             $style_tab_report = "";
-        }
         
         if ($do_preview || $do_send || $do_send_test_email) {
             if (empty($report) || !is_object($report)) {
@@ -885,7 +891,10 @@ class MainWPCReport
                     $messages[] = __('Send Report successful.');  
                 } else {
                     $errors[] = __('Send Report failed.');  
-                }                
+                }  
+                if (isset($_GET['action']) && "sendreport" === (string)$_GET['action']) {
+                    unset($report);
+                }
             } else if ($do_send_test_email) {
                 $email = apply_filters('mainwp_getnotificationemail');                
                 if (!empty($email)) {                    
@@ -926,8 +935,35 @@ class MainWPCReport
         $clients = MainWPCReportDB::Instance()->getClients();
         if (!is_array($clients)) 
             $clients = array();
+                
+        global $mainWPCReportExtensionActivator;
+        $websites = apply_filters('mainwp-getsites', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), null);              
+        $sites = $all_sites = array();
+        if (is_array($websites)) {
+            foreach ($websites as $website) {
+                $sites_id[] = $website['id'];
+                $all_sites[] = array('id' => $website['id'], 'name' => $website['name']);
+            }                
+        }                
+        $option = array('plugin_upgrades' => true, 
+                        'plugins' => true);
+        $dbwebsites = apply_filters('mainwp-getdbsites', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $sites_id, array(), $option);              
         
+        $selected_group = 0;       
         
+        if(isset($_POST['mainwp_creport_stream_groups_select'])) {
+            $selected_group = intval($_POST['mainwp_creport_stream_groups_select']);            
+        }           
+        $dbwebsites_stream = self::get_websites_stream($dbwebsites, $selected_group);         
+        //print_r($dbwebsites_stream);
+        unset($dbwebsites);
+        $edit_tab_lnk = !empty($report) ? '<a id="wpcr_edit_tab_lnk" href="#" class="mainwp_action mid mainwp_action_down">' . __("Edit Report") . '</a>' : "";        
+        if ($do_create_new) 
+            $new_tab_lnk = '<a id="wpcr_edit_tab_lnk" href="#" class="mainwp_action mid mainwp_action_down">' . __("New Report") . '</a>';
+        else if (empty($report)) {
+            $new_tab_lnk = '<a id="wpcr_edit_tab_lnk" href="#" class="mainwp_action mid">' . __("New Report") . '</a>';
+        } else  // button is new report button
+            $new_tab_lnk = '<a id="wpcr_new_tab_lnk" href="admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&action=newreport" class="mainwp_action mid">' . __("New Report") . '</a>';
         ?>
             <div class="wrap" id="mainwp-ap-option">
             <div class="clearfix"></div>           
@@ -939,7 +975,7 @@ class MainWPCReport
                     <div class="mainwp_error" id="wpcr_error_box"></div>
                     <div class="clear">
                         <br />
-                        <a id="wpcr_report_tab_lnk" href="#" class="mainwp_action left <?php  echo (empty($style_tab_report) ? "mainwp_action_down" : ""); ?>"><?php _e("Client Reports"); ?></a><a id="wpcr_new_tab_lnk" href="#" class="mainwp_action mid <?php  echo (empty($style_tab_new) ? "mainwp_action_down" : ""); ?>"><?php _e("New Report"); ?></a><a id="wpcr_token_tab_lnk" href="#" class="mainwp_action right <?php  echo (empty($style_tab_token) ? "mainwp_action_down" : ""); ?>"><?php _e("Report Tokens"); ?></a>
+                        <a id="wpcr_report_tab_lnk" href="#" class="mainwp_action left <?php  echo (empty($style_tab_report) ? "mainwp_action_down" : ""); ?>"><?php _e("Client Reports"); ?></a><?php echo $edit_tab_lnk; ?><?php echo $new_tab_lnk; ?><a id="wpcr_token_tab_lnk" href="#" class="mainwp_action mid <?php  echo (empty($style_tab_token) ? "mainwp_action_down" : ""); ?>"><?php _e("Report Tokens"); ?></a><a id="wpcr_stream_tab_lnk" href="#" class="mainwp_action right <?php  echo (empty($style_tab_stream) ? "mainwp_action_down" : ""); ?>"><?php _e("Stream Dashboard"); ?></a>
                         <br /><br />                              
                         <div id="wpcr_report_tab" <?php echo $style_tab_report; ?>>                             
                                 <div class="tablenav top">
@@ -957,16 +993,31 @@ class MainWPCReport
                                     }
                                     ?>
                                     </select>
-                                    <input type="button" name="mainwp_creport_select_client_btn_display" id="mainwp_creport_select_client_btn_display" class="button" value="<?php _e("Display"); ?>" />
+                                    <input type="button" id="mainwp_creport_select_client_btn_display" class="button" value="<?php _e("Display"); ?>" />
+                                    <select name="mainwp_creport_select_site" id="mainwp_creport_select_site">
+                                        <option value="0"><?php _e("Select a Site"); ?></option>
+                                    <?php
+                                    foreach ($all_sites as $site) {
+                                        $_select = "";
+                                        if (isset($_GET['site']) && $site['id'] == intval($_GET['site'])) {
+                                            $_select = "selected";
+                                        }                                        
+                                    ?>
+                                        <option value="<?php echo $site['id']; ?>" <?php echo $_select; ?>><?php echo stripslashes($site['name']); ?></option>
+                                    <?php
+                                    }
+                                    ?>
+                                    </select>
+                                    <input type="button" id="mainwp_creport_select_site_btn_display" class="button" value="<?php _e("Display"); ?>" />
                                 </div>
                             
-                            <?php self::reportTab(); ?>                            
+                            <?php self::reportTab($websites); ?>                            
                         </div>
                         <form method="post" enctype="multipart/form-data" id="mwp_creport_edit_form" action="admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&action=editreport<?php echo !empty($report_id) ? "&id=" . $report_id : ""; ?>">
-                            <div id="creport_select_sites_box" class="mainwp_config_box_right" <?php echo $style_tab_new; ?>>
+                            <div id="creport_select_sites_box" class="mainwp_config_box_right" <?php echo $style_tab_edit; ?>>
                             <?php do_action('mainwp_select_sites_box', __("Select Sites", 'mainwp'), 'radio', false, false, 'mainwp_select_sites_box_right', "", array($selected_site), array()); ?>
-                            </div>
-                            <div id="wpcr_new_tab"  <?php echo $style_tab_new; ?>>
+                            </div>                            
+                            <div id="wpcr_edit_tab"  <?php echo $style_tab_edit; ?>>
                                 <?php self::newReportTab($report); ?>  
                                 <p class="submit">                                    
                                     <span style="float:left;">
@@ -979,14 +1030,21 @@ class MainWPCReport
                                         <input type="submit" value="<?php _e("Send Report"); ?>" class="button-primary" id="mwp-creport-send-btn" name="submit">
                                     </span>
                                 </p>
-                            </div>   
-                            <input type="hidden" name="mwp_creport_report_submit_action" id="mwp_creport_report_submit_action" value="">
+                            </div>                              
+                        <input type="hidden" name="mwp_creport_report_submit_action" id="mwp_creport_report_submit_action" value="">
                             <input type="hidden" name="id" value="<?php echo (is_object($report) && isset($report->id)) ? $report->id : "0"; ?>">
                             <input type="hidden" name="nonce" value="<?php echo wp_create_nonce('mwp_creport_nonce') ?>">
                         </form>
                         <div id="wpcr_token_tab"  <?php echo $style_tab_token; ?>>
                             <div id="creport_list_tokens" class="postbox"></div>                                                                       
-                        </div>   
+                        </div> 
+                        <div id="wpcr_stream_tab" <?php echo $style_tab_stream; ?>>
+                            <div class="tablenav top">
+                            <?php self::gen_select_sites($dbwebsites_stream, $selected_group); ?>  
+                            </div>                            
+                            <?php self::gen_stream_dashboard_tab($dbwebsites_stream); ?>                            
+                        </div>
+                        
                     </div>
                 <div class="clear"></div>
                 </div>
@@ -1409,18 +1467,18 @@ class MainWPCReport
         }
     }
     
-    public static function reportTab() {
+    public static function reportTab($websites) {
         $orderby = "title";    
         $order = "asc";
         
-        if (isset($_GET['orderby']) && !empty($_GET['orderby'])) {            
+        if (isset($_GET['orderby']) && !empty($_GET['orderby']) && $_GET['orderby'] != "site") {            
             $orderby = $_GET['orderby'];
         }    
         if (isset($_GET['order']) && !empty($_GET['order'])) {            
             $order = $_GET['order'];
         }        
         
-        $title_order = $name_order = $lastsend_order = $datefrom_order = $client_order = "";                     
+        $title_order = $name_order = $lastsend_order = $datefrom_order = $client_order = $site_order = "";                     
         if (isset($_GET['orderby']) && $_GET['orderby'] == "title") {            
             $title_order = ($order == "desc") ? "asc" : "desc";                     
         } else if (isset($_GET['orderby']) && $_GET['orderby'] == "name") {            
@@ -1431,23 +1489,42 @@ class MainWPCReport
             $datefrom_order = ($order == "desc") ? "asc" : "desc";                     
         } else if (isset($_GET['orderby']) && $_GET['orderby'] == "client") {
             $client_order = ($order == "desc") ? "asc" : "desc";                     
-        } 
+        } else if (isset($_GET['orderby']) && $_GET['orderby'] == "site") {
+            $site_order = ($order == "desc") ? "asc" : "desc";                     
+        }        
+        
         
         $get_by = 'all';
         $value = null;
-        if (isset($_GET['client']) && !empty($_GET['client'])) {
+        
+        if (isset($_GET['site']) && !empty($_GET['site'])) {
+            $get_by = 'site';
+            $value = $_GET['site'];
+        } else if (isset($_GET['client']) && !empty($_GET['client'])) {
             $get_by = 'client';
             $value = $_GET['client'];
-        }        
+        } 
+        
         $reports = MainWPCReportDB::Instance()->getReportBy($get_by, $value, $orderby, $order);
-        global $mainWPCReportExtensionActivator;
-        $websites = apply_filters('mainwp-getsites', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), null);                
+        
         $all_sites = array();
         if (is_array($websites)) {
             foreach ($websites as $website) {
                 $all_sites[$website['id']] = $website;
             }                
         }
+        //print_r($all_sites);
+        $temp_reports = array();
+        if (!empty($site_order)) {
+            foreach($reports as $report) {
+                $report->site_name = !empty($report->selected_site) && isset($all_sites[$report->selected_site]) ? ($all_sites[$report->selected_site]['name']) : "";
+                $temp_reports[] = $report;
+            }    
+            self::$order = $order;     
+            usort($temp_reports, array('MainWPCReport', "data_sort_2")); 
+            $reports = $temp_reports;            
+        }
+        
         
     ?>
          <table id="mainwp-table" class="wp-list-table widefat" cellspacing="0">
@@ -1468,8 +1545,8 @@ class MainWPCReport
                     <th scope="col" class="manage-column sortable <?php echo $datefrom_order; ?>">
                         <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=date_from&order=<?php echo (empty($datefrom_order) ? 'asc' : $datefrom_order); ?>"><span><?php _e('Report For','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>
-                    <th scope="col" class="manage-column">
-                        <span><?php _e('Site','mainwp'); ?></span>
+                    <th scope="col" class="manage-column sortable  <?php echo $site_order; ?>">
+                        <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=site&order=<?php echo (empty($site_order) ? 'asc' : $site_order); ?>"><span><span><?php _e('Site','mainwp'); ?></span></span><span class="sorting-indicator"></span></a>
                     </th>
                 </tr>
             </thead>
@@ -1490,8 +1567,8 @@ class MainWPCReport
                     <th scope="col" class="manage-column sortable <?php echo $datefrom_order; ?>">
                         <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=date_from&order=<?php echo (empty($datefrom_order) ? 'asc' : $datefrom_order); ?>"><span><?php _e('Report For','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>
-                    <th scope="col" class="manage-column">
-                        <span><?php _e('Site','mainwp'); ?></span>
+                    <th scope="col" class="manage-column sortable <?php echo $site_order; ?>">
+                        <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=site&order=<?php echo (empty($site_order) ? 'asc' : $site_order); ?>"><span><span><?php _e('Site','mainwp'); ?></span></span><span class="sorting-indicator"></span></a>
                     </th>
                 </tr>
             </tfoot>
@@ -1504,6 +1581,18 @@ class MainWPCReport
     <?php
     }
     
+     public static function data_sort_2($a, $b) {  
+        $a = $a->site_name;
+        $b = $b->site_name;   
+        $cmp = strcmp($a, $b); 
+              
+        if ($cmp == 0)
+            return 0;
+        if (self::$order == 'desc')
+            return ($cmp > 0) ? -1 : 1;
+        else 
+            return ($cmp > 0) ? 1 : -1;                        
+    }
     
     public static function reportTableContent($reports, $websites) {
         
@@ -1648,6 +1737,15 @@ class MainWPCReport
             $to_email = $report->email;
             $to_client = $report->client;            
             $client_id = intval($report->client_id);
+            if ($client_id) {
+                $client = MainWPCReportDB::Instance()->getClientBy('clientid', $client_id);
+                if (!empty($client)) {
+                    $to_client = $client->client;
+                    $to_name = $client->name;
+                    $to_company = $client->company;
+                    $to_email = $client->email;                    
+                }
+            }                
         } 
 //        else if (isset($_POST['submit'])){
 //            $title =  isset($_POST['mwp_creport_title']) ? trim($_POST['mwp_creport_title']) : "";
@@ -1805,8 +1903,8 @@ class MainWPCReport
                     <span class="loading"><span class="status hidden-field"></span><img src="<?php echo $url_loader; ?>" class="hidden-field"></span>
                 </div>
             </div>            
-                <p><a href="#" style="float: right" class="mainwp_creport_show_insert_tokens_book_lnk"><?php _e("Show Available Tokens"); ?></a></p>
-                <br class="clearfix"/>
+                <div style="background: #F5F5F5; padding: 5px; border-bottom: 1px Dashed #fff;"><a href="#" style="float: right" class="mainwp_creport_show_insert_tokens_book_lnk"><?php _e("Show Available Tokens"); ?></a><div class="clearfix"></div></div>
+                <div class="clearfix"></div>
                <?php self::gen_insert_tokens_box("header", true, $client_tokens_values, $client_tokens, $website); ?>
             </td> 
         </tr>  
@@ -2313,6 +2411,306 @@ class MainWPCReport
             $ret['status'] = 'success';        
         echo json_encode($ret);
         exit;
+    }
+    
+    
+     public static function gen_stream_dashboard_tab($websites) {
+            
+        $orderby = "name";    
+        $_order = "desc";
+        if (isset($_GET['orderby']) && !empty($_GET['orderby'])) {            
+            $orderby = $_GET['orderby'];
+        }    
+        if (isset($_GET['order']) && !empty($_GET['order'])) {            
+            $_order = $_GET['order'];
+        }        
+        
+        $name_order = $version_order = $temp_order = $time_order = $url_order = "";     
+        if (isset($_GET['orderby']) && $_GET['orderby'] == "name") {            
+            $name_order = ($_order == "desc") ? "asc" : "desc";                     
+        } else if (isset($_GET['orderby']) && $_GET['orderby'] == "version") {            
+            $version_order = ($_order == "desc") ? "asc" : "desc";                     
+        } else if (isset($_GET['orderby']) && $_GET['orderby'] == "template") {
+            $temp_order = ($_order == "desc") ? "asc" : "desc";                     
+        } else if (isset($_GET['orderby']) && $_GET['orderby'] == "time") {
+            $time_order = ($_order == "desc") ? "asc" : "desc";                     
+        } else if (isset($_GET['orderby']) && $_GET['orderby'] == "url") {
+            $url_order = ($_order == "desc") ? "asc" : "desc";                     
+        } 
+        
+//        echo $_GET['orderby']. "===" . $_order ."<br/>";
+//        echo  $name_order . "=====" . $version_order . "=====" . $temp_order ;
+        
+        self::$order = $_order;
+        self::$orderby = $orderby;        
+        usort($websites, array('MainWPCReport', "creport_data_sort"));          
+    ?>
+        <table id="mainwp-table-plugins" class="wp-list-table widefat plugins" cellspacing="0">
+          <thead>
+          <tr>
+            <th class="check-column">&nbsp;</th>
+            <th scope="col" class="manage-column sortable <?php echo $name_order; ?>">
+                <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=name&order=<?php echo (empty($name_order) ? 'asc' : $name_order); ?>"><span><?php _e('Site','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+            </th>
+            <th scope="col" class="manage-column sortable <?php echo $url_order; ?>">
+                <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=url&order=<?php echo (empty($url_order) ? 'asc' : $url_order); ?>"><span><?php _e('URL','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+            </th>
+            <th scope="col" class="manage-column sortable <?php echo $version_order; ?>">
+                <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=version&order=<?php echo (empty($version_order) ? 'asc' : $version_order); ?>"><span><?php _e('Plugin Version','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+            </th>           
+          </tr>
+          </thead>
+          <tfoot>
+          <tr>
+            <th class="check-column">&nbsp;</th>
+            <th scope="col" class="manage-column sortable <?php echo $name_order; ?>">
+                <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=name&order=<?php echo (empty($name_order) ? 'asc' : $name_order); ?>"><span><?php _e('Site','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+            </th>
+            <th scope="col" class="manage-column sortable <?php echo $url_order; ?>">
+                <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=url&order=<?php echo (empty($url_order) ? 'asc' : $url_order); ?>"><span><?php _e('URL','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+            </th>
+            <th scope="col" class="manage-column sortable <?php echo $version_order; ?>">
+                <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=version&order=<?php echo (empty($version_order) ? 'asc' : $version_order); ?>"><span><?php _e('Plugin Version','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+            </th>           
+          </tr>
+          </tfoot>
+            <tbody id="the-wp-stream-list" class="list:sites">
+             <?php 
+             if (is_array($websites) && count($websites) > 0) {                
+                self::getStreamDashboardTableRow($websites);                  
+             } else {
+                _e("<tr><td colspan=\"6\">No websites were found with the Stream plugin installed.</td></tr>");
+             }
+             ?>
+            </tbody>
+      </table>
+    <?php
+    }
+    
+     public static function getStreamDashboardTableRow($websites) {   
+        $dismiss = array();
+        if (session_id() == '') session_start();        
+        if (isset($_SESSION['mainwp_creport_dismiss_upgrade_stream_notis'])) {
+            $dismiss = $_SESSION['mainwp_creport_dismiss_upgrade_stream_notis'];
+        }                
+        
+        if (!is_array($dismiss))
+            $dismiss = array();       
+                    
+        foreach ($websites as $website) {
+            $location = "admin.php?page=wp_stream";             
+            $website_id = $website['id'];
+            $template_title = empty($website['template_title']) ? "&nbsp;" : $website['template_title'];    
+            $cls_active = (isset($website['stream_active']) && !empty($website['stream_active'])) ? "active" : "inactive";
+            $cls_update = (isset($website['stream_upgrade'])) ? "update" : "";
+            $cls_update = ($cls_active == "inactive") ? "update" : $cls_update;
+            ?>
+            <tr class="<?php echo $cls_active . " " . $cls_update; ?>">
+                <th class="check-column">&nbsp;</th>
+                <td>
+                    <a href="admin.php?page=managesites&dashboard=<?php echo $website_id; ?>"><?php echo $website['name']; ?></a><br/>
+                    <div class="row-actions"><span class="dashboard"><a href="admin.php?page=managesites&dashboard=<?php echo $website_id; ?>"><?php _e("Dashboard");?></a></span> |  <span class="edit"><a href="admin.php?page=managesites&id=<?php echo $website_id; ?>"><?php _e("Edit");?></a></span></div>                    
+                </td>
+                <td>
+                    <a href="<?php echo $website['url']; ?>" target="_blank"><?php echo $website['url']; ?></a><br/>
+                    <div class="row-actions"><span class="edit"><a target="_blank" href="admin.php?page=SiteOpen&newWindow=yes&websiteid=<?php echo $website_id; ?>"><?php _e("Open WP-Admin");?></a></span> | <span class="edit"><a href="admin.php?page=SiteOpen&newWindow=yes&websiteid=<?php echo $website_id; ?>&location=<?php echo base64_encode($location); ?>" target="_blank"><?php _e("Open Stream");?></a></span></div>                    
+                </td>
+                <td>
+                <?php 
+                    if (isset($website['stream_plugin_version']))
+                        echo $website['stream_plugin_version'];
+                    else 
+                        echo "&nbsp;";
+                ?>
+                </td>               
+            </tr>        
+             <?php    
+            if (!isset($dismiss[$website_id])) {  
+                $active_link = $update_link = "";
+                $version = $plugin_slug = "";                    
+                if (isset($website['stream_active']) && empty($website['stream_active']))
+                    $active_link = '<a href="admin.php?page=managesites&dashboard=' . $website_id . '">Activate Stream plugin</a>';
+
+                if (isset($website['stream_upgrade'])) { 
+                    if (isset($website['stream_upgrade']['new_version']))
+                        $version = $website['stream_upgrade']['new_version'];
+                    $update_link = '<a href="admin.php?page=managesites&dashboard=' . $website_id . '">Update Stream plugin</a>';
+                    if (isset($website['stream_upgrade']['plugin']))
+                        $plugin_slug = $website['stream_upgrade']['plugin'];
+                }
+
+                if (!empty($active_link) || !empty($update_link)) {
+                    $location = "plugins.php";                    
+                    $link_row = $active_link .  ' | ' . $update_link;
+                    $link_row = rtrim($link_row, ' | ');
+                    $link_row = ltrim($link_row, ' | ');
+                    ?>
+                    <tr class="plugin-update-tr">
+                        <td colspan="6" class="plugin-update">
+                            <div class="ext-upgrade-noti update-message" plugin-slug="<?php echo $plugin_slug; ?>" id="<?php echo $website_id; ?>" version="<?php echo $version; ?>">
+                                <span style="float:right"><a href="#" class="ext-upgrade-noti-dismiss"><?php _e("Dismiss"); ?></a></span>                    
+                                <?php echo $link_row; ?>
+                                <span class="creport-stream-row-working"><span class="status"></span><img class="hidden-field" src="<?php echo plugins_url('images/loader.gif', dirname(__FILE__)); ?>"/></span>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php  
+                }
+            }                
+        }
+    }
+    
+     public static function creport_data_sort($a, $b) {        
+        if (self::$orderby == "version") {
+            $a = $a['stream_plugin_version'];
+            $b = $b['stream_plugin_version'];
+            $cmp = version_compare($a, $b);            
+        } else if (self::$orderby == "url"){
+            $a = $a['url'];
+            $b = $b['url'];   
+            $cmp = strcmp($a, $b); 
+        } else {
+            $a = $a['name'];
+            $b = $b['name'];   
+            $cmp = strcmp($a, $b); 
+        }     
+        if ($cmp == 0)
+            return 0;
+        if (self::$order == 'desc')
+            return ($cmp > 0) ? -1 : 1;
+        else 
+            return ($cmp > 0) ? 1 : -1;                        
+    }
+
+    public static function get_websites_stream($websites, $selected_group = 0) {                       
+        $websites_stream = array();
+        if (is_array($websites) && count($websites)) {
+            if (empty($selected_group)) {            
+                foreach($websites as $website) {
+                    if ($website && $website->plugins != '')  { 
+                        $plugins = json_decode($website->plugins, 1);                           
+                        if (is_array($plugins) && count($plugins) != 0) {                            
+                            foreach ($plugins as $plugin)
+                            {                            
+                                if ($plugin['slug'] == "stream/stream.php" || strpos($plugin['slug'], "/stream.php") !== false) {                                    
+                                    $site = MainWPCReportUtility::mapSite($website, array('id', 'name' , 'url'));
+                                    if ($plugin['active'])
+                                        $site['stream_active'] = 1;
+                                    else 
+                                        $site['stream_active'] = 0;     
+                                    // get upgrade info
+                                    $site['stream_plugin_version'] = $plugin['version'];
+                                    $plugin_upgrades = json_decode($website->plugin_upgrades, 1);                                     
+                                    if (is_array($plugin_upgrades) && count($plugin_upgrades) > 0) {                                        
+                                        if (isset($plugin_upgrades["stream/stream.php"])) {
+                                            $upgrade = $plugin_upgrades["stream/stream.php"];
+                                            if (isset($upgrade['update'])) {                                                
+                                                $site['stream_upgrade'] = $upgrade['update'];                                                
+                                            }
+                                        }
+                                    }
+                                    $websites_stream[] = $site;                                    
+                                    break;                                    
+                                }
+                            }
+                        }
+                    }
+                }            
+            } else {
+                global $mainWPCReportExtensionActivator;
+                
+                $group_websites = apply_filters('mainwp-getdbsites', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), array(), array($selected_group));  
+                $sites = array();
+                foreach($group_websites as $site) {
+                    $sites[] = $site->id;
+                }                 
+                foreach($websites as $website) {
+                    if ($website && $website->plugins != '' && in_array($website->id, $sites))  { 
+                        $plugins = json_decode($website->plugins, 1);                       
+                        if (is_array($plugins) && count($plugins) != 0) {
+                            foreach ($plugins as $plugin)
+                            {                            
+                                if ($plugin['slug'] == "stream/stream.php" || strpos($plugin['slug'], "/stream.php") !== false) {
+                                    $site = MainWPCReportUtility::mapSite($website, array('id', 'name' , 'url'));
+                                    // get upgrade info
+                                    $plugin_upgrades = json_decode($website->plugin_upgrades, 1); 
+                                    if (is_array($plugin_upgrades) && count($plugin_upgrades) > 0) {                                        
+                                        if (isset($plugin_upgrades["stream/stream.php"])) {
+                                            $upgrade = $plugin_upgrades["stream/stream.php"];
+                                            if (isset($upgrade['update'])) {                                                
+                                                $site['stream_upgrade'] = $upgrade['update'];                                                
+                                            }
+                                        }
+                                    }
+                                    $websites_stream[] = $site;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }   
+            }
+        } 
+        
+        // if search action
+        $search_sites = array();               
+        if (isset($_GET['s']) && !empty($_GET['s'])) {
+            $find = trim($_GET['s']);
+            foreach($websites_stream as $website ) {                
+                if (stripos($website['name'], $find) !== false || stripos($website['url'], $find) !== false) {
+                    $search_sites[] = $website;
+                }
+            }
+            $websites_stream = $search_sites;
+        }
+        unset($search_sites);        
+       
+        return $websites_stream;
+    } 
+          
+    public static function gen_select_sites($websites, $selected_group) {
+        global $mainWPCReportExtensionActivator;
+        //$websites = apply_filters('mainwp-getsites', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), null);              
+        $groups = apply_filters('mainwp-getgroups', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), null);        
+        $search = (isset($_GET['s']) && !empty($_GET['s'])) ? trim($_GET['s']) : "";
+        ?> 
+        <div class="alignleft actions">
+            <form action="" method="GET">
+                <input type="hidden" name="page" value="Extensions-Mainwp-Client-Reporting-Extension">
+                <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"><?php _e('No search results.','mainwp'); ?></span>
+                <input type="text" class="mainwp_autocomplete ui-autocomplete-input" name="s" autocompletelist="sites" value="<?php echo stripslashes($search); ?>" autocomplete="off">
+                <datalist id="sites">
+                    <?php
+                    if (is_array($websites) && count($websites) > 0) {
+                        foreach ($websites as $website) {                    
+                            echo "<option>" . $website['name']. "</option>";                    
+                        }
+                    }
+                    ?>                
+                </datalist>
+                <input type="submit" name="" class="button" value="Search Sites">
+            </form>
+        </div>    
+        <div class="alignleft actions">
+            <form method="post" action="admin.php?page=Extensions-Mainwp-Client-Reporting-Extension">
+                <select name="mainwp_creport_stream_groups_select">
+                <option value="0"><?php _e("Select a group"); ?></option>
+                <?php
+                if (is_array($groups) && count($groups) > 0) {
+                    foreach ($groups as $group) {
+                        $_select = "";
+                        if ($selected_group == $group['id'])
+                            $_select = 'selected ';                    
+                        echo '<option value="' . $group['id'] . '" ' . $_select . '>' . $group['name'] . '</option>';
+                    }     
+                }
+                ?>
+                </select>&nbsp;&nbsp;                     
+                <input class="button" type="button" name="creport_stream_btn_display" id="creport_stream_btn_display"value="<?php _e("Display", "mainwp"); ?>">
+            </form>  
+        </div>    
+        <?php       
+        return;
     }
     
 }

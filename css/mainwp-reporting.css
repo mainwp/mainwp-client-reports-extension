@@ -66,7 +66,7 @@
 .crp-editor-field {
     float: left;    
 }
-#wpcr_new_tab tr th{
+#wpcr_edit_tab tr th{
     vertical-align: text-top;    
 }
 .creport_format_data_tokens {
@@ -116,9 +116,7 @@ a.creport_format_add_token:hover {
 .mwp_creport_logo_image img{
     max-width: 800px;
 }
-#creport_select_sites_box {
-    margin-top: -12px;
-}
+
 #wpcr_report_tab tr .loading .status {
     font-style: italic;
 }

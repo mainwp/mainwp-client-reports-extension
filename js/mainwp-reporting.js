@@ -4,17 +4,22 @@ jQuery(document).ready(function($) {
     jQuery('.mainwp_creport_datepicker').datepicker({dateFormat:"yy-mm-dd"});
     
     $('#wpcr_report_tab_lnk').on('click', function () {   
-        showCReportTab(true, false, false);
+        showCReportTab(true, false, false, false);
         return false;
     });
     
-    $('#wpcr_new_tab_lnk').on('click', function () {  
-        showCReportTab(false, true, false);
+    $('#wpcr_edit_tab_lnk').on('click', function () {  
+        showCReportTab(false, true, false, false);
         return false;
     });
     
     $('#wpcr_token_tab_lnk').on('click', function () {  
-        showCReportTab(false, false, true);
+        showCReportTab(false, false, true, false);
+        return false;
+    });
+    
+    $('#wpcr_stream_tab_lnk').on('click', function () {  
+        showCReportTab(false, false, false, true);
         return false;
     });
     
@@ -400,9 +405,15 @@ jQuery(document).ready(function($) {
     })
     
     $('#mainwp_creport_select_client_btn_display').on('click' ,function(){
-        var client = $('#mainwp_creport_select_client').val();
+        var client = $('#mainwp_creport_select_client').val();       
         location.href = 'admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&client=' + client;
     })
+    
+    $('#mainwp_creport_select_site_btn_display').on('click' ,function(){     
+        var site = $('#mainwp_creport_select_site').val();               
+        location.href = 'admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&site=' + site;
+    })
+    
     
     $('#mwp_creport_edit_form .mainwp_selected_sites_item input[type="radio"]').on('click',function(){
         var site_Id = $(this).attr('siteid');
@@ -421,6 +432,7 @@ jQuery(document).ready(function($) {
                     $('input[name="mwp_creport_name"]').val('');
                     $('input[name="mwp_creport_company"]').val('');
                     $('input[name="mwp_creport_email"]').val('');
+                    $('input[name="mwp_creport_client_id"]').val(0);
                     
                     if (response.tokens['client.name'])
                         $('input[name="mwp_creport_client"]').val(response.tokens['client.name']);
@@ -541,40 +553,59 @@ jQuery(document).ready(function($) {
         return true;
     }
     
+    $('#creport_stream_btn_display').live('click', function() {                     
+       $(this).closest('form').submit();
+    });
+    
+    
 });
 
-showCReportTab = function(report, new_report, token) {
+showCReportTab = function(report, edit_report, token, tream) {
     var report_tab_lnk = jQuery("#wpcr_report_tab_lnk");
     if (report)  report_tab_lnk.addClass('mainwp_action_down');
     else report_tab_lnk.removeClass('mainwp_action_down'); 
 
-    var new_report_tab_lnk = jQuery("#wpcr_new_tab_lnk");
-    if (new_report) new_report_tab_lnk.addClass('mainwp_action_down');
-    else new_report_tab_lnk.removeClass('mainwp_action_down');
+    var edit_report_tab_lnk = jQuery("#wpcr_edit_tab_lnk");
+    if (edit_report) edit_report_tab_lnk.addClass('mainwp_action_down');
+    else edit_report_tab_lnk.removeClass('mainwp_action_down');
    
     var token_tab_lnk = jQuery("#wpcr_token_tab_lnk");
     if (token) token_tab_lnk.addClass('mainwp_action_down');
     else token_tab_lnk.removeClass('mainwp_action_down');
     
-    var report_tab = jQuery("#wpcr_report_tab");
-    var new_tab = jQuery("#wpcr_new_tab");
+    var stream_tab_lnk = jQuery("#wpcr_stream_tab_lnk");
+    if (tream) stream_tab_lnk.addClass('mainwp_action_down');
+    else stream_tab_lnk.removeClass('mainwp_action_down');
+    
+    var report_tab = jQuery("#wpcr_report_tab");    
+    var edit_tab = jQuery("#wpcr_edit_tab");    
     var token_tab = jQuery("#wpcr_token_tab");
-    var select_sites_box = jQuery("#creport_select_sites_box");
+    var tream_tab = jQuery("#wpcr_stream_tab");
+    var select_sites_box = jQuery("#creport_select_sites_box");    
     
     if (report) {
         report_tab.show();
-        new_tab.hide();
+        edit_tab.hide();    
         token_tab.hide();
+        tream_tab.hide();
         select_sites_box.hide();
-    } else if (new_report) {
-        report_tab.hide();
-        new_tab.show();
+    } else if (edit_report) {
+        report_tab.hide();        
+        edit_tab.show();
         token_tab.hide();
+        tream_tab.hide();
         select_sites_box.show();
     } else if (token) {
         report_tab.hide();
-        new_tab.hide();
+        edit_tab.hide();   
         token_tab.show();
+        tream_tab.hide();
+        select_sites_box.hide();
+    }  else if (tream) {
+        report_tab.hide();
+        edit_tab.hide();    
+        token_tab.hide();
+        tream_tab.show();
         select_sites_box.hide();
     }   
 };

@@ -348,6 +348,18 @@ PRIMARY KEY  (`id`)  ';
         return false;        
     }
     
+    public function updateReportLastSend($report)
+    {
+        global $wpdb;  
+        $id = isset($report['id']) ? $report['id'] : 0;        
+        if (!empty($id)) {
+            if ($wpdb->update($this->tableName('client_report'), $update_report, array('id' => intval($id)))) {
+                return $this->getReportBy('id', $id);                                 
+            }
+        }
+        return false;
+    }
+    
     public function updateReport($report)
     {
          /** @var $wpdb wpdb */
@@ -367,7 +379,7 @@ PRIMARY KEY  (`id`)  ';
             else {
                 $client = $this->getClientBy('client', $report["client"]);
                 if (!empty($client)) 
-                    $update_client['clientid'] = $client->client;                
+                    $update_client['clientid'] = $client->clientid;                
             }            
             $updated = $this->updateClient($update_client);   
             
@@ -447,6 +459,12 @@ PRIMARY KEY  (`id`)  ';
                     . " LEFT JOIN " . $this->tableName('client_report_client') . " c "
                     . " ON rp.client_id = c.clientid "
                     . " WHERE `client_id` = %d " . $_order_by , $value);
+             return $wpdb->get_results($sql);  
+        } if ($by == 'site') {
+            $sql = $wpdb->prepare("SELECT rp.*, c.* FROM " . $this->tableName('client_report') . " rp "
+                    . " LEFT JOIN " . $this->tableName('client_report_client') . " c "
+                    . " ON rp.client_id = c.clientid "
+                    . " WHERE `selected_site` = %d " . $_order_by , $value);
              return $wpdb->get_results($sql);  
         } else if ($by == 'all') {            
             $sql = "SELECT * FROM " . $this->tableName('client_report') . " rp "
