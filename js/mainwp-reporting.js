@@ -433,7 +433,114 @@ jQuery(document).ready(function($) {
                 }
            }                                 
         }, 'json'); 
-    })    
+    })
+    
+    $('.mainwp_creport_format_section_header .handlelnk').live('click', function(){
+        var pr = $(this).parent();        
+        if (pr.hasClass('closed')) {
+            pr.removeClass('closed');
+            $(this).text(__("Hide"));
+            pr.closest('tr').next('tr.mainwp_creport_format_section').show();
+        } else {
+            pr.addClass('closed');       
+            $(this).text(__("Show"));
+            pr.closest('tr').next('tr.mainwp_creport_format_section').hide();
+        }
+    });  
+    
+    $('.mainwp_creport_report_save_format_btn').on('click', function(){
+        var pr = $(this).closest('.inner');        
+        var titleEl = pr.find('input[type="text"]');       
+        var statusEl = pr.find('.status');
+        statusEl.hide();
+        titleEl.removeClass('form-invalid'); 
+        
+        if (titleEl.val() == "") {
+            titleEl.addClass('form-invalid');
+            statusEl.css('color','red');
+            statusEl.html('Error').show();            
+            return false;
+        }        
+        var content = creport_get_content_format($(this).attr('ed-name'));
+        var data = {
+            action: 'mainwp_creport_save_format',
+            type: $(this).attr('format'),
+            title: titleEl.val(),
+            content: content 
+        }        
+        
+        var loader = pr.find('.loading img');
+        loader.show();
+        $.post(ajaxurl, data, function(response) { 
+            loader.hide();
+            if (response && response == 'success') {
+                statusEl.css('color', '#21759B');
+                statusEl.html('Saved').show();
+                statusEl.fadeOut(3000);                
+            } else {
+                statusEl.css('color','red');
+                statusEl.html('Error').show();  
+            }         
+        })
+        return false;
+    });
+    
+    function creport_get_content_format(name) {
+        var content = "";     
+        var editor_name = 'mainwp_creport_report_' + name;
+        var editor = tinyMCE.get(editor_name);
+        
+        if (editor != null && typeof(editor) !== "undefined" && editor.isHidden() == false) {
+            content = editor.getContent();            
+        } else {                       
+            content = $('#' + editor_name).val();            
+        }        
+        return content;
+    }
+    
+    $('.mainwp_creport_report_insert_format_btn').on('click', function(){
+        var pr = $(this).closest('.inner');        
+        var selectEl = pr.find('select');    
+        var statusEl = pr.find('.status');
+        statusEl.hide();
+        
+        if (selectEl.val() == 0)
+            return false;
+        var content = creport_get_content_format($(this).attr('ed-name'));
+        var data = {
+            action: 'mainwp_creport_get_format',           
+            formatId: selectEl.val()             
+        }        
+        var name = $(this).attr('ed-name');
+        var loader = pr.find('.loading img');
+        loader.show();
+        $.post(ajaxurl, data, function(response) { 
+            loader.hide();
+            if (response && response['success']) {
+                creport_insert_content_format(name, response['content']);
+                statusEl.css('color', '#21759B');
+                statusEl.html('Inserted').show();
+                statusEl.fadeOut(3000);                
+            } else {
+                statusEl.css('color','red');
+                statusEl.html('Error').show();  
+            }         
+        }, 'json')
+        return false;
+        
+    });
+    
+    function creport_insert_content_format(name, content) {        
+        var editor_name = 'mainwp_creport_report_' + name;
+        var editor = tinyMCE.get(editor_name);        
+        if (editor != null && typeof(editor) !== "undefined" && editor.isHidden() == false) {
+            editor.setContent(content);            
+        } else {                       
+            $('#' + editor_name).val(content);            
+        }        
+        return true;
+    }
+    
 });
 
 showCReportTab = function(report, new_report, token) {

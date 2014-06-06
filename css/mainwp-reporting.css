@@ -134,3 +134,69 @@ a.creport_format_add_token:hover {
     margin: 5px;
     border: 2px solid #DDDDDD;
 }
+
+.mainwp_creport_format_section_header > h3 {
+    padding: 10px 0;
+}
+.mainwp_creport_format_section_header h3 {
+    border-bottom: 1px solid #aaa;    
+    margin: 0;
+}
+/*.mainwp_creport_format_section_header .handlediv{
+    float: right;
+    height: 30px;
+    width: 27px;
+}*/
+.mainwp_creport_format_section_header .handlelnk{
+    margin: 10px 10px 0;    
+    float: right;
+    text-decoration: none;
+    font-size: 13px;
+}
+/*
+.mainwp_creport_format_section_header .handlediv:before{
+   content: '\f142'; 
+}
+.mainwp_creport_format_section_header.closed .handlediv:before{
+    content: '\f140'; 
+}
+.mainwp_creport_format_section_header .handlediv:before{
+    right: 12px;
+    font: normal 20px/1 'dashicons';
+    speak: none;
+    display: inline-block;
+    padding: 8px 10px;
+    top: 0;
+    position: relative;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-decoration: none !important;
+}
+*/
+
+.mainwp_creport_format_section .logo {
+    width: 100%;
+    text-align: center;
+    padding-top: 55px;
+}
+.mainwp_creport_format_save_section {
+    width: 100%;
+    margin: 3px 0;
+}
+.mainwp_creport_format_save_section .inner{
+    float: left;
+    width: 50%;
+    text-align: left;
+}
+.mainwp_creport_format_save_section {
+    margin: 10px 0 10px;
+    height: 30px;
+}
+
+.mainwp_creport_format_save_section .inner > input[type="text"], 
+.mainwp_creport_format_save_section .inner > select {
+    width: 215px;
+}
+.mainwp_creport_format_save_section .inner .status {
+    font-style: italic;
+}

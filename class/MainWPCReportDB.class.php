@@ -1,7 +1,7 @@
 <?php
 class MainWPCReportDB
 {    
-    private $mainwp_wpcreport_db_version = "1.3";
+    private $mainwp_wpcreport_db_version = "1.5";
     //Singleton
     private static $instance = null;
     private $table_prefix;
@@ -51,7 +51,7 @@ class MainWPCReportDB
     function install()
     {
         global $wpdb;
-        $currentVersion = get_site_option('mainwp_wpcreport_db_version');
+        $currentVersion = get_site_option('mainwp_wpcreport_db_version');        
         if ($currentVersion == $this->mainwp_wpcreport_db_version) return;    
         
 //        if ($currentVersion !== "1.0") {
@@ -123,13 +123,23 @@ PRIMARY KEY  (`clientid`)  ';
         $tbl .= ') ' . $charset_collate;
         $sql[] = $tbl;
         
+        $tbl = 'CREATE TABLE `' . $this->tableName('client_report_format') . '` (
+`id` int(11) NOT NULL AUTO_INCREMENT,
+`title` VARCHAR(512), 
+`content` text NOT NULL,
+`type` CHAR(1)';
+        if ($currentVersion == '' || $currentVersion == "1.3")
+                    $tbl .= ',
+PRIMARY KEY  (`id`)  ';
+        $tbl .= ') ' . $charset_collate;
+        $sql[] = $tbl;        
+        
         error_reporting(0); // make sure to disable any error output
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         foreach ($sql as $query)
         {
             dbDelta($query);
-        }
-        
+        }        
         
 //        global $wpdb;
 //        echo $wpdb->last_error;
@@ -507,6 +517,47 @@ PRIMARY KEY  (`clientid`)  ';
         }              
         return false;
     }
+    
+    
+     public function getFormats($type = null) {
+        global $wpdb;        
+        return $wpdb->get_results("SELECT * FROM " . $this->tableName('client_report_format') . " WHERE type = '" . $type . "' ORDER BY title");                
+    }
+    
+    public function getFormatBy($by, $value) {
+        global $wpdb;
+        if (empty($value))
+            return false;
+        $sql = "";
+        if ($by == 'id') {
+            $sql = $wpdb->prepare("SELECT * FROM " . $this->tableName('client_report_format')
+                    . " WHERE `id` =%d " , $value);
+        }    
+        if (!empty($sql))
+            return $wpdb->get_row($sql); 
+        return false;
+    }
+    
+    public function updateFormat($format)
+    {
+         /** @var $wpdb wpdb */
+        global $wpdb;  
+        $id = isset($format['id']) ? $format['id'] : 0;
+        
+        if (!empty($id)) {
+            if ($wpdb->update($this->tableName('client_report_format'), $format, array('id' => intval($id))))
+                return $this->getFormatBy('id', $id); 
+        } else {            
+            if ($wpdb->insert($this->tableName('client_report_format'), $format)) 
+            {
+                //echo $wpdb->last_error;
+                return $this->getFormatBy('id', $wpdb->insert_id); 
+            }
+            //echo $wpdb->last_error;
+        }              
+        return false;
+    }
+    
     
     protected function escape($data)
     {

@@ -5,9 +5,11 @@ class MainWPCReport
     private static $stream_tokens = array();
     private static $tokens_nav_top = array();    
     private static $buffer = array();    
+    private static $plugin_url = "";
     
     public function __construct($ext) {    
-        $this->clientReportExt = $ext;       
+        $this->clientReportExt = $ext;  
+        self::$plugin_url = $this->clientReportExt->plugin_url;
         self::$stream_tokens = array(     
             "client" => array("tokens" => array(),
                                 'nav_group_tokens' => array()
@@ -476,6 +478,8 @@ class MainWPCReport
         add_action('wp_ajax_mainwp_creport_delete_report', array(&$this, 'delete_report')); 
         add_action('wp_ajax_mainwp_creport_load_client', array(&$this, 'load_client'));    
         add_action('wp_ajax_mainwp_creport_load_site_tokens', array(&$this, 'load_site_tokens')); 
+        add_action('wp_ajax_mainwp_creport_save_format', array(&$this, 'save_format')); 
+        add_action('wp_ajax_mainwp_creport_get_format', array(&$this, 'get_format')); 
         
         add_action('mainwp_update_site', array(&$this, 'update_site_update_tokens'), 8, 1);
         add_action('mainwp_delete_site', array(&$this, 'delete_site_delete_tokens'), 8, 1);
@@ -604,7 +608,7 @@ class MainWPCReport
             
             $image_logo = "NOTCHANGE";              
             if($_FILES && $_FILES['mainwp_creport_logo_file']['error'] == UPLOAD_ERR_OK) {                          
-                $output = self::handleUploadImage($_FILES['mainwp_creport_logo_file'], $creport_dir);
+                $output = self::handleUploadImage($_FILES['mainwp_creport_logo_file'], $creport_dir, 100);
                 if (is_array($output) && isset($output['filename']) && !empty($output['filename'])) {                    
                     $image_logo = $output['filename'];  
                     $delete_old_logo = true; // delete old logo
@@ -717,7 +721,7 @@ class MainWPCReport
         return false;
     }
     
-    public static function handleUploadImage($file_input, $dest_dir) {              
+    public static function handleUploadImage($file_input, $dest_dir, $max_height, $max_width = null) {              
         $output = array();         
         $processed_file = "";
         if($file_input['error'] == UPLOAD_ERR_OK) {                          
@@ -744,7 +748,37 @@ class MainWPCReport
                     $dest_file = dirname( $dest_file ) . '/' . wp_unique_filename( dirname( $dest_file ), basename( $dest_file ) );
                     
                     if (move_uploaded_file($tmp_file, $dest_file)) {  
-                        $output["filename"] = basename($dest_file);                                                
+                        if ( file_exists( $dest_file ) ) 
+                            list( $width, $height, $type, $attr ) = getimagesize( $dest_file );
+                        
+                        $resize = false;
+//                        if ($width > $max_width) {
+//                            $dst_width = $max_width;
+//                            if ($height > $max_height)
+//                                $dst_height = $max_height;
+//                            else
+//                                $dst_height = $height;
+//                            $resize = true;
+//                        } else 
+                        if ($height > $max_height){                            
+                            $dst_height = $max_height;                            
+                            $dst_width = $width * $max_height / $height;
+                            $resize = true;
+                        }                        
+                        
+                        if ($resize) {                            
+                            $src = $dest_file;
+                            $cropped_file = wp_crop_image($src, 0, 0, $width, $height, $dst_width, $dst_height, false);                            
+                            if ( ! $cropped_file || is_wp_error( $cropped_file ) ) {
+				$output["error"][] = __("Can not resize image.");                                 
+                            } else {
+                                @unlink($dest_file);
+                                $processed_file = basename($cropped_file);
+                            }
+                        } else 
+                            $processed_file = basename($dest_file);
+                            
+                        $output["filename"] = $processed_file;                                                
                     } else                         
                         $output["error"][] = "Can not copy file.";
                 }
@@ -1713,9 +1747,32 @@ class MainWPCReport
                 }  
             }
         }
+        
+        $header_formats = MainWPCReportDB::Instance()->getFormats('H');
+        $body_formats = MainWPCReportDB::Instance()->getFormats('B');
+        $footer_formats = MainWPCReportDB::Instance()->getFormats('F');
+        if (!is_array($header_formats))
+           $header_formats = array();
+        if (!is_array($body_formats))
+           $body_formats = array();
+        if (!is_array($footer_formats))
+           $footer_formats = array();
+        
+        $url_loader = plugins_url('images/loader.gif', dirname(__FILE__));
+        
     ?>  
         <tr>
-            <th><span><?php _e("Report Header"); ?></span></th>
+            <th colspan="2">
+                <div class="mainwp_creport_format_section_header closed">
+                    <a href="javascript:void(0)" class="handlelnk"><?php _e("Show"); ?></a>
+                    <h3><?php _e("Report Header"); ?></h3>
+                </div>
+            </th>
+        </tr>
+        <tr class="mainwp_creport_format_section hidden-field">
+            <th><span><?php _e("Enter Report Header"); ?></span>
+            <div class="logo"><img src="<?php echo self::$plugin_url."images/cr-header.png"; ?>"></div>
+            </th>
             <td>
             <?php 
                 remove_editor_styles(); // stop custom theme styling interfering with the editor
@@ -1727,14 +1784,44 @@ class MainWPCReport
                     )
                 );                
             ?>
-            <br/>
+            <div class="mainwp_creport_format_save_section">
+                <div class="inner">
+                    <?php _e("Save Report Header"); ?>
+                    <input type="text" placeholder="<?php _e("Enter Report Header Title"); ?>" name="mainwp_creport_report_save_header" value=""/>
+                    <input type="button" format="H" ed-name="header" class="button-primary mainwp_creport_report_save_format_btn" value="<?php _e("Save"); ?>"/>
+                    <span class="loading"><span class="status hidden-field"></span><img src="<?php echo $url_loader; ?>" class="hidden-field"></span>                    
+                </div>
+                <div class="inner">
+                    <?php _e("Insert Report Header"); ?>
+                    <select name="mainwp_creport_report_insert_header_sle">
+                        <option value="0"><?php _e("Select a Report Header"); ?></option>
+                        <?php
+                            foreach ($header_formats as $format) {
+                                echo "<option value=\"" . $format->id . "\">" . $format->title . "</option>";                                
+                            }
+                        ?>
+                    </select>
+                    <input type="button" ed-name="header" class="button-primary mainwp_creport_report_insert_format_btn" value="<?php _e("Insert"); ?>"/>
+                    <span class="loading"><span class="status hidden-field"></span><img src="<?php echo $url_loader; ?>" class="hidden-field"></span>
+                </div>
+            </div>            
                 <p><a href="#" style="float: right" class="mainwp_creport_show_insert_tokens_book_lnk"><?php _e("Show Available Tokens"); ?></a></p>
                 <br class="clearfix"/>
                <?php self::gen_insert_tokens_box("header", true, $client_tokens_values, $client_tokens, $website); ?>
             </td> 
-        </tr>    
+        </tr>  
         <tr>
-            <th><span><?php _e("Report Body"); ?></span></th>
+            <th colspan="2">
+                <div class="mainwp_creport_format_section_header closed">
+                    <a href="javascript:void(0)" class="handlelnk"><?php _e("Show"); ?></a>
+                    <h3><?php _e("Report Body"); ?></h3>
+                </div>
+            </th>
+        </tr>
+        <tr class="mainwp_creport_format_section hidden-field">        
+            <th><span><?php _e("Enter Report Body"); ?></span>
+            <div class="logo"><img src="<?php echo self::$plugin_url."images/cr-body.png"; ?>"></div>
+            </th>
             <td>
             <?php 
                 remove_editor_styles(); // stop custom theme styling interfering with the editor
@@ -1746,12 +1833,43 @@ class MainWPCReport
                     )
                 );                
             ?>
-                <br/>
-               <?php self::gen_insert_tokens_box("body", false, $client_tokens_values, $client_tokens, $website); ?>
+                <div class="mainwp_creport_format_save_section">
+                    <div class="inner">
+                        <?php _e("Save Report Body"); ?>
+                        <input type="text" placeholder="<?php _e("Enter Report Body Title"); ?>" name="mainwp_creport_report_save_header" value=""/>
+                        <input type="button" format="B" ed-name="body" class="button-primary mainwp_creport_report_save_format_btn" value="<?php _e("Save"); ?>"/>
+                        <span class="loading"><span class="status hidden-field"></span><img src="<?php echo $url_loader; ?>" class="hidden-field"></span>                    
+                    </div>
+                    <div class="inner">
+                        <?php _e("Insert Report Body"); ?>
+                        <select name="mainwp_creport_report_insert_header_sle">
+                            <option value="0"><?php _e("Select a Report Body"); ?></option>
+                            <?php
+                                foreach ($body_formats as $format) {
+                                    echo "<option value=\"" . $format->id . "\">" . $format->title . "</option>";                                
+                                }
+                            ?>
+                        </select>
+                        <input type="button" ed-name="body" class="button-primary mainwp_creport_report_insert_format_btn" value="<?php _e("Insert"); ?>"/>
+                        <span class="loading"><span class="status hidden-field"></span><img src="<?php echo $url_loader; ?>" class="hidden-field"></span>
+                    </div>
+                </div>
+               
+                <?php self::gen_insert_tokens_box("body", false, $client_tokens_values, $client_tokens, $website); ?>
             </td> 
         </tr>   
         <tr>
-            <th><span><?php _e("Report Footer"); ?></span></th>
+            <th colspan="2">
+                <div class="mainwp_creport_format_section_header closed">
+                    <a href="javascript:void(0)" class="handlelnk"><?php _e("Show"); ?></a>
+                    <h3><?php _e("Report Footer"); ?></h3>
+                </div>
+            </th>
+        </tr>
+        <tr class="mainwp_creport_format_section hidden-field">     
+            <th><span><?php _e("Enter Report Footer"); ?></span>
+            <div class="logo"><img src="<?php echo self::$plugin_url."images/cr-footer.png"; ?>"></div>
+            </th>
             <td>
             <?php 
                 remove_editor_styles(); // stop custom theme styling interfering with the editor
@@ -1763,14 +1881,45 @@ class MainWPCReport
                     )
                 );                
             ?>
-            <br/>
+                 <div class="mainwp_creport_format_save_section">
+                    <div class="inner">
+                        <?php _e("Save Report Footer"); ?>
+                        <input type="text" placeholder="<?php _e("Enter Report Footer Title"); ?>" name="mainwp_creport_report_save_header" value=""/>
+                        <input type="button" format="F" ed-name="footer" class="button-primary mainwp_creport_report_save_format_btn" value="<?php _e("Save"); ?>"/>
+                        <span class="loading"><span class="status hidden-field"></span><img src="<?php echo $url_loader; ?>" class="hidden-field"></span>                    
+                    </div>
+                    <div class="inner">
+                        <?php _e("Insert Report Body"); ?>
+                        <select name="mainwp_creport_report_insert_header_sle">
+                            <option value="0"><?php _e("Select a Report Body"); ?></option>
+                            <?php
+                                foreach ($footer_formats as $format) {
+                                    echo "<option value=\"" . $format->id . "\">" . $format->title . "</option>";                                
+                                }
+                            ?>
+                        </select>
+                        <input type="button" ed-name="footer" class="button-primary mainwp_creport_report_insert_format_btn" value="<?php _e("Insert"); ?>"/>
+                        <span class="loading"><span class="status hidden-field"></span><img src="<?php echo $url_loader; ?>" class="hidden-field"></span>
+                    </div>
+                </div>
+                
                 <p><a href="#" style="float: right" class="mainwp_creport_show_insert_tokens_book_lnk"><?php _e("Show Available Tokens"); ?></a></p>
                 <br class="clearfix"/>            
                <?php self::gen_insert_tokens_box("footer", true, $client_tokens_values, $client_tokens, $website); ?>
             </td> 
         </tr> 
         <tr>
-            <th><span><?php _e("Logo"); ?></span></th>
+            <th colspan="2">
+                <div class="mainwp_creport_format_section_header closed">
+                    <a href="javascript:void(0)" class="handlelnk"><?php _e("Show"); ?></a>
+                    <h3><?php _e("Report Logo"); ?></h3>
+                </div>
+            </th>
+        </tr>
+        <tr class="mainwp_creport_format_section hidden-field">  
+            <th><span><?php _e("Upload Report Logo"); ?></span>
+                <div class="logo"><img src="<?php echo self::$plugin_url."images/cr-logo.png"; ?>"></div>
+            </th>
             <td>  
                 <?php 
                 if (!empty($file_logo)) {           
@@ -1785,7 +1934,8 @@ class MainWPCReport
                 <?php                      
                 }
                 ?>                                
-                <input type="file" name="mainwp_creport_logo_file" accept="image/*" />
+                <input type="file" name="mainwp_creport_logo_file" accept="image/*" /><br>
+                <span class="description">Maximum height for logo is 100px. If you upload larger image, it will be resized.</span>
             </td>
         </tr>
     <?php
@@ -2037,6 +2187,32 @@ class MainWPCReport
         die(json_encode('EMPTY'));
     }            
     
+    public function save_format() {
+        $title = isset($_POST['title']) ? trim($_POST['title']) : "";
+        $content = isset($_POST['content']) ? trim($_POST['content']) : "";
+        $type = isset($_POST['type']) ? trim($_POST['type']) : "H";
+        if (!empty($title)) {
+            $format = array('title' => $title, 'content' => $content, 'type' => $type);
+            if (MainWPCReportDB::Instance()->updateformat($format))
+                die('success');
+        }
+        die('failed');
+    }
+    
+    public function get_format() {
+        $format_id = isset($_POST['formatId']) ? trim($_POST['formatId']) : 0;
+        $content = "";        
+        if ($format_id) {            
+            $format = MainWPCReportDB::Instance()->getFormatBy('id', $format_id);            
+            if($format)
+                die(json_encode(array( 'success' => true, 
+                                        'content' => stripslashes($format->content))
+                                )
+                    );
+        }
+        die(json_encode('failed'));
+    }
+        
     public function load_client() {
         if (isset($_POST['client'])) {
             $client = MainWPCReportDB::Instance()->getClientBy('client' , $_POST['client']);
