@@ -566,8 +566,12 @@ showCReportTab = function(report, edit_report, token, tream) {
     else report_tab_lnk.removeClass('mainwp_action_down'); 
 
     var edit_report_tab_lnk = jQuery("#wpcr_edit_tab_lnk");
-    if (edit_report) edit_report_tab_lnk.addClass('mainwp_action_down');
-    else edit_report_tab_lnk.removeClass('mainwp_action_down');
+    if (edit_report_tab_lnk.attr('report-id') > 0)
+        edit_report_tab_lnk.remove();
+    else {
+        if (edit_report) edit_report_tab_lnk.addClass('mainwp_action_down');
+        else edit_report_tab_lnk.removeClass('mainwp_action_down');
+    }
    
     var token_tab_lnk = jQuery("#wpcr_token_tab_lnk");
     if (token) token_tab_lnk.addClass('mainwp_action_down');

@@ -348,18 +348,6 @@ PRIMARY KEY  (`id`)  ';
         return false;        
     }
     
-    public function updateReportLastSend($report)
-    {
-        global $wpdb;  
-        $id = isset($report['id']) ? $report['id'] : 0;        
-        if (!empty($id)) {
-            if ($wpdb->update($this->tableName('client_report'), $update_report, array('id' => intval($id)))) {
-                return $this->getReportBy('id', $id);                                 
-            }
-        }
-        return false;
-    }
-    
     public function updateReport($report)
     {
          /** @var $wpdb wpdb */
@@ -391,7 +379,8 @@ PRIMARY KEY  (`id`)  ';
                 }
             }            
         } else {
-            $report['client_id'] = 0;
+            if (isset($report['client_id']))
+                $report['client_id'] = 0;
         }
         
         $report_fields = array('id',

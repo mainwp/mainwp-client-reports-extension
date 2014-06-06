@@ -610,7 +610,7 @@ class MainWPCReport
             
             $image_logo = "NOTCHANGE";              
             if($_FILES && $_FILES['mainwp_creport_logo_file']['error'] == UPLOAD_ERR_OK) {                          
-                $output = self::handleUploadImage($_FILES['mainwp_creport_logo_file'], $creport_dir, 100);
+                $output = self::handleUploadImage($_FILES['mainwp_creport_logo_file'], $creport_dir, 50);
                 if (is_array($output) && isset($output['filename']) && !empty($output['filename'])) {                    
                     $image_logo = $output['filename'];  
                     $delete_old_logo = true; // delete old logo
@@ -637,7 +637,7 @@ class MainWPCReport
             
             $return = array(); 
             
-            if ("save" === $_POST['mwp_creport_report_submit_action'] || "save_pdf" === $_POST['mwp_creport_report_submit_action']) {
+            if ("save" === $_POST['mwp_creport_report_submit_action'] || "send" === $_POST['mwp_creport_report_submit_action'] ||  "save_pdf" === $_POST['mwp_creport_report_submit_action']) {
                 if($result = MainWPCReportDB::Instance()->updateReport($report)) {                    
                     $return['id'] = $result->id;   
                     $messages[] = 'Report saved.';                      
@@ -663,7 +663,7 @@ class MainWPCReport
                 $return['submit_report'] = $submit_report;
             }
             
-            if (file_exists($old_logo)) {
+            if ($delete_old_logo && file_exists($old_logo)) {
                 @unlink($old_logo);
             }
                     
@@ -715,7 +715,7 @@ class MainWPCReport
                 if (!empty($report->id)) {
                     $report->lastsend = time();                    
                     $update_report = array('id' => $report->id, 'lastsend' => $report->lastsend);
-                    MainWPCReportDB::Instance()->updateReportLastSend($update_report);                    
+                    MainWPCReportDB::Instance()->updateReport($update_report);                    
                 }
                 return true;
             }
@@ -957,11 +957,11 @@ class MainWPCReport
         $dbwebsites_stream = self::get_websites_stream($dbwebsites, $selected_group);         
         //print_r($dbwebsites_stream);
         unset($dbwebsites);
-        $edit_tab_lnk = !empty($report) ? '<a id="wpcr_edit_tab_lnk" href="#" class="mainwp_action mid mainwp_action_down">' . __("Edit Report") . '</a>' : "";        
+        $edit_tab_lnk = !empty($report) ? '<a id="wpcr_edit_tab_lnk" href="#" report-id="' . $report->id .'"class="mainwp_action mid mainwp_action_down">' . __("Edit Report") . '</a>' : "";        
         if ($do_create_new) 
-            $new_tab_lnk = '<a id="wpcr_edit_tab_lnk" href="#" class="mainwp_action mid mainwp_action_down">' . __("New Report") . '</a>';
+            $new_tab_lnk = '<a id="wpcr_edit_tab_lnk" href="#" report-id="0" class="mainwp_action mid mainwp_action_down">' . __("New Report") . '</a>';
         else if (empty($report)) {
-            $new_tab_lnk = '<a id="wpcr_edit_tab_lnk" href="#" class="mainwp_action mid">' . __("New Report") . '</a>';
+            $new_tab_lnk = '<a id="wpcr_edit_tab_lnk" href="#" report-id="0" class="mainwp_action mid">' . __("New Report") . '</a>';
         } else  // button is new report button
             $new_tab_lnk = '<a id="wpcr_new_tab_lnk" href="admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&action=newreport" class="mainwp_action mid">' . __("New Report") . '</a>';
         ?>
@@ -1113,10 +1113,10 @@ class MainWPCReport
           
     public static function gen_report_content($report) {  
         $logo_url = "";
-        if (!empty($report->logo_file)) {
-            $creport_url = apply_filters('mainwp_getspecificurl',"client_report/");
-            $logo_url = $creport_url.$report->logo_file;
-        } 
+//        if (!empty($report->logo_file)) {
+//            $creport_url = apply_filters('mainwp_getspecificurl',"client_report/");
+//            $logo_url = $creport_url.$report->logo_file;
+//        } 
         ob_start();                    
     ?>
         <br>
@@ -1823,7 +1823,7 @@ class MainWPCReport
             $header = $report->header;
             $body = $report->body;
             $footer = $report->footer;
-            $file_logo = $report->logo_file;            
+            $file_logo = isset($report->logo_file) ? $report->logo_file : "" ;            
         } 
             
         $client_tokens = MainWPCReportDB::Instance()->getTokens();
@@ -1878,7 +1878,7 @@ class MainWPCReport
                         'textarea_name' => 'mainwp_creport_report_header',
                         'textarea_rows' => 5,
                         'teeny' => true,
-                        'media_buttons' => false,
+                        'media_buttons' => true,
                     )
                 );                
             ?>
@@ -1927,7 +1927,7 @@ class MainWPCReport
                         'textarea_name' => 'mainwp_creport_report_body',
                         'textarea_rows' => 5,
                         'teeny' => true,
-                        'media_buttons' => false,
+                        'media_buttons' => true,
                     )
                 );                
             ?>
@@ -1975,7 +1975,7 @@ class MainWPCReport
                         'textarea_name' => 'mainwp_creport_report_footer',
                         'textarea_rows' => 5,
                         'teeny' => true,
-                        'media_buttons' => false,
+                        'media_buttons' => true,
                     )
                 );                
             ?>
@@ -2006,7 +2006,7 @@ class MainWPCReport
                <?php self::gen_insert_tokens_box("footer", true, $client_tokens_values, $client_tokens, $website); ?>
             </td> 
         </tr> 
-        <tr>
+<!--        <tr>
             <th colspan="2">
                 <div class="mainwp_creport_format_section_header closed">
                     <a href="javascript:void(0)" class="handlelnk"><?php _e("Show"); ?></a>
@@ -2035,7 +2035,7 @@ class MainWPCReport
                 <input type="file" name="mainwp_creport_logo_file" accept="image/*" /><br>
                 <span class="description">Maximum height for logo is 100px. If you upload larger image, it will be resized.</span>
             </td>
-        </tr>
+        </tr>-->
     <?php
     
     }       
