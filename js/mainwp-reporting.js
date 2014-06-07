@@ -557,6 +557,108 @@ jQuery(document).ready(function($) {
        $(this).closest('form').submit();
     });
     
+    $('.creport-stream-upgrade-noti-dismiss').live('click', function() {
+        var parent = $(this).closest('.ext-upgrade-noti');
+        parent.hide();
+        var data = {
+            action: 'mainwp_creport_upgrade_noti_dismiss',
+            siteId: parent.attr('id'),
+            new_version: parent.attr('version'),
+        }        
+        jQuery.post(ajaxurl, data, function (response) {
+            
+        });        
+        return false;
+    }); 
+    
+    $('.creport_active_plugin').on('click', function() {
+        var parent = $(this).closest('.ext-upgrade-noti');
+        var workingRow = parent.find('.creport-stream-row-working'); 
+        var slug = parent.attr('plugin-slug');        
+        var data = {
+            action: 'mainwp_creport_active_plugin',
+            websiteId: parent.attr('website-id'),
+            'plugins[]': [slug]
+        }  
+        workingRow.find('img').show();
+        jQuery.post(ajaxurl, data, function (response) {
+            workingRow.find('img').hide();
+            if (response && response['error']) {
+                workingRow.find('.status').html('<font color="red">'+response.error+'</font>');
+            }
+            else if (response && response['result']) {
+                parent.html('Stream plugin has been activated');
+            }            
+        },'json');        
+        return false;
+    }); 
+    
+    $('.creport_upgrade_plugin').on('click', function() {
+        var parent = $(this).closest('.ext-upgrade-noti');
+        var workingRow = parent.find('.creport-stream-row-working');         
+        var slug = parent.attr('plugin-slug');        
+        var data = {
+            action: 'mainwp_creport_upgrade_plugin',
+            websiteId: parent.attr('website-id'),
+            type: 'plugin',
+            'slugs[]': [slug]
+        }  
+        
+        workingRow.find('img').show();
+        jQuery.post(ajaxurl, data, function (response) {
+            workingRow.find('img').hide();
+            if (response && response['error']) {
+                workingRow.find('.status').html('<font color="red">'+response.error+'</font>');
+            }
+            else if (response && response['upgrades'][slug]) {
+                parent.html('Stream plugin has been updated');
+            }  
+            else {
+               workingRow.find('.status').html('<font color="red">'+__("Undefined error")+'</font>'); 
+            }                
+        },'json');        
+        return false;
+    }); 
+    
+    $('.creport_showhide_plugin').on('click', function() {
+        var link = $(this);
+        var parent = link.closest('tr');
+        var loader = parent.find('.creport-action-working .loading');  
+        var statusEl = parent.find('.creport-action-working .status');        
+        var showhide = link.attr('showhide');
+        var data = {
+            action: 'mainwp_creport_showhide_stream',
+            websiteId: parent.attr('website-id'),
+            showhide: showhide
+        }
+        statusEl.hide();
+        loader.show();
+        jQuery.post(ajaxurl, data, function (response) {
+            loader.hide();
+            if (response && response['error']) {
+                statusEl.css('color', 'red');
+                statusEl.html(response['error']).show();
+            }
+            else if (response && response['result'] == 'SUCCESS') {                
+                if (showhide == 'show') {
+                    link.text(__("Hide Stream Plugin"));
+                    link.attr('showhide', 'hide');
+                } else {
+                    link.text(__("Show Stream Plugin"));        
+                    link.attr('showhide', 'show');
+                }
+                
+                statusEl.css('color', '#21759B');
+                statusEl.html(__('Successful')).show();   
+                statusEl.fadeOut(3000); 
+            }  
+            else {
+                statusEl.css('color', 'red');
+                statusEl.html(__("Undefined error")).show();               
+            }                
+        },'json');        
+        return false;        
+    });    
     
 });
 

@@ -1,10 +1,11 @@
 <?php
 class MainWPCReportDB
 {    
-    private $mainwp_wpcreport_db_version = "1.5";
+    private $mainwp_wpcreport_db_version = "1.5";        
+    private $table_prefix;
+    
     //Singleton
     private static $instance = null;
-    private $table_prefix;
     
     static function Instance()
     {
@@ -353,7 +354,7 @@ PRIMARY KEY  (`id`)  ';
          /** @var $wpdb wpdb */
         global $wpdb;  
         $id = isset($report['id']) ? $report['id'] : 0;
-        
+        $updatedClient = false;
         if (!empty($report["client"])) {
             $update_client = array(
                                     'client' => $report["client"],
@@ -369,11 +370,11 @@ PRIMARY KEY  (`id`)  ';
                 if (!empty($client)) 
                     $update_client['clientid'] = $client->clientid;                
             }            
-            $updated = $this->updateClient($update_client);   
+            $updatedClient = $this->updateClient($update_client);   
             
             if (!isset($report['client_id']) || empty($report['client_id'])) {
-                if ($updated && $updated->clientid) {
-                    $report['client_id'] = $updated->clientid;
+                if ($updatedClient && $updatedClient->clientid) {
+                    $report['client_id'] = $updatedClient->clientid;
                 } else if (isset($update_client['clientid'])) {
                     $report['client_id'] = $update_client['clientid'];
                 }
@@ -407,8 +408,9 @@ PRIMARY KEY  (`id`)  ';
         }
          
         if (!empty($id)) {
-            if ($wpdb->update($this->tableName('client_report'), $update_report, array('id' => intval($id)))) {
-                return $this->getReportBy('id', $id);                                 
+            $updatedReport = $wpdb->update($this->tableName('client_report'), $update_report, array('id' => intval($id)));
+            if (!empty($updatedReport) || !empty($updatedClient)) {
+                return $this->getReportBy('id', $id);                                             
             }
         } else {
             if ($wpdb->insert($this->tableName('client_report'), $update_report)) 

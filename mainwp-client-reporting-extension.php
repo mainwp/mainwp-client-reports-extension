@@ -14,10 +14,9 @@ class MainWPCReportExtension
 {
     public static $instance = null;
     public  $plugin_handle = "mainwp-wpcreport-extension";
-    public $plugin_url;
+    public static $plugin_url;
     public $plugin_slug;
-    public $plugin_dir;
-    private $mainwpCReport = null;
+    public $plugin_dir;    
     protected $option;    
     protected $option_handle = 'mainwp_wpcreport_extension';    
     
@@ -30,17 +29,15 @@ class MainWPCReportExtension
     public function __construct()
     {
         $this->plugin_dir = plugin_dir_path(__FILE__);
-        $this->plugin_url = plugin_dir_url(__FILE__);
+        self::$plugin_url = plugin_dir_url(__FILE__);
         $this->plugin_slug = plugin_basename(__FILE__);
         $this->option = get_option($this->option_handle);
         
         add_action('init', array(&$this, 'init'));
         add_filter('plugin_row_meta', array(&$this, 'plugin_row_meta'), 10, 2);
         add_action('admin_init', array(&$this, 'admin_init'));
-        add_action('mainwp_admin_menu', array(&$this, 'initMenu'), 9);
-
+        
         MainWPCReportDB::Instance()->install();
-        $this->mainwpCReport = new MainWPCReport($this); 
         
         if (isset($_GET['page']) && $_GET['page'] == "Extensions-Mainwp-Client-Reporting-Extension" &&
             isset($_GET['action']) && $_GET['action'] == "savepdf" &&
@@ -54,13 +51,9 @@ class MainWPCReportExtension
 
     public function init()
     {
-        $this->mainwpCReport->init();
+        
     }
-
-    public function initMenu() {
-        $this->mainwpCReport->initMenu();
-    }
-    
+ 
     public function plugin_row_meta($plugin_meta, $plugin_file)
     {
         if ($this->plugin_slug != $plugin_file) return $plugin_meta;
@@ -71,10 +64,14 @@ class MainWPCReportExtension
 
     public function admin_init()
     {
-        wp_enqueue_style('mainwp-creport-extension', $this->plugin_url . 'css/mainwp-reporting.css');
-        wp_enqueue_script('mainwp-creport-extension', $this->plugin_url . 'js/mainwp-reporting.js');        
+        wp_enqueue_style('mainwp-creport-extension', self::$plugin_url . 'css/mainwp-reporting.css');
+        wp_enqueue_script('mainwp-creport-extension', self::$plugin_url . 'js/mainwp-reporting.js');        
         $translation_array = array( 'dashboard_sitename' => get_bloginfo( 'name' ));
-        $this->mainwpCReport->admin_init();
+        MainWPCReport::init();
+        $mwp_creport = new MainWPCReport();
+        $mwp_creport->admin_init();
+        $mwp_creport_stream = new MainWPCReportStream();
+        $mwp_creport_stream->admin_init();
     }
     
     public function get_option($key, $default = '') {
