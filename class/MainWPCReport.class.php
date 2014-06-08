@@ -7,8 +7,7 @@ class MainWPCReport
     private static $order = "";
     private static $orderby = "";
     
-    public function __construct() { 
-        
+    public function __construct() {  
     }
     
     public static function init() {
@@ -150,17 +149,17 @@ class MainWPCReport
                                                 array("name" => "post.updated.author", "desc" => "Displays the User who Updated the Post")                                               
                                             ),
                                 "trashed" => array(
-                                                array("name" => "post.name", "desc" => "Displays the Post Title"),
+                                                array("name" => "post.title", "desc" => "Displays the Post Title"),
                                                 array("name" => "post.trashed.date", "desc" => "Displays the Post Trashing Date"),
                                                 array("name" => "post.trashed.author", "desc" => "Displays the User who Trashed the Post")                                               
                                             ),
                                 "deleted" => array(
-                                                array("name" => "post.name", "desc" => "Displays the Post Title"),
+                                                array("name" => "post.title", "desc" => "Displays the Post Title"),
                                                 array("name" => "post.deleted.date", "desc" => "Displays the Post Deleting Date"),
                                                 array("name" => "post.deleted.author", "desc" => "Displays the User who Deleted the Post")                                               
                                             ),
                                 "restored" => array(
-                                                array("name" => "post.name", "desc" => "Displays Post Title"),
+                                                array("name" => "post.title", "desc" => "Displays Post Title"),
                                                 array("name" => "post.restored.date", "desc" => "Displays the Post Restoring Date"),
                                                 array("name" => "post.restored.author", "desc" => "Displays the User who Restored the Post")                                               
                                             ),
@@ -198,17 +197,17 @@ class MainWPCReport
                                                 array("name" => "page.updated.author", "desc" => "Displays the User who Updated the Page")                                               
                                             ),
                                 "trashed" => array(
-                                                array("name" => "page.name", "desc" => "Displays the Page Title"),
+                                                array("name" => "page.title", "desc" => "Displays the Page Title"),
                                                 array("name" => "page.trashed.date", "desc" => "Displays the Page Trashing Date"),
                                                 array("name" => "page.trashed.author", "desc" => "Displays the User who Trashed the Page")                                               
                                             ),
                                 "deleted" => array(
-                                                array("name" => "page.name", "desc" => "Displays the Page Title"),
+                                                array("name" => "page.title", "desc" => "Displays the Page Title"),
                                                 array("name" => "page.deleted.date", "desc" => "Displays the Page Deleting Date"),
                                                 array("name" => "page.deleted.author", "desc" => "Displays the User who Deleted the Page")                                               
                                             ),
                                 "restored" => array(
-                                                array("name" => "page.name", "desc" => "Displays the Page Title"),
+                                                array("name" => "page.title", "desc" => "Displays the Page Title"),
                                                 array("name" => "page.restored.date", "desc" => "Displays the Page Restoring Date"),
                                                 array("name" => "page.restored.author", "desc" => "Displays the User who Restored the Page")                                               
                                             ),
@@ -396,9 +395,9 @@ class MainWPCReport
                                                 array("name" => "widget.deleted.author", "desc" => "Displays the User who Deleted the Widget")                                               
                                             ),                                
                                 "additional" => array(
-                                                array("name" => "media.added.count", "desc" => "Displays the Number of Added Widgets"),
-                                                array("name" => "media.updated.count", "desc" => "Displays the Number of Updated Widgets"),
-                                                array("name" => "media.deleted.count", "desc" => "Displays the Number of Deleted Widgets")                                                                                               
+                                                array("name" => "widget.added.count", "desc" => "Displays the Number of Added Widgets"),
+                                                array("name" => "widget.updated.count", "desc" => "Displays the Number of Updated Widgets"),
+                                                array("name" => "widget.deleted.count", "desc" => "Displays the Number of Deleted Widgets")                                                                                               
                                             )
                             ),  
               "menus"=>array(   "sections" => array(
@@ -568,6 +567,10 @@ class MainWPCReport
             }
             $report['email'] = $to_email;
             
+            if(isset($_POST['mwp_creport_email_subject'])) {
+                $report['subject'] = trim($_POST['mwp_creport_email_subject']);                
+            }
+            
             if(isset($_POST['mainwp_creport_report_header'])) {
                 $report['header'] = trim($_POST['mainwp_creport_report_header']);                
             }
@@ -693,7 +696,12 @@ class MainWPCReport
             return false;
         
         $email = empty($email) ? $report->email : $email;
-        $subject = empty($subject) ? "Website Report" : $subject;
+        $email_subject = "";
+        if (!empty($subject)) 
+            $email_subject = $subject;
+        
+        $email_subject = isset($report->subject) && !empty($report->subject) ?  $email_subject . " - " . $report->subject : $subject . " - " . "Website Report";
+        $email_subject = ltrim($email_subject, " - ");
         
         $content = self::gen_email_content($report);
         $from = "";
@@ -706,7 +714,7 @@ class MainWPCReport
      
         if (!empty($content) && !empty($email))
         {   
-            if (wp_mail($email, $subject, $content, array($from, 'content-type: text/html'))) { 
+            if (wp_mail($email, stripslashes($email_subject), $content, array($from, 'content-type: text/html'))) { 
                 if (!empty($report->id)) {
                     $report->lastsend = time();                    
                     $update_report = array('id' => $report->id, 'lastsend' => $report->lastsend);
@@ -827,7 +835,7 @@ class MainWPCReport
                 <script>
                     jQuery(document).ready(function($) {                         
                         window.open(
-                            '<?php echo get_site_url(); ?>/wp-admin/admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&action=savepdf&id=<?php echo $report_id; ?>',
+                            '<?php echo get_site_url(); ?>/wp-admin/admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=savepdf&id=<?php echo $report_id; ?>',
                             '_blank' 
                         );                        
                     });
@@ -893,7 +901,7 @@ class MainWPCReport
             } else if ($do_send_test_email) {
                 $email = apply_filters('mainwp_getnotificationemail');                
                 if (!empty($email)) {                    
-                    if (self::send_report_mail($report, $email, "Website Report - Send Test Email"))
+                    if (self::send_report_mail($report, $email, "Send Test Email"))
                     {
                         $messages[] = __('Send Test Email successful.');  
                     } else 
@@ -958,7 +966,7 @@ class MainWPCReport
         else if (empty($report)) {
             $new_tab_lnk = '<a id="wpcr_edit_tab_lnk" href="#" report-id="0" class="mainwp_action mid">' . __("New Report") . '</a>';
         } else  // button is new report button
-            $new_tab_lnk = '<a id="wpcr_new_tab_lnk" href="admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&action=newreport" class="mainwp_action mid">' . __("New Report") . '</a>';
+            $new_tab_lnk = '<a id="wpcr_new_tab_lnk" href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=newreport" class="mainwp_action mid">' . __("New Report") . '</a>';
         ?>
             <div class="wrap" id="mainwp-ap-option">
             <div class="clearfix"></div>           
@@ -1008,7 +1016,7 @@ class MainWPCReport
                             
                             <?php self::reportTab($websites); ?>                            
                         </div>
-                        <form method="post" enctype="multipart/form-data" id="mwp_creport_edit_form" action="admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&action=editreport<?php echo !empty($report_id) ? "&id=" . $report_id : ""; ?>">
+                        <form method="post" enctype="multipart/form-data" id="mwp_creport_edit_form" action="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=editreport<?php echo !empty($report_id) ? "&id=" . $report_id : ""; ?>">
                             <div id="creport_select_sites_box" class="mainwp_config_box_right" <?php echo $style_tab_edit; ?>>
                             <?php do_action('mainwp_select_sites_box', __("Select Sites", 'mainwp'), 'radio', false, false, 'mainwp_select_sites_box_right', "", array($selected_site), array()); ?>
                             </div>                            
@@ -1183,32 +1191,13 @@ class MainWPCReport
     }
     
      public static function gen_report_content_pdf($report) {  
-        $logo_url = "";
-        if (!empty($report->logo_file)) {
-            $creport_url = apply_filters('mainwp_getspecificurl',"client_report");
-            //$logo_url = $creport_url.$report->logo_file;
-        } 
+
         $output = array();       
-        ob_start();  
-        ?>
-        <table>
-        <tr>
-            <td width="200"><?php echo stripslashes(nl2br($report->filtered_header)); ?></td>
-            <td width="200">
-            <?php
-            if (!empty($logo_url)) {
-            ?>    
-                <img src="<?php echo $logo_url ?>" alt="Logo" height="100"/>
-            <?php
-            }
-            ?>
-            </td>
-        </tr>
-        </table>
-       <?php     
-        echo '<br>';
+        ob_start();          
+        echo stripslashes(nl2br($report->filtered_header));
+        echo '<br><br>';
         echo stripslashes(nl2br($report->filtered_body)); 
-        echo '<br>';
+        echo '<br><br>';
         echo stripslashes(nl2br($report->filtered_footer)); 
         
         $body = ob_get_clean();  
@@ -1526,44 +1515,44 @@ class MainWPCReport
             <thead>
                 <tr> 
                     <th scope="col" class="manage-column sortable <?php echo $title_order; ?>">
-                        <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=title&order=<?php echo (empty($title_order) ? 'asc' : $title_order); ?>"><span><?php _e('Title','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=title&order=<?php echo (empty($title_order) ? 'asc' : $title_order); ?>"><span><?php _e('Title','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>
                     <th scope="col" class="manage-column sortable <?php echo $client_order; ?>">
-                        <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=client&order=<?php echo (empty($client_order) ? 'asc' : $client_order); ?>"><span><?php _e('Client','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=client&order=<?php echo (empty($client_order) ? 'asc' : $client_order); ?>"><span><?php _e('Client','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>                
                     <th scope="col" class="manage-column sortable <?php echo $name_order; ?>">
-                        <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=name&order=<?php echo (empty($name_order) ? 'asc' : $name_order); ?>"><span><?php _e('Send To','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=name&order=<?php echo (empty($name_order) ? 'asc' : $name_order); ?>"><span><?php _e('Send To','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>                
                     <th scope="col" class="manage-column sortable <?php echo $lastsend_order; ?>">
-                        <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=lastsend&order=<?php echo (empty($lastsend_order) ? 'asc' : $lastsend_order); ?>"><span><?php _e('Last Report Send','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=lastsend&order=<?php echo (empty($lastsend_order) ? 'asc' : $lastsend_order); ?>"><span><?php _e('Last Report Send','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>
                     <th scope="col" class="manage-column sortable <?php echo $datefrom_order; ?>">
-                        <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=date_from&order=<?php echo (empty($datefrom_order) ? 'asc' : $datefrom_order); ?>"><span><?php _e('Report For','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=date_from&order=<?php echo (empty($datefrom_order) ? 'asc' : $datefrom_order); ?>"><span><?php _e('Report For','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>
                     <th scope="col" class="manage-column sortable  <?php echo $site_order; ?>">
-                        <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=site&order=<?php echo (empty($site_order) ? 'asc' : $site_order); ?>"><span><span><?php _e('Site','mainwp'); ?></span></span><span class="sorting-indicator"></span></a>
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=site&order=<?php echo (empty($site_order) ? 'asc' : $site_order); ?>"><span><span><?php _e('Site','mainwp'); ?></span></span><span class="sorting-indicator"></span></a>
                     </th>
                 </tr>
             </thead>
             <tfoot>
                <tr> 
                     <th scope="col" class="manage-column sortable <?php echo $title_order; ?>">
-                        <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=title&order=<?php echo (empty($title_order) ? 'asc' : $title_order); ?>"><span><?php _e('Title','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=title&order=<?php echo (empty($title_order) ? 'asc' : $title_order); ?>"><span><?php _e('Title','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>
                      <th scope="col" class="manage-column sortable <?php echo $client_order; ?>">
-                        <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=client&order=<?php echo (empty($client_order) ? 'asc' : $client_order); ?>"><span><?php _e('Client','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=client&order=<?php echo (empty($client_order) ? 'asc' : $client_order); ?>"><span><?php _e('Client','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>   
                     <th scope="col" class="manage-column sortable <?php echo $name_order; ?>">
-                        <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=send&order=<?php echo (empty($name_order) ? 'asc' : $name_order); ?>"><span><?php _e('Send To','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=send&order=<?php echo (empty($name_order) ? 'asc' : $name_order); ?>"><span><?php _e('Send To','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>                
                     <th scope="col" class="manage-column sortable <?php echo $lastsend_order; ?>">
-                        <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=lastsend&order=<?php echo (empty($lastsend_order) ? 'asc' : $lastsend_order); ?>"><span><?php _e('Last Report Send','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=lastsend&order=<?php echo (empty($lastsend_order) ? 'asc' : $lastsend_order); ?>"><span><?php _e('Last Report Send','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>
                     <th scope="col" class="manage-column sortable <?php echo $datefrom_order; ?>">
-                        <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=date_from&order=<?php echo (empty($datefrom_order) ? 'asc' : $datefrom_order); ?>"><span><?php _e('Report For','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=date_from&order=<?php echo (empty($datefrom_order) ? 'asc' : $datefrom_order); ?>"><span><?php _e('Report For','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>
                     <th scope="col" class="manage-column sortable <?php echo $site_order; ?>">
-                        <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&orderby=site&order=<?php echo (empty($site_order) ? 'asc' : $site_order); ?>"><span><span><?php _e('Site','mainwp'); ?></span></span><span class="sorting-indicator"></span></a>
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=site&order=<?php echo (empty($site_order) ? 'asc' : $site_order); ?>"><span><span><?php _e('Site','mainwp'); ?></span></span><span class="sorting-indicator"></span></a>
                     </th>
                 </tr>
             </tfoot>
@@ -1610,10 +1599,10 @@ class MainWPCReport
     ?>   
         <tr id="<?php echo $report->id; ?>">            
             <td>
-                <a href="admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&action=editreport&id=<?php echo $report->id; ?>"><strong><?php echo stripslashes($report->title); ?></strong></a>
-                <div class="row-actions"><a href="admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&action=preview&id=<?php echo $report->id; ?>"><?php _e("Preview");?></a></span> |  
-                    <a href="admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&action=editreport&id=<?php echo $report->id; ?>"><?php _e("Edit");?></a></span> |  
-                    <a href="admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&action=sendreport&id=<?php echo $report->id; ?>"><?php _e("Send");?></a> | 
+                <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=editreport&id=<?php echo $report->id; ?>"><strong><?php echo stripslashes($report->title); ?></strong></a>
+                <div class="row-actions"><a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=preview&id=<?php echo $report->id; ?>"><?php _e("Preview");?></a></span> |  
+                    <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=editreport&id=<?php echo $report->id; ?>"><?php _e("Edit");?></a></span> |  
+                    <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=sendreport&id=<?php echo $report->id; ?>"><?php _e("Send");?></a> | 
                     <span class="delete"><a href="#" class="mwp-creport-report-item-delete-lnk"><?php _e("Delete");?></a></span> 
                 </div>                     
                 <span class="loading"><span class="status hidden-field"></span><img src="<?php echo $url_loader; ?>" class="hidden-field"></span>
@@ -1717,7 +1706,7 @@ class MainWPCReport
     public static function newReportSettingTableContent($report = null) {
         $title = $date_from = $date_to = "";
         $from_name = $from_company = $from_email = "";
-        $to_client = $to_name = $to_company = $to_email = "";
+        $to_client = $to_name = $to_company = $to_email = $email_subject = "";
         $client_id = 0;  
         //print_r($report);
         if ($report && is_object($report)) {
@@ -1730,7 +1719,8 @@ class MainWPCReport
             $to_name = $report->name;
             $to_company = $report->company;
             $to_email = $report->email;
-            $to_client = $report->client;            
+            $to_client = $report->client;      
+            $email_subject = $report->subject;      
             $client_id = intval($report->client_id);
             if ($client_id) {
                 $client = MainWPCReportDB::Instance()->getClientBy('clientid', $client_id);
@@ -1806,7 +1796,14 @@ class MainWPCReport
                 <input type="text" name="mwp_creport_company" placeholder="Company" value="<?php echo stripslashes($to_company); ?>" />&nbsp;&nbsp;
                 <input type="text" name="mwp_creport_email" id="mwp_creport_email" placeholder="Email" value="<?php echo stripslashes($to_email); ?>" />
             </td>
-        </tr>        
+        </tr>
+        <tr>
+            <th><span><?php _e("Email Subject"); ?></span></th>
+            <td>
+                <input type="text" name="mwp_creport_email_subject" value="<?php echo stripslashes($email_subject); ?>" 
+                    id="mwp_creport_email_subject" />                  
+            </td>
+        </tr>
         <input type="hidden" name="mwp_creport_client_id" value="<?php echo $client_id; ?>">
     <?php
     }            
@@ -1873,7 +1870,7 @@ class MainWPCReport
                         'textarea_name' => 'mainwp_creport_report_header',
                         'textarea_rows' => 5,
                         'teeny' => true,
-                        'media_buttons' => true,
+                        'media_buttons' => true                        
                     )
                 );                
             ?>
@@ -1994,10 +1991,9 @@ class MainWPCReport
                         <input type="button" ed-name="footer" class="button-primary mainwp_creport_report_insert_format_btn" value="<?php _e("Insert"); ?>"/>
                         <span class="loading"><span class="status hidden-field"></span><img src="<?php echo $url_loader; ?>" class="hidden-field"></span>
                     </div>
-                </div>
-                
-                <p><a href="#" style="float: right" class="mainwp_creport_show_insert_tokens_book_lnk"><?php _e("Show Available Tokens"); ?></a></p>
-                <br class="clearfix"/>            
+                </div>                
+                <div style="background: #F5F5F5; padding: 5px; border-bottom: 1px Dashed #fff;"><a href="#" style="float: right" class="mainwp_creport_show_insert_tokens_book_lnk"><?php _e("Show Available Tokens"); ?></a><div class="clearfix"></div></div>                          
+                <div class="clearfix"></div>
                <?php self::gen_insert_tokens_box("footer", true, $client_tokens_values, $client_tokens, $website); ?>
             </td> 
         </tr> 
@@ -2154,7 +2150,7 @@ class MainWPCReport
         {
             $html .= "Not found tokens.";
         }
-        $html .= '<div class="mainwp_info-box"><strong><b>Note</b>: <i>Add or Edit Client Report Tokens in the <a target="_blank" href="' . admin_url('admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&action=token') . '">Client Report Extension Settings</a></i>.</strong></div>									
+        $html .= '<div class="mainwp_info-box"><strong><b>Note</b>: <i>Add or Edit Client Report Tokens in the <a target="_blank" href="' . admin_url('admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=token') . '">Client Report Extension Settings</a></i>.</strong></div>									
                 </fieldset>';
         echo $html;      
     }

@@ -77,13 +77,13 @@ class MainWPCReportStream
                <input type="checkbox"  id="cb-select-all-1" >
            </th>
            <th scope="col" class="manage-column sortable <?php echo $name_order; ?>">
-               <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&stream_orderby=name&stream_order=<?php echo (empty($name_order) ? 'asc' : $name_order); ?>"><span><?php _e('Site','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+               <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=name&stream_order=<?php echo (empty($name_order) ? 'asc' : $name_order); ?>"><span><?php _e('Site','mainwp'); ?></span><span class="sorting-indicator"></span></a>
            </th>
            <th scope="col" class="manage-column sortable <?php echo $url_order; ?>">
-               <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&stream_orderby=url&stream_order=<?php echo (empty($url_order) ? 'asc' : $url_order); ?>"><span><?php _e('URL','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+               <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=url&stream_order=<?php echo (empty($url_order) ? 'asc' : $url_order); ?>"><span><?php _e('URL','mainwp'); ?></span><span class="sorting-indicator"></span></a>
            </th>
            <th scope="col" class="manage-column sortable <?php echo $version_order; ?>">
-               <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&stream_orderby=version&stream_order=<?php echo (empty($version_order) ? 'asc' : $version_order); ?>"><span><?php _e('Plugin Version','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+               <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=version&stream_order=<?php echo (empty($version_order) ? 'asc' : $version_order); ?>"><span><?php _e('Plugin Version','mainwp'); ?></span><span class="sorting-indicator"></span></a>
            </th>           
          </tr>
          </thead>
@@ -93,13 +93,13 @@ class MainWPCReportStream
                <input type="checkbox"  id="cb-select-all-2" >
            </th>
            <th scope="col" class="manage-column sortable <?php echo $name_order; ?>">
-               <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&stream_orderby=name&stream_order=<?php echo (empty($name_order) ? 'asc' : $name_order); ?>"><span><?php _e('Site','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+               <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=name&stream_order=<?php echo (empty($name_order) ? 'asc' : $name_order); ?>"><span><?php _e('Site','mainwp'); ?></span><span class="sorting-indicator"></span></a>
            </th>
            <th scope="col" class="manage-column sortable <?php echo $url_order; ?>">
-               <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&stream_orderby=url&stream_order=<?php echo (empty($url_order) ? 'asc' : $url_order); ?>"><span><?php _e('URL','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+               <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=url&stream_order=<?php echo (empty($url_order) ? 'asc' : $url_order); ?>"><span><?php _e('URL','mainwp'); ?></span><span class="sorting-indicator"></span></a>
            </th>
            <th scope="col" class="manage-column sortable <?php echo $version_order; ?>">
-               <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&stream_orderby=version&stream_order=<?php echo (empty($version_order) ? 'asc' : $version_order); ?>"><span><?php _e('Plugin Version','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+               <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=version&stream_order=<?php echo (empty($version_order) ? 'asc' : $version_order); ?>"><span><?php _e('Plugin Version','mainwp'); ?></span><span class="sorting-indicator"></span></a>
            </th>            
          </tr>
          </tfoot>
@@ -338,7 +338,7 @@ class MainWPCReportStream
                    
         <div class="alignleft actions">
             <form action="" method="GET">
-                <input type="hidden" name="page" value="Extensions-Mainwp-Client-Reporting-Extension">
+                <input type="hidden" name="page" value="Extensions-Mainwp-Client-Reports-Extension">
                 <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"><?php _e('No search results.','mainwp'); ?></span>
                 <input type="text" class="mainwp_autocomplete ui-autocomplete-input" name="s" autocompletelist="sites" value="<?php echo stripslashes($search); ?>" autocomplete="off">
                 <datalist id="sites">
@@ -354,7 +354,7 @@ class MainWPCReportStream
             </form>
         </div>    
         <div class="alignleft actions">
-            <form method="post" action="admin.php?page=Extensions-Mainwp-Client-Reporting-Extension">
+            <form method="post" action="admin.php?page=Extensions-Mainwp-Client-Reports-Extension">
                 <select name="mainwp_creport_stream_groups_select">
                 <option value="0"><?php _e("Select a group"); ?></option>
                 <?php

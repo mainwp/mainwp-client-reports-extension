@@ -54,7 +54,7 @@
     font-style:italic;
     color: #DDDDDD;
 }
-.mainwp-creport-report-setting-box .title input{
+.mainwp-creport-report-setting-box .title input, #mwp_creport_email_subject {
     width: 500px;
 }
 .mainwp-creport-report-setting-box .date input{
@@ -120,7 +120,7 @@ a.creport_format_add_token:hover {
 #wpcr_report_tab tr .loading .status {
     font-style: italic;
 }
-.mainwp_page_Extensions-Mainwp-Client-Reporting-Extension .ui-dialog[aria-describedby="mwp-creport-preview-box"] {
+.mainwp_page_Extensions-Mainwp-Client-Reports-Extension .ui-dialog[aria-describedby="mwp-creport-preview-box"] {
     width: 800px !important;    
 }
 .creport_format_nav_bottom{

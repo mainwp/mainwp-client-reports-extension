@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: MainWP Client Reporting Extension
+Plugin Name: MainWP Client Reports Extension
 Plugin URI: http://extensions.mainwp.com
 Description: MainWP Client Reports Extension allows you to generate activity reports for your clients sites. Requires MainWP Dashboard.
 Version: 0.0.1
@@ -39,7 +39,7 @@ class MainWPCReportExtension
         
         MainWPCReportDB::Instance()->install();
         
-        if (isset($_GET['page']) && $_GET['page'] == "Extensions-Mainwp-Client-Reporting-Extension" &&
+        if (isset($_GET['page']) && $_GET['page'] == "Extensions-Mainwp-Client-Reports-Extension" &&
             isset($_GET['action']) && $_GET['action'] == "savepdf" &&
             isset($_GET['id']) && $_GET['id'])
         {   
@@ -127,7 +127,7 @@ class MainWPCReportExtensionActivator
 
     function get_this_extension($pArray)
     {
-        $pArray[] = array('plugin' => __FILE__, /*'api' => 'mainwp-client-reporting-extension', */ 'mainwp' => true, 'callback' => array(&$this, 'settings'));
+        $pArray[] = array('plugin' => __FILE__, /*'api' => 'mainwp-client-reports-extension', */ 'mainwp' => true, 'callback' => array(&$this, 'settings'));
         return $pArray;
     }
  
@@ -172,7 +172,7 @@ class MainWPCReportExtensionActivator
         global $current_screen;
         if ($current_screen->parent_base == 'plugins' && $this->mainwpMainActivated == false)
         {
-            echo '<div class="error"><p>MainWP Client Reporting Extension ' . __('requires <a href="http://mainwp.com/" target="_blank">MainWP</a> Plugin to be activated in order to work. Please install and activate <a href="http://mainwp.com/" target="_blank">MainWP</a> first.') . '</p></div>';
+            echo '<div class="error"><p>MainWP Client Reports Extension ' . __('requires <a href="http://mainwp.com/" target="_blank">MainWP</a> Plugin to be activated in order to work. Please install and activate <a href="http://mainwp.com/" target="_blank">MainWP</a> first.') . '</p></div>';
         }
     }
 

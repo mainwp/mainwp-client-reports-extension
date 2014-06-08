@@ -406,12 +406,12 @@ jQuery(document).ready(function($) {
     
     $('#mainwp_creport_select_client_btn_display').on('click' ,function(){
         var client = $('#mainwp_creport_select_client').val();       
-        location.href = 'admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&client=' + client;
+        location.href = 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension&client=' + client;
     })
     
     $('#mainwp_creport_select_site_btn_display').on('click' ,function(){     
         var site = $('#mainwp_creport_select_site').val();               
-        location.href = 'admin.php?page=Extensions-Mainwp-Client-Reporting-Extension&site=' + site;
+        location.href = 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension&site=' + site;
     })
     
     
