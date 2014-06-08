@@ -1298,16 +1298,18 @@ class MainWPCReport
             }      
             
             if (isset($other_tokens_data['header']) && is_array($other_tokens_data['header']) && count($other_tokens_data['header']) > 0) {
+                $search = $replace = array();
                 foreach ($other_tokens_data['header'] as $token => $value) {
                     if (in_array($token, $other_tokens['header'])) {
                         $search[] = $token;
                         $replace[] = $value;
                     }
                 }
-                $report_header = self::replace_content($report_body, $search, $replace);
+                $report_header = self::replace_content($report_header, $search, $replace);
             }
             
             if (isset($other_tokens_data['body']) && is_array($other_tokens_data['body']) && count($other_tokens_data['body']) > 0) {
+                $search = $replace = array();
                 foreach ($other_tokens_data['body'] as $token => $value) {
                     if (in_array($token, $other_tokens['body'])) {
                         $search[] = $token;
@@ -1318,6 +1320,7 @@ class MainWPCReport
             }
             
             if (isset($other_tokens_data['footer']) && is_array($other_tokens_data['footer']) && count($other_tokens_data['footer']) > 0) {
+                $search = $replace = array();
                 foreach ($other_tokens_data['footer'] as $token => $value) {
                     if (in_array($token, $other_tokens['footer'])) {
                         $search[] = $token;
