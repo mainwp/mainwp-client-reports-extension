@@ -329,10 +329,11 @@ jQuery(document).ready(function($) {
             $('#mwp_creport_title').addClass('form-invalid');
         } 
         
-        
-        if ($.trim($('#mwp_creport_date_from').val()) == '') {
-            errors.push(__('Date From is required.'));
-            $('#mwp_creport_date_from').addClass('form-invalid');
+        if (action !== 'save') {
+            if ($.trim($('#mwp_creport_date_from').val()) == '') {
+                errors.push(__('Date From is required.'));
+                $('#mwp_creport_date_from').addClass('form-invalid');
+            }
         }
         
         if (action !== 'save') {    

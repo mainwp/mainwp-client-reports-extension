@@ -84,7 +84,10 @@ class MainWPCReportStream
            </th>
            <th scope="col" class="manage-column sortable <?php echo $version_order; ?>">
                <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=version&stream_order=<?php echo (empty($version_order) ? 'asc' : $version_order); ?>"><span><?php _e('Plugin Version','mainwp'); ?></span><span class="sorting-indicator"></span></a>
-           </th>           
+           </th>
+           <th scope="col" class="manage-column <?php //echo $version_order; ?>">
+               <span><?php _e('Plugin Hidden','mainwp'); ?></span>
+           </th>
          </tr>
          </thead>
          <tfoot>
@@ -100,7 +103,10 @@ class MainWPCReportStream
            </th>
            <th scope="col" class="manage-column sortable <?php echo $version_order; ?>">
                <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=version&stream_order=<?php echo (empty($version_order) ? 'asc' : $version_order); ?>"><span><?php _e('Plugin Version','mainwp'); ?></span><span class="sorting-indicator"></span></a>
-           </th>            
+           </th>     
+           <th scope="col" class="manage-column <?php //echo $version_order; ?>">
+               <span><?php _e('Plugin Hidden','mainwp'); ?></span>
+           </th>
          </tr>
          </tfoot>
            <tbody id="the-wp-stream-list" class="list:sites">
@@ -159,7 +165,12 @@ class MainWPCReportStream
                    else 
                        echo "&nbsp;";
                ?>
-               </td>               
+               </td>     
+               <td>
+                   <?php 
+                        echo ($website['hide_stream'] == 1) ? __("Yes") : __("No"); 
+                   ?>
+               </td>
            </tr>        
             <?php    
            if (!isset($dismiss[$website_id])) {  

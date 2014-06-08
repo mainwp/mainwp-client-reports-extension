@@ -1039,6 +1039,7 @@ class MainWPCReport
                             <input type="hidden" name="nonce" value="<?php echo wp_create_nonce('mwp_creport_nonce') ?>">
                         </form>
                         <div id="wpcr_token_tab"  <?php echo $style_tab_token; ?>>
+                            <div class="mainwp_info-box">Add or Change Client Information in the <a href="/wp-admin/admin.php?page=managesites">Edit Site Screen</a></div>
                             <div id="creport_list_tokens" class="postbox"></div>                                                                       
                         </div> 
                         <div id="wpcr_stream_tab" <?php echo $style_tab_stream; ?>>
