@@ -572,95 +572,214 @@ jQuery(document).ready(function($) {
     }); 
     
     $('.creport_active_plugin').on('click', function() {
-        var parent = $(this).closest('.ext-upgrade-noti');
-        var workingRow = parent.find('.creport-stream-row-working'); 
-        var slug = parent.attr('plugin-slug');        
-        var data = {
-            action: 'mainwp_creport_active_plugin',
-            websiteId: parent.attr('website-id'),
-            'plugins[]': [slug]
-        }  
-        workingRow.find('img').show();
-        jQuery.post(ajaxurl, data, function (response) {
-            workingRow.find('img').hide();
-            if (response && response['error']) {
-                workingRow.find('.status').html('<font color="red">'+response.error+'</font>');
-            }
-            else if (response && response['result']) {
-                parent.html('Stream plugin has been activated');
-            }            
-        },'json');        
+        mainwp_creport_stream_active_start_specific($(this), false);
         return false;
     }); 
     
     $('.creport_upgrade_plugin').on('click', function() {
-        var parent = $(this).closest('.ext-upgrade-noti');
-        var workingRow = parent.find('.creport-stream-row-working');         
-        var slug = parent.attr('plugin-slug');        
-        var data = {
-            action: 'mainwp_creport_upgrade_plugin',
-            websiteId: parent.attr('website-id'),
-            type: 'plugin',
-            'slugs[]': [slug]
-        }  
-        
-        workingRow.find('img').show();
-        jQuery.post(ajaxurl, data, function (response) {
-            workingRow.find('img').hide();
-            if (response && response['error']) {
-                workingRow.find('.status').html('<font color="red">'+response.error+'</font>');
-            }
-            else if (response && response['upgrades'][slug]) {
-                parent.html('Stream plugin has been updated');
-            }  
-            else {
-               workingRow.find('.status').html('<font color="red">'+__("Undefined error")+'</font>'); 
-            }                
-        },'json');        
+        mainwp_creport_stream_upgrade_start_specific($(this), false);
         return false;
     }); 
     
     $('.creport_showhide_plugin').on('click', function() {
-        var link = $(this);
-        var parent = link.closest('tr');
-        var loader = parent.find('.creport-action-working .loading');  
-        var statusEl = parent.find('.creport-action-working .status');        
-        var showhide = link.attr('showhide');
-        var data = {
-            action: 'mainwp_creport_showhide_stream',
-            websiteId: parent.attr('website-id'),
-            showhide: showhide
-        }
-        statusEl.hide();
-        loader.show();
-        jQuery.post(ajaxurl, data, function (response) {
-            loader.hide();
-            if (response && response['error']) {
-                statusEl.css('color', 'red');
-                statusEl.html(response['error']).show();
-            }
-            else if (response && response['result'] == 'SUCCESS') {                
-                if (showhide == 'show') {
-                    link.text(__("Hide Stream Plugin"));
-                    link.attr('showhide', 'hide');
-                } else {
-                    link.text(__("Show Stream Plugin"));        
-                    link.attr('showhide', 'show');
-                }
-                
-                statusEl.css('color', '#21759B');
-                statusEl.html(__('Successful')).show();   
-                statusEl.fadeOut(3000); 
-            }  
-            else {
-                statusEl.css('color', 'red');
-                statusEl.html(__("Undefined error")).show();               
-            }                
-        },'json');        
-        return false;        
-    });    
+        mainwp_creport_stream_showhide_start_specific($(this), false);
+        return false;
+    });   
     
+    $('#creport_stream_doaction_btn').on('click', function() {
+        var bulk_act = $('#creport_stream_action').val();
+        mainwp_creport_stream_do_bulk_action(bulk_act);
+           
+    });
 });
+
+var creport_bulkMaxThreads = 3;
+var creport_bulkTotalThreads = 0;
+var creport_bulkCurrentThreads = 0;
+var creport_bulkFinishedThreads = 0;
+
+mainwp_creport_stream_do_bulk_action = function(act) { 
+    var selector = '';
+    switch(act) {
+        case 'activate-selected':   
+            selector = '#the-wp-stream-list tr.plugin-update-tr .creport_active_plugin';
+            jQuery(selector).addClass('queue');
+            mainwp_creport_stream_active_start_next(selector);            
+            break;
+        case 'update-selected':   
+            selector = '#the-wp-stream-list tr.plugin-update-tr .creport_upgrade_plugin';
+            jQuery(selector).addClass('queue');
+            mainwp_creport_stream_upgrade_start_next(selector);            
+            break;
+        case 'hide-selected':       
+            selector = '#the-wp-stream-list tr .creport_showhide_plugin[showhide="hide"]';
+            jQuery(selector).addClass('queue');            
+            mainwp_creport_stream_showhide_start_next(selector);   
+            break;  
+        case 'show-selected':     
+            selector = '#the-wp-stream-list tr .creport_showhide_plugin[showhide="show"]';
+            jQuery(selector).addClass('queue');
+            mainwp_creport_stream_showhide_start_next(selector);   
+            break;                
+    }
+}
+     
+mainwp_creport_stream_showhide_start_next = function(selector) {     
+    while ((objProcess = jQuery(selector + '.queue:first')) && (objProcess.length > 0) && (creport_bulkCurrentThreads < creport_bulkMaxThreads))
+    {   
+        objProcess.removeClass('queue');
+        if (objProcess.closest('tr').find('.check-column input[type="checkbox"]:checked').length == 0) {            
+            continue;
+        }                   
+        mainwp_creport_stream_showhide_start_specific(objProcess, true, selector);
+    }
+}
+  
+mainwp_creport_stream_showhide_start_specific = function(pObj, bulk, selector) {    
+    var parent = pObj.closest('tr');
+    var loader = parent.find('.creport-action-working .loading');  
+    var statusEl = parent.find('.creport-action-working .status');        
+    var showhide = pObj.attr('showhide');
+    if (bulk) 
+        creport_bulkCurrentThreads++;
+    
+    var data = {
+        action: 'mainwp_creport_showhide_stream',
+        websiteId: parent.attr('website-id'),
+        showhide: showhide
+    }
+    statusEl.hide();
+    loader.show();
+    jQuery.post(ajaxurl, data, function (response) {
+        loader.hide();
+        pObj.removeClass('queue');
+        if (response && response['error']) {
+            statusEl.css('color', 'red');
+            statusEl.html(response['error']).show();
+        }
+        else if (response && response['result'] == 'SUCCESS') {                
+            if (showhide == 'show') {
+                pObj.text(__("Hide Stream Plugin"));
+                pObj.attr('showhide', 'hide');
+            } else {
+                pObj.text(__("Show Stream Plugin"));        
+                pObj.attr('showhide', 'show');
+            }
+            
+            statusEl.css('color', '#21759B');
+            statusEl.html(__('Successful')).show();   
+            statusEl.fadeOut(3000); 
+        }  
+        else {
+            statusEl.css('color', 'red');
+            statusEl.html(__("Undefined error")).show();               
+        } 
+        
+        if (bulk) {
+            creport_bulkCurrentThreads--;
+            creport_bulkFinishedThreads++;
+            mainwp_creport_stream_showhide_start_next(selector);
+        }
+        
+    },'json');        
+    return false;  
+}
+
+mainwp_creport_stream_upgrade_start_next = function(selector) {    
+    while ((objProcess = jQuery(selector + '.queue:first')) && (objProcess.length > 0) && (objProcess.closest('tr').prev('tr').find('.check-column input[type="checkbox"]:checked').length > 0) && (creport_bulkCurrentThreads < creport_bulkMaxThreads))
+    {           
+        objProcess.removeClass('queue');
+        if (objProcess.closest('tr').prev('tr').find('.check-column input[type="checkbox"]:checked').length == 0) {            
+            continue;
+        }
+        mainwp_creport_stream_upgrade_start_specific(objProcess, true, selector);
+    }
+}
+
+mainwp_creport_stream_upgrade_start_specific = function(pObj, bulk, selector) {
+    var parent = pObj.closest('.ext-upgrade-noti');
+    var workingRow = parent.find('.creport-stream-row-working');         
+    var slug = parent.attr('plugin-slug');        
+    var data = {
+        action: 'mainwp_creport_upgrade_plugin',
+        websiteId: parent.attr('website-id'),
+        type: 'plugin',
+        'slugs[]': [slug]
+    }  
+    
+    if (bulk) 
+        creport_bulkCurrentThreads++;
+   
+    workingRow.find('img').show();
+    jQuery.post(ajaxurl, data, function (response) {
+        workingRow.find('img').hide();
+        pObj.removeClass('queue');
+        if (response && response['error']) {
+            workingRow.find('.status').html('<font color="red">'+response.error+'</font>');
+        }
+        else if (response && response['upgrades'][slug]) {           
+            pObj.after('Stream plugin has been updated');
+            pObj.remove();
+        }  
+        else {
+           workingRow.find('.status').html('<font color="red">'+__("Undefined error")+'</font>'); 
+        } 
+        
+        if (bulk) {
+            creport_bulkCurrentThreads--;
+            creport_bulkFinishedThreads++;
+            mainwp_creport_stream_upgrade_start_next(selector);
+        }
+        
+    },'json');        
+    return false;
+}
+
+
+mainwp_creport_stream_active_start_next = function(selector) {            
+    while ((objProcess = jQuery(selector + '.queue:first')) && (objProcess.length > 0) && (objProcess.closest('tr').prev('tr').find('.check-column input[type="checkbox"]:checked').length > 0) && (creport_bulkCurrentThreads < creport_bulkMaxThreads))
+    {       
+        objProcess.removeClass('queue');
+        if (objProcess.closest('tr').prev('tr').find('.check-column input[type="checkbox"]:checked').length == 0) {            
+            continue;
+        }
+        mainwp_creport_stream_active_start_specific(objProcess, true, selector);
+    }
+}
+
+mainwp_creport_stream_active_start_specific = function(pObj, bulk, selector) {
+    var parent = pObj.closest('.ext-upgrade-noti');
+    var workingRow = parent.find('.creport-stream-row-working'); 
+    var slug = parent.attr('plugin-slug');        
+    var data = {
+        action: 'mainwp_creport_active_plugin',
+        websiteId: parent.attr('website-id'),
+        'plugins[]': [slug]
+    }  
+  
+    if (bulk) 
+        creport_bulkCurrentThreads++;
+  
+    workingRow.find('img').show();
+    jQuery.post(ajaxurl, data, function (response) {
+        workingRow.find('img').hide();
+        pObj.removeClass('queue');
+        if (response && response['error']) {
+            workingRow.find('.status').html('<font color="red">'+response.error+'</font>');
+        }
+        else if (response && response['result']) {
+            pObj.after('Stream plugin has been activated');
+            pObj.remove();
+        }           
+        if (bulk) {
+            creport_bulkCurrentThreads--;
+            creport_bulkFinishedThreads++;
+            mainwp_creport_stream_active_start_next(selector);
+        }
+        
+    },'json');        
+    return false;
+}
 
 showCReportTab = function(report, edit_report, token, tream) {
     var report_tab_lnk = jQuery("#wpcr_report_tab_lnk");

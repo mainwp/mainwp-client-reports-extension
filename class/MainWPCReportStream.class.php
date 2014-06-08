@@ -73,7 +73,9 @@ class MainWPCReportStream
        <table id="mainwp-table-plugins" class="wp-list-table widefat plugins" cellspacing="0">
          <thead>
          <tr>
-           <th class="check-column">&nbsp;</th>
+           <th class="check-column">
+               <input type="checkbox"  id="cb-select-all-1" >
+           </th>
            <th scope="col" class="manage-column sortable <?php echo $name_order; ?>">
                <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&stream_orderby=name&stream_order=<?php echo (empty($name_order) ? 'asc' : $name_order); ?>"><span><?php _e('Site','mainwp'); ?></span><span class="sorting-indicator"></span></a>
            </th>
@@ -87,7 +89,9 @@ class MainWPCReportStream
          </thead>
          <tfoot>
          <tr>
-           <th class="check-column">&nbsp;</th>
+           <th class="check-column">
+               <input type="checkbox"  id="cb-select-all-2" >
+           </th>
            <th scope="col" class="manage-column sortable <?php echo $name_order; ?>">
                <a href="?page=Extensions-Mainwp-Client-Reporting-Extension&stream_orderby=name&stream_order=<?php echo (empty($name_order) ? 'asc' : $name_order); ?>"><span><?php _e('Site','mainwp'); ?></span><span class="sorting-indicator"></span></a>
            </th>
@@ -136,7 +140,9 @@ class MainWPCReportStream
 
            ?>
            <tr class="<?php echo $cls_active . " " . $cls_update; ?>" website-id="<?php echo $website_id; ?>">
-               <th class="check-column">&nbsp;</th>
+               <th class="check-column">
+                   <input type="checkbox"  name="checked[]">
+               </th>
                <td>
                    <a href="admin.php?page=managesites&dashboard=<?php echo $website_id; ?>"><?php echo $website['name']; ?></a><br/>
                    <div class="row-actions"><span class="dashboard"><a href="admin.php?page=managesites&dashboard=<?php echo $website_id; ?>"><?php _e("Dashboard");?></a></span> |  <span class="edit"><a href="admin.php?page=managesites&id=<?php echo $website_id; ?>"><?php _e("Edit");?></a> | <?php echo $showhide_link; ?></span></div>                    
@@ -318,6 +324,18 @@ class MainWPCReportStream
         $groups = apply_filters('mainwp-getgroups', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), null);        
         $search = (isset($_GET['s']) && !empty($_GET['s'])) ? trim($_GET['s']) : "";
         ?> 
+                   
+        <div class="alignleft actions bulkactions">
+            <select id="creport_stream_action">
+                <option selected="selected" value="-1"><?php _e("Bulk Actions"); ?></option>
+                <option value="activate-selected"><?php _e("Active"); ?></option>
+                <option value="update-selected"><?php _e("Update"); ?></option>
+                <option value="hide-selected"><?php _e("Hide"); ?></option>
+                <option value="show-selected"><?php _e("Show"); ?></option>
+            </select>
+            <input type="button" value="<?php _e("Apply"); ?>" class="button action" id="creport_stream_doaction_btn" name="">
+        </div>
+                   
         <div class="alignleft actions">
             <form action="" method="GET">
                 <input type="hidden" name="page" value="Extensions-Mainwp-Client-Reporting-Extension">
