@@ -482,10 +482,42 @@ class MainWPCReport
         
         add_action('mainwp_update_site', array(&$this, 'update_site_update_tokens'), 8, 1);
         add_action('mainwp_delete_site', array(&$this, 'delete_site_delete_tokens'), 8, 1);        
+        add_action('mainwp_shortcuts_widget', array(&$this, 'shortcuts_widget'), 10, 1);        
+        add_filter('mainwp_managesites_column_url', array(&$this, 'managesites_column_url'), 10, 2);
     }     
     
+    public function shortcuts_widget($website) {        
+        if (!empty($website)) {
+            $reports = MainWPCReportDB::Instance()->getReportBy('site', $website->id);
+            $reports_lnk = "";
+            if (is_array($reports) && count($reports) > 0) {
+                $reports_lnk = '<a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&site=' . $website->id . '">' . __('Reports','mainwp') . '</a> | ';
+            }
+            ?>
+                <div class="mainwp-row">
+                    <div style="display: inline-block; width: 100px;"><?php _e('Client Reports:','mainwp'); ?></div>
+                    <?php echo $reports_lnk; ?>
+                    <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=newreport"><?php _e('New Report','mainwp'); ?></a>
+                </div>
+            <?php
+        }
+    }
  
- 
+    public function managesites_column_url($actions, $site_id) {
+         if (!empty($site_id)) {
+            $reports = MainWPCReportDB::Instance()->getReportBy('site', $site_id);
+            $link = "";
+            if (is_array($reports) && count($reports) > 0) {
+                $link = '<a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&site=' .$site_id . '">' . __('Reports','mainwp') . '</a> ' .
+                        '( <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=newreport">' . __('New','mainwp') . '</a> )';
+            } else {            
+                $link = '<a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=newreport">' . __('New Report','mainwp') . '</a>';
+            }
+            $actions['client_reports'] = $link;
+         }
+         return $actions;
+    }
+    
     public static function saveReport() {
         if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'editreport' && isset($_REQUEST['nonce']) &&  wp_verify_nonce($_REQUEST['nonce'], 'mwp_creport_nonce')) {
             $messages = $errors = array();
@@ -853,7 +885,7 @@ class MainWPCReport
             $report_id = isset($_REQUEST['id']) ? $_REQUEST['id'] : 0;
             $report = MainWPCReportDB::Instance()->getReportBy('id', $report_id); 
         }
-       
+
         $style_tab_report = $style_tab_edit = $style_tab_token = $style_tab_stream = ' style="display: none" ';                
         $do_create_new = false;
         if (isset($_REQUEST['action'])) {                
@@ -940,6 +972,7 @@ class MainWPCReport
             $clients = array();
                 
         global $mainWPCReportExtensionActivator;
+        
         $websites = apply_filters('mainwp-getsites', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), null);              
         $sites_id = $all_sites = array();
         if (is_array($websites)) {
