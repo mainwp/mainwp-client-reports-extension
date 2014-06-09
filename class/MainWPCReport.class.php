@@ -1225,29 +1225,36 @@ class MainWPCReport
         ob_start();                    
     ?>
         <style>
-            
+            #crp_content_wrap ul {list-style-type:square; margin-left: 20px;}
+            #crp_content_wrap ol {list-style-type:decimal}
+            #crp_content_wrap br {line-height: 10px; display: block;}            
         </style>
         <br>
         <div>
             <br>
-            <div id="eml_content_wrap" style="background:#ffffff;padding:0 1.618em;font:13px/20px Helvetica,Arial,Sans-serif;padding-bottom:50px!important">
+            <div id="crp_content_wrap" style="background:#ffffff;padding:0 1.618em;font:13px/20px Helvetica,Arial,Sans-serif;padding-bottom:50px!important">
                 <div style="width:600px;background:#fff;margin-left:auto;margin-right:auto;margin-top:10px;margin-bottom:25px;padding:0!important;border:10px Solid #fff;border-radius:10px;overflow:hidden">
                     <div style="display: block; width: 100% ; ">
                       <div style="display: block; width: 100% ; padding: .5em 0 ;">                          
-                              <?php echo stripslashes(nl2br($report->filtered_header)); ?>                          
+                              <?php 
+                              //echo apply_filters( 'the_content', $report->filtered_header );
+                              echo stripslashes(nl2br($report->filtered_header)); 
+                              ?>                          
                         <div style="clear: both;"></div>
                       </div>
                     </div>
                     <br><br><br>
                     <div>
                         <?php 
-                            $_body = apply_filters( 'the_content', $report->filtered_body );
-                            echo $_body;
-                        //echo stripslashes(nl2br($report->filtered_body)); ?>
+                            //echo apply_filters( 'the_content', $report->filtered_body );                            
+                            echo stripslashes(nl2br($report->filtered_body)); ?>
                     </div>
                     <br><br><br>
                     <div style="display: block; width: 100% ;">
-                        <?php echo stripslashes(nl2br($report->filtered_footer)); ?>
+                        <?php 
+                        //echo apply_filters( 'the_content', $report->filtered_footer );
+                        echo stripslashes(nl2br($report->filtered_footer)); 
+                        ?>
                    </div>                                
                     <br><br><br>
                     <?php
