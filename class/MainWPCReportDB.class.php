@@ -776,7 +776,7 @@ PRIMARY KEY  (`id`)  ';
                     . " WHERE rp.is_archived = 0 AND " 
                     . " rp.date_from <= " . (time() - 3600 * 24 * 30) . " AND "
                     . " rp.selected_site != 0 AND c.email IS NOT NULL ";  
-        echo $sql;
+        //echo $sql;
         return $wpdb->get_results($sql);         
     }
     public function deleteReportBy($by = 'id', $value = null) {

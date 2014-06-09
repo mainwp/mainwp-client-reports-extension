@@ -51,7 +51,8 @@ class MainWPCReportExtension
 
     public function init()
     {
-        
+        $mwp_creport = new MainWPCReport();
+        $mwp_creport->init_cron();
     }
  
     public function plugin_row_meta($plugin_meta, $plugin_file)

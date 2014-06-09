@@ -8,7 +8,7 @@ class MainWPCReport
     private static $orderby = "";
     
     public function __construct() { 
-        add_action('mainwp_creport_cron_archive_reports', array('MainWPCReport', 'cron_archive_reports'));            
+       
     }
     
     public static function init() {
@@ -464,9 +464,8 @@ class MainWPCReport
                                         "widgets" => "Widgets",
                                         "menus" => "Menus",
                                         "wordpress" => "WordPress",                                         
-                                    );  
-        
-        self::schedule_archive_cron();        
+                                    );          
+               
     }
   
     public function admin_init() {
@@ -489,7 +488,9 @@ class MainWPCReport
         add_filter('mainwp_managesites_column_url', array(&$this, 'managesites_column_url'), 10, 2);
     }     
     
-    public static function schedule_archive_cron() {
+    public function init_cron() {
+        
+        add_action('mainwp_creport_cron_archive_reports', array('MainWPCReport', 'cron_archive_reports'));            
         $useWPCron = (get_option('mainwp_wp_cron') === false) || (get_option('mainwp_wp_cron') == 1);        
         if (($sched = wp_next_scheduled('mainwp_creport_cron_archive_reports')) == false)
         {            
@@ -826,6 +827,7 @@ class MainWPCReport
         global $current_user;                     
         $messages = $errors = array();               
         $do_preview = $do_send = $do_send_test_email = $do_save_pdf = $do_replicate = $do_archive = false;              
+        $do_get_save_pdf = $do_get_archive = false;
         $report_id = 0;
         $report = null;
         
@@ -836,6 +838,10 @@ class MainWPCReport
                 $do_preview = true;
             else if ('replicate' === (string)$_REQUEST['action'])
                 $do_replicate = true; 
+            else if ('save_pdf' === (string)$_REQUEST['action'])
+                $do_get_save_pdf = true; 
+            else if ('archive_report' === (string)$_REQUEST['action'])
+                $do_get_archive = true;                 
         }
         
         if (isset($_POST['mwp_creport_report_submit_action'])) {
@@ -851,24 +857,24 @@ class MainWPCReport
                 $do_archive = true;
         }
       
-        
+        $result_save = array();
         if (isset($_POST['mwp_creport_report_submit_action']) && !empty($_POST['mwp_creport_report_submit_action'])) {
-            $result = self::saveReport(); 
-            $report_id = isset($result['id']) && $result['id'] ? $result['id'] : 0;
+            $result_save = self::saveReport(); 
+            $report_id = isset($result_save['id']) && $result_save['id'] ? $result_save['id'] : 0;
             
-            if (isset($result['submit_report']) && is_object($result['submit_report'])) {
-                $report = $result['submit_report'];
+            if (isset($result_save['submit_report']) && is_object($result_save['submit_report'])) {
+                $report = $result_save['submit_report'];
             } else if ($report_id) {                
                 $report = MainWPCReportDB::Instance()->getReportBy('id', $report_id); 
             }
             
-            if (isset($result['message']))                 
-                $messages = $result['message'];
+            if (isset($result_save['message']))                 
+                $messages = $result_save['message'];
 
-            if (isset($result['error'])) 
-                $errors = $result['error'];
+            if (isset($result_save['error'])) 
+                $errors = $result_save['error'];
             
-            if (isset($result['saved']) && $result['saved'] == true && $report_id ) {
+            if (isset($result_save['saved']) && $result_save['saved'] == true && $report_id ) {
                 if ($do_save_pdf) {
                     ?>
                         <script>
@@ -881,7 +887,7 @@ class MainWPCReport
                         </script>
                     <?php
                         $messages[] = __('PDF downloading...');
-                } else if ($do_archive && !isset($result['error'])) {
+                } else if ($do_archive && !isset($result_save['error'])) {
                     if (self::archiveReport($report_id, $report))
                         $messages[] = __("Report has been archived.");
                 }
@@ -889,19 +895,40 @@ class MainWPCReport
            
         } else if (isset($_REQUEST['id'])) {
             $report_id = isset($_REQUEST['id']) ? $_REQUEST['id'] : 0;
-            $report = MainWPCReportDB::Instance()->getReportBy('id', $report_id); 
+            $report = MainWPCReportDB::Instance()->getReportBy('id', $report_id);             
+            if ($do_get_save_pdf) {
+                ?>
+                    <script>
+                        jQuery(document).ready(function($) {                         
+                            window.open(
+                                '<?php echo get_site_url(); ?>/wp-admin/admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=savepdf&id=<?php echo $report_id; ?>',
+                                '_blank' 
+                            );                        
+                        });
+                    </script>
+                <?php
+                    $messages[] = __('PDF downloading...');
+            } else if ($do_get_archive) {
+                if (self::archiveReport($report_id, $report))
+                    $messages[] = __("Report has been archived.");
+            }
         }
+        
+        
         
         if ($do_replicate) {
             $report->id = $report_id = 0;
+            $report->title = ""; 
+            $report->is_archived = 0;
         }
+        
         $selected_site = 0;      
         $style_tab_report = $style_tab_edit = $style_tab_token = $style_tab_stream = ' style="display: none" ';                
         $do_create_new = false;
         if (isset($_REQUEST['action'])) {                
             if ($_REQUEST['action'] == "token") {            
                 $style_tab_token = '';                
-            } else if ($_REQUEST['action'] == "editreport" || $do_replicate || $do_preview || $_REQUEST['action'] == "savepdf") {               
+            } else if ($_REQUEST['action'] == "editreport" || $do_get_save_pdf || $do_get_archive || $do_replicate || $do_preview || $_REQUEST['action'] == "savepdf") {               
                 $style_tab_edit = '';                   
             } else if ($_REQUEST['action'] == "newreport" ) { 
                 if (isset($_GET['selected_site']) && !empty($_GET['selected_site']))
@@ -1063,8 +1090,7 @@ class MainWPCReport
                             <div id="creport_select_sites_box" class="mainwp_config_box_right" <?php echo $style_tab_edit; ?>>
                             <?php do_action('mainwp_select_sites_box', __("Select Sites", 'mainwp'), 'radio', false, false, 'mainwp_select_sites_box_right', "", array($selected_site), array()); ?>
                             </div>                            
-                            <div id="wpcr_edit_tab"  <?php echo $style_tab_edit; ?>>
-                                <?php if ($do_replicate) $report->title = ""; ?>
+                            <div id="wpcr_edit_tab"  <?php echo $style_tab_edit; ?>>                               
                                 <?php self::newReportTab($report); 
                                     $_disabled = "";
                                     if (!empty($report) && $report->id && $report->is_archived) {
@@ -1674,6 +1700,8 @@ class MainWPCReport
                     <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=editreport&id=<?php echo $report->id; ?>"><?php _e("Edit");?></a></span> |  
                     <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=replicate&id=<?php echo $report->id; ?>"><?php _e("Replicate");?></a></span> |  
                     <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=sendreport&id=<?php echo $report->id; ?>"><?php _e("Send");?></a> | 
+                    <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=save_pdf&id=<?php echo $report->id; ?>"><?php _e("PDF");?></a> | 
+                    <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=archive_report&id=<?php echo $report->id; ?>"><?php _e("Archive");?></a> | 
                     <span class="delete"><a href="#" class="mwp-creport-report-item-delete-lnk"><?php _e("Delete");?></a></span> 
                 </div>                     
                 <span class="loading"><span class="status hidden-field"></span><img src="<?php echo $url_loader; ?>" class="hidden-field"></span>
@@ -1704,7 +1732,8 @@ class MainWPCReport
         self::newReportFormat($report);
     }
     
-    public static function newReportSetting($report = null) {        
+    public static function newReportSetting($report = null) {  
+        
     ?>
         <fieldset class="mainwp-creport-report-setting-box">          
             <table class="wp-list-table widefat" cellspacing="0">
