@@ -592,21 +592,21 @@ class MainWPCReport
                 @touch($creport_dir . '/index.php');
             }
             
-            $old_logo = "";
-            if (isset($_POST['id']) && $_POST['id']) {
-                $current_report = MainWPCReportDB::Instance()->getReportBy('id', $_POST['id']);
-                if ($current_report && is_object($current_report)) {
-                    if (!empty($current_report->logo_file)) {                
-                        $old_logo = $creport_dir . $current_report->logo_file;                    
-                    }                                        
-                }
-            }
-            $delete_old_logo = false;
-            if (isset($_POST['mainwp_creport_delete_logo_image']) && intval($_POST['mainwp_creport_delete_logo_image']) === 1) {
-                $delete_old_logo = true;
-            }
+//            $old_logo = "";
+//            if (isset($_POST['id']) && $_POST['id']) {
+//                $current_report = MainWPCReportDB::Instance()->getReportBy('id', $_POST['id']);
+//                if ($current_report && is_object($current_report)) {
+//                    if (!empty($current_report->logo_file)) {                
+//                        $old_logo = $creport_dir . $current_report->logo_file;                    
+//                    }                                        
+//                }
+//            }
+//            $delete_old_logo = false;
+//            if (isset($_POST['mainwp_creport_delete_logo_image']) && intval($_POST['mainwp_creport_delete_logo_image']) === 1) {
+//                $delete_old_logo = true;
+//            }
             
-            $image_logo = "NOTCHANGE";              
+//            $image_logo = "NOTCHANGE";              
 //            if($_FILES && $_FILES['mainwp_creport_logo_file']['error'] == UPLOAD_ERR_OK) {                          
 //                $output = self::handleUploadImage($_FILES['mainwp_creport_logo_file'], $creport_dir, 50);
 //                if (is_array($output) && isset($output['filename']) && !empty($output['filename'])) {                    
@@ -619,11 +619,11 @@ class MainWPCReport
 //                }
 //            } 
             
-            if ($image_logo !== "NOTCHANGE") {
-                $report['logo_file'] = $image_logo;                
-            } else if ($delete_old_logo) {
-                $report['logo_file'] = $image_logo = "";
-            }   
+//            if ($image_logo !== "NOTCHANGE") {
+//                $report['logo_file'] = $image_logo;                
+//            } else if ($delete_old_logo) {
+//                $report['logo_file'] = $image_logo = "";
+//            }   
             
             $selected_site = 0; 
             if (isset($_POST['select_by'])) {                            
@@ -647,23 +647,23 @@ class MainWPCReport
                         "preview" === (string)$_POST['mwp_creport_report_submit_action'] || 
                         "send_test_email" === (string)$_POST['mwp_creport_report_submit_action']
                        ) {                
-                $_logo = isset($report['logo_file']) ? $report['logo_file'] : "";
-                if (isset($report['id']) && !empty($report['id'])) {                    
-                    $update_logo = array('id' => $report['id'], 'logo_file' => $_logo);
-                    MainWPCReportDB::Instance()->updateReport($update_logo);
-                } else {
-                    if ($image_logo !== "NOTCHANGE") {
-                        update_option('mainwp_creport_report_temp_logo', $image_logo);
-                    }                                         
-                    $report['logo_file'] = get_option('mainwp_creport_report_temp_logo');                    
-                }
+//                $_logo = isset($report['logo_file']) ? $report['logo_file'] : "";
+//                if (isset($report['id']) && !empty($report['id'])) {                    
+//                    $update_logo = array('id' => $report['id'], 'logo_file' => $_logo);
+//                    MainWPCReportDB::Instance()->updateReport($update_logo);
+//                } else {
+//                    if ($image_logo !== "NOTCHANGE") {
+//                        update_option('mainwp_creport_report_temp_logo', $image_logo);
+//                    }                                         
+//                    $report['logo_file'] = get_option('mainwp_creport_report_temp_logo');                    
+//                }
                 $submit_report = json_decode(json_encode($report));
                 $return['submit_report'] = $submit_report;
             }
             
-            if ($delete_old_logo && file_exists($old_logo)) {
-                @unlink($old_logo);
-            }
+//            if ($delete_old_logo && file_exists($old_logo)) {
+//                @unlink($old_logo);
+//            }
                     
             if (!isset($return['id']) && isset($report['id'])) {
                 $return['id'] = $report['id'];
@@ -677,15 +677,15 @@ class MainWPCReport
             
             return $return;
         } else {            
-            $tmp_logo = get_option('mainwp_creport_report_temp_logo');
-            if (!empty($tmp_logo)) {
-                $creport_dir = apply_filters('mainwp_getspecificdir',"client_report/");
-                $tmp_logo = $creport_dir.$tmp_logo;
-                if (file_exists($tmp_logo)) {
-                    @unlink($tmp_logo);
-                }
-                delete_option('mainwp_creport_report_temp_logo'); // delete temp 
-            }
+//            $tmp_logo = get_option('mainwp_creport_report_temp_logo');
+//            if (!empty($tmp_logo)) {
+//                $creport_dir = apply_filters('mainwp_getspecificdir',"client_report/");
+//                $tmp_logo = $creport_dir.$tmp_logo;
+//                if (file_exists($tmp_logo)) {
+//                    @unlink($tmp_logo);
+//                }
+//                delete_option('mainwp_creport_report_temp_logo'); // delete temp 
+//            }
         }
         return null;
     }
@@ -1129,19 +1129,8 @@ class MainWPCReport
             <div style="background:#ffffff;padding:0 1.618em;font:13px/20px Helvetica,Arial,Sans-serif;padding-bottom:50px!important">
                 <div style="width:600px;background:#fff;margin-left:auto;margin-right:auto;margin-top:10px;margin-bottom:25px;padding:0!important;border:10px Solid #fff;border-radius:10px;overflow:hidden">
                     <div style="display: block; width: 100% ; ">
-                      <div style="display: block; width: 100% ; padding: .5em 0 ;">
-                          <div style="float: left;">
-                              <?php echo stripslashes(nl2br($report->filtered_header)); ?>
-                          </div>
-                          <?php 
-                          if (!empty($logo_url)) {
-                            ?>                                      
-                            <div style="float: right; margin-top: .6em ;">                                        
-                               <img src="<?php echo $logo_url ?>" alt="Logo" height="100"/>
-                            </div>
-                            <?php
-                          }
-                          ?>
+                      <div style="display: block; width: 100% ; padding: .5em 0 ;">                          
+                              <?php echo stripslashes(nl2br($report->filtered_header)); ?>                          
                         <div style="clear: both;"></div>
                       </div>
                     </div>
@@ -1276,61 +1265,60 @@ class MainWPCReport
         $report_footer = $result['filtered_content'];
         unset($result);
         
-        if ((is_array($sections) && count($sections) > 0) || (is_array($other_tokens) && count($other_tokens) > 0)) {
-            $sections_data = $other_tokens_data = array();
-            $information = self::fetch_stream_data($website, $report, $sections, $other_tokens);                    
-            //print_r($information);
-            if (is_array($information)) {                
-                self::$buffer['sections_data'] = $sections_data = isset($information['sections_data']) ? $information['sections_data'] : array();
-                $other_tokens_data = isset($information['other_tokens_data']) ? $information['other_tokens_data'] : array();
-            }
-            unset($information);
-            if (isset($sections_data['header']) && is_array($sections_data['header']) && count($sections_data['header']) > 0) {
-                $report_header = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is",  array('MainWPCReport', 'section_mark_header'), $report_header);
-            }      
-
-            if (isset($sections_data['body']) && is_array($sections_data['body']) && count($sections_data['body']) > 0) {
-                $report_body = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is",  array('MainWPCReport', 'section_mark_body'), $report_body);
-            }      
-
-            if (isset($sections_data['footer']) && is_array($sections_data['footer']) && count($sections_data['footer']) > 0) {
-                $report_footer = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is",  array('MainWPCReport', 'section_mark_footer'), $report_footer);
-            }      
-            
-            if (isset($other_tokens_data['header']) && is_array($other_tokens_data['header']) && count($other_tokens_data['header']) > 0) {
-                $search = $replace = array();
-                foreach ($other_tokens_data['header'] as $token => $value) {
-                    if (in_array($token, $other_tokens['header'])) {
-                        $search[] = $token;
-                        $replace[] = $value;
-                    }
-                }
-                $report_header = self::replace_content($report_header, $search, $replace);
-            }
-            
-            if (isset($other_tokens_data['body']) && is_array($other_tokens_data['body']) && count($other_tokens_data['body']) > 0) {
-                $search = $replace = array();
-                foreach ($other_tokens_data['body'] as $token => $value) {
-                    if (in_array($token, $other_tokens['body'])) {
-                        $search[] = $token;
-                        $replace[] = $value;
-                    }
-                }
-                $report_body = self::replace_content($report_body, $search, $replace);
-            }
-            
-            if (isset($other_tokens_data['footer']) && is_array($other_tokens_data['footer']) && count($other_tokens_data['footer']) > 0) {
-                $search = $replace = array();
-                foreach ($other_tokens_data['footer'] as $token => $value) {
-                    if (in_array($token, $other_tokens['footer'])) {
-                        $search[] = $token;
-                        $replace[] = $value;
-                    }
-                }
-                $report_body = self::replace_content($report_footer, $search, $replace);
-            }
-            
+        
+        $sections_data = $other_tokens_data = array();
+        $information = self::fetch_stream_data($website, $report, $sections, $other_tokens);                    
+        //print_r($information);
+        if (is_array($information)) {                
+            self::$buffer['sections_data'] = $sections_data = isset($information['sections_data']) ? $information['sections_data'] : array();
+            $other_tokens_data = isset($information['other_tokens_data']) ? $information['other_tokens_data'] : array();
         }
+        unset($information);
+        if (isset($sections_data['header']) && is_array($sections_data['header']) && count($sections_data['header']) > 0) {
+            $report_header = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is",  array('MainWPCReport', 'section_mark_header'), $report_header);
+        }      
+
+        if (isset($sections_data['body']) && is_array($sections_data['body']) && count($sections_data['body']) > 0) {
+            $report_body = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is",  array('MainWPCReport', 'section_mark_body'), $report_body);
+        }      
+
+        if (isset($sections_data['footer']) && is_array($sections_data['footer']) && count($sections_data['footer']) > 0) {
+            $report_footer = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is",  array('MainWPCReport', 'section_mark_footer'), $report_footer);
+        }      
+
+        if (isset($other_tokens_data['header']) && is_array($other_tokens_data['header']) && count($other_tokens_data['header']) > 0) {
+            $search = $replace = array();
+            foreach ($other_tokens_data['header'] as $token => $value) {
+                if (in_array($token, $other_tokens['header'])) {
+                    $search[] = $token;
+                    $replace[] = $value;
+                }
+            }
+            $report_header = self::replace_content($report_header, $search, $replace);
+        }
+
+        if (isset($other_tokens_data['body']) && is_array($other_tokens_data['body']) && count($other_tokens_data['body']) > 0) {
+            $search = $replace = array();
+            foreach ($other_tokens_data['body'] as $token => $value) {
+                if (in_array($token, $other_tokens['body'])) {
+                    $search[] = $token;
+                    $replace[] = $value;
+                }
+            }
+            $report_body = self::replace_content($report_body, $search, $replace);
+        }
+
+        if (isset($other_tokens_data['footer']) && is_array($other_tokens_data['footer']) && count($other_tokens_data['footer']) > 0) {
+            $search = $replace = array();
+            foreach ($other_tokens_data['footer'] as $token => $value) {
+                if (in_array($token, $other_tokens['footer'])) {
+                    $search[] = $token;
+                    $replace[] = $value;
+                }
+            }
+            $report_footer = self::replace_content($report_footer, $search, $replace);
+        }            
+        
         $report->filtered_header = $report_header;
         $report->filtered_body = $report_body;
         $report->filtered_footer = $report_footer;
@@ -1819,7 +1807,7 @@ class MainWPCReport
             $header = $report->header;
             $body = $report->body;
             $footer = $report->footer;
-            $file_logo = isset($report->logo_file) ? $report->logo_file : "" ;            
+     //       $file_logo = isset($report->logo_file) ? $report->logo_file : "" ;            
         } 
             
         $client_tokens = MainWPCReportDB::Instance()->getTokens();
@@ -1872,7 +1860,7 @@ class MainWPCReport
                 remove_editor_styles(); // stop custom theme styling interfering with the editor
                 wp_editor( stripslashes($header), 'mainwp_creport_report_header', array(
                         'textarea_name' => 'mainwp_creport_report_header',
-                        'textarea_rows' => 5,
+                        'textarea_rows' => 5,                        
                         'teeny' => true,
                         'media_buttons' => true                        
                     )

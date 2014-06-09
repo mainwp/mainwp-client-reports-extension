@@ -1,7 +1,7 @@
 <?php
 class MainWPCReportDB
 {    
-    private $mainwp_wpcreport_db_version = "1.7";        
+    private $mainwp_wpcreport_db_version = "1.8";        
     private $table_prefix;
     
     //Singleton
@@ -31,7 +31,9 @@ class MainWPCReportDB
                                         "client.zip" => "Displays the Client Zip",
                                         "client.phone" => "Displays the Client Phone",
                                         "client.email" => "Displays the Client Email");
+        $default_report_logo = plugins_url('images/default-report-logo.png', dirname(__FILE__));
         $this->default_reports[] = array( "title" => "Default Basic Report", 
+                                          "header" => '<img style="float:right" src="' . $default_report_logo . '" alt="default-report-logo" width="300" height="56" />Hello [client.contact.name],',
                                           "body" => "<h3>Activity report for the [client.site.url]:</h3>
 <h3>Plugins</h3>
 <strong>Installed Plugins:</strong> [plugin.installed.count]
@@ -86,7 +88,8 @@ class MainWPCReportDB
 <h3>WordPress</h3>
 <strong>WordPress Updates:</strong> [wordpress.updated.count]");
         
-        $this->default_reports[] = array( "title" => "Default Full Report", 
+        $this->default_reports[] = array( "title" => "Default Full Report",
+                                        "header" => '<img style="float:right" src="' . $default_report_logo . '" alt="default-report-logo" width="300" height="56" />Hello [client.contact.name],',
                                         "body" => "<h3>Activity report for the [client.site.url]:</h3>
 <h3>Plugins</h3>
 <strong>[plugin.installed.count] Plugins Installed</strong>
@@ -370,7 +373,6 @@ PRIMARY KEY  (`id`)  ';
 `header` text NOT NULL,
 `body` text NOT NULL,
 `footer` text NOT NULL,
-`logo_file` VARCHAR(512),
 `lastsend` int(11) NOT NULL,
 `nextsend` int(11) NOT NULL,
 `subject` text NOT NULL,
@@ -428,10 +430,11 @@ PRIMARY KEY  (`id`)  ';
             }
         }
         
-        foreach($this->default_reports as $report) {            
-            if ($current = $this->getReportBy('title', $report['title'])) {
+        foreach($this->default_reports as $report) {           
+            if ($current = $this->getReportBy('title', $report['title'])) {  
+                $current = current($current);
                 $report['id'] = $current->id;
-                $this->updateReport($current->id, $report);
+                $this->updateReport($report);
             } else 
             {
                 $this->updateReport($report);
