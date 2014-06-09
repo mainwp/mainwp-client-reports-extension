@@ -1,7 +1,7 @@
 <?php
 class MainWPCReportDB
 {    
-    private $mainwp_wpcreport_db_version = "2.0";        
+    private $mainwp_wpcreport_db_version = "2.1";        
     private $table_prefix;
     
     //Singleton
@@ -33,7 +33,7 @@ class MainWPCReportDB
                                         "client.email" => "Displays the Client Email");
         $default_report_logo = plugins_url('images/default-report-logo.png', dirname(__FILE__));
         $this->default_reports[] = array( "title" => "Default Basic Report", 
-                                          "header" => '<img style="float:right" src="' . $default_report_logo . '" alt="default-report-logo" width="300" height="56" />Hello [client.contact.name],',
+                                          "header" => '<img style="float:right" src="' . $default_report_logo . '" alt="default-report-logo" width="300" height="56" /><br/><br/>Hello [client.contact.name],',
                                           "body" => "<h3>Activity report for the [client.site.url]:</h3>
 <h3>Plugins</h3>
 <strong>Installed Plugins:</strong> [plugin.installed.count]
@@ -89,7 +89,7 @@ class MainWPCReportDB
 <strong>WordPress Updates:</strong> [wordpress.updated.count]");
         
         $this->default_reports[] = array( "title" => "Default Full Report",
-                                        "header" => '<img style="float:right" src="' . $default_report_logo . '" alt="default-report-logo" width="300" height="56" />Hello [client.contact.name],',
+                                        "header" => '<img style="float:right" src="' . $default_report_logo . '" alt="default-report-logo" width="300" height="56" /><br/><br/>Hello [client.contact.name],',
                                         "body" => "<h3>Activity report for the [client.site.url]:</h3>
 <h3>Plugins</h3>
 <strong>[plugin.installed.count] Plugins Installed</strong>

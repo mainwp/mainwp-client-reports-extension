@@ -496,7 +496,7 @@ class MainWPCReport
         {            
             if ($useWPCron) {    
                 // minutely
-                wp_schedule_event(time(), 'minutely', 'mainwp_creport_cron_archive_reports');                            
+                wp_schedule_event(time(), 'daily', 'mainwp_creport_cron_archive_reports');                            
             }
         } 
         else
@@ -1093,7 +1093,7 @@ class MainWPCReport
                             <div id="wpcr_edit_tab"  <?php echo $style_tab_edit; ?>>                               
                                 <?php self::newReportTab($report); 
                                     $_disabled = "";
-                                    if (!empty($report) && $report->id && $report->is_archived) {
+                                    if (!empty($report) && $report->id && isset($report->is_archived) && $report->is_archived) {
                                         $_disabled = "disabled";
                                     }
                                 ?>  
@@ -1172,7 +1172,7 @@ class MainWPCReport
     public static function gen_preview_report($report) {      
         if (!empty($report)) {                
             ob_start();            
-            if ($report->is_archived) {
+            if (isset($report->is_archived) && $report->is_archived) {
                 echo $report->archive_report;
             } else {            
                 $str_message = "";
@@ -1221,12 +1221,16 @@ class MainWPCReport
 //            $creport_url = apply_filters('mainwp_getspecificurl',"client_report/");
 //            $logo_url = $creport_url.$report->logo_file;
 //        } 
+       
         ob_start();                    
     ?>
+        <style>
+            
+        </style>
         <br>
         <div>
             <br>
-            <div style="background:#ffffff;padding:0 1.618em;font:13px/20px Helvetica,Arial,Sans-serif;padding-bottom:50px!important">
+            <div id="eml_content_wrap" style="background:#ffffff;padding:0 1.618em;font:13px/20px Helvetica,Arial,Sans-serif;padding-bottom:50px!important">
                 <div style="width:600px;background:#fff;margin-left:auto;margin-right:auto;margin-top:10px;margin-bottom:25px;padding:0!important;border:10px Solid #fff;border-radius:10px;overflow:hidden">
                     <div style="display: block; width: 100% ; ">
                       <div style="display: block; width: 100% ; padding: .5em 0 ;">                          
@@ -1236,7 +1240,10 @@ class MainWPCReport
                     </div>
                     <br><br><br>
                     <div>
-                        <?php echo stripslashes(nl2br($report->filtered_body)); ?>
+                        <?php 
+                            $_body = apply_filters( 'the_content', $report->filtered_body );
+                            echo $_body;
+                        //echo stripslashes(nl2br($report->filtered_body)); ?>
                     </div>
                     <br><br><br>
                     <div style="display: block; width: 100% ;">
@@ -1848,7 +1855,7 @@ class MainWPCReport
         if (!is_array($clients)) 
             $clients = array();
     
-        if (!empty($report) && isset($report->id) && $report->is_archived) {
+        if (!empty($report) && isset($report->id) && isset($report->is_archived) && $report->is_archived) {
     ?>
           <tr><td colspan="2"><div class="mainwp_info-box-yellow"><?php _e("This is Archived Report");?></div></td></tr>            
     <?php } else {  ?>
