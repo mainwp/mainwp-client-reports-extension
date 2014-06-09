@@ -395,6 +395,11 @@ jQuery(document).ready(function($) {
         $('#mwp_creport_report_submit_action').val('save_pdf');
     }); 
     
+    $('#mwp-creport-archive-report-btn').on('click', function() {        
+        if (mainwp_creport_valid_report_data() === false)
+            return false; 
+        $('#mwp_creport_report_submit_action').val('archive_report');  
+    });
     
     $('#mwp-creport-preview-btn-close').on('click' ,function(){
         jQuery('#mwp-creport-preview-box').dialog('destroy');        
@@ -591,7 +596,7 @@ jQuery(document).ready(function($) {
         var bulk_act = $('#creport_stream_action').val();
         mainwp_creport_stream_do_bulk_action(bulk_act);
            
-    });
+    });    
 });
 
 var creport_bulkMaxThreads = 3;

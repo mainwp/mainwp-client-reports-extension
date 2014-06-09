@@ -1,7 +1,7 @@
 <?php
 class MainWPCReportDB
 {    
-    private $mainwp_wpcreport_db_version = "1.8";        
+    private $mainwp_wpcreport_db_version = "2.0";        
     private $table_prefix;
     
     //Singleton
@@ -376,6 +376,9 @@ PRIMARY KEY  (`id`)  ';
 `lastsend` int(11) NOT NULL,
 `nextsend` int(11) NOT NULL,
 `subject` text NOT NULL,
+`is_archived` tinyint(1) NOT NULL DEFAULT \'0\',
+`archive_report` text NOT NULL,
+`archive_report_pdf` text NOT NULL,
 `selected_site` int(11) NOT NULL';
         
             if ($currentVersion == '')
@@ -683,7 +686,10 @@ PRIMARY KEY  (`id`)  ';
                                 'lastsend',
                                 'nextsend',
                                 'subject',
-                                'selected_site'
+                                'selected_site',
+                                'is_archived',
+                                'archive_report',
+                                'archive_report_pdf'
                             );
         
         $update_report = array();
@@ -762,6 +768,17 @@ PRIMARY KEY  (`id`)  ';
         return false;
     }
     
+    public function getAvailArchiveReports() { 
+        global $wpdb;
+        $sql = "SELECT rp.*, c.* FROM " . $this->tableName('client_report') . " rp "
+                    . " LEFT JOIN " . $this->tableName('client_report_client') . " c "
+                    . " ON rp.client_id = c.clientid "
+                    . " WHERE rp.is_archived = 0 AND " 
+                    . " rp.date_from <= " . (time() - 3600 * 24 * 30) . " AND "
+                    . " rp.selected_site != 0 AND c.email IS NOT NULL ";  
+        echo $sql;
+        return $wpdb->get_results($sql);         
+    }
     public function deleteReportBy($by = 'id', $value = null) {
         global $wpdb;        
         if ($by == "id") {
