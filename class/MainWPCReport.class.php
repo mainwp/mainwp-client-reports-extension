@@ -623,40 +623,7 @@ class MainWPCReport
             {
                 @touch($creport_dir . '/index.php');
             }
-            
-//            $old_logo = "";
-//            if (isset($_POST['id']) && $_POST['id']) {
-//                $current_report = MainWPCReportDB::Instance()->getReportBy('id', $_POST['id']);
-//                if ($current_report && is_object($current_report)) {
-//                    if (!empty($current_report->logo_file)) {                
-//                        $old_logo = $creport_dir . $current_report->logo_file;                    
-//                    }                                        
-//                }
-//            }
-//            $delete_old_logo = false;
-//            if (isset($_POST['mainwp_creport_delete_logo_image']) && intval($_POST['mainwp_creport_delete_logo_image']) === 1) {
-//                $delete_old_logo = true;
-//            }
-            
-//            $image_logo = "NOTCHANGE";              
-//            if($_FILES && $_FILES['mainwp_creport_logo_file']['error'] == UPLOAD_ERR_OK) {                          
-//                $output = self::handleUploadImage($_FILES['mainwp_creport_logo_file'], $creport_dir, 50);
-//                if (is_array($output) && isset($output['filename']) && !empty($output['filename'])) {                    
-//                    $image_logo = $output['filename'];  
-//                    $delete_old_logo = true; // delete old logo
-//                } else if (isset($output['error'])) {
-//                    foreach ($output['error'] as $e) {
-//                        $errors[] = $e;
-//                    }
-//                }
-//            } 
-            
-//            if ($image_logo !== "NOTCHANGE") {
-//                $report['logo_file'] = $image_logo;                
-//            } else if ($delete_old_logo) {
-//                $report['logo_file'] = $image_logo = "";
-//            }   
-            
+     
             $selected_site = 0; 
             if (isset($_POST['select_by'])) {                            
                 if (isset($_POST['selected_site'])) {                                        
@@ -679,23 +646,10 @@ class MainWPCReport
                         "preview" === (string)$_POST['mwp_creport_report_submit_action'] || 
                         "send_test_email" === (string)$_POST['mwp_creport_report_submit_action']
                        ) {                
-//                $_logo = isset($report['logo_file']) ? $report['logo_file'] : "";
-//                if (isset($report['id']) && !empty($report['id'])) {                    
-//                    $update_logo = array('id' => $report['id'], 'logo_file' => $_logo);
-//                    MainWPCReportDB::Instance()->updateReport($update_logo);
-//                } else {
-//                    if ($image_logo !== "NOTCHANGE") {
-//                        update_option('mainwp_creport_report_temp_logo', $image_logo);
-//                    }                                         
-//                    $report['logo_file'] = get_option('mainwp_creport_report_temp_logo');                    
-//                }
+
                 $submit_report = json_decode(json_encode($report));
                 $return['submit_report'] = $submit_report;
             }
-            
-//            if ($delete_old_logo && file_exists($old_logo)) {
-//                @unlink($old_logo);
-//            }
                     
             if (!isset($return['id']) && isset($report['id'])) {
                 $return['id'] = $report['id'];
@@ -832,7 +786,7 @@ class MainWPCReport
         global $current_user;              
         
         $messages = $errors = array();               
-        $do_preview = $do_send = $do_send_test_email = $do_save_pdf = false;              
+        $do_preview = $do_send = $do_send_test_email = $do_save_pdf = $do_replicate = false;              
         $report_id = 0;
         $report = null;
         if ((isset($_GET['action']) && "sendreport" === (string)$_GET['action']) || (isset($_POST['mwp_creport_report_submit_action']) && "send" === (string)$_POST['mwp_creport_report_submit_action'])) {                                
@@ -849,7 +803,9 @@ class MainWPCReport
         
         if ((isset($_GET['action']) && "preview" === (string)$_GET['action']) || isset($_POST['mwp_creport_report_submit_action']) && "preview" === (string)$_POST['mwp_creport_report_submit_action']) {
             $do_preview = true;
-        }        
+        } else if (isset($_GET['action']) && 'replicate' === (string)$_REQUEST['action']) {
+            $do_replicate = true;            
+        }       
             
         // if send report from preview screen do not need to save report
         if (isset($_POST['mwp_creport_report_submit_action']) && !empty($_POST['mwp_creport_report_submit_action'])) {
@@ -885,13 +841,16 @@ class MainWPCReport
             $report_id = isset($_REQUEST['id']) ? $_REQUEST['id'] : 0;
             $report = MainWPCReportDB::Instance()->getReportBy('id', $report_id); 
         }
-
+        
+        if ($do_replicate)
+            $report->id = $report_id = 0;
+            
         $style_tab_report = $style_tab_edit = $style_tab_token = $style_tab_stream = ' style="display: none" ';                
         $do_create_new = false;
         if (isset($_REQUEST['action'])) {                
             if ($_REQUEST['action'] == "token") {            
                 $style_tab_token = '';                
-            } else if ($_REQUEST['action'] == "editreport" || $do_preview || $_REQUEST['action'] == "savepdf") {               
+            } else if ($_REQUEST['action'] == "editreport" || $do_replicate || $do_preview || $_REQUEST['action'] == "savepdf") {               
                 $style_tab_edit = '';                   
             } else if ($_REQUEST['action'] == "newreport" ) { 
                 $do_create_new = true;
@@ -1054,6 +1013,7 @@ class MainWPCReport
                             <?php do_action('mainwp_select_sites_box', __("Select Sites", 'mainwp'), 'radio', false, false, 'mainwp_select_sites_box_right', "", array($selected_site), array()); ?>
                             </div>                            
                             <div id="wpcr_edit_tab"  <?php echo $style_tab_edit; ?>>
+                                <?php if ($do_replicate) $report->title = ""; ?>
                                 <?php self::newReportTab($report); ?>  
                                 <p class="submit">                                    
                                     <span style="float:left;">
@@ -1627,6 +1587,7 @@ class MainWPCReport
                 <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=editreport&id=<?php echo $report->id; ?>"><strong><?php echo stripslashes($report->title); ?></strong></a>
                 <div class="row-actions"><a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=preview&id=<?php echo $report->id; ?>"><?php _e("Preview");?></a></span> |  
                     <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=editreport&id=<?php echo $report->id; ?>"><?php _e("Edit");?></a></span> |  
+                    <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=replicate&id=<?php echo $report->id; ?>"><?php _e("Replicate");?></a></span> |  
                     <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=sendreport&id=<?php echo $report->id; ?>"><?php _e("Send");?></a> | 
                     <span class="delete"><a href="#" class="mwp-creport-report-item-delete-lnk"><?php _e("Delete");?></a></span> 
                 </div>                     
@@ -2022,36 +1983,6 @@ class MainWPCReport
                <?php self::gen_insert_tokens_box("footer", true, $client_tokens_values, $client_tokens, $website); ?>
             </td> 
         </tr> 
-<!--        <tr>
-            <th colspan="2">
-                <div class="mainwp_creport_format_section_header closed">
-                    <a href="javascript:void(0)" class="handlelnk"><?php _e("Show"); ?></a>
-                    <h3><?php _e("Report Logo"); ?></h3>
-                </div>
-            </th>
-        </tr>
-        <tr class="mainwp_creport_format_section hidden-field">  
-            <th><span><?php _e("Upload Report Logo"); ?></span>
-                <div class="logo"><img src="<?php echo MainWPCReportExtension::$plugin_url."images/cr-logo.png"; ?>"></div>
-            </th>
-            <td>  
-                <?php 
-                if (!empty($file_logo)) {           
-                    $imageurl = apply_filters('mainwp_getspecificurl',"client_report") . $file_logo;
-                    ?>
-                    <p class="mwp_creport_logo_image"><img class="brd_login_img" src="<?php echo $imageurl ?>"/></p>                                
-                    <p>
-                        <input type="checkbox" class="mainwp-checkbox2" value="1" id="mainwp_creport_delete_logo_image" name="mainwp_creport_delete_logo_image">
-                        <label class="mainwp-label2" for="mainwp_creport_delete_logo_image"><?php _e("Delete Logo", "mainwp");?></label>
-                    </p><br/>
-                    <input type="hidden" name="mainwp_creport_report_temp_logo" value="<?php echo $file_logo ?>"/>
-                <?php                      
-                }
-                ?>                                
-                <input type="file" name="mainwp_creport_logo_file" accept="image/*" /><br>
-                <span class="description">Maximum height for logo is 100px. If you upload larger image, it will be resized.</span>
-            </td>
-        </tr>-->
     <?php
     
     }       
