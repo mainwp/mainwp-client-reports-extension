@@ -18,12 +18,12 @@ $pdf->SetSubject('Client Report');
 $pdf->SetKeywords('Client Report');
 
 // set default header data
-$pdf->SetHeaderData("", 0, $header_title, $header_string, array(127,177,0), array(127,177,0));
-$pdf->setFooterData(array(127,177,0), array(127,177,0));
+//$pdf->SetHeaderData("", 0, $header_title, $header_string, array(127,177,0), array(127,177,0));
+//$pdf->setFooterData(array(127,177,0), array(127,177,0));
 
 // set header and footer fonts
-$pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
-$pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+//$pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
+//$pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
 
 // set default monospaced font
 $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);

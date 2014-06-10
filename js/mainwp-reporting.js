@@ -364,8 +364,10 @@ jQuery(document).ready(function($) {
         return true;
     }
     
-    $('#mwp-creport-send-btn').on('click' ,function(){ 
+    $('#mwp-creport-send-btn').on('click' ,function(){         
         if (mainwp_creport_valid_report_data('send') === false)
+            return false;
+        if (!confirm("Are you sure?"))
             return false;
         $('#mwp_creport_report_submit_action').val('send');        
     });
@@ -452,19 +454,59 @@ jQuery(document).ready(function($) {
            }                                 
         }, 'json'); 
     })
-    
-    $('.mainwp_creport_format_section_header .handlelnk').live('click', function(){
-        var pr = $(this).parent();        
-        if (pr.hasClass('closed')) {
+      
+    mainwp_creport_set_show_format_section = function(linkObj, show) {
+        var pr = linkObj.parent();          
+        var section = pr.attr('section');
+        if (show) {
             pr.removeClass('closed');
-            $(this).text(__("Hide"));
-            pr.closest('tr').next('tr.mainwp_creport_format_section').show();
+            linkObj.text(__("Hide"));
+            pr.closest('tr').next('tr.mainwp_creport_format_section').show();            
+            mainwp_creport_setCookie('mainwp_creport_showhide_section_' + section, 'show');
         } else {
             pr.addClass('closed');       
-            $(this).text(__("Show"));
+            linkObj.text(__("Show"));
             pr.closest('tr').next('tr.mainwp_creport_format_section').hide();
+            mainwp_creport_setCookie('mainwp_creport_showhide_section_' + section, '');
+        }
+    }
+    
+    mainwp_creport_check_show_format_section = function() {        
+        var link_header = $('tr .mainwp_creport_format_section_header[section="header"] .handlelnk');
+        var link_body = $('tr .mainwp_creport_format_section_header[section="body"] .handlelnk');
+        var link_footer = $('tr .mainwp_creport_format_section_header[section="footer"] .handlelnk');
+        
+        if (mainwp_creport_getCookie('mainwp_creport_showhide_section_header') == 'show') {            
+            mainwp_creport_set_show_format_section(link_header, true);
+        } else {
+            mainwp_creport_set_show_format_section(link_header, false);
+        }
+         
+        if (mainwp_creport_getCookie('mainwp_creport_showhide_section_body') == 'show') {            
+            mainwp_creport_set_show_format_section(link_body, true);
+        } else {
+            mainwp_creport_set_show_format_section(link_body, false);
+        }
+        
+        if (mainwp_creport_getCookie('mainwp_creport_showhide_section_footer') == 'show') {            
+            mainwp_creport_set_show_format_section(link_footer, true);
+        } else {
+            mainwp_creport_set_show_format_section(link_footer, false);
+        }            
+    }
+    
+    mainwp_creport_check_show_format_section(); 
+    
+    $('.mainwp_creport_format_section_header .handlelnk').live('click', function(){
+        var pr = $(this).parent();                 
+        if (pr.hasClass('closed')) {
+            mainwp_creport_set_show_format_section($(this), true);
+        } else {
+            mainwp_creport_set_show_format_section($(this), false);
         }
     });  
+    
+    
     
     $('.mainwp_creport_report_save_format_btn').on('click', function(){
         var pr = $(this).closest('.inner');        
@@ -552,6 +594,7 @@ jQuery(document).ready(function($) {
         var editor_name = 'mainwp_creport_report_' + name;
         var editor = tinyMCE.get(editor_name);        
         if (editor != null && typeof(editor) !== "undefined" && editor.isHidden() == false) {
+            content = content.replace(/\n/ig,"<br>");
             editor.setContent(content);            
         } else {                       
             $('#' + editor_name).val(content);            
@@ -667,9 +710,11 @@ mainwp_creport_stream_showhide_start_specific = function(pObj, bulk, selector) {
             if (showhide == 'show') {
                 pObj.text(__("Hide Stream Plugin"));
                 pObj.attr('showhide', 'hide');
+                parent.find('.stream_hidden_title').html(__('No'));
             } else {
                 pObj.text(__("Show Stream Plugin"));        
                 pObj.attr('showhide', 'show');
+                parent.find('.stream_hidden_title').html(__('Yes'));
             }
             
             statusEl.css('color', '#21759B');
@@ -885,3 +930,25 @@ mainwp_creport_client_change = function() {
     }, 'json');
 } 
             
+function mainwp_creport_setCookie(c_name, value, expiredays)
+{
+    var exdate = new Date();
+    exdate.setDate(exdate.getDate() + expiredays);
+    document.cookie = c_name + "=" + escape(value) + ((expiredays == null) ? "" : ";expires=" + exdate.toUTCString());
+}
+function mainwp_creport_getCookie(c_name)
+{
+    if (document.cookie.length > 0)
+    {
+        var c_start = document.cookie.indexOf(c_name + "=");
+        if (c_start != -1)
+        {
+            c_start = c_start + c_name.length + 1;
+            var c_end = document.cookie.indexOf(";", c_start);
+            if (c_end == -1)
+                c_end = document.cookie.length;
+            return unescape(document.cookie.substring(c_start, c_end));
+        }
+    }
+    return "";
+}

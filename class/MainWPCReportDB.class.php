@@ -1,7 +1,7 @@
 <?php
 class MainWPCReportDB
 {    
-    private $mainwp_wpcreport_db_version = "2.3";        
+    private $mainwp_wpcreport_db_version = "2.5";        
     private $table_prefix;
     
     //Singleton
@@ -302,6 +302,22 @@ $this->default_reports[] = array( "title" => "Default Full Report",
 ([wordpress.updated.date]) Updated by [wordpress.updated.author] - [wordpress.old.version] to [wordpress.current.version]
 [/section.wordpress.updated] ");
         
+    $this->default_formats = array(array(
+                                    'title' => "Default Header",
+                                    'type' => 'H',
+                                    'content' => $this->default_reports[0]['header']        
+                                ),
+                                array(
+                                    'title' => " Basic Report",
+                                    'type' => 'B',
+                                    'content' => $this->default_reports[0]['body']        
+                                ),
+                                array(
+                                    'title' => "Full Report",
+                                    'type' => 'B',
+                                    'content' => $this->default_reports[1]['body']        
+                                )
+                            );
         
     }
 	
@@ -444,6 +460,18 @@ PRIMARY KEY  (`id`)  ';
                 $this->updateReport($report);
             }
         }
+        
+        foreach($this->default_formats as $format) {           
+            if ($current = $this->getFormatBy('title', $format['title'], $format['type'])) {  
+                $current = current($current);
+                $format['id'] = $current->id;                
+                $this->updateFormat($format);
+            } else 
+            {
+                $this->updateFormat($format);
+            }
+        }
+        
         
         update_option('mainwp_wpcreport_db_version', $this->mainwp_wpcreport_db_version);
     }
@@ -843,7 +871,7 @@ PRIMARY KEY  (`id`)  ';
         return $wpdb->get_results("SELECT * FROM " . $this->tableName('client_report_format') . " WHERE type = '" . $type . "' ORDER BY title");                
     }
     
-    public function getFormatBy($by, $value) {
+    public function getFormatBy($by, $value, $type = null) {
         global $wpdb;
         if (empty($value))
             return false;
@@ -851,7 +879,10 @@ PRIMARY KEY  (`id`)  ';
         if ($by == 'id') {
             $sql = $wpdb->prepare("SELECT * FROM " . $this->tableName('client_report_format')
                     . " WHERE `id` =%d " , $value);
-        }    
+        } else if ($by == "title") {
+            $sql = $wpdb->prepare("SELECT * FROM " . $this->tableName('client_report_format')
+                    . " WHERE `title` =%s AND type =%s" , $value, $type);
+        }   
         if (!empty($sql))
             return $wpdb->get_row($sql); 
         return false;
