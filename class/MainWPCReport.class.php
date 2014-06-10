@@ -1112,7 +1112,7 @@ class MainWPCReport
                         <form method="post" enctype="multipart/form-data" id="mwp_creport_edit_form" action="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=editreport<?php echo !empty($report_id) ? "&id=" . $report_id : ""; ?>">
                             <div id="creport_select_sites_box" class="mainwp_config_box_right" <?php echo $style_tab_edit; ?>>
                             <?php do_action('mainwp_select_sites_box', __("Select Site", 'mainwp'), 'radio', false, false, 'mainwp_select_sites_box_right', "", array($selected_site), array()); ?>
-                                <strong style="font-style:initial">Note</strong>: <span class="description">Only site with the Stream Plugin installed will be displayed in the list.</span>                                
+                                <div class="mainwp_info-box-yellow"><strong style="font-style:initial">Note</strong>: <span class="description">Only site with the Stream Plugin installed will be displayed in the list.</span></div>                                
                             </div>                            
                             <div id="wpcr_edit_tab"  <?php echo $style_tab_edit; ?>>                               
                                 <?php self::newReportTab($report); 
@@ -2155,14 +2155,14 @@ class MainWPCReport
                                 if ($group == "client" && $key == "tokens" && is_array($client_tokens)) {
                                     if (is_array($client_tokens_values) && count($client_tokens_values) > 0) {
                                         foreach($client_tokens_values as $token) {                                    
-                                           echo "<tr><td><a href=\"#\" token-value = \"" . $token['token_value'] . "\"class=\"creport_format_add_token\">[" . $token['token_name'] . "]</a></td>"
-                                                   . "<td class=\"creport_stream_token_desc\">" . $token['token_value'] ."</td>"
+                                           echo "<tr><td><a href=\"#\" token-value = \"" . stripslashes($token['token_value']) . "\"class=\"creport_format_add_token\">[" . stripslashes($token['token_name']) . "]</a></td>"
+                                                   . "<td class=\"creport_stream_token_desc\">" . stripslashes($token['token_value']) ."</td>"
                                                    . "</tr>";
                                         }
                                     } else if (is_array($client_tokens) && count($client_tokens) > 0) {
                                         foreach($client_tokens as $token) {                                    
-                                           echo "<tr><td><a href=\"#\" token-value =\"\" class=\"creport_format_add_token\">[" . $token->token_name . "]</a></td>"
-                                                   . "<td class=\"creport_stream_token_desc\">" . $token->token_description ."</td>"
+                                           echo "<tr><td><a href=\"#\" token-value =\"\" class=\"creport_format_add_token\">[" . stripslashes($token->token_name) . "]</a></td>"
+                                                   . "<td class=\"creport_stream_token_desc\">" . stripslashes($token->token_description) ."</td>"
                                                    . "</tr>";
                                         }
                                     }                                    

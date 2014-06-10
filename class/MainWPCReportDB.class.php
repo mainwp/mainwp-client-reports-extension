@@ -1,7 +1,7 @@
 <?php
 class MainWPCReportDB
 {    
-    private $mainwp_wpcreport_db_version = "2.6";        
+    private $mainwp_wpcreport_db_version = "3.2";        
     private $table_prefix;
     
     //Singleton
@@ -462,8 +462,7 @@ PRIMARY KEY  (`id`)  ';
         }
         
         foreach($this->default_formats as $format) {           
-            if ($current = $this->getFormatBy('title', $format['title'], $format['type'])) {  
-                $current = current($current);
+            if ($current = $this->getFormatBy('title', $format['title'], $format['type'])) {                  
                 $format['id'] = $current->id;                
                 $this->updateFormat($format);
             } else 
@@ -881,8 +880,9 @@ PRIMARY KEY  (`id`)  ';
                     . " WHERE `id` =%d " , $value);
         } else if ($by == "title") {
             $sql = $wpdb->prepare("SELECT * FROM " . $this->tableName('client_report_format')
-                    . " WHERE `title` =%s AND type =%s" , $value, $type);
+                    . " WHERE `title` =%s AND type = %s" , $value, $type);
         }   
+        //echo $sql;
         if (!empty($sql))
             return $wpdb->get_row($sql); 
         return false;
