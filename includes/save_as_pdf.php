@@ -18,8 +18,8 @@ $pdf->SetSubject('Client Report');
 $pdf->SetKeywords('Client Report');
 
 // set default header data
-$pdf->SetHeaderData("", 0, $header_title, $header_string, array(0,64,255), array(0,64,128));
-$pdf->setFooterData(array(0,64,0), array(0,64,128));
+$pdf->SetHeaderData("", 0, $header_title, $header_string, array(127,177,0), array(127,177,0));
+$pdf->setFooterData(array(127,177,0), array(127,177,0));
 
 // set header and footer fonts
 $pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
