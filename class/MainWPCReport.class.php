@@ -818,7 +818,7 @@ class MainWPCReport
         $do_preview = $do_send = $do_send_test_email = $do_save_pdf = $do_replicate = $do_archive = false;              
         $do_save_pdf_get = $do_archive_get = false;
         $report_id = 0;
-        $report = null;
+        $report = false;
         
         if (isset($_GET['action'])) {
             if ("sendreport" === (string)$_GET['action'])
@@ -977,7 +977,7 @@ class MainWPCReport
         $str_error = (count($errors) > 0) ? implode("<br/>", $errors) : "";
         $str_message = (count($messages) > 0) ? implode("<br/>", $messages) : "";
                
-        if ($report && !empty($report)) {
+        if (!empty($report)) {
             $selected_site = $report->selected_site;            
         } else  {
             if (isset($_POST['select_by'])) {                            
@@ -2212,8 +2212,9 @@ class MainWPCReport
         if ($website)
             $site_tokens = MainWPCReportDB::Instance()->getSiteTokens($website->url);
 
-        $html = '<fieldset class="mainwp-fieldset-box"> 
-                            <legend>Client Report Settings</legend>';          
+        $html = '<div class="postbox"> 
+                            <h3 class="mainwp_box_title"><span>Client Report Settings</span></h3>
+                            <div class="inside">';          
         if (is_array($tokens) && count($tokens) > 0) {
             $html .= '<table class="form-table" style="width: 100%">';
              foreach ($tokens as $token) { 

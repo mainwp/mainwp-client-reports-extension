@@ -306,7 +306,7 @@ jQuery(document).ready(function($) {
         $.post(ajaxurl, data, function(response) { 
             loaderEl.hide();
             if (response && response['status'] == 'success') {
-                row.html('<td colspan="4">' + __('Report has been deleted.') + '</td>');
+                row.html('<td colspan="6">' + __('Report has been deleted.') + '</td>');
             } else {
                 statusEl.html(__('Delete failed.')).fadeIn();
                 statusEl.css('color', 'red');

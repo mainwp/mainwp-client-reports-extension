@@ -128,7 +128,7 @@ class MainWPCReportExtensionActivator
 
     function get_this_extension($pArray)
     {
-        $pArray[] = array('plugin' => __FILE__, /*'api' => 'mainwp-client-reports-extension', */ 'mainwp' => true, 'callback' => array(&$this, 'settings'));
+        $pArray[] = array('plugin' => __FILE__, 'api' => 'mainwp-client-reports-extension', 'mainwp' => true, 'callback' => array(&$this, 'settings'));
         return $pArray;
     }
  
