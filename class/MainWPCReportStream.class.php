@@ -172,7 +172,7 @@ class MainWPCReportStream
                    <span class="stream_hidden_title"><?php 
                         echo ($website['hide_stream'] == 1) ? __("Yes") : __("No"); 
                    ?>
-                    </span>
+                </span>
                </td>
            </tr>        
             <?php    

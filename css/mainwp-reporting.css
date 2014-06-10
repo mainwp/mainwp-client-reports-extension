@@ -193,7 +193,7 @@ a.creport_format_add_token:hover {
 
 .mainwp_creport_format_save_section .inner > input[type="text"], 
 .mainwp_creport_format_save_section .inner > select {
-    width: 215px;
+    width: 190px;
 }
 .mainwp_creport_format_save_section .inner .status, .creport-action-working .status {
     font-style: italic;

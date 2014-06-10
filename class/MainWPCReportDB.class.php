@@ -1,7 +1,7 @@
 <?php
 class MainWPCReportDB
 {    
-    private $mainwp_wpcreport_db_version = "2.5";        
+    private $mainwp_wpcreport_db_version = "2.6";        
     private $table_prefix;
     
     //Singleton
@@ -908,6 +908,15 @@ PRIMARY KEY  (`id`)  ';
         return false;
     }
     
+    public function deleteFormatBy($by = 'id', $value = null) {
+        global $wpdb;        
+        if ($by == "id") {
+            if ($wpdb->query($wpdb->prepare("DELETE FROM " . $this->tableName('client_report_format') . " WHERE id=%d ", $value))) {                
+                return true;
+            }                    
+        }
+        return false;        
+    }
     
     protected function escape($data)
     {

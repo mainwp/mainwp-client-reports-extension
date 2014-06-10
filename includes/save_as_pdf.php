@@ -1,11 +1,11 @@
 <?php
 
 require_once('tcpdf_include.php');
-$header_title = "Client Report: " . stripslashes($report->title);
-$fname = stripslashes($report->fname);
-$header_string = "by " . $fname;
-$header_string .= !empty($report->fcompany) ? " - " . stripslashes($report->fcompany) : "";      
-$header_string .= !empty($report->email) ? " - " . stripslashes($report->email) : "";      
+//$header_title = "Client Report: " . stripslashes($report->title);
+//$fname = stripslashes($report->fname);
+//$header_string = "by " . $fname;
+//$header_string .= !empty($report->fcompany) ? " - " . stripslashes($report->fcompany) : "";      
+//$header_string .= !empty($report->email) ? " - " . stripslashes($report->email) : "";      
 
 // create new PDF document
 $pdf = new CREPORT_TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
@@ -30,11 +30,11 @@ $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
 
 // set margins
 $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
-$pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
-$pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+//$pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+//$pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
 
 // set auto page breaks
-$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+//$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
 
 // set image scale factor
 $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
@@ -61,6 +61,8 @@ $mem =  '512M';
 // helvetica or times to reduce file size.
 $pdf->SetFont('dejavusans', '', 12, '', true);
 
+$pdf->SetPrintHeader(false);
+$pdf->SetPrintFooter(false);
 // Add a page
 // This method has several options, check the source code documentation for more information.
 $pdf->AddPage();

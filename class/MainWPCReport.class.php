@@ -478,6 +478,8 @@ class MainWPCReport
         add_action('wp_ajax_mainwp_creport_load_site_tokens', array(&$this, 'load_site_tokens')); 
         add_action('wp_ajax_mainwp_creport_save_format', array(&$this, 'save_format')); 
         add_action('wp_ajax_mainwp_creport_get_format', array(&$this, 'get_format')); 
+        add_action('wp_ajax_mainwp_creport_delete_format', array(&$this, 'delete_format')); 
+        
 //        add_action('wp_ajax_mainwp_creport_upgrade_noti_dismiss', array($this,'dismissNoti'));
 //        add_action('wp_ajax_mainwp_creport_active_plugin', array($this,'active_plugin'));
 //        add_action('wp_ajax_mainwp_creport_upgrade_plugin', array($this,'upgrade_plugin'));
@@ -1018,7 +1020,7 @@ class MainWPCReport
         $option = array('plugin_upgrades' => true, 
                         'plugins' => true);
         $dbwebsites = apply_filters('mainwp-getdbsites', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $sites_id, array(), $option);              
-        $all_stream_sites = array();
+        $all_stream_sites = $sites_with_streams = array();
         foreach($dbwebsites as $website) {
             if ($website && $website->plugins != '')  { 
                 $plugins = json_decode($website->plugins, 1);                           
@@ -1026,7 +1028,11 @@ class MainWPCReport
                     foreach ($plugins as $plugin)
                     {                            
                         if ($plugin['slug'] == "stream/stream.php" || strpos($plugin['slug'], "/stream.php") !== false) {                                    
-                            $all_stream_sites[] = MainWPCReportUtility::mapSite($website, array('id', 'name'));
+                            if ($plugin['active']) {
+                                $all_stream_sites[] = MainWPCReportUtility::mapSite($website, array('id', 'name'));
+                                $sites_with_streams[] =  $website->id;
+                                break;
+                            }
                         }
                     }
                 }
@@ -1106,6 +1112,7 @@ class MainWPCReport
                         <form method="post" enctype="multipart/form-data" id="mwp_creport_edit_form" action="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=editreport<?php echo !empty($report_id) ? "&id=" . $report_id : ""; ?>">
                             <div id="creport_select_sites_box" class="mainwp_config_box_right" <?php echo $style_tab_edit; ?>>
                             <?php do_action('mainwp_select_sites_box', __("Select Site", 'mainwp'), 'radio', false, false, 'mainwp_select_sites_box_right', "", array($selected_site), array()); ?>
+                                <strong style="font-style:initial">Note</strong>: <span class="description">Only site with the Stream Plugin installed will be displayed in the list.</span>                                
                             </div>                            
                             <div id="wpcr_edit_tab"  <?php echo $style_tab_edit; ?>>                               
                                 <?php self::newReportTab($report); 
@@ -1162,6 +1169,7 @@ class MainWPCReport
         <script>
             jQuery(document).ready(function($){    
                 mainwp_creport_load_tokens();  
+                mainwp_creport_remove_sites_without_streams('<?php echo implode(",", $sites_with_streams)?>');
                 <?php if ($do_preview) { ?>
                         mainwp_creport_preview_report();
                 <?php } ?>
@@ -1855,12 +1863,13 @@ class MainWPCReport
         $clients = MainWPCReportDB::Instance()->getClients();
         if (!is_array($clients)) 
             $clients = array();
-    
+        
+        ?>         
+        <tr><td colspan="2"><div class="mainwp_info-box-yellow"><?php _e("Tokens not allowed here"); ?></div></td></tr>            
+    <?php        
         if (!empty($report) && isset($report->id) && isset($report->is_archived) && $report->is_archived) {
     ?>
           <tr><td colspan="2"><div class="mainwp_info-box-yellow"><?php _e("This is Archived Report");?></div></td></tr>            
-    <?php } else {  ?>
-        <tr><td colspan="2">&nbsp;</td></tr>
     <?php } ?>
         
         <tr>
@@ -1887,7 +1896,7 @@ class MainWPCReport
             <th><span><?php _e("Client"); ?></span></th>
             <td>
                 <input type="text" name="mwp_creport_client" value="<?php echo stripslashes($to_client); ?>" 
-                       autocompletelist="clients_list" id="mainwp_creport_autocomplete_client" /> <span class="desc-light"><?php _e("Tokens not allowed here"); ?></span> 
+                       autocompletelist="clients_list" id="mainwp_creport_autocomplete_client" /> 
                 <span id="mainwp_creport_client_loading"><img src="<?php echo plugins_url('images/loader.gif', dirname(__FILE__)); ?>" class="hidden-field"></span> 
                     <datalist id="clients_list">
                     <?php
@@ -1993,7 +2002,7 @@ class MainWPCReport
                     <span class="loading"><span class="status hidden-field"></span><img src="<?php echo $url_loader; ?>" class="hidden-field"></span>                    
                 </div>
                 <div class="inner">
-                    <?php _e("Insert Report Header"); ?>
+                    <?php _e("Report Header"); ?>
                     <select name="mainwp_creport_report_insert_header_sle">
                         <option value="0"><?php _e("Select a Report Header"); ?></option>
                         <?php
@@ -2003,6 +2012,7 @@ class MainWPCReport
                         ?>
                     </select>
                     <input type="button" ed-name="header" class="button-primary mainwp_creport_report_insert_format_btn" value="<?php _e("Insert"); ?>"/>
+                    <input type="button" ed-name="header" class="button-primary mainwp_creport_report_delete_format_btn" value="<?php _e("Delete"); ?>"/>
                     <span class="loading"><span class="status hidden-field"></span><img src="<?php echo $url_loader; ?>" class="hidden-field"></span>
                 </div>
             </div>            
@@ -2043,7 +2053,7 @@ class MainWPCReport
                         <span class="loading"><span class="status hidden-field"></span><img src="<?php echo $url_loader; ?>" class="hidden-field"></span>                    
                     </div>
                     <div class="inner">
-                        <?php _e("Insert Report Body"); ?>
+                        <?php _e("Report Body"); ?>
                         <select name="mainwp_creport_report_insert_header_sle">
                             <option value="0"><?php _e("Select a Report Body"); ?></option>
                             <?php
@@ -2053,6 +2063,7 @@ class MainWPCReport
                             ?>
                         </select>
                         <input type="button" ed-name="body" class="button-primary mainwp_creport_report_insert_format_btn" value="<?php _e("Insert"); ?>"/>
+                        <input type="button" ed-name="body" class="button-primary mainwp_creport_report_delete_format_btn" value="<?php _e("Delete"); ?>"/>
                         <span class="loading"><span class="status hidden-field"></span><img src="<?php echo $url_loader; ?>" class="hidden-field"></span>
                     </div>
                 </div>
@@ -2091,7 +2102,7 @@ class MainWPCReport
                         <span class="loading"><span class="status hidden-field"></span><img src="<?php echo $url_loader; ?>" class="hidden-field"></span>                    
                     </div>
                     <div class="inner">
-                        <?php _e("Insert Report Body"); ?>
+                        <?php _e("Report Footer"); ?>
                         <select name="mainwp_creport_report_insert_header_sle">
                             <option value="0"><?php _e("Select a Report Body"); ?></option>
                             <?php
@@ -2101,6 +2112,7 @@ class MainWPCReport
                             ?>
                         </select>
                         <input type="button" ed-name="footer" class="button-primary mainwp_creport_report_insert_format_btn" value="<?php _e("Insert"); ?>"/>
+                        <input type="button" ed-name="footer" class="button-primary mainwp_creport_report_delete_format_btn" value="<?php _e("Delete"); ?>"/>
                         <span class="loading"><span class="status hidden-field"></span><img src="<?php echo $url_loader; ?>" class="hidden-field"></span>
                     </div>
                 </div>                
@@ -2384,7 +2396,19 @@ class MainWPCReport
         }
         die(json_encode('failed'));
     }
-        
+    
+    public function delete_format() {
+        $format_id = isset($_POST['formatId']) ? trim($_POST['formatId']) : 0;
+        $content = "";        
+        if ($format_id) {            
+            $deleted = MainWPCReportDB::Instance()->deleteFormatBy('id', $format_id);            
+            if($deleted)
+                die(json_encode(array( 'success' => true)));
+        }
+        die(json_encode('failed'));
+    }
+    
+    
     public function load_client() {
         if (isset($_POST['client'])) {
             $client = MainWPCReportDB::Instance()->getClientBy('client' , $_POST['client']);

@@ -558,6 +558,47 @@ jQuery(document).ready(function($) {
         return content;
     }
     
+    $('.mainwp_creport_report_delete_format_btn').on('click', function(){
+        
+        var pr = $(this).closest('.inner');        
+        var selectEl = pr.find('select');    
+        var statusEl = pr.find('.status');
+        statusEl.hide();
+        
+        if (selectEl.val() == 0)
+            return false;
+        var content = creport_get_content_format($(this).attr('ed-name'));
+        var fid = selectEl.val();
+        if (fid == 0)
+            return false;
+        
+        if (!confirm("Are you sure?"))
+            return false;
+        
+        var data = {
+            action: 'mainwp_creport_delete_format',           
+            formatId: fid            
+        }        
+        var name = $(this).attr('ed-name');
+        var loader = pr.find('.loading img');
+        loader.show();
+        $.post(ajaxurl, data, function(response) { 
+            loader.hide();
+            if (response && response['success']) {
+                pr.find('select[name="mainwp_creport_report_insert_header_sle"] option[value="' + fid + '"]').remove();                
+                statusEl.css('color', '#21759B');
+                statusEl.html('Deleted').show();
+                statusEl.fadeOut(3000);                
+            } else {
+                statusEl.css('color','red');
+                statusEl.html('Error').show();  
+            }         
+        }, 'json')
+        return false;
+        
+    });
+    
+    
     $('.mainwp_creport_report_insert_format_btn').on('click', function(){
         var pr = $(this).closest('.inner');        
         var selectEl = pr.find('select');    
@@ -589,6 +630,7 @@ jQuery(document).ready(function($) {
         return false;
         
     });
+    
     
     function creport_insert_content_format(name, content) {        
         var editor_name = 'mainwp_creport_report_' + name;
@@ -894,6 +936,15 @@ function mainwp_creport_load_tokens()
     }, function(data) {
         jQuery('#creport_list_tokens').html(data);
     });
+}
+
+mainwp_creport_remove_sites_without_streams = function(str_ids) {
+    var ids = str_ids.split(",");
+    jQuery('#creport_select_sites_box #selected_sites .mainwp_selected_sites_item').each(function() {
+        var site_id = jQuery(this).find('input[type="radio"]').attr('siteid');
+        if (jQuery.inArray(site_id, ids) == -1)
+            jQuery(this).remove();
+    }) 
 }
 
 mainwp_creport_preview_report = function() {   
