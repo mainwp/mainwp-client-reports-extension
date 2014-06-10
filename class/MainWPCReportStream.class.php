@@ -50,7 +50,7 @@ class MainWPCReportStream
            $_order = $_GET['stream_order'];
        }        
 
-       $name_order = $version_order = $temp_order = $time_order = $url_order = "";     
+       $name_order = $version_order = $temp_order = $time_order = $url_order = $hidden_order = "";     
        if (isset($_GET['stream_orderby']) && $_GET['stream_orderby'] == "name") {            
            $name_order = ($_order == "desc") ? "asc" : "desc";                     
        } else if (isset($_GET['stream_orderby']) && $_GET['stream_orderby'] == "version") {            
@@ -61,8 +61,10 @@ class MainWPCReportStream
            $time_order = ($_order == "desc") ? "asc" : "desc";                     
        } else if (isset($_GET['stream_orderby']) && $_GET['stream_orderby'] == "url") {
            $url_order = ($_order == "desc") ? "asc" : "desc";                     
+       } else if (isset($_GET['stream_orderby']) && $_GET['stream_orderby'] == "hidden") {
+           $hidden_order = ($_order == "desc") ? "asc" : "desc";                     
        } 
-
+       
 //        echo $_GET['orderby']. "===" . $_order ."<br/>";
 //        echo  $name_order . "=====" . $version_order . "=====" . $temp_order ;
 
@@ -85,8 +87,8 @@ class MainWPCReportStream
            <th scope="col" class="manage-column sortable <?php echo $version_order; ?>">
                <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=version&stream_order=<?php echo (empty($version_order) ? 'asc' : $version_order); ?>"><span><?php _e('Plugin Version','mainwp'); ?></span><span class="sorting-indicator"></span></a>
            </th>
-           <th scope="col" class="manage-column <?php //echo $version_order; ?>">
-               <span><?php _e('Plugin Hidden','mainwp'); ?></span>
+           <th scope="col" class="manage-column <?php echo $hidden_order; ?>">
+               <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=hidden&stream_order=<?php echo (empty($hidden_order) ? 'asc' : $hidden_order); ?>"><span><?php _e('Plugin Hidden','mainwp'); ?></span><span class="sorting-indicator"></span></a>
            </th>
          </tr>
          </thead>
@@ -104,8 +106,8 @@ class MainWPCReportStream
            <th scope="col" class="manage-column sortable <?php echo $version_order; ?>">
                <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=version&stream_order=<?php echo (empty($version_order) ? 'asc' : $version_order); ?>"><span><?php _e('Plugin Version','mainwp'); ?></span><span class="sorting-indicator"></span></a>
            </th>     
-           <th scope="col" class="manage-column <?php //echo $version_order; ?>">
-               <span><?php _e('Plugin Hidden','mainwp'); ?></span>
+            <th scope="col" class="manage-column <?php echo $hidden_order; ?>">
+               <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=hidden&stream_order=<?php echo (empty($hidden_order) ? 'asc' : $hidden_order); ?>"><span><?php _e('Plugin Hidden','mainwp'); ?></span><span class="sorting-indicator"></span></a>
            </th>
          </tr>
          </tfoot>
@@ -219,6 +221,10 @@ class MainWPCReportStream
             $a = $a['url'];
             $b = $b['url'];   
             $cmp = strcmp($a, $b); 
+        } else if (self::$orderby == "hidden"){
+            $a = $a['hide_stream'];
+            $b = $b['hide_stream'];   
+            $cmp = $a - $b; 
         } else {
             $a = $a['name'];
             $b = $b['name'];   
@@ -226,6 +232,7 @@ class MainWPCReportStream
         }     
         if ($cmp == 0)
             return 0;
+        
         if (self::$order == 'desc')
             return ($cmp > 0) ? -1 : 1;
         else 

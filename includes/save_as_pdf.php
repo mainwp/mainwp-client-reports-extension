@@ -17,8 +17,6 @@ $pdf->SetTitle('Client Report ' . stripslashes($report->title));
 $pdf->SetSubject('Client Report');
 $pdf->SetKeywords('Client Report');
 
-$output = MainWPCReport::gen_email_content_pdf($report);
-//$logo = is_array($output) && isset($output['logo']) ?  $output['logo'] : "";
 // set default header data
 $pdf->SetHeaderData("", 0, $header_title, $header_string, array(0,64,255), array(0,64,128));
 $pdf->setFooterData(array(0,64,0), array(0,64,128));
@@ -52,6 +50,11 @@ $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
 // set default font subsetting mode
 $pdf->setFontSubsetting(true);
 
+$time = 300; /*300 seconds = 5 minutes*/
+$mem =  '512M';
+@ini_set('memory_limit', $mem);
+@ini_set('max_execution_time', $time);
+
 // Set font
 // dejavusans is a UTF-8 Unicode font, if you only need to
 // print standard ASCII chars, you can use core fonts like
@@ -61,10 +64,7 @@ $pdf->SetFont('dejavusans', '', 12, '', true);
 // Add a page
 // This method has several options, check the source code documentation for more information.
 $pdf->AddPage();
-$body = is_array($output) && isset($output['body']) ?  $output['body'] : "";
-$footer_page = is_array($output) && isset($output['footer_page']) ?  $output['footer_page'] : "";
-$pdf->creport_footer_page = $footer_page;
-$html = $body . $footer_page;
+$html = MainWPCReport::gen_email_content_pdf($report);
 $pdf->writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
 $pdf->Output('client-report.pdf', 'I');
 

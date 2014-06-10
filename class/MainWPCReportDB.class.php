@@ -1,7 +1,7 @@
 <?php
 class MainWPCReportDB
 {    
-    private $mainwp_wpcreport_db_version = "2.1";        
+    private $mainwp_wpcreport_db_version = "2.3";        
     private $table_prefix;
     
     //Singleton
@@ -33,7 +33,7 @@ class MainWPCReportDB
                                         "client.email" => "Displays the Client Email");
         $default_report_logo = plugins_url('images/default-report-logo.png', dirname(__FILE__));
         $this->default_reports[] = array( "title" => "Default Basic Report", 
-                                          "header" => '<img style="float:right" src="' . $default_report_logo . '" alt="default-report-logo" width="300" height="56" /><br/><br/>Hello [client.contact.name],',
+                                          "header" => '<img style="float:left" src="' . $default_report_logo . '" alt="default-report-logo" width="300" height="56" /><br/><br/>Hello [client.contact.name],',
                                           "body" => "<h3>Activity report for the [client.site.url]:</h3>
 <h3>Plugins</h3>
 <strong>Installed Plugins:</strong> [plugin.installed.count]
@@ -87,10 +87,10 @@ class MainWPCReportDB
 <strong>Deleted Menus:</strong> [menu.deleted.count]
 <h3>WordPress</h3>
 <strong>WordPress Updates:</strong> [wordpress.updated.count]");
-        
-        $this->default_reports[] = array( "title" => "Default Full Report",
-                                        "header" => '<img style="float:right" src="' . $default_report_logo . '" alt="default-report-logo" width="300" height="56" /><br/><br/>Hello [client.contact.name],',
-                                        "body" => "<h3>Activity report for the [client.site.url]:</h3>
+
+$this->default_reports[] = array( "title" => "Default Full Report",
+                                "header" => '<img style="float:left" src="' . $default_report_logo . '" alt="default-report-logo" width="300" height="56" /><br/><br/>Hello [client.contact.name],',
+                                "body" => "<h3>Activity report for the [client.site.url]:</h3>
 <h3>Plugins</h3>
 <strong>[plugin.installed.count] Plugins Installed</strong>
 [section.plugins.installed]
@@ -423,7 +423,7 @@ PRIMARY KEY  (`id`)  ';
         foreach($this->default_tokens as $token_name => $token_description) {
             $token = array('type' => 1, 
                             'token_name' => $token_name, 
-                            'token_description' => $token_description
+                            'token_description' => $token_description                            
                             );            
             if ($current = $this->getTokensBy('token_name', $token_name)) {                  
                 $this->updateToken($current->id, $token);
@@ -437,6 +437,7 @@ PRIMARY KEY  (`id`)  ';
             if ($current = $this->getReportBy('title', $report['title'])) {  
                 $current = current($current);
                 $report['id'] = $current->id;
+                $report['is_archived'] = 0;
                 $this->updateReport($report);
             } else 
             {
