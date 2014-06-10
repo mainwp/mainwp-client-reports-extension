@@ -2239,7 +2239,7 @@ class MainWPCReport
             $html .= "Not found tokens.";
         }
         $html .= '<div class="mainwp_info-box"><strong><b>Note</b>: <i>Add or Edit Client Report Tokens in the <a target="_blank" href="' . admin_url('admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=token') . '">Client Report Extension Settings</a></i>.</strong></div>									
-                </fieldset>';
+                </div></div>';
         echo $html;      
     }
     
