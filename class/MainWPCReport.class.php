@@ -1194,7 +1194,8 @@ class MainWPCReport
                 <style>
                     #crp_content_wrap ul {list-style-type:square; margin-left: 20px;}
                     #crp_content_wrap ol {list-style-type:decimal}
-                    #crp_content_wrap br {line-height: 10px; display: block;}                 
+                    #crp_content_wrap br {line-height: 10px; display: block;}   
+                    #crp_content_wrap b, #crp_content_wrap strong {font-weight: 900;}
                 </style>                    
                 <div id="crp_content_wrap" style="font:13px/20px Helvetica,Arial,Sans-serif;">
                     <?php echo self::gen_report_content($report); ?>
