@@ -2168,8 +2168,8 @@ class MainWPCReport
                                     }                                    
                                 } else {
                                     foreach($tokens as $token) {
-                                       echo "<tr><td><a href=\"#\" token-value =\"\" class=\"creport_format_add_token\">[" . $token["name"] . "]</a></td>"
-                                               . "<td class=\"creport_stream_token_desc\">" . $token["desc"] ."</td>"
+                                       echo "<tr><td><a href=\"#\" token-value =\"\" class=\"creport_format_add_token\">[" . stripslashes($token["name"]) . "]</a></td>"
+                                               . "<td class=\"creport_stream_token_desc\">" . stripslashes($token["desc"]) ."</td>"
                                                . "</tr>";
                                     }
                                 }
@@ -2353,8 +2353,8 @@ class MainWPCReport
                 $tokens = array();
                 if (count($client_tokens_values) > 0) {              
                     foreach($client_tokens_values as $token) {                                    
-                        $html .= "<tr><td><a href=\"#\" token-value = \"" . $token['token_value'] . "\"class=\"creport_format_add_token\">[" . $token['token_name'] . "]</a></td>"
-                                . "<td class=\"creport_stream_token_desc\">" . $token['token_value'] ."</td>"
+                        $html .= "<tr><td><a href=\"#\" token-value = \"" . stripcslashes($token['token_value']) . "\"class=\"creport_format_add_token\">[" . stripcslashes($token['token_name']) . "]</a></td>"
+                                . "<td class=\"creport_stream_token_desc\">" . stripcslashes($token['token_value']) ."</td>"
                                 . "</tr>";
                     }
                     $tokens = array('client.name' => $client_tokens_values['client.name']['token_value'],
