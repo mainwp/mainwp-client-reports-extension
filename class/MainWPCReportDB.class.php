@@ -89,7 +89,7 @@ class MainWPCReportDB
 <strong>WordPress Updates:</strong> [wordpress.updated.count]");
 
 $this->default_reports[] = array( "title" => "Default Full Report",
-                                "header" => '<img style="float:left" src="' . $default_report_logo . '" alt="default-report-logo" width="300" height="56" /><br/><br/>Hello [client.contact.name],',
+                                "header" => '<img style="float:left" src="' . $default_report_logo . '" alt="default-report-logo" width="300" height="56" /><br/><br/><br/>Hello [client.contact.name],',
                                 "body" => "<h3>Activity report for the [client.site.url]:</h3>
 <h3>Plugins</h3>
 <strong>[plugin.installed.count] Plugins Installed</strong>
