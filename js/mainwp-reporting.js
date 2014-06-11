@@ -1003,3 +1003,75 @@ function mainwp_creport_getCookie(c_name)
     }
     return "";
 }
+
+jQuery(document).ready(function($) {       
+    jQuery('.mainwp-show-tut').on('click', function(){
+        jQuery('.mainwp-cr-tut').hide();   
+        var num = jQuery(this).attr('number');
+        console.log(num);
+        jQuery('.mainwp-cr-tut[number="' + num + '"]').show();
+        cr_setCookie('cr_quick_tut_number', jQuery(this).attr('number'));
+        return false;
+    }); 
+    
+    jQuery('#mainwp-cr-quick-start-guide').on('click', function () {
+        if(cr_getCookie('cr_quick_guide') == 'on')
+            cr_setCookie('cr_quick_guide', '');
+        else 
+            cr_setCookie('cr_quick_guide', 'on');        
+        cr_showhide_quick_guide();
+        return false;
+    });
+    jQuery('#mainwp-cr-tips-dismiss').on('click', function () {    
+        cr_setCookie('cr_quick_guide', '');
+        cr_showhide_quick_guide();
+        return false;
+    });
+    
+    cr_showhide_quick_guide();
+
+});
+
+cr_showhide_quick_guide = function(show, tut) {
+    var show = cr_getCookie('cr_quick_guide');
+    var tut = cr_getCookie('cr_quick_tut_number');
+    
+    if (show == 'on') {
+        jQuery('#mainwp-cr-tips').show();
+        jQuery('#mainwp-cr-quick-start-guide').hide();   
+        cr_showhide_quick_tut();        
+    } else {
+        jQuery('#mainwp-cr-tips').hide();
+        jQuery('#mainwp-cr-quick-start-guide').show();    
+    }
+}
+
+cr_showhide_quick_tut = function() {
+    var tut = cr_getCookie('cr_quick_tut_number');
+    jQuery('.mainwp-cr-tut').hide();   
+    jQuery('.mainwp-cr-tut[number="' + tut + '"]').show();   
+}
+
+
+function cr_setCookie(c_name, value, expiredays)
+{
+    var exdate = new Date();
+    exdate.setDate(exdate.getDate() + expiredays);
+    document.cookie = c_name + "=" + escape(value) + ((expiredays == null) ? "" : ";expires=" + exdate.toUTCString());
+}
+function cr_getCookie(c_name)
+{
+    if (document.cookie.length > 0)
+    {
+        var c_start = document.cookie.indexOf(c_name + "=");
+        if (c_start != -1)
+        {
+            c_start = c_start + c_name.length + 1;
+            var c_end = document.cookie.indexOf(";", c_start);
+            if (c_end == -1)
+                c_end = document.cookie.length;
+            return unescape(document.cookie.substring(c_start, c_end));
+        }
+    }
+    return "";
+}

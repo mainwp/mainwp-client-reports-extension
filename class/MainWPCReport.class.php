@@ -817,6 +817,7 @@ class MainWPCReport
     }
     
     public static function render() {     
+        self::ClientReportsQSG();
         self::renderTabs();
     }
    
@@ -1143,6 +1144,7 @@ class MainWPCReport
                             <div id="creport_list_tokens" class="postbox"></div>                                                                       
                         </div> 
                         <div id="wpcr_stream_tab" <?php echo $style_tab_stream; ?>>
+                            <div class="mainwp_info-box-yellow"><span><a href="#" style="float: right; margin-left: 1em;"><?php _e('Dismiss','mainwp'); ?></a></span><span class="clearfix"></span><?php _e('In the Stream settings page (you can find it in your child sites), it enables you to set the number of days to keep records. We strongly recommend to set it blank, this way you will be able to generate reports for unlimited period of time. By default it is set to 90 days.'); ?></div>
                             <div class="tablenav top">
                             <?php MainWPCReportStream::gen_select_sites($dbwebsites_stream, $selected_group); ?>  
                             </div>                            
@@ -1865,11 +1867,11 @@ class MainWPCReport
             $clients = array();
         
         ?>         
-        <tr><td colspan="2"><div class="mainwp_info-box-yellow"><?php _e("Tokens not allowed here"); ?></div></td></tr>            
+        <tr><td colspan="2"><div class="mainwp_info-box-yellow"><?php _e("Tokens are not allowed here"); ?></div></td></tr>            
     <?php        
         if (!empty($report) && isset($report->id) && isset($report->is_archived) && $report->is_archived) {
     ?>
-          <tr><td colspan="2"><div class="mainwp_info-box-yellow"><?php _e("This is Archived Report");?></div></td></tr>            
+          <tr><td colspan="2"><div class="mainwp_info-box-yellow"><?php _e("This is a Archived Report");?></div></td></tr>            
     <?php } ?>
         
         <tr>
@@ -2511,5 +2513,107 @@ class MainWPCReport
         echo json_encode($ret);
         exit;
     }
+
+    public function ClientReportsQSG() {
+
+        ?>
+        <div  class="mainwp_info-box" id="cs-pth-notice-box"><b><?php echo __("Need Help?"); ?></b> <?php echo __("Review the Extension"); ?> <a href="http://docs.mainwp.com/category/mainwp-extensions/mainwp-client-reports/" target="_blank"><?php echo __('Documentation'); ?></a>. 
+                    <a href="#" id="mainwp-cr-quick-start-guide"><?php _e('Show Quick Start Guide','mainwp'); ?></a></div>
+                    <div  class="mainwp_info-box-yellow" id="mainwp-cr-tips" style="color: #333!important; text-shadow: none!important;">
+                      <span><a href="#" class="mainwp-show-tut" number="1"><?php _e('Creating a Client Report','mainwp') ?></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="mainwp-show-tut"  number="2"><?php _e('Add Client Tokens','mainwp') ?></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="mainwp-show-tut"  number="3"><?php _e('Edit Client Tokens','mainwp') ?></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="mainwp-show-tut"  number="4"><?php _e('Insert Tokens in Client Report','mainwp') ?></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="mainwp-show-tut"  number="5"><?php _e('Client Report Tokens','mainwp') ?></a></span><span><a href="#" id="mainwp-cr-tips-dismiss" style="float: right;"><?php _e('Dismiss','mainwp'); ?></a></span>
+                      <div class="clear"></div>
+                      <div id="mainwp-cr-tuts">
+                        <div class="mainwp-cr-tut" number="1">
+                            <h3>Creating a Client Report</h3>
+                            <p>The MainWP Client Report Extension enables you to create reports for your client or for your own archive. It shows activity/changes on your child sites.</p>
+                                     <p>
+                                        <h3>Step 1: Select a Child Site</h3>
+                                        <p>On the New Report screen, on the right-hand side you can find the Select Sites box. The in the box you will see all your sites with the Stream plugin installed.</p>
+                                        <p>Select a site you want to generate the report for.</p>
+                                        <p>By selecting a site, the Client and the Send To form fields will be automatically populated in case you have previously entered values for the site in the Site Edit page. If you missed this step, please see here how to do that.</p>
+                                    </p>
+                                    <p>
+                                        <h3>Step 2: Client Report Settings</h3>
+                                        <ol>
+                                            <li>Enter a <strong>Report Title</strong> (Required).</li>
+                                            <li>Select a <strong>Date Range</strong> for the report (Required). The extension will generate report only with changes made in the selected period of time.</li>
+                                            <li>In the <strong>Send From</strong> fields enter your information (Optional). Enter your Name, Company and Email Address. It will be displayed in the Email sent to your clients.</li>
+                                            <li><strong>Client (Required).</strong> Here you can enter, if not added automatically by selecting a child site, a Client. The entered data will be displayed in the Reports list and it will enable you to filter reports by client.</li>
+                                            <li><strong>Send To (Required)</strong> If not populated by selecting a child site, enter here the Client Contact Name, Client’s Company and email address for email to be sent to. (Email Address is required)</li>
+                                            <li><strong>Email Subject</strong>, here add a custom subject for the Report Email.</li>
+                                        </ol>
+                                    </p>
+                                    <p>
+                                        <h3>Step 3: Format Report</h3>
+                                        <p>A Report is splitted in 3 section. Header, Body and Footer.</p>
+                                        <p>By default, all three sections are collapsed, to start editing any of sections click the Show link (when you are done, you can hide it by clicking the Hide link).</p>
+                                        <p>In the text editor box, to format your report you are allowed to use custom text and tokens. Tokens are used to display report data, pulled from child site.</p>
+                                        <p>By combining tokens with custom text you will be able to customize the report and have it look like you want it.</p>
+                                        <p>Under each section edit box you will find mechanism to Save or Insert saved sections.</p>
+                                        <p>Once you create a Header, Body or Footer which you would like to use multiple times, you can save it by adding a custom title and clicking the Save button.</p>
+                                        <p>Next time you want to use the saved the saved section, you can select it from the Select box on the right hand side and click the Insert button.</p>
+                                        <br/>
+                                        <p><strong>After you are done with formatting your report, you have options to Preview Report, Send Test Email, Archive Report, Download PDF, Save Report and Send Report.</strong></p>
+                                    </p>
+                        </div>
+                        <div class="mainwp-cr-tut"  number="2">
+                            <h3>Add Client Tokens</h3>
+                            <p>
+                                <ol>
+                                    <li>Click the Report Tokens tab<br/><br/>
+                                        <img src="http://docs.mainwp.com/wp-content/uploads/2014/06/cr-report-tokens-tab.png" style="wight: 100% !important;" alt="screenshot"/>
+                                    </li>
+                                    <li>
+                                        At the bottom, locate the empty fields<br/><br/>
+                                        <img src="http://docs.mainwp.com/wp-content/uploads/2014/06/cr-new-token-fields-1024x407.png" style="wight: 100% !important;" alt="screenshot"/>
+                                    </li>
+                                    <li>Enter a Token and Token Description.</li>
+                                    <li>
+                                        Click the Save button
+                                    </li>
+                                </ol>
+                                <p>To add custom values for the Token, you will need to go to the child site edit page and enter it.</p>
+                                <p>After creating a new token it will be added in the Report Tokens section in the Child Site edit page and in the Insert Tokens section in the Report Format section.</p>
+                            </p>
+                        </div>
+                        <div class="mainwp-cr-tut"  number="3">
+                            <h3>Edit Client Tokens</h3>
+                            <p>
+                                <ol>
+                                    <li>Go to the Site Edit page</li>
+                                    <li>Scroll down until you see the Client Report Settings section</li>
+                                    <li>
+                                        Enter wanted values <br/><br/>
+                                        <img src="http://docs.mainwp.com/wp-content/uploads/2014/06/cr-client-report-settings-values-1024x715.png" style="wight: 100% !important;" alt="screenshot"/>
+                                    </li>
+                                    <li>Click the Update Site button</li>
+                                </ol>
+                            </p>
+                        </div>
+                        <div class="mainwp-cr-tut"  number="4">
+                            <h3>Insert Tokens in Client Report</h3>
+                            <p>Under the Header, Body and Footer sections in the Report Format area you can find the list of tokens which you can insert in your reports. Simply by clicking on a token it will be added to the edit box right in a place where you have your cursor placed.</p>
+                            <img src="http://docs.mainwp.com/wp-content/uploads/2014/06/cr-insert-tokens-box.png" style="wight: 100% !important;" alt="screenshot"/>
+                            <p>If you use section tokens, it will insert both, opening and closing tag.</p>
+                            <p>If the Insert Tokens box is hidden, click the Show Available Tokens link to display the box.</p>
+                            <img src="http://docs.mainwp.com/wp-content/uploads/2014/06/cr-show-available-tokens.png" style="wight: 100% !important;" alt="screenshot"/>
+                            <p>Use the provided navigation system to toggle between different group of tokens.</p>
+                            <img src="http://docs.mainwp.com/wp-content/uploads/2014/06/cr-tokens-nav.png" style="wight: 100% !important;" alt="screenshot"/>
+                            <p>Upper navigation will enable you to toggle between different groups of tokens, and the lower part to toggle between available groups of tokens for the selected group in the upper part.</p>
+                        </div>
+                        <div class="mainwp-cr-tut"  number="5">
+                            <h3>Client Report Tokens</h3>
+                            <p>To properly use tokens in the MainWP Client Reports Extension, you have to know difference between SECTION, DATA and CLIENT tokens.</p>
+                            <strong>SECTION TOKENS</strong>
+                            <p>Section tokens require both opening and closing tags. They can easily be recognized by starting part ‘section’. Section token loops through database and searches for right data.</p>
+                            <strong>DATA TOKENS</strong>
+                            <p>Data tokens have only one tag, they have to be used inside section tokens and have to be added between opening and closing tag of a section token. Special type of Data tokens are COUNTER TOKENS. You will be able to recognize this tokens by the first word. They end with “.count”. This tokens won’t work inside of the section tokens. You need to use them out of section tokens.</p>
+                            <strong>CLIENT TOKENS</strong>
+                            <p>This tokens will allow you to display data you have set in the Child Site edit screen. For each child site you should set the token values. After you set values you will easily display data for selected site in the report.</p>
+                        </div>
+                      </div>
+                    </div>
+        <?php
+    }    
    
 }

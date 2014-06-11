@@ -198,3 +198,10 @@ a.creport_format_add_token:hover {
 .mainwp_creport_format_save_section .inner .status, .creport-action-working .status {
     font-style: italic;
 }
+
+#mainwp-cr-tips {
+    display: none;
+}
+.mainwp-cr-tut, #mainwp-cr-tips {
+    display: none;
+}
