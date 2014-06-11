@@ -1144,7 +1144,7 @@ class MainWPCReport
                             <div id="creport_list_tokens" class="postbox"></div>                                                                       
                         </div> 
                         <div id="wpcr_stream_tab" <?php echo $style_tab_stream; ?>>
-                            <div class="mainwp_info-box-yellow"><span><a href="#" style="float: right; margin-left: 1em;"><?php _e('Dismiss','mainwp'); ?></a></span><span class="clearfix"></span><?php _e('In the Stream settings page (you can find it in your child sites), it enables you to set the number of days to keep records. We strongly recommend to set it blank, this way you will be able to generate reports for unlimited period of time. By default it is set to 90 days.'); ?></div>
+                            <div class="mainwp_info-box-yellow"><span><a href="#" id="mainwp-cr-dashboard-tips-dismiss" style="float: right; margin-left: 1em;"><?php _e('Dismiss','mainwp'); ?></a></span><span class="clearfix"></span><?php _e('In the Stream settings page (you can find it in your child sites), it enables you to set the number of days to keep records. We strongly recommend to set it blank, this way you will be able to generate reports for unlimited period of time. By default it is set to 90 days.'); ?></div>
                             <div class="tablenav top">
                             <?php MainWPCReportStream::gen_select_sites($dbwebsites_stream, $selected_group); ?>  
                             </div>                            
@@ -1871,7 +1871,7 @@ class MainWPCReport
     <?php        
         if (!empty($report) && isset($report->id) && isset($report->is_archived) && $report->is_archived) {
     ?>
-          <tr><td colspan="2"><div class="mainwp_info-box-yellow"><?php _e("This is a Archived Report");?></div></td></tr>            
+          <tr><td colspan="2"><div class="mainwp_info-box-yellow"><?php _e("This is an Archived Report");?></div></td></tr>            
     <?php } ?>
         
         <tr>
@@ -2513,7 +2513,7 @@ class MainWPCReport
         echo json_encode($ret);
         exit;
     }
-
+   
     public function ClientReportsQSG() {
 
         ?>
@@ -2539,7 +2539,7 @@ class MainWPCReport
                                             <li>Select a <strong>Date Range</strong> for the report (Required). The extension will generate report only with changes made in the selected period of time.</li>
                                             <li>In the <strong>Send From</strong> fields enter your information (Optional). Enter your Name, Company and Email Address. It will be displayed in the Email sent to your clients.</li>
                                             <li><strong>Client (Required).</strong> Here you can enter, if not added automatically by selecting a child site, a Client. The entered data will be displayed in the Reports list and it will enable you to filter reports by client.</li>
-                                            <li><strong>Send To (Required)</strong> If not populated by selecting a child site, enter here the Client Contact Name, Client’s Company and email address for email to be sent to. (Email Address is required)</li>
+                                            <li><strong>Send To (Required)</strong> If not populated by selecting a child site, enter here the Client Contact Name, Client's Company and email address for email to be sent to. (Email Address is required)</li>
                                             <li><strong>Email Subject</strong>, here add a custom subject for the Report Email.</li>
                                         </ol>
                                     </p>
@@ -2605,15 +2605,15 @@ class MainWPCReport
                             <h3>Client Report Tokens</h3>
                             <p>To properly use tokens in the MainWP Client Reports Extension, you have to know difference between SECTION, DATA and CLIENT tokens.</p>
                             <strong>SECTION TOKENS</strong>
-                            <p>Section tokens require both opening and closing tags. They can easily be recognized by starting part ‘section’. Section token loops through database and searches for right data.</p>
+                            <p>Section tokens require both opening and closing tags. They can easily be recognized by starting part 'section'. Section token loops through database and searches for right data.</p>
                             <strong>DATA TOKENS</strong>
-                            <p>Data tokens have only one tag, they have to be used inside section tokens and have to be added between opening and closing tag of a section token. Special type of Data tokens are COUNTER TOKENS. You will be able to recognize this tokens by the first word. They end with “.count”. This tokens won’t work inside of the section tokens. You need to use them out of section tokens.</p>
+                            <p>Data tokens have only one tag, they have to be used inside section tokens and have to be added between opening and closing tag of a section token. Special type of Data tokens are COUNTER TOKENS. You will be able to recognize this tokens by the first word. They end with ".count". This tokens won't work inside of the section tokens. You need to use them out of section tokens.</p>
                             <strong>CLIENT TOKENS</strong>
                             <p>This tokens will allow you to display data you have set in the Child Site edit screen. For each child site you should set the token values. After you set values you will easily display data for selected site in the report.</p>
                         </div>
                       </div>
                     </div>
         <?php
-    }    
+}
    
 }

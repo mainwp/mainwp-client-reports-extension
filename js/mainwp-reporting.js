@@ -1030,6 +1030,12 @@ jQuery(document).ready(function($) {
     
     cr_showhide_quick_guide();
 
+    jQuery('#mainwp-cr-dashboard-tips-dismiss').on('click', function () {    
+        $(this).closest('.mainwp_info-box-yellow').hide();
+        cr_setCookie('cr_dashboard_notice', 'hide', 2);        
+        return false;
+    });
+
 });
 
 cr_showhide_quick_guide = function(show, tut) {
@@ -1044,6 +1050,10 @@ cr_showhide_quick_guide = function(show, tut) {
         jQuery('#mainwp-cr-tips').hide();
         jQuery('#mainwp-cr-quick-start-guide').show();    
     }
+    
+    if ('hide' == cr_getCookie('cr_dashboard_notice')) {
+        jQuery('#mainwp-cr-dashboard-tips-dismiss').closest('.mainwp_info-box-yellow').hide();
+    }
 }
 
 cr_showhide_quick_tut = function() {
@@ -1051,7 +1061,6 @@ cr_showhide_quick_tut = function() {
     jQuery('.mainwp-cr-tut').hide();   
     jQuery('.mainwp-cr-tut[number="' + tut + '"]').show();   
 }
-
 
 function cr_setCookie(c_name, value, expiredays)
 {
