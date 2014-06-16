@@ -808,7 +808,7 @@ mainwp_creport_stream_upgrade_start_specific = function(pObj, bulk, selector) {
         workingRow.find('img').hide();
         pObj.removeClass('queue');
         if (response && response['error']) {
-            workingRow.find('.status').html('<font color="red">'+response.error+'</font>');
+            workingRow.find('.status').html('<font color="red">'+response['error']+'</font>');
         }
         else if (response && response['upgrades'][slug]) {           
             pObj.after('Stream plugin has been updated');
@@ -858,7 +858,7 @@ mainwp_creport_stream_active_start_specific = function(pObj, bulk, selector) {
         workingRow.find('img').hide();
         pObj.removeClass('queue');
         if (response && response['error']) {
-            workingRow.find('.status').html('<font color="red">'+response.error+'</font>');
+            workingRow.find('.status').html('<font color="red">'+response['error']+'</font>');
         }
         else if (response && response['result']) {
             pObj.after('Stream plugin has been activated');
