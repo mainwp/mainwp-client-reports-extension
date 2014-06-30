@@ -301,6 +301,12 @@ class MainWPCReportStream
                             {                            
                                 if ($plugin['slug'] == "stream/stream.php" || strpos($plugin['slug'], "/stream.php") !== false) {
                                     $site = MainWPCReportUtility::mapSite($website, array('id', 'name' , 'url'));
+                                    if ($plugin['active'])
+                                        $site['stream_active'] = 1;
+                                    else 
+                                        $site['stream_active'] = 0;     
+                                    $site['stream_plugin_version'] = $plugin['version'];
+                                    
                                     // get upgrade info
                                     $plugin_upgrades = json_decode($website->plugin_upgrades, 1); 
                                     if (is_array($plugin_upgrades) && count($plugin_upgrades) > 0) {                                        
@@ -310,7 +316,11 @@ class MainWPCReportStream
                                                 $site['stream_upgrade'] = $upgrade['update'];                                                
                                             }
                                         }
-                                    }
+                                    }                                    
+                                    $site['hide_stream'] = 0;
+                                    if (isset($streamHide[$website->id]) && $streamHide[$website->id]) {
+                                        $site['hide_stream'] = 1;
+                                    }                                      
                                     $websites_stream[] = $site;
                                     break;
                                 }

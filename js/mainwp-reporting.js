@@ -23,6 +23,25 @@ jQuery(document).ready(function($) {
         return false;
     });
     
+    $('#mainwp_creport_schedule_send_email_auto').change(function(){ 
+      if ($(this).is(':checked')) {
+          $('#mainwp_creport_schedule_bbc_me_email').removeAttr("disabled");
+      } else {
+          $('#mainwp_creport_schedule_bbc_me_email').attr("disabled", "disabled");
+          $('#mainwp_creport_schedule_bbc_me_email').removeAttr("checked");
+      }      
+    });
+    
+    $('#mainwp_creport_schedule_send_email_me_review').change(function(){            
+      if ($(this).is(':checked')) {
+          $('#mainwp_creport_schedule_bbc_me_email').attr("disabled", "disabled");
+          $('#mainwp_creport_schedule_bbc_me_email').removeAttr("checked");
+          
+      } else {
+          $('#mainwp_creport_schedule_bbc_me_email').removeAttr("disabled");
+      }      
+    });
+        
      $('#creport_managetoken_btn_add_token').live('click', function()
         {   
             var parent = jQuery(this).parents('.managetoken-item');                            
@@ -142,6 +161,8 @@ jQuery(document).ready(function($) {
             
             return false;
         });
+        
+        
         
     $('.creport_managetoken-delete').live('click' ,function(){
         $('#mwp-creport-error-box').hide();

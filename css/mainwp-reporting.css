@@ -57,7 +57,7 @@
 .mainwp-creport-report-setting-box .title input, #mwp_creport_email_subject {
     width: 500px;
 }
-.mainwp-creport-report-setting-box .date input{
+.mainwp-creport-report-setting-box .date input, #mainwp_creport_schedule_date{
     width: 120px;
 }
 .mainwp-creport-report-setting-box{

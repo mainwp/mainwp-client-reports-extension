@@ -514,6 +514,91 @@ class MainWPCReport
                 self::archiveReport($report);
             }
         }
+        self::send_schedule_reports();       
+    }
+    
+    public static function send_schedule_reports() {
+         // check to send schedule reports
+        $sche_reports = MainWPCReportDB::Instance()->getScheduleReports();        
+        if (is_array($sche_reports)) {
+            foreach($sche_reports as $report) {
+                $schedule = $report->recurring_schedule; 
+                if (empty($schedule))
+                    continue;                
+                $report_date_to = $report_date_from  = 0;
+                $last_send = $report->lastsend;                
+                $start_date_to_send = $report->recurring_date;                
+                $start_today_timestamp = strtotime(date("Y-m-d") . " 00:00:00");
+                $send_email_now = false;                 
+                if ($last_send < $start_date_to_send) { 
+                    if ($start_today_timestamp >= $start_date_to_send) {                         
+                        $send_email_now = true;  
+                        $report_date_to = $start_today_timestamp - 1;
+                    }
+                } else {                
+                    if ($schedule == "daily") { 
+                        if ($start_today_timestamp > $last_send) {                           
+                           $report_date_to = $start_today_timestamp - 1;
+                           $report_date_from = strtotime(date("Y-m-d", $start_today_timestamp - 24 * 3600));
+                           $send_email_now = true; 
+                        }
+                    } else if ($schedule == "weekly") {
+                        if ($start_today_timestamp - 7 * 24 * 3600 > $last_send) {
+                            $report_date_to = $start_today_timestamp - 1;
+                            $report_date_from = strtotime(date("Y-m-d", $start_today_timestamp - 7 * 24 * 3600));
+                            $send_email_now = true; 
+                        }
+                    } else if ($schedule == "biweekly") {
+                        if ($start_today_timestamp - 2 * 7 * 24 * 3600 > $last_send) {                            
+                            $report_date_to = $start_today_timestamp - 1;
+                            $report_date_from = strtotime(date("Y-m-d", $start_today_timestamp - 2 * 7 * 24 * 3600));
+                            $send_email_now = true;
+                        }
+                    } else if ($schedule == "monthly") {
+                        $day_to_send = date("d", $start_date_to_send);
+                        $month_last_send = date("m", $last_send);
+                        $year_last_send = date("Y", $last_send);
+                        
+                        $day_in_month = date("t");
+                        if ($day_to_send > $day_in_month) {
+                            $day_to_send = $day_in_month;
+                        }   
+                        
+                        $month_to_send = $month_last_send + 1;
+                        $year_to_send = $year_last_send;
+                        if ($month_to_send > 12) {
+                            $month_to_send = 1;
+                            $year_to_send = $year_last_send + 1;
+                        }                          
+                        $time_to_send = strtotime($year_to_send . "-" . $month_to_send . "-" . $day_to_send);                        
+                        if (time() >= $time_to_send) {                              
+                            $report_date_to = $time_to_send - 1;
+                            $report_date_from = strtotime($year_to_send . "-" . $month_last_send . "-" . $day_to_send);
+                            $send_email_now = true;
+                        }
+                    }
+                }
+                
+                if ($send_email_now) {                      
+                    $my_email = apply_filters('mainwp_getnotificationemail');   
+                    $bcc = "";
+                    $report->date_from = $report_date_from;
+                    $report->date_to = $report_date_to;
+                    if ($report->schedule_send_email == "email_auto") {
+                        if ($report->schedule_bcc_me) 
+                            $bcc = $my_email;
+                        self::send_report_mail($report, "", "", $bcc);     
+                    } else if ($report->schedule_send_email == "email_review" && !empty($my_email)) {
+                        self::send_report_mail($report, $my_email, "Review report");
+                    }
+                    $update_report = array('id' => $report->id,     
+                                            'date_from' => $report_date_from, // update date_from for report
+                                            'date_to' => $report_date_to
+                                            );
+                    MainWPCReportDB::Instance()->updateReport($update_report); 
+                }                
+            }
+        }        
     }
     
     public function shortcuts_widget($website) {        
@@ -632,6 +717,14 @@ class MainWPCReport
             if(isset($_POST['mwp_creport_email_subject'])) {
                 $report['subject'] = trim($_POST['mwp_creport_email_subject']);                
             }
+            //print_r($_POST);
+            if(isset($_POST['mainwp_creport_recurring_schedule']) && !empty($_POST['mainwp_creport_recurring_schedule'])) {
+                $report['recurring_schedule'] = trim($_POST['mainwp_creport_recurring_schedule']);
+                $rec_date = trim($_POST['mainwp_creport_schedule_date']);
+                $report['recurring_date'] = strtotime($rec_date);                      
+                $report['schedule_send_email'] = trim($_POST['mainwp_creport_schedule_send_email']);
+                $report['schedule_bcc_me'] = isset($_POST['mainwp_creport_schedule_bbc_me_email']) ? 1 : 0;
+            }            
             
             if(isset($_POST['mainwp_creport_report_header'])) {
                 $report['header'] = trim($_POST['mainwp_creport_report_header']);                
@@ -667,7 +760,8 @@ class MainWPCReport
             if ("save" === $_POST['mwp_creport_report_submit_action'] || 
                 "send" === $_POST['mwp_creport_report_submit_action'] ||  
                 "save_pdf" === $_POST['mwp_creport_report_submit_action'] || 
-                "archive_report" === $_POST['mwp_creport_report_submit_action'] ) {                
+                "archive_report" === $_POST['mwp_creport_report_submit_action'] ) {   
+                //print_r($report);
                 if($result = MainWPCReportDB::Instance()->updateReport($report)) {                    
                     $return['id'] = $result->id;   
                     $messages[] = 'Report has been saved.';                      
@@ -708,17 +802,20 @@ class MainWPCReport
         return null;
     }
     
-    public static function send_report_mail($report, $email = "", $subject = "")
+    public static function send_report_mail($report, $email = "", $subject = "", $bcc = "")
     {
         if (!is_object($report))
             return false;
         
         $email = empty($email) ? $report->email : $email;
+        if (empty($email)) 
+            return;
+        
         $email_subject = "";
         if (!empty($subject)) 
             $email_subject = $subject;
         
-        $email_subject = isset($report->subject) && !empty($report->subject) ?  $email_subject . " - " . $report->subject : $subject . " - " . "Website Report";
+        $email_subject = isset($report->subject) && !empty($report->subject) ?  $email_subject . " - " . $report->subject : $email_subject . " - " . "Website Report";
         $email_subject = ltrim($email_subject, " - ");
         
         $content = self::gen_email_content($report);
@@ -735,10 +832,19 @@ class MainWPCReport
                 $from .= $report->fcompany . " ";
             $from .= $report->femail;
         }
-     
+        
+        if (empty($from))
+            $from = "From: Noname";
+         
+        $header = array($from, 'content-type: text/html');
+        
+        if (!empty($bcc)) {
+            $header[] = "Bcc: " . $bcc;            
+        }
+        
         if (!empty($content) && !empty($email))
         {   
-            if (wp_mail($email, stripslashes($email_subject), $content, array($from, 'content-type: text/html'))) { 
+            if (wp_mail($email, stripslashes($email_subject), $content, $header)) { 
                 if (!empty($report->id)) {
                     $report->lastsend = time();                    
                     $update_report = array('id' => $report->id, 'lastsend' => $report->lastsend);
@@ -1826,8 +1932,11 @@ class MainWPCReport
         $from_name = $from_company = $from_email = "";
         $to_client = $to_name = $to_company = $to_email = $email_subject = "";
         $client_id = 0;  
+        $recurringSchedule = $recurringDate = "";
+        $scheduleSendEmail = "email_auto";
+        $scheduleBCCme = 0;
         //print_r($report);
-        if ($report && !empty($report)) {
+        if (!empty($report)) {
             $title = $report->title;
             $date_from = !empty($report->date_from) ? date("Y-m-d", $report->date_from) : "";
             $date_to = !empty($report->date_to) ? date("Y-m-d", $report->date_to) : "";
@@ -1839,6 +1948,11 @@ class MainWPCReport
             $to_email = $report->email;
             $to_client = $report->client;      
             $email_subject = $report->subject;      
+            $recurringSchedule = $report->recurring_schedule;    
+            $recurringDate = !empty($report->recurring_date) ? date("Y-m-d", $report->recurring_date) : "";
+            $scheduleSendEmail = $report->schedule_send_email;
+            $scheduleBCCme = $report->schedule_bcc_me;
+            
             $client_id = intval($report->client_id);
             if ($client_id) {
                 $client = MainWPCReportDB::Instance()->getClientBy('clientid', $client_id);
@@ -1865,8 +1979,17 @@ class MainWPCReport
         $clients = MainWPCReportDB::Instance()->getClients();
         if (!is_array($clients)) 
             $clients = array();
+        $recurring_schedule = array("daily" => __("Daily"), 
+                                    "weekly" => __("Weekly"), 
+                                    "biweekly" => __("Bi Weekly"),
+                                    "monthly" => __("Monthly")
+                                    );
+        $schedule_date = array();
+        for($i = 1; $i <= 31; $i++) {
+            $schedule_date[] = $i;
+        }
         
-        ?>         
+    ?>         
         <tr><td colspan="2"><div class="mainwp_info-box-yellow"><?php _e("Tokens are not allowed here"); ?></div></td></tr>            
     <?php        
         if (!empty($report) && isset($report->id) && isset($report->is_archived) && $report->is_archived) {
@@ -1924,6 +2047,24 @@ class MainWPCReport
             <td>
                 <input type="text" name="mwp_creport_email_subject" value="<?php echo stripslashes($email_subject); ?>" 
                     id="mwp_creport_email_subject" />                  
+            </td>
+        </tr>
+        <tr>
+            <th><span><?php _e("Recurring Schedule"); ?></span></th>
+            <td><p><select name='mainwp_creport_recurring_schedule'>   
+                        <option value=""><?php _e("Off"); ?></option>
+                    <?php foreach($recurring_schedule as $value => $title) { 
+                        $_select = "";
+                        if ($recurringSchedule == $value)
+                                $_select = "selected";
+                        echo '<option value="' . $value . '" ' . $_select . '>' . $title . '</option>';
+                     } ?>
+                    </select>&nbsp;&nbsp;<?php _e("Start Send Date"); ?>&nbsp;&nbsp;
+                    <input type="text" name="mainwp_creport_schedule_date" id="mainwp_creport_schedule_date" class="mainwp_creport_datepicker" value="<?php echo $recurringDate; ?>"/>
+                </p>
+                <p><input type="radio" name="mainwp_creport_schedule_send_email" value="email_auto" id="mainwp_creport_schedule_send_email_auto" <?php echo ($scheduleSendEmail == "email_auto") ? "checked" : ""; ?>/><label for="mainwp_creport_schedule_send_email_auto"><?php _e("Automatically email client the report on schedule"); ?></label></p>
+                <p><input type="checkbox" name="mainwp_creport_schedule_bbc_me_email" value="1" id="mainwp_creport_schedule_bbc_me_email" <?php echo $scheduleBCCme ? "checked" : ""; ?>/><label for="mainwp_creport_schedule_bbc_me_email"><?php _e("BCC me on report email"); ?></label></p>
+                <p><input type="radio" name="mainwp_creport_schedule_send_email" value="email_review" id="mainwp_creport_schedule_send_email_me_review" <?php echo ($scheduleSendEmail == "email_review") ? "checked" : ""; ?>/><label for="mainwp_creport_schedule_send_email_me_review"><?php _e("Email me when report is complete so I can review"); ?></label></p>
             </td>
         </tr>
         <input type="hidden" name="mwp_creport_client_id" value="<?php echo $client_id; ?>">

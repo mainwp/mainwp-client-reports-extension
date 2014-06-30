@@ -1,7 +1,7 @@
 <?php
 class MainWPCReportDB
 {    
-    private $mainwp_wpcreport_db_version = "3.2";        
+    private $mainwp_wpcreport_db_version = "3.5";        
     private $table_prefix;
     
     //Singleton
@@ -392,7 +392,11 @@ PRIMARY KEY  (`id`)  ';
 `lastsend` int(11) NOT NULL,
 `nextsend` int(11) NOT NULL,
 `subject` text NOT NULL,
-`is_archived` tinyint(1) NOT NULL DEFAULT \'0\',
+`recurring_schedule` VARCHAR(32) NOT NULL DEFAULT "",
+`recurring_date` int(11) NOT NULL,
+`schedule_send_email` VARCHAR(32) NOT NULL,
+`schedule_bcc_me` tinyint(1) NOT NULL DEFAULT 0,
+`is_archived` tinyint(1) NOT NULL DEFAULT 0,
 `archive_report` text NOT NULL,
 `archive_report_pdf` text NOT NULL,
 `selected_site` int(11) NOT NULL';
@@ -715,6 +719,10 @@ PRIMARY KEY  (`id`)  ';
                                 'nextsend',
                                 'subject',
                                 'selected_site',
+                                'recurring_schedule',
+                                'recurring_date',
+                                'schedule_send_email',
+                                'schedule_bcc_me',        
                                 'is_archived',
                                 'archive_report',
                                 'archive_report_pdf'
@@ -808,6 +816,19 @@ PRIMARY KEY  (`id`)  ';
         //echo $sql;
         return $wpdb->get_results($sql);         
     }
+    
+    public function getScheduleReports() {
+         global $wpdb;
+        $sql = "SELECT rp.*, c.* FROM " . $this->tableName('client_report') . " rp "
+                    . " LEFT JOIN " . $this->tableName('client_report_client') . " c "
+                    . " ON rp.client_id = c.clientid "
+                    . " WHERE rp.recurring_schedule != '' "                     
+                    . " AND rp.selected_site != 0 "
+                    . "";  
+        //echo $sql;
+        return $wpdb->get_results($sql);  
+    }            
+            
     public function deleteReportBy($by = 'id', $value = null) {
         global $wpdb;        
         if ($by == "id") {
