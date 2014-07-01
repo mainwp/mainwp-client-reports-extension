@@ -1,7 +1,7 @@
 <?php
 class MainWPCReportDB
 {    
-    private $mainwp_wpcreport_db_version = "3.5";        
+    private $mainwp_wpcreport_db_version = "3.8";        
     private $table_prefix;
     
     //Singleton
@@ -389,6 +389,7 @@ PRIMARY KEY  (`id`)  ';
 `header` text NOT NULL,
 `body` text NOT NULL,
 `footer` text NOT NULL,
+`attach_files` text NOT NULL,
 `lastsend` int(11) NOT NULL,
 `nextsend` int(11) NOT NULL,
 `subject` text NOT NULL,
@@ -396,6 +397,9 @@ PRIMARY KEY  (`id`)  ';
 `recurring_date` int(11) NOT NULL,
 `schedule_send_email` VARCHAR(32) NOT NULL,
 `schedule_bcc_me` tinyint(1) NOT NULL DEFAULT 0,
+`scheduled` tinyint(1) NOT NULL DEFAULT 0,
+`schedule_nextsend` int(11) NOT NULL,
+`schedule_lastsend` int(11) NOT NULL,
 `is_archived` tinyint(1) NOT NULL DEFAULT 0,
 `archive_report` text NOT NULL,
 `archive_report_pdf` text NOT NULL,
@@ -725,7 +729,11 @@ PRIMARY KEY  (`id`)  ';
                                 'schedule_bcc_me',        
                                 'is_archived',
                                 'archive_report',
-                                'archive_report_pdf'
+                                'archive_report_pdf',
+                                'attach_files',
+                                'scheduled',
+                                'schedule_lastsend',
+                                'schedule_nextsend'
                             );
         
         $update_report = array();
@@ -748,7 +756,7 @@ PRIMARY KEY  (`id`)  ';
         return false;
     }
     
-    public function getReportBy($by = 'id', $value = null, $orderby = null, $order = null) {
+    public function getReportBy($by = 'id', $value = null, $orderby = null, $order = null, $output = OBJECT) {
         global $wpdb;
         
         if (empty($by) || ($by !== 'all' && empty($value)))
@@ -777,29 +785,29 @@ PRIMARY KEY  (`id`)  ';
                     . " LEFT JOIN " . $this->tableName('client_report_client') . " c "
                     . " ON rp.client_id = c.clientid "
                     . " WHERE `client_id` = %d " . $_order_by , $value);
-             return $wpdb->get_results($sql);  
+             return $wpdb->get_results($sql, $output);  
         } if ($by == 'site') {
             $sql = $wpdb->prepare("SELECT rp.*, c.* FROM " . $this->tableName('client_report') . " rp "
                     . " LEFT JOIN " . $this->tableName('client_report_client') . " c "
                     . " ON rp.client_id = c.clientid "
                     . " WHERE `selected_site` = %d " . $_order_by , $value);
-             return $wpdb->get_results($sql);  
+             return $wpdb->get_results($sql, $output);  
         } if ($by == 'title') {
             $sql = $wpdb->prepare("SELECT rp.*, c.* FROM " . $this->tableName('client_report') . " rp "
                     . " LEFT JOIN " . $this->tableName('client_report_client') . " c "
                     . " ON rp.client_id = c.clientid "
                     . " WHERE `title` = %s " . $_order_by , $value);
-             return $wpdb->get_results($sql);  
+             return $wpdb->get_results($sql, $output);  
         } else if ($by == 'all') {            
             $sql = "SELECT * FROM " . $this->tableName('client_report') . " rp "
                     . "LEFT JOIN " . $this->tableName('client_report_client') . " c "
                     . " ON rp.client_id = c.clientid "                    
                     . " WHERE 1 = 1 " . $_order_by;            
-            return $wpdb->get_results($sql);  
+            return $wpdb->get_results($sql, $output);  
         }         
         //echo $sql;
         if (!empty($sql))
-            return $wpdb->get_row($sql);        
+            return $wpdb->get_row($sql, $output);        
            
         return false;
     }
@@ -822,7 +830,7 @@ PRIMARY KEY  (`id`)  ';
         $sql = "SELECT rp.*, c.* FROM " . $this->tableName('client_report') . " rp "
                     . " LEFT JOIN " . $this->tableName('client_report_client') . " c "
                     . " ON rp.client_id = c.clientid "
-                    . " WHERE rp.recurring_schedule != '' "                     
+                    . " WHERE rp.recurring_schedule != '' AND rp.scheduled = 1"                     
                     . " AND rp.selected_site != 0 "
                     . "";  
         //echo $sql;

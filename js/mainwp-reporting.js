@@ -341,6 +341,7 @@ jQuery(document).ready(function($) {
         $('#mwp_creport_date_from').removeClass('form-invalid');
         $('#selected_sites').removeClass('form-invalid');
         $('#mwp_creport_email').removeClass('form-invalid');
+        $('#mainwp_creport_recurring_schedule').removeClass('form-invalid');
         
         var errors = []; 
         var selected_sites = [];
@@ -355,9 +356,7 @@ jQuery(document).ready(function($) {
                 errors.push(__('Date From is required.'));
                 $('#mwp_creport_date_from').addClass('form-invalid');
             }
-        }
-        
-        if (action !== 'save') {    
+           
             jQuery("#selected_sites input[name='selected_site']:checked").each(function (i) {
                 selected_sites.push(jQuery(this).val());                       
             });  
@@ -367,6 +366,13 @@ jQuery(document).ready(function($) {
                 $('#selected_sites').addClass('form-invalid'); 
             }
         }
+        
+        if (action == 'schedule') {
+            if ($.trim($('#mainwp_creport_recurring_schedule :selected').val()) == '') {
+                errors.push(__('Recurring Schedule is required.'));
+                $('#mainwp_creport_recurring_schedule').addClass('form-invalid');
+            }
+        }        
         
         if (action == 'send') {
             if ($.trim($('#mwp_creport_email').val()) == '') {
@@ -411,6 +417,12 @@ jQuery(document).ready(function($) {
             return false; 
         $('#mwp_creport_report_submit_action').val('save');
     });   
+    
+    $('#mwp-creport-schedule-btn').live('click' ,function(){        
+        if (mainwp_creport_valid_report_data('schedule') === false)
+            return false; 
+        $('#mwp_creport_report_submit_action').val('schedule');
+    }); 
     
      $('#mwp-creport-save-pdf-btn').live('click' ,function(){        
         if (mainwp_creport_valid_report_data() === false)

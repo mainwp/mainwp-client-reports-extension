@@ -523,67 +523,15 @@ class MainWPCReport
         if (is_array($sche_reports)) {
             foreach($sche_reports as $report) {
                 $schedule = $report->recurring_schedule; 
-                if (empty($schedule))
-                    continue;                
-                $report_date_to = $report_date_from  = 0;
-                $last_send = $report->lastsend;                
-                $start_date_to_send = $report->recurring_date;                
-                $start_today_timestamp = strtotime(date("Y-m-d") . " 00:00:00");
-                $send_email_now = false;                 
-                if ($last_send < $start_date_to_send) { 
-                    if ($start_today_timestamp >= $start_date_to_send) {                         
-                        $send_email_now = true;  
-                        $report_date_to = $start_today_timestamp - 1;
-                    }
-                } else {                
-                    if ($schedule == "daily") { 
-                        if ($start_today_timestamp > $last_send) {                           
-                           $report_date_to = $start_today_timestamp - 1;
-                           $report_date_from = strtotime(date("Y-m-d", $start_today_timestamp - 24 * 3600));
-                           $send_email_now = true; 
-                        }
-                    } else if ($schedule == "weekly") {
-                        if ($start_today_timestamp - 7 * 24 * 3600 > $last_send) {
-                            $report_date_to = $start_today_timestamp - 1;
-                            $report_date_from = strtotime(date("Y-m-d", $start_today_timestamp - 7 * 24 * 3600));
-                            $send_email_now = true; 
-                        }
-                    } else if ($schedule == "biweekly") {
-                        if ($start_today_timestamp - 2 * 7 * 24 * 3600 > $last_send) {                            
-                            $report_date_to = $start_today_timestamp - 1;
-                            $report_date_from = strtotime(date("Y-m-d", $start_today_timestamp - 2 * 7 * 24 * 3600));
-                            $send_email_now = true;
-                        }
-                    } else if ($schedule == "monthly") {
-                        $day_to_send = date("d", $start_date_to_send);
-                        $month_last_send = date("m", $last_send);
-                        $year_last_send = date("Y", $last_send);
-                        
-                        $day_in_month = date("t");
-                        if ($day_to_send > $day_in_month) {
-                            $day_to_send = $day_in_month;
-                        }   
-                        
-                        $month_to_send = $month_last_send + 1;
-                        $year_to_send = $year_last_send;
-                        if ($month_to_send > 12) {
-                            $month_to_send = 1;
-                            $year_to_send = $year_last_send + 1;
-                        }                          
-                        $time_to_send = strtotime($year_to_send . "-" . $month_to_send . "-" . $day_to_send);                        
-                        if (time() >= $time_to_send) {                              
-                            $report_date_to = $time_to_send - 1;
-                            $report_date_from = strtotime($year_to_send . "-" . $month_last_send . "-" . $day_to_send);
-                            $send_email_now = true;
-                        }
-                    }
-                }
-                
-                if ($send_email_now) {                      
+                $recurring_date = $report->recurring_date;
+                if (empty($schedule) || empty($report->scheduled) || empty($recurring_date))
+                    continue; 
+                $now = time();
+                 if ($now >= $report->schedule_nextsend) {                     
                     $my_email = apply_filters('mainwp_getnotificationemail');   
-                    $bcc = "";
-                    $report->date_from = $report_date_from;
-                    $report->date_to = $report_date_to;
+                    $bcc = "";   
+                    $report->date_from = $report->schedule_lastsend;
+                    $report->date_to = $report->schedule_nextsend;
                     if ($report->schedule_send_email == "email_auto") {
                         if ($report->schedule_bcc_me) 
                             $bcc = $my_email;
@@ -591,14 +539,58 @@ class MainWPCReport
                     } else if ($report->schedule_send_email == "email_review" && !empty($my_email)) {
                         self::send_report_mail($report, $my_email, "Review report");
                     }
+                    
+                    $schedule_nextsend = self::cal_schedule_nextsend($schedule, $recurring_date, $now);
                     $update_report = array('id' => $report->id,     
-                                            'date_from' => $report_date_from, // update date_from for report
-                                            'date_to' => $report_date_to
+                                            'date_from' => $report->schedule_nextsend + 1, 
+                                            'date_to' => $schedule_nextsend,
+                                            'schedule_nextsend' => $schedule_nextsend,
+                                            'schedule_lastsend' => $now,                        
                                             );
                     MainWPCReportDB::Instance()->updateReport($update_report); 
                 }                
             }
         }        
+    }
+    
+    public static function cal_schedule_nextsend($schedule, $start_recurring_date, $scheduleLastSend = 0) {
+        if (empty($schedule) || empty($start_recurring_date))
+            return 0;          
+        $next_report_date_to =  0;
+        if ($scheduleLastSend < $start_recurring_date) { 
+            $middle_night_timestamp = strtotime(date("Y-m-d", $start_recurring_date) . " 00:00:00");
+            $next_report_date_to = $middle_night_timestamp - 1;            
+        } else {                
+            if ($schedule == "daily") { 
+                $middle_night_timestamp = strtotime(date("Y-m-d", $scheduleLastSend + 24 * 3600) . " 00:00:00");
+                $next_report_date_to = $start_today_timestamp - 1;                   
+            } else if ($schedule == "weekly") {
+                $middle_night_timestamp = strtotime(date("Y-m-d", $scheduleLastSend + 7 * 24 * 3600) . " 00:00:00");
+                $next_report_date_to = $start_today_timestamp - 1;                                   
+            } else if ($schedule == "biweekly") {
+                $middle_night_timestamp = strtotime(date("Y-m-d", $scheduleLastSend + 2 * 7 * 24 * 3600) . " 00:00:00");
+                $next_report_date_to = $start_today_timestamp - 1;                                                   
+            } else if ($schedule == "monthly") {
+                $day_to_send = date("d", $start_recurring_date);
+                $month_last_send = date("m", $scheduleLastSend);
+                $year_last_send = date("Y", $scheduleLastSend);
+
+                $day_in_month = date("t");
+                if ($day_to_send > $day_in_month) {
+                    $day_to_send = $day_in_month;
+                }   
+
+                $month_to_send = $month_last_send + 1;
+                $year_to_send = $year_last_send;
+                if ($month_to_send > 12) {
+                    $month_to_send = 1;
+                    $year_to_send = $year_last_send + 1;
+                }                          
+                $time_to_send = strtotime($year_to_send . "-" . $month_to_send . "-" . $day_to_send);                                                                   
+                $next_report_date_to = $time_to_send - 1;                                    
+            }
+        }        
+        return $next_report_date_to;
     }
     
     public function shortcuts_widget($website) {        
@@ -637,9 +629,11 @@ class MainWPCReport
         if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'editreport' && isset($_REQUEST['nonce']) &&  wp_verify_nonce($_REQUEST['nonce'], 'mwp_creport_nonce')) {
             $messages = $errors = array();
             $report = array();
-            
-            if (isset($_REQUEST['id']) && !empty($_REQUEST['id'])) {
-                $report['id'] = $_REQUEST['id'];
+            $current_attach_files = "";
+            if (isset($_REQUEST['id']) && !empty($_REQUEST['id'])) {                
+                $report = MainWPCReportDB::Instance()->getReportBy('id', $_REQUEST['id'], null, null, ARRAY_A);
+                $current_attach_files = $report['attach_files'];
+                //print_r($report);
             }
            
             if(isset($_POST['mwp_creport_title']) && ($title = trim($_POST['mwp_creport_title'])) != "")
@@ -717,15 +711,21 @@ class MainWPCReport
             if(isset($_POST['mwp_creport_email_subject'])) {
                 $report['subject'] = trim($_POST['mwp_creport_email_subject']);                
             }
-            //print_r($_POST);
-            if(isset($_POST['mainwp_creport_recurring_schedule']) && !empty($_POST['mainwp_creport_recurring_schedule'])) {
-                $report['recurring_schedule'] = trim($_POST['mainwp_creport_recurring_schedule']);
-                $rec_date = trim($_POST['mainwp_creport_schedule_date']);
-                $report['recurring_date'] = strtotime($rec_date);                      
-                $report['schedule_send_email'] = trim($_POST['mainwp_creport_schedule_send_email']);
-                $report['schedule_bcc_me'] = isset($_POST['mainwp_creport_schedule_bbc_me_email']) ? 1 : 0;
-            }            
             
+            //print_r($_POST);
+            if(isset($_POST['mainwp_creport_recurring_schedule'])) {
+                $report['recurring_schedule'] = trim($_POST['mainwp_creport_recurring_schedule']);                
+            }
+            if(isset($_POST['mainwp_creport_schedule_date'])) {
+                $rec_date = trim($_POST['mainwp_creport_schedule_date']);
+                $report['recurring_date'] = strtotime($rec_date);    
+            }            
+            if(isset($_POST['mainwp_creport_schedule_send_email'])) {
+                $report['schedule_send_email'] = trim($_POST['mainwp_creport_schedule_send_email']);   
+            }
+            if(isset($_POST['mainwp_creport_schedule_bbc_me_email'])) {
+                $report['schedule_bcc_me'] = isset($_POST['mainwp_creport_schedule_bbc_me_email']) ? 1 : 0;
+            }                
             if(isset($_POST['mainwp_creport_report_header'])) {
                 $report['header'] = trim($_POST['mainwp_creport_report_header']);                
             }
@@ -746,7 +746,30 @@ class MainWPCReport
             {
                 @touch($creport_dir . '/index.php');
             }
-     
+       
+            $attach_files = "NOTCHANGE";  
+            $delete_files = false;
+            if (isset($_POST['mainwp_creport_delete_attach_files']) && $_POST['mainwp_creport_delete_attach_files'] == "1") {
+                $attach_files = "";
+                if (!empty($current_attach_files))
+                    self::delete_attach_files($current_attach_files, $creport_dir);               
+            }   
+            
+            $return = array();             
+            if(isset($_FILES['mainwp_creport_attach_files']) && !empty($_FILES['mainwp_creport_attach_files']['name'][0])) {                                      
+                if (!empty($current_attach_files))
+                    self::delete_attach_files($current_attach_files, $creport_dir);                   
+                $output = self::handleUploadFiles($_FILES['mainwp_creport_attach_files'], $creport_dir);  
+                //print_r($output);
+                if (isset($output['error']))
+                    $return['error'] = $output['error'];                
+                if (is_array($output) && isset($output['filenames']) && !empty($output['filenames']))
+                    $attach_files = implode (", ", $output['filenames']);
+            }
+            
+            if ($attach_files !== "NOTCHANGE")
+                $report['attach_files'] = $attach_files;
+            
             $selected_site = 0; 
             if (isset($_POST['select_by'])) {                            
                 if (isset($_POST['selected_site'])) {                                        
@@ -755,11 +778,14 @@ class MainWPCReport
             }               
             $report['selected_site'] = $selected_site;
             
-            $return = array(); 
-            
+            if ("schedule" === $_POST['mwp_creport_report_submit_action']) {
+                $report['scheduled'] = 1;
+                $report['schedule_nextsend'] = self::cal_schedule_nextsend($report['recurring_schedule'], $report['recurring_date']);
+            }
             if ("save" === $_POST['mwp_creport_report_submit_action'] || 
                 "send" === $_POST['mwp_creport_report_submit_action'] ||  
                 "save_pdf" === $_POST['mwp_creport_report_submit_action'] || 
+                "schedule" === $_POST['mwp_creport_report_submit_action'] ||
                 "archive_report" === $_POST['mwp_creport_report_submit_action'] ) {   
                 //print_r($report);
                 if($result = MainWPCReportDB::Instance()->updateReport($report)) {                    
@@ -788,19 +814,57 @@ class MainWPCReport
                 $return['message'] = $messages;
             
             return $return;
-        } else {            
-//            $tmp_logo = get_option('mainwp_creport_report_temp_logo');
-//            if (!empty($tmp_logo)) {
-//                $creport_dir = apply_filters('mainwp_getspecificdir',"client_report/");
-//                $tmp_logo = $creport_dir.$tmp_logo;
-//                if (file_exists($tmp_logo)) {
-//                    @unlink($tmp_logo);
-//                }
-//                delete_option('mainwp_creport_report_temp_logo'); // delete temp 
-//            }
-        }
+        } 
         return null;
     }
+    
+    static function delete_attach_files($files, $dir) {
+        $files = explode(",", $files);
+        if (is_array($files)) {
+            foreach ($files as $file) {
+                $file = trim($file);
+                $file_path = $dir . $file;
+                if (file_exists($file_path)) {
+                    @unlink($file_path);
+                }
+            }
+        }
+    }
+    
+    public static function handleUploadFiles($file_input, $dest_dir) {        
+        $output = array();        
+        $attachFiles = array();
+        $allowed_files = array("jpeg", "jpg", "gif", "png", "rar", "zip");
+        
+        $tmp_files = $file_input['tmp_name'];
+        if (is_array($tmp_files)) {
+            foreach($tmp_files as $i => $tmp_file) {
+                if ($file_input['error'][$i] == UPLOAD_ERR_OK && is_uploaded_file($tmp_file))
+                {                    
+                    $file_size = $file_input['size'][$i];
+                    // = $file_input['type'][$i];
+                    $file_name = $file_input['name'][$i];                
+
+                    if (($file_size > 5 * 1024 * 1024)){   
+                        $output["error"][] = $file_name . " - " . __("File size too big"); 
+                    } else if (!in_array(end(explode('.', $file_name)), $allowed_files)){                        
+                        $output["error"][] = $file_name . " - " . __("File type are not allowed");
+                    }    
+                    else {   
+                        $dest_file = $dest_dir . $file_name;                     
+                        $dest_file = dirname( $dest_file ) . '/' . wp_unique_filename( dirname( $dest_file ), basename( $dest_file ) );
+                        if (move_uploaded_file($tmp_file, $dest_file)) {                         
+                            $attachFiles[] = basename($dest_file);                       
+                        } else                         
+                            $output["error"][] = $file_name . " - " . __("Can not copy file"); ; 
+                    }
+                }
+            }
+        }
+        $output["filenames"] = $attachFiles;
+        return $output;
+    }
+    
     
     public static function send_report_mail($report, $email = "", $subject = "", $bcc = "")
     {
@@ -842,9 +906,20 @@ class MainWPCReport
             $header[] = "Bcc: " . $bcc;            
         }
         
+        $files = $report->attach_files;
+        $attachments = array();
+        if (!empty($files)) {
+            $creport_dir = apply_filters('mainwp_getspecificdir',"client_report/");
+            $files = explode(",", $files);
+            foreach($files as $file) {
+                $file = trim($file);
+                $attachments[] = $creport_dir . $file;
+            }
+        }
+        //print_r($attachments);
         if (!empty($content) && !empty($email))
         {   
-            if (wp_mail($email, stripslashes($email_subject), $content, $header)) { 
+            if (wp_mail($email, stripslashes($email_subject), $content, $header, $attachments)) { 
                 if (!empty($report->id)) {
                     $report->lastsend = time();                    
                     $update_report = array('id' => $report->id, 'lastsend' => $report->lastsend);
@@ -930,7 +1005,7 @@ class MainWPCReport
     public static function renderTabs() {
         global $current_user;                     
         $messages = $errors = $reporttab_messages = array();               
-        $do_preview = $do_send = $do_send_test_email = $do_save_pdf = $do_replicate = $do_archive = false;              
+        $do_preview = $do_send = $do_schedule = $do_send_test_email = $do_save_pdf = $do_replicate = $do_archive = false;              
         $do_save_pdf_get = $do_archive_get = false;
         $report_id = 0;
         $report = false;
@@ -959,6 +1034,8 @@ class MainWPCReport
                 $do_preview = true;
             else if ("archive_report" === (string)$_POST['mwp_creport_report_submit_action'])
                 $do_archive = true;
+            else if ("schedule" == $_POST['mwp_creport_report_submit_action'])
+                $do_schedule = true;
         }
        
         $current_is_archived = false;
@@ -973,6 +1050,7 @@ class MainWPCReport
         
         if (!$current_is_archived && isset($_POST['mwp_creport_report_submit_action']) && !empty($_POST['mwp_creport_report_submit_action'])) {
             $result_save = self::saveReport(); 
+            //print_r($result_save);
             $report_id = isset($result_save['id']) && $result_save['id'] ? $result_save['id'] : 0;
             
             if (isset($result_save['submit_report']) && is_object($result_save['submit_report'])) {
@@ -1026,6 +1104,7 @@ class MainWPCReport
             $report->id = $report_id = 0;
             $report->title = ""; 
             $report->is_archived = 0;
+            $report->attach_files = "";
         }
         
         $selected_site = 0;      
@@ -1046,6 +1125,8 @@ class MainWPCReport
             }
         } else if(isset($_POST['mainwp_creport_stream_groups_select']) || isset($_GET['s']) || isset($_GET['stream_orderby'])){
             $style_tab_stream = "";
+        } else if ($do_schedule) {
+            $style_tab_edit = "";
         } else 
             $style_tab_report = "";
         
@@ -1237,7 +1318,8 @@ class MainWPCReport
                                         <input type="submit" <?php echo $_disabled; ?> value="<?php _e("Archive Report"); ?>" class="button" id="mwp-creport-archive-report-btn" name="button_archive">
                                         <input type="submit" value="<?php _e("Download PDF"); ?>" class="button" id="mwp-creport-save-pdf-btn" name="button_save_pdf">
                                         <input type="submit" <?php echo $_disabled; ?> value="<?php _e("Save Report"); ?>" class="button" id="mwp-creport-save-btn" name="button_save">
-                                        <input type="submit" value="<?php _e("Send Report"); ?>" class="button-primary" id="mwp-creport-send-btn" name="submit">
+                                        <input type="submit" value="<?php _e("Schedule Report"); ?>" class="button" id="mwp-creport-schedule-btn" name="button_schedule">
+                                        <input type="submit" value="<?php _e("Send Now"); ?>" class="button-primary" id="mwp-creport-send-btn" name="submit">
                                     </span>
                                 </p>
                             </div>                              
@@ -1271,7 +1353,7 @@ class MainWPCReport
             ?>  
             </div>
             <input type="button" value="<?php _e("Close"); ?>" class="button-primary" id="mwp-creport-preview-btn-close"/>
-            <input type="button" value="<?php _e("Send Report"); ?>" class="button-primary" id="mwp-creport-preview-btn-send"/>
+            <input type="button" value="<?php _e("Send Now"); ?>" class="button-primary" id="mwp-creport-preview-btn-send"/>
         </div>
         
         <script>
@@ -1678,20 +1760,22 @@ class MainWPCReport
         }        
         
         $title_order = $name_order = $lastsend_order = $datefrom_order = $client_order = $site_order = "";                     
-        if (isset($_GET['orderby']) && $_GET['orderby'] == "title") {            
+        if ($orderby == "title") {            
             $title_order = ($order == "desc") ? "asc" : "desc";                     
-        } else if (isset($_GET['orderby']) && $_GET['orderby'] == "name") {            
+        } else if ($orderby == "name") {            
             $name_order = ($order == "desc") ? "asc" : "desc";                     
-        } else if (isset($_GET['orderby']) && $_GET['orderby'] == "lastsend") {
+        } else if ($orderby == "lastsend") {
             $lastsend_order = ($order == "desc") ? "asc" : "desc";                     
-        } else if (isset($_GET['orderby']) && $_GET['orderby'] == "date_from") {
+        } else if ($orderby == "date_from") {
             $datefrom_order = ($order == "desc") ? "asc" : "desc";                     
-        } else if (isset($_GET['orderby']) && $_GET['orderby'] == "client") {
+        } else if ($orderby == "client") {
             $client_order = ($order == "desc") ? "asc" : "desc";                     
-        } else if (isset($_GET['orderby']) && $_GET['orderby'] == "site") {
+        } else if ($orderby == "site") {
             $site_order = ($order == "desc") ? "asc" : "desc";                     
-        }        
-        
+        } else if ($orderby == "schedule") {
+            $orderby = "recurring_schedule";
+            $schedule_order = ($order == "desc") ? "asc" : "desc";        
+        }  
         
         $get_by = 'all';
         $value = null;
@@ -1744,6 +1828,9 @@ class MainWPCReport
                     <th scope="col" class="manage-column sortable <?php echo $datefrom_order; ?>">
                         <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=date_from&order=<?php echo (empty($datefrom_order) ? 'asc' : $datefrom_order); ?>"><span><?php _e('Report For','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>
+                    <th scope="col" class="manage-column sortable <?php echo $schedule_order; ?>">
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=schedule&order=<?php echo (empty($schedule_order) ? 'asc' : $schedule_order); ?>"><span><?php _e('Scheduled','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                    </th>
                     <th scope="col" class="manage-column sortable  <?php echo $site_order; ?>">
                         <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=site&order=<?php echo (empty($site_order) ? 'asc' : $site_order); ?>"><span><span><?php _e('Site','mainwp'); ?></span></span><span class="sorting-indicator"></span></a>
                     </th>
@@ -1765,6 +1852,9 @@ class MainWPCReport
                     </th>
                     <th scope="col" class="manage-column sortable <?php echo $datefrom_order; ?>">
                         <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=date_from&order=<?php echo (empty($datefrom_order) ? 'asc' : $datefrom_order); ?>"><span><?php _e('Report For','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                    </th>
+                    <th scope="col" class="manage-column sortable <?php echo $schedule_order; ?>">
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=schedule&order=<?php echo (empty($schedule_order) ? 'asc' : $schedule_order); ?>"><span><?php _e('Scheduled','mainwp'); ?></span><span class="sorting-indicator"></span></a>
                     </th>
                     <th scope="col" class="manage-column sortable <?php echo $site_order; ?>">
                         <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=site&order=<?php echo (empty($site_order) ? 'asc' : $site_order); ?>"><span><span><?php _e('Site','mainwp'); ?></span></span><span class="sorting-indicator"></span></a>
@@ -1802,6 +1892,12 @@ class MainWPCReport
         <?php
             return;            
         }   
+        $recurring_schedule = array("daily" => __("Daily"), 
+                                    "weekly" => __("Weekly"), 
+                                    "biweekly" => __("Bi Weekly"),
+                                    "monthly" => __("Monthly")
+                                    );
+        
         $url_loader = plugins_url('images/loader.gif', dirname(__FILE__));
         foreach ($reports as $report) {
             $website = ($report->selected_site && isset($websites[$report->selected_site])) ? $websites[$report->selected_site] : null;
@@ -1811,6 +1907,14 @@ class MainWPCReport
                         '<div class="row-actions"><span class="dashboard"><a href="admin.php?page=managesites&dashboard=' . $website['id'] . '">' .  __("Dashboard") . '</a></span> | ' . 
                         '<span class="edit"><a href="admin.php?page=managesites&id=' .  $website['id'] . '">' . __("Edit") . '</a></span></div>';                    
             }
+            
+            $sche_column = _("No");
+            if (!empty($report->recurring_schedule) && !empty($report->scheduled)) {
+                $sche_column = $recurring_schedule[$report->recurring_schedule];
+                if (!empty($report->schedule_nextsend))
+                    $sche_column .= "<br> Next Send: " . MainWPCReportUtility::formatTimestamp($report->schedule_nextsend);
+            }
+                    
     ?>   
         <tr id="<?php echo $report->id; ?>">            
             <td>
@@ -1842,6 +1946,9 @@ class MainWPCReport
             <td> 
                 <?php echo !empty($report->date_from) ? "From: " . MainWPCReportUtility::formatTimestamp($report->date_from) . "<br>" : ""; ?>
                 <?php echo !empty($report->date_to) ? "To: " . MainWPCReportUtility::formatTimestamp($report->date_to) : ""; ?>
+            </td>
+            <td> 
+                <?php echo $sche_column; ?>
             </td>
             <td> 
                 <?php echo $site_column; ?>
@@ -1932,7 +2039,7 @@ class MainWPCReport
         $from_name = $from_company = $from_email = "";
         $to_client = $to_name = $to_company = $to_email = $email_subject = "";
         $client_id = 0;  
-        $recurringSchedule = $recurringDate = "";
+        $recurringSchedule = $recurringDate = $attachFiles = "";
         $scheduleSendEmail = "email_auto";
         $scheduleBCCme = 0;
         //print_r($report);
@@ -1952,7 +2059,7 @@ class MainWPCReport
             $recurringDate = !empty($report->recurring_date) ? date("Y-m-d", $report->recurring_date) : "";
             $scheduleSendEmail = $report->schedule_send_email;
             $scheduleBCCme = $report->schedule_bcc_me;
-            
+            $attachFiles = $report->attach_files;            
             $client_id = intval($report->client_id);
             if ($client_id) {
                 $client = MainWPCReportDB::Instance()->getClientBy('clientid', $client_id);
@@ -1964,17 +2071,6 @@ class MainWPCReport
                 }
             }                
         } 
-//        else if (isset($_POST['submit'])){
-//            $title =  isset($_POST['mwp_creport_title']) ? trim($_POST['mwp_creport_title']) : "";
-//            $date_from =  isset($_POST['mwp_creport_date_from']) ? trim($_POST['mwp_creport_date_from']) : "";
-//            $date_to =  isset($_POST['mwp_creport_date_to']) ? trim($_POST['mwp_creport_date_to']) : "";
-//            $from_name =  isset($_POST['mwp_creport_fname']) ? trim($_POST['mwp_creport_fname']) : "";
-//            $from_company =  isset($_POST['mwp_creport_fcompany']) ? trim($_POST['mwp_creport_fcompany']) : "";
-//            $from_email =  isset($_POST['mwp_creport_femail']) ? trim($_POST['mwp_creport_femail']) : "";
-//            $to_name =  isset($_POST['mwp_creport_name']) ? trim($_POST['mwp_creport_name']) : "";
-//            $to_company =  isset($_POST['mwp_creport_company']) ? trim($_POST['mwp_creport_company']) : "";
-//            $to_email =  isset($_POST['mwp_creport_email']) ? trim($_POST['mwp_creport_email']) : "";
-//        }
             
         $clients = MainWPCReportDB::Instance()->getClients();
         if (!is_array($clients)) 
@@ -2051,7 +2147,7 @@ class MainWPCReport
         </tr>
         <tr>
             <th><span><?php _e("Recurring Schedule"); ?></span></th>
-            <td><p><select name='mainwp_creport_recurring_schedule'>   
+            <td><p><select name='mainwp_creport_recurring_schedule' id="mainwp_creport_recurring_schedule">   
                         <option value=""><?php _e("Off"); ?></option>
                     <?php foreach($recurring_schedule as $value => $title) { 
                         $_select = "";
@@ -2067,6 +2163,24 @@ class MainWPCReport
                 <p><input type="radio" name="mainwp_creport_schedule_send_email" value="email_review" id="mainwp_creport_schedule_send_email_me_review" <?php echo ($scheduleSendEmail == "email_review") ? "checked" : ""; ?>/><label for="mainwp_creport_schedule_send_email_me_review"><?php _e("Email me when report is complete so I can review"); ?></label></p>
             </td>
         </tr>
+        <tr>
+           <th><span><?php _e("Attach Files"); ?></span></th>
+           <td><?php 
+                if (!empty($attachFiles)) {                                                        
+                        ?>
+                        <p><?php echo $attachFiles ?></p>                                
+                        <p>
+                            <input type="checkbox" class="mainwp-checkbox2" value="1"  id="mainwp_creport_delete_attach_files" name="mainwp_creport_delete_attach_files">
+                            <label class="mainwp-label2" for="mainwp_creport_delete_attach_files"><?php _e("Delete attach files", "mainwp");?></label>
+                        </p>
+                    <?php                      
+                    }
+                ?>
+                <input type="file" name="mainwp_creport_attach_files[]" multiple="true"><br /> 
+                <span class="description"><?php _e("File must be 5MB maximum.")?></span>
+           </td>
+        </tr>
+        
         <input type="hidden" name="mwp_creport_client_id" value="<?php echo $client_id; ?>">
     <?php
     }            
