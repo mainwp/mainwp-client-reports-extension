@@ -1749,7 +1749,7 @@ class MainWPCReport
             $order = $_GET['order'];
         }        
         
-        $title_order = $name_order = $lastsend_order = $datefrom_order = $client_order = $site_order = "";                     
+        $title_order = $name_order = $lastsend_order = $datefrom_order = $client_order = $site_order = $schedule_order = "";                     
         if ($orderby == "title") {            
             $title_order = ($order == "desc") ? "asc" : "desc";                     
         } else if ($orderby == "name") {            
@@ -2816,7 +2816,7 @@ class MainWPCReport
         exit;
     }
     
-    public function ClientReportsQSG() {
+    public static function ClientReportsQSG() {
 
         ?>
         <div  class="mainwp_info-box" id="cs-pth-notice-box"><b><?php echo __("Need Help?"); ?></b> <?php echo __("Review the Extension"); ?> <a href="http://docs.mainwp.com/category/mainwp-extensions/mainwp-client-reports/" target="_blank"><?php echo __('Documentation'); ?></a>. 
