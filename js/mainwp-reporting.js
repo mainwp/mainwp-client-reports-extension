@@ -350,7 +350,7 @@ jQuery(document).ready(function($) {
         $.post(ajaxurl, data, function(response) { 
             loaderEl.hide();
             if (response && response['status'] == 'success') {
-                me.parent(".schedule"). html(__('Cancelled schedule'));
+                me.parent(".schedule"). html(__('Schedule Cancelled'));
                 row.find('.creport_sche_column').html(__("No"));
             } else {
                 statusEl.html(__('Cancel failed.')).fadeIn();
