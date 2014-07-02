@@ -2068,7 +2068,7 @@ class MainWPCReport
             <tbody>
                <tr>
                    <th colspan="2"> 
-                    <div class="mainwp_info-box-red"><?php _e("Note: This feature uses cron functions in order to work correctly. If you are experiencing issues having the feature trigger please review this") . ' <a href="#" target="_blank">' . __("help document"). '</a>.'; ?></div>
+                    <div class="mainwp_info-box-red"><?php echo __("Note: This feature uses cron functions in order to work correctly. If you are experiencing issues having the feature trigger please review this") . ' <a href="http://docs.mainwp.com/backups-scheduled-events-occuring/" target="_blank">' . __("help document"). '</a>.'; ?></div>
                  </th>
                 </tr>
               <tr>
