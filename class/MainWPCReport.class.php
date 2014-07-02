@@ -1237,12 +1237,12 @@ class MainWPCReport
             <div class="wrap" id="mainwp-ap-option">
             <div class="clearfix"></div>           
             <div class="inside">                 
-                <div  class="mainwp_error" id="mwp-creport-error-box" <?php echo !empty($str_error) ? "style=\"display:block;\"" : ""; ?>><?php echo !empty($str_error) ? "<p>" . $str_error . "</p>" : ""; ?></div>
+                <div  class="mainwp_error error" id="mwp-creport-error-box" <?php echo !empty($str_error) ? "style=\"display:block;\"" : ""; ?>><?php echo !empty($str_error) ? "<p>" . $str_error . "</p>" : ""; ?></div>
                 <div  class="mainwp_info-box-yellow" id="mwp-creport-info-box"  <?php echo (empty($str_message) ? ' style="display: none" ' : ""); ?>><?php echo $str_message?></div>
                             
                 <h3><?php _e("Client Reports Extension"); ?></h3>
                 <div id="mainwp_wpcr_option">
-                    <div class="mainwp_error" id="wpcr_error_box"></div>
+                    <div class="mainwp_error error" id="wpcr_error_box"></div>
                     <div class="clear">
                         <br />
                         <a id="wpcr_report_tab_lnk" href="#" class="mainwp_action left <?php  echo (empty($style_tab_report) ? "mainwp_action_down" : ""); ?>"><?php _e("Client Reports"); ?></a><?php echo $edit_tab_lnk; ?><?php echo $new_tab_lnk; ?><a id="wpcr_token_tab_lnk" href="#" class="mainwp_action mid <?php  echo (empty($style_tab_token) ? "mainwp_action_down" : ""); ?>"><?php _e("Report Tokens"); ?></a><a id="wpcr_stream_tab_lnk" href="#" class="mainwp_action right <?php  echo (empty($style_tab_stream) ? "mainwp_action_down" : ""); ?>"><?php _e("Stream Dashboard"); ?></a>
@@ -1294,7 +1294,7 @@ class MainWPCReport
                                 <div class="mainwp_info-box-yellow"><strong style="font-style:initial">Note</strong>: <span class="description">Only sites with the Stream Plugin installed will be displayed in the list.</span></div>                                
                             </div>                            
                             <div id="wpcr_edit_tab"  <?php echo $style_tab_edit; ?>> 
-                                <?php self::newReportTab($report); 
+                                <?php self::newReportTab($report);                                         
                                     $_disabled = "";
                                     if (!empty($report) && $report->id && isset($report->is_archived) && $report->is_archived) {
                                         $_disabled = "disabled";
@@ -1309,7 +1309,6 @@ class MainWPCReport
                                         <input type="submit" <?php echo $_disabled; ?> value="<?php _e("Archive Report"); ?>" class="button" id="mwp-creport-archive-report-btn" name="button_archive">
                                         <input type="submit" value="<?php _e("Download PDF"); ?>" class="button" id="mwp-creport-save-pdf-btn" name="button_save_pdf">
                                         <input type="submit" <?php echo $_disabled; ?> value="<?php _e("Save Report"); ?>" class="button" id="mwp-creport-save-btn" name="button_save">
-                                        <input type="submit" value="<?php _e("Schedule Report"); ?>" class="button" id="mwp-creport-schedule-btn" name="button_schedule">
                                         <input type="submit" value="<?php _e("Send Now"); ?>" class="button-primary" id="mwp-creport-send-btn" name="submit">
                                     </span>
                                 </p>
@@ -1923,7 +1922,7 @@ class MainWPCReport
                     <?php } ?>
                         
                     <?php if ($report->scheduled) { ?>
-                        <span class="schedule"><a href="#" class="mwp-creport-report-item-cancel-scheduled-lnk"><?php _e("Cancel Scheduled");?></a> | </span>   
+                        <span class="schedule"><a href="#" class="mwp-creport-report-item-cancel-scheduled-lnk"><?php _e("Cancel Schedule");?></a> | </span>   
                     <?php } ?>
                         
                     <span class="delete"><a href="#" class="mwp-creport-report-item-delete-lnk"><?php _e("Delete");?></a></span> 
@@ -1957,6 +1956,7 @@ class MainWPCReport
     public static function newReportTab($report = null) {
         self::newReportSetting($report);
         self::newReportFormat($report);
+        self::newReportSchedule($report);
     }
     
     public static function newReportSetting($report = null) {  
@@ -2034,6 +2034,68 @@ class MainWPCReport
      <?php
     }
     
+    public static function newReportSchedule($report) {        
+        $recurring_schedule = array("daily" => __("Daily"), 
+                                    "weekly" => __("Weekly"), 
+                                    "biweekly" => __("Bi Weekly"),
+                                    "monthly" => __("Monthly")
+                                    );
+        
+        $recurringSchedule = $recurringDate = "";
+        $scheduleSendEmail = "email_auto";
+        $scheduleBCCme = 0;
+        if (!empty($report)) {
+            $recurringSchedule = $report->recurring_schedule;   
+            $recurringDate = !empty($report->recurring_date) ? date("Y-m-d", $report->recurring_date) : "";
+            $scheduleSendEmail = $report->schedule_send_email;
+            $scheduleBCCme = $report->schedule_bcc_me;
+        }
+    ?>        
+        <br>
+        <table class="wp-list-table widefat" cellspacing="0">
+            <thead>
+            <tr>          
+                <th scope="col" colspan="2">
+                    <?php _e('Schedule Report','mainwp'); ?>
+                </th>
+            </tr>
+            </thead>
+            <tfoot>
+                <tr>
+                    <th style="border:none !important;" colspan="2">&nbsp;</th>
+                </tr>
+            </tfoot>
+            <tbody>
+               <tr>
+                   <th colspan="2"> 
+                    <div class="mainwp_info-box-red"><?php _e("Note: This feature uses cron functions in order to work correctly. If you are experiencing issues having the feature trigger please review this") . ' <a href="#" target="_blank">' . __("help document"). '</a>.'; ?></div>
+                 </th>
+                </tr>
+              <tr>
+                <th><span><?php _e("Recurring Schedule"); ?></span></th>
+                <td><p><select name='mainwp_creport_recurring_schedule' id="mainwp_creport_recurring_schedule">   
+                            <option value=""><?php _e("Off"); ?></option>
+                        <?php foreach($recurring_schedule as $value => $title) { 
+                            $_select = "";
+                            if ($recurringSchedule == $value)
+                                    $_select = "selected";
+                            echo '<option value="' . $value . '" ' . $_select . '>' . $title . '</option>';
+                         } ?>
+                        </select>&nbsp;&nbsp;<?php _e("Start Send Date"); ?>&nbsp;&nbsp;
+                        <input type="text" name="mainwp_creport_schedule_date" id="mainwp_creport_schedule_date" class="mainwp_creport_datepicker" value="<?php echo $recurringDate; ?>"/>
+                        <input type="submit" value="<?php _e("Schedule Report"); ?>" class="button-primary" id="mwp-creport-schedule-btn" name="button_schedule">
+                    </p>
+                    <p><input type="radio" name="mainwp_creport_schedule_send_email" value="email_review" id="mainwp_creport_schedule_send_email_me_review" <?php echo ($scheduleSendEmail == "email_review") ? "checked" : ""; ?>/><label for="mainwp_creport_schedule_send_email_me_review"><?php _e("Email me when report is complete so I can review"); ?></label></p>
+                    <p><input type="radio" name="mainwp_creport_schedule_send_email" value="email_auto" id="mainwp_creport_schedule_send_email_auto" <?php echo ($scheduleSendEmail == "email_auto") ? "checked" : ""; ?>/><label for="mainwp_creport_schedule_send_email_auto"><?php _e("Automatically email client the report on schedule"); ?></label></p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="mainwp_creport_schedule_bbc_me_email" value="1" id="mainwp_creport_schedule_bbc_me_email" <?php echo $scheduleBCCme ? "checked" : ""; ?>/><label for="mainwp_creport_schedule_bbc_me_email"><?php _e("BCC me on report email"); ?></label></p>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+     <?php
+    }
+    
+    
     public static function newReportSettingTableContent($report = null) {
         $title = $date_from = $date_to = "";
         $from_name = $from_company = $from_email = "";
@@ -2075,15 +2137,7 @@ class MainWPCReport
         $clients = MainWPCReportDB::Instance()->getClients();
         if (!is_array($clients)) 
             $clients = array();
-        $recurring_schedule = array("daily" => __("Daily"), 
-                                    "weekly" => __("Weekly"), 
-                                    "biweekly" => __("Bi Weekly"),
-                                    "monthly" => __("Monthly")
-                                    );
-        $schedule_date = array();
-        for($i = 1; $i <= 31; $i++) {
-            $schedule_date[] = $i;
-        }
+        
         
     ?>         
         <tr><td colspan="2"><div class="mainwp_info-box-yellow"><?php _e("Tokens are not allowed here"); ?></div></td></tr>            
@@ -2144,25 +2198,7 @@ class MainWPCReport
                 <input type="text" name="mwp_creport_email_subject" value="<?php echo stripslashes($email_subject); ?>" 
                     id="mwp_creport_email_subject" />                  
             </td>
-        </tr>
-        <tr>
-            <th><span><?php _e("Recurring Schedule"); ?></span></th>
-            <td><p><select name='mainwp_creport_recurring_schedule' id="mainwp_creport_recurring_schedule">   
-                        <option value=""><?php _e("Off"); ?></option>
-                    <?php foreach($recurring_schedule as $value => $title) { 
-                        $_select = "";
-                        if ($recurringSchedule == $value)
-                                $_select = "selected";
-                        echo '<option value="' . $value . '" ' . $_select . '>' . $title . '</option>';
-                     } ?>
-                    </select>&nbsp;&nbsp;<?php _e("Start Send Date"); ?>&nbsp;&nbsp;
-                    <input type="text" name="mainwp_creport_schedule_date" id="mainwp_creport_schedule_date" class="mainwp_creport_datepicker" value="<?php echo $recurringDate; ?>"/>
-                </p>
-                <p><input type="radio" name="mainwp_creport_schedule_send_email" value="email_auto" id="mainwp_creport_schedule_send_email_auto" <?php echo ($scheduleSendEmail == "email_auto") ? "checked" : ""; ?>/><label for="mainwp_creport_schedule_send_email_auto"><?php _e("Automatically email client the report on schedule"); ?></label></p>
-                <p><input type="checkbox" name="mainwp_creport_schedule_bbc_me_email" value="1" id="mainwp_creport_schedule_bbc_me_email" <?php echo $scheduleBCCme ? "checked" : ""; ?>/><label for="mainwp_creport_schedule_bbc_me_email"><?php _e("BCC me on report email"); ?></label></p>
-                <p><input type="radio" name="mainwp_creport_schedule_send_email" value="email_review" id="mainwp_creport_schedule_send_email_me_review" <?php echo ($scheduleSendEmail == "email_review") ? "checked" : ""; ?>/><label for="mainwp_creport_schedule_send_email_me_review"><?php _e("Email me when report is complete so I can review"); ?></label></p>
-            </td>
-        </tr>
+        </tr>       
         <tr>
            <th><span><?php _e("Attach Files"); ?></span></th>
            <td><?php 
@@ -2177,7 +2213,7 @@ class MainWPCReport
                     }
                 ?>
                 <input type="file" name="mainwp_creport_attach_files[]" multiple="true"><br /> 
-                <span class="description"><?php _e("File must be 5MB maximum.")?></span>
+                <span class="description"><?php _e("Maximum filesize 5MB.")?></span>
            </td>
         </tr>
         

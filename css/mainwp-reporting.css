@@ -205,3 +205,6 @@ a.creport_format_add_token:hover {
 .mainwp-cr-tut, #mainwp-cr-tips {
     display: none;
 }
+#mwp-creport-schedule-btn {
+    margin-left: 100px;
+}
