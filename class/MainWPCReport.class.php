@@ -474,6 +474,7 @@ class MainWPCReport
         add_action('wp_ajax_mainwp_creport_delete_token', array(&$this, 'delete_token')); 
         add_action('wp_ajax_mainwp_creport_save_token', array(&$this, 'save_token'));
         add_action('wp_ajax_mainwp_creport_delete_report', array(&$this, 'delete_report')); 
+        add_action('wp_ajax_mainwp_creport_cancel_scheduled_report', array(&$this, 'cancel_scheduled_report'));         
         add_action('wp_ajax_mainwp_creport_load_client', array(&$this, 'load_client'));    
         add_action('wp_ajax_mainwp_creport_load_site_tokens', array(&$this, 'load_site_tokens')); 
         add_action('wp_ajax_mainwp_creport_save_format', array(&$this, 'save_format')); 
@@ -530,8 +531,8 @@ class MainWPCReport
                  if ($now >= $report->schedule_nextsend) {                     
                     $my_email = apply_filters('mainwp_getnotificationemail');   
                     $bcc = "";   
-                    $report->date_from = $report->schedule_lastsend;
-                    $report->date_to = $report->schedule_nextsend;
+//                    $report->date_from = $report->schedule_lastsend;
+//                    $report->date_to = $report->schedule_nextsend;
                     if ($report->schedule_send_email == "email_auto") {
                         if ($report->schedule_bcc_me) 
                             $bcc = $my_email;
@@ -558,18 +559,14 @@ class MainWPCReport
             return 0;          
         $next_report_date_to =  0;
         if ($scheduleLastSend < $start_recurring_date) { 
-            $middle_night_timestamp = strtotime(date("Y-m-d", $start_recurring_date) . " 00:00:00");
-            $next_report_date_to = $middle_night_timestamp - 1;            
+            $next_report_date_to = strtotime(date("Y-m-d", $start_recurring_date) . " 00:00:00");            
         } else {                
             if ($schedule == "daily") { 
-                $middle_night_timestamp = strtotime(date("Y-m-d", $scheduleLastSend + 24 * 3600) . " 00:00:00");
-                $next_report_date_to = $start_today_timestamp - 1;                   
+                $next_report_date_to = strtotime(date("Y-m-d", $scheduleLastSend + 24 * 3600) . " 00:00:00");                                  
             } else if ($schedule == "weekly") {
-                $middle_night_timestamp = strtotime(date("Y-m-d", $scheduleLastSend + 7 * 24 * 3600) . " 00:00:00");
-                $next_report_date_to = $start_today_timestamp - 1;                                   
+                $next_report_date_to = strtotime(date("Y-m-d", $scheduleLastSend + 7 * 24 * 3600) . " 00:00:00");         
             } else if ($schedule == "biweekly") {
-                $middle_night_timestamp = strtotime(date("Y-m-d", $scheduleLastSend + 2 * 7 * 24 * 3600) . " 00:00:00");
-                $next_report_date_to = $start_today_timestamp - 1;                                                   
+                $next_report_date_to = strtotime(date("Y-m-d", $scheduleLastSend + 2 * 7 * 24 * 3600) . " 00:00:00");
             } else if ($schedule == "monthly") {
                 $day_to_send = date("d", $start_recurring_date);
                 $month_last_send = date("m", $scheduleLastSend);
@@ -586,8 +583,7 @@ class MainWPCReport
                     $month_to_send = 1;
                     $year_to_send = $year_last_send + 1;
                 }                          
-                $time_to_send = strtotime($year_to_send . "-" . $month_to_send . "-" . $day_to_send);                                                                   
-                $next_report_date_to = $time_to_send - 1;                                    
+                $next_report_date_to = strtotime($year_to_send . "-" . $month_to_send . "-" . $day_to_send);                                                                                                            
             }
         }        
         return $next_report_date_to;
@@ -718,7 +714,7 @@ class MainWPCReport
             }
             if(isset($_POST['mainwp_creport_schedule_date'])) {
                 $rec_date = trim($_POST['mainwp_creport_schedule_date']);
-                $report['recurring_date'] = strtotime($rec_date);    
+                $report['recurring_date'] = !empty($rec_date) ? strtotime($rec_date) : 0;    
             }            
             if(isset($_POST['mainwp_creport_schedule_send_email'])) {
                 $report['schedule_send_email'] = trim($_POST['mainwp_creport_schedule_send_email']);   
@@ -779,9 +775,11 @@ class MainWPCReport
             $report['selected_site'] = $selected_site;
             
             if ("schedule" === $_POST['mwp_creport_report_submit_action']) {
-                $report['scheduled'] = 1;
-                $report['schedule_nextsend'] = self::cal_schedule_nextsend($report['recurring_schedule'], $report['recurring_date']);
+                $report['scheduled'] = 1;     
             }
+            
+            $report['schedule_nextsend'] = self::cal_schedule_nextsend($report['recurring_schedule'], $report['recurring_date']);
+            
             if ("save" === $_POST['mwp_creport_report_submit_action'] || 
                 "send" === $_POST['mwp_creport_report_submit_action'] ||  
                 "save_pdf" === $_POST['mwp_creport_report_submit_action'] || 
@@ -1002,7 +1000,7 @@ class MainWPCReport
         self::renderTabs();
     }
    
-    public static function renderTabs() {
+    public static function renderTabs() {        
         global $current_user;                     
         $messages = $errors = $reporttab_messages = array();               
         $do_preview = $do_send = $do_schedule = $do_send_test_email = $do_save_pdf = $do_replicate = $do_archive = false;              
@@ -1070,7 +1068,7 @@ class MainWPCReport
             }
            
         } 
-                
+        
         if ($do_save_pdf || $do_save_pdf_get ) {
             ?>
                 <script>
@@ -1183,14 +1181,6 @@ class MainWPCReport
             }
         }
         
-//        if ($report && is_object($report)) {
-//            $args = array(  
-//                            'date_from' => date("Y-m-d H:i:s", $report->date_from),
-//                            'date_to' => date("Y-m-d H:i:s", $report->date_to));          
-//            $records = wp_stream_query( $args );
-//            print_r($records);
-//        }
-        
         $clients = MainWPCReportDB::Instance()->getClients();
         if (!is_array($clients)) 
             $clients = array();
@@ -1246,9 +1236,10 @@ class MainWPCReport
         ?>
             <div class="wrap" id="mainwp-ap-option">
             <div class="clearfix"></div>           
-            <div class="inside">   
+            <div class="inside">                 
                 <div  class="mainwp_error" id="mwp-creport-error-box" <?php echo !empty($str_error) ? "style=\"display:block;\"" : ""; ?>><?php echo !empty($str_error) ? "<p>" . $str_error . "</p>" : ""; ?></div>
                 <div  class="mainwp_info-box-yellow" id="mwp-creport-info-box"  <?php echo (empty($str_message) ? ' style="display: none" ' : ""); ?>><?php echo $str_message?></div>
+                            
                 <h3><?php _e("Client Reports Extension"); ?></h3>
                 <div id="mainwp_wpcr_option">
                     <div class="mainwp_error" id="wpcr_error_box"></div>
@@ -1256,7 +1247,7 @@ class MainWPCReport
                         <br />
                         <a id="wpcr_report_tab_lnk" href="#" class="mainwp_action left <?php  echo (empty($style_tab_report) ? "mainwp_action_down" : ""); ?>"><?php _e("Client Reports"); ?></a><?php echo $edit_tab_lnk; ?><?php echo $new_tab_lnk; ?><a id="wpcr_token_tab_lnk" href="#" class="mainwp_action mid <?php  echo (empty($style_tab_token) ? "mainwp_action_down" : ""); ?>"><?php _e("Report Tokens"); ?></a><a id="wpcr_stream_tab_lnk" href="#" class="mainwp_action right <?php  echo (empty($style_tab_stream) ? "mainwp_action_down" : ""); ?>"><?php _e("Stream Dashboard"); ?></a>
                         <br /><br />                              
-                        <div id="wpcr_report_tab" <?php echo $style_tab_report; ?>>     
+                        <div id="wpcr_report_tab" <?php echo $style_tab_report; ?>>
                                 <?php
                                 if (count($reporttab_messages) > 0) {
                                    echo '<div  class="mainwp_info-box-yellow">' . implode("<br/>", $reporttab_messages) . '</div>'; 
@@ -1302,7 +1293,7 @@ class MainWPCReport
                             <?php do_action('mainwp_select_sites_box', __("Select Site", 'mainwp'), 'radio', false, false, 'mainwp_select_sites_box_right', "", array($selected_site), array()); ?>
                                 <div class="mainwp_info-box-yellow"><strong style="font-style:initial">Note</strong>: <span class="description">Only sites with the Stream Plugin installed will be displayed in the list.</span></div>                                
                             </div>                            
-                            <div id="wpcr_edit_tab"  <?php echo $style_tab_edit; ?>>                               
+                            <div id="wpcr_edit_tab"  <?php echo $style_tab_edit; ?>> 
                                 <?php self::newReportTab($report); 
                                     $_disabled = "";
                                     if (!empty($report) && $report->id && isset($report->is_archived) && $report->is_archived) {
@@ -1930,6 +1921,11 @@ class MainWPCReport
                     <?php } else { ?>
                         <?php _e("Archive");?> | 
                     <?php } ?>
+                        
+                    <?php if ($report->scheduled) { ?>
+                        <span class="schedule"><a href="#" class="mwp-creport-report-item-cancel-scheduled-lnk"><?php _e("Cancel Scheduled");?></a> | </span>   
+                    <?php } ?>
+                        
                     <span class="delete"><a href="#" class="mwp-creport-report-item-delete-lnk"><?php _e("Delete");?></a></span> 
                 </div>                     
                 <span class="loading"><span class="status hidden-field"></span><img src="<?php echo $url_loader; ?>" class="hidden-field"></span>
@@ -1948,7 +1944,7 @@ class MainWPCReport
                 <?php echo !empty($report->date_to) ? "To: " . MainWPCReportUtility::formatTimestamp($report->date_to) : ""; ?>
             </td>
             <td> 
-                <?php echo $sche_column; ?>
+                <span class="creport_sche_column"><?php echo $sche_column; ?></span>
             </td>
             <td> 
                 <?php echo $site_column; ?>
@@ -1966,7 +1962,11 @@ class MainWPCReport
     public static function newReportSetting($report = null) {  
         
     ?>
-        <fieldset class="mainwp-creport-report-setting-box">          
+        <fieldset class="mainwp-creport-report-setting-box">   
+        <?php 
+            if (!empty($report) && $report->scheduled) { ?>
+                <div class="mainwp_info-box-yellow"><?php _e("This is scheduled report."); ?></div>
+        <?php } ?>                                      
             <table class="wp-list-table widefat" cellspacing="0">
                 <thead>
                 <tr>          
@@ -2769,6 +2769,17 @@ class MainWPCReport
         exit;
     }
    
+    public function cancel_scheduled_report() {
+        global $wpdb;
+        $ret = array();        
+        $id = intval($_POST['reportId']);
+        $update = array("id" => $id, "scheduled" => 0);
+        if ($id && MainWPCReportDB::Instance()->updateReport($update))                 
+            $ret['status'] = 'success';        
+        echo json_encode($ret);
+        exit;
+    }
+    
     public function ClientReportsQSG() {
 
         ?>

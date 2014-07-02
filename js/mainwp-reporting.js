@@ -334,14 +334,40 @@ jQuery(document).ready(function($) {
             }                                 
         }, 'json'); 
         return false;
-    });    
+    }); 
+    
+    $('.mwp-creport-report-item-cancel-scheduled-lnk').on('click' ,function(){       
+        var me = $(this);
+        var row = $(this).closest('tr');
+        var loaderEl = row.find('.loading img');
+        var statusEl = row.find('.loading .status');
+                
+        var data = {
+            action: 'mainwp_creport_cancel_scheduled_report',
+            reportId: row.attr('id')            
+        };      
+        loaderEl.show();
+        $.post(ajaxurl, data, function(response) { 
+            loaderEl.hide();
+            if (response && response['status'] == 'success') {
+                me.parent(".schedule"). html(__('Cancelled schedule'));
+                row.find('.creport_sche_column').html(__("No"));
+            } else {
+                statusEl.html(__('Cancel failed.')).fadeIn();
+                statusEl.css('color', 'red');
+            }                                 
+        }, 'json'); 
+        return false;
+    }); 
     
     mainwp_creport_valid_report_data = function(action) {
         $('#mwp_creport_title').removeClass('form-invalid');
         $('#mwp_creport_date_from').removeClass('form-invalid');
+        $('#mwp_creport_date_to').removeClass('form-invalid');
         $('#selected_sites').removeClass('form-invalid');
         $('#mwp_creport_email').removeClass('form-invalid');
         $('#mainwp_creport_recurring_schedule').removeClass('form-invalid');
+        $('#mainwp_creport_schedule_date').removeClass('form-invalid');        
         
         var errors = []; 
         var selected_sites = [];
@@ -357,6 +383,11 @@ jQuery(document).ready(function($) {
                 $('#mwp_creport_date_from').addClass('form-invalid');
             }
            
+            if ($.trim($('#mwp_creport_date_to').val()) == '') {
+                errors.push(__('Date To is required.'));
+                $('#mwp_creport_date_to').addClass('form-invalid');
+            }
+            
             jQuery("#selected_sites input[name='selected_site']:checked").each(function (i) {
                 selected_sites.push(jQuery(this).val());                       
             });  
@@ -371,6 +402,11 @@ jQuery(document).ready(function($) {
             if ($.trim($('#mainwp_creport_recurring_schedule :selected').val()) == '') {
                 errors.push(__('Recurring Schedule is required.'));
                 $('#mainwp_creport_recurring_schedule').addClass('form-invalid');
+            }
+            
+            if ($.trim($('#mainwp_creport_schedule_date').val()) == '') {
+                errors.push(__('Start Send Date is required.'));
+                $('#mainwp_creport_schedule_date').addClass('form-invalid');
             }
         }        
         
