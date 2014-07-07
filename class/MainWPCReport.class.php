@@ -1965,7 +1965,7 @@ class MainWPCReport
         <fieldset class="mainwp-creport-report-setting-box">   
         <?php 
             if (!empty($report) && $report->scheduled) { ?>
-                <div class="mainwp_info-box-yellow"><?php _e("This is scheduled report."); ?></div>
+                <div class="mainwp_info-box-yellow"><?php _e("This report has been scheduled"); ?></div>
         <?php } ?>                                      
             <table class="wp-list-table widefat" cellspacing="0">
                 <thead>
