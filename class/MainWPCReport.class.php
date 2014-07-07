@@ -2086,7 +2086,7 @@ class MainWPCReport
                         <input type="submit" value="<?php _e("Schedule Report"); ?>" class="button-primary" id="mwp-creport-schedule-btn" name="button_schedule">
                     </p>
                     <p><input type="radio" name="mainwp_creport_schedule_send_email" value="email_review" id="mainwp_creport_schedule_send_email_me_review" <?php echo ($scheduleSendEmail == "email_review") ? "checked" : ""; ?>/><label for="mainwp_creport_schedule_send_email_me_review"><?php _e("Email me when report is complete so I can review"); ?></label></p>
-                    <p><input type="radio" name="mainwp_creport_schedule_send_email" value="email_auto" id="mainwp_creport_schedule_send_email_auto" <?php echo ($scheduleSendEmail == "email_auto") ? "checked" : ""; ?>/><label for="mainwp_creport_schedule_send_email_auto"><?php _e("Automatically email client the report on schedule"); ?></label></p>
+                    <p><input type="radio" name="mainwp_creport_schedule_send_email" value="email_auto" id="mainwp_creport_schedule_send_email_auto" <?php echo ($scheduleSendEmail == "email_auto") ? "checked" : ""; ?>/><label for="mainwp_creport_schedule_send_email_auto"><?php _e("Automatically email my client the report"); ?></label></p>
                     <p>&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="mainwp_creport_schedule_bbc_me_email" value="1" id="mainwp_creport_schedule_bbc_me_email" <?php echo $scheduleBCCme ? "checked" : ""; ?>/><label for="mainwp_creport_schedule_bbc_me_email"><?php _e("BCC me on report email"); ?></label></p>
                 </td>
             </tr>
