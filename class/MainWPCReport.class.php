@@ -1477,7 +1477,10 @@ class MainWPCReport
         return $output; 
     }
     
-     public static function gen_email_content_pdf($report) {      
+     public static function gen_email_content_pdf($report) {  
+         // to fix bug
+         if (!function_exists('wp_verify_nonce')) include_once(ABSPATH . WPINC . '/pluggable.php');
+         wp_verify_nonce();
         if (!empty($report) && is_object($report)) {
             if ($report->is_archived) {
                 return $report->archive_report_pdf;
