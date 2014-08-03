@@ -526,9 +526,8 @@ class MainWPCReport
                 $schedule = $report->recurring_schedule; 
                 $recurring_date = $report->recurring_date;
                 if (empty($schedule) || empty($report->scheduled) || empty($recurring_date))
-                    continue; 
-                $now = time();
-                 if ($now >= $report->schedule_nextsend) {                     
+                    continue;
+                 if (time() >= $report->schedule_nextsend) {                     
                     $my_email = apply_filters('mainwp_getnotificationemail');   
                     $bcc = "";   
 //                    $report->date_from = $report->schedule_lastsend;
@@ -540,13 +539,14 @@ class MainWPCReport
                     } else if ($report->schedule_send_email == "email_review" && !empty($my_email)) {
                         self::send_report_mail($report, $my_email, "Review report");
                     }
+                    $sch_last_send = $report->schedule_nextsend;
                     
-                    $schedule_nextsend = self::cal_schedule_nextsend($schedule, $recurring_date, $now);
+                    $schedule_nextsend = self::cal_schedule_nextsend($schedule, $recurring_date, $sch_last_send);
                     $update_report = array('id' => $report->id,     
-                                            'date_from' => $report->schedule_nextsend + 1, 
+                                            'date_from' => $sch_last_send + 1, 
                                             'date_to' => $schedule_nextsend,
                                             'schedule_nextsend' => $schedule_nextsend,
-                                            'schedule_lastsend' => $now,                        
+                                            'schedule_lastsend' => $sch_last_send,                        
                                             );
                     MainWPCReportDB::Instance()->updateReport($update_report); 
                 }                
@@ -997,7 +997,7 @@ class MainWPCReport
     
     public static function render() {     
         self::ClientReportsQSG();
-        self::renderTabs();
+        self::renderTabs();        
     }
    
     public static function renderTabs() {        
