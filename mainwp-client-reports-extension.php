@@ -94,7 +94,7 @@ register_deactivation_hook(__FILE__, 'wpcreport_extension_deactivate');
 
 function wpcreport_extension_activate()
 {   
-    
+    update_option('mainwp_client_reports_activated', 'yes');
 }
 
 function wpcreport_extension_deactivate()
@@ -123,9 +123,19 @@ class MainWPCReportExtensionActivator
         {
             add_action('mainwp-activated', array(&$this, 'activate_this_plugin'));
         }
+        add_action('admin_init', array(&$this, 'admin_init'));
         add_action('admin_notices', array(&$this, 'mainwp_error_notice'));
     }
 
+    function admin_init() {
+        if (get_option('mainwp_client_reports_activated') == 'yes')
+        {
+            delete_option('mainwp_client_reports_activated');
+            wp_redirect(admin_url('admin.php?page=Extensions'));
+            return;
+        }        
+    }
+    
     function get_this_extension($pArray)
     {
         $pArray[] = array('plugin' => __FILE__, 'api' => 'mainwp-client-reports-extension', 'mainwp' => true, 'callback' => array(&$this, 'settings'));
