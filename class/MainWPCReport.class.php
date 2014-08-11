@@ -449,7 +449,37 @@ class MainWPCReport
                                                 array("name" => "wordpress.current.version", "desc" => "Displays the Current WordPress Version"),
                                                 array("name" => "wordpress.updated.count", "desc" => "Displays the Number of WordPress Updates")                                                                                               
                                             )
-                            )                                  
+                            ),
+            "backups" => array("sections" => array(                                                
+                                                array("name" => "section.backups", "desc" => "Description ...")                                                
+                                            ),  
+                               'nav_group_tokens' => array("sections" => "Sections",                                                     
+                                                "backups" => "Backups",                                                     
+                                                "additional" => "Additional"
+                                            ),
+                                "backups" => array(                                                
+                                                array("name" => "backup.date", "desc" => "Description ..."),
+                                                array("name" => "backup.destination", "desc" => "Description ...")                                                
+                                            ),
+                                "additional" => array(
+                                                array("name" => "backups.count", "desc" => "Description ..."),
+                                            )
+                            ),
+            "sucuri" => array("sections" => array(                                                
+                                                array("name" => "section.security.checks", "desc" => "Description ...")                                                
+                                            ),  
+                               'nav_group_tokens' => array("sections" => "Sections",                                                     
+                                                "check" => "Checks",                                                     
+                                                "additional" => "Additional"
+                                            ),
+                                "check" => array(                                                
+                                                array("name" => "security.check.date", "desc" => "Description ..."),
+                                                array("name" => "security.check.result", "desc" => "Description ...")                                                
+                                            ),
+                                "additional" => array(
+                                                array("name" => "security.checks.count", "desc" => "Description ..."),
+                                            )
+                            ),            
             );       
             
             self::$tokens_nav_top = array(
@@ -463,7 +493,9 @@ class MainWPCReport
                                         "media" => "Media",
                                         "widgets" => "Widgets",
                                         "menus" => "Menus",
-                                        "wordpress" => "WordPress",                                         
+                                        "wordpress" => "WordPress",
+                                        "backups" => "Backups",
+                                        "sucuri" => "Sucuri",
                                     );          
                
     }
