@@ -6,6 +6,9 @@ class MainWPCReport
     private static $buffer = array();  
     private static $order = "";
     private static $orderby = "";
+    private static $enabled_piwik = false;
+    private static $enabled_sucuri = false;
+    private static $enabled_ga = false;
     
     public function __construct() { 
        
@@ -457,29 +460,67 @@ class MainWPCReport
                                                 "backups" => "Backups",                                                     
                                                 "additional" => "Additional"
                                             ),
-                                "backups" => array(                                                
-                                                array("name" => "backup.date", "desc" => "Description ..."),
-                                                array("name" => "backup.destination", "desc" => "Description ...")                                                
+                                "backups" => array(   
+                                                array("name" => "backup.created.type", "desc" => "Description ..."),
+                                                array("name" => "backup.created.date", "desc" => "Description ..."),
+                                                array("name" => "backup.created.destination", "desc" => "Description ...")                                                
                                             ),
                                 "additional" => array(
-                                                array("name" => "backups.count", "desc" => "Description ..."),
+                                                array("name" => "backup.created.count", "desc" => "Description ..."),
                                             )
                             ),
-            "sucuri" => array("sections" => array(                                                
-                                                array("name" => "section.security.checks", "desc" => "Description ...")                                                
+            "sucuri" => array(  "sections" => array(                                                
+                                                array("name" => "section.sucuri.checks", "desc" => "Description ...")                                                
                                             ),  
                                'nav_group_tokens' => array("sections" => "Sections",                                                     
-                                                "check" => "Checks",                                                     
-                                                "additional" => "Additional"
+                                                "check" => "Checks"
                                             ),
                                 "check" => array(                                                
-                                                array("name" => "security.check.date", "desc" => "Description ..."),
-                                                array("name" => "security.check.result", "desc" => "Description ...")                                                
+                                                array("name" => "sucuri.scan.date", "desc" => "Description ..."),
+                                                array("name" => "sucuri.status", "desc" => "Description ..."),
+                                                array("name" => "sucuri.webtrust", "desc" => "Description ..."),
+                                                array("name" => "sucuri.result", "desc" => "Description ..."),
+//                                                array("name" => "sucuri.blacklisted.status", "desc" => "Description ..."),
+//                                                array("name" => "sucuri.malicious.javascript.status", "desc" => "Description ..."),
+//                                                array("name" => "sucuri.malicious.iframe.status", "desc" => "Description ..."),
+//                                                array("name" => "sucuri.dribveby.downloads.status", "desc" => "Description ..."),
+//                                                array("name" => "sucuri.anomaly.detection.status", "desc" => "Description ..."),
+//                                                array("name" => "sucuri.IEonly.attacks.status", "desc" => "Description ..."),
+//                                                array("name" => "sucuri.suspicious.redirections.status", "desc" => "Description ..."),
+//                                                array("name" => "sucuri.blackhat.seo.spam.status", "desc" => "Description ..."),
+//                                                array("name" => "sucuri.spam.status", "desc" => "Description ...")                                                
+                                            )                                
+                            ),    
+            "ga" => array("sections" => array(                                                
+                                                array("name" => "section.ga", "desc" => "Description ...")                                                
+                                            ),  
+                               'nav_group_tokens' => array("sections" => "Sections",                                                     
+                                                "ga" => "GA",
                                             ),
-                                "additional" => array(
-                                                array("name" => "security.checks.count", "desc" => "Description ..."),
-                                            )
-                            ),            
+                                "ga" => array(                                                
+                                                array("name" => "ga.visits", "desc" => "Description ..."),
+                                                array("name" => "ga.pageviews", "desc" => "Description ..."),
+                                                array("name" => "ga.pages.visit", "desc" => "Description ..."),
+                                                array("name" => "ga.bounce.rate", "desc" => "Description ..."),
+                                                array("name" => "ga.avg.time", "desc" => "Description ..."),
+                                                array("name" => "ga.new.visits", "desc" => "Description ...")                                    
+                                            ),
+                            ), 
+            "piwik" => array("sections" => array(                                                
+                                                array("name" => "section.piwik", "desc" => "Description ...")                                                
+                                            ),  
+                               'nav_group_tokens' => array("sections" => "Sections",                                                     
+                                                "piwik" => "Piwik",                                                                                                     
+                                            ),
+                                "piwik" => array(                                                
+                                                array("name" => "piwik.visits", "desc" => "Description ..."),
+                                                array("name" => "piwik.pageviews", "desc" => "Description ..."),
+                                                array("name" => "piwik.pages.visit", "desc" => "Description ..."),
+                                                array("name" => "piwik.bounce.rate", "desc" => "Description ..."),
+                                                array("name" => "piwik.avg.time", "desc" => "Description ..."),                                        
+                                                array("name" => "piwik.new.visits", "desc" => "Description ..."),
+                                            ),                                
+                            ), 
             );       
             
             self::$tokens_nav_top = array(
@@ -496,6 +537,8 @@ class MainWPCReport
                                         "wordpress" => "WordPress",
                                         "backups" => "Backups",
                                         "sucuri" => "Sucuri",
+                                        "ga" => "GA",
+                                        "piwik" => "Piwik",
                                     );          
                
     }
@@ -521,8 +564,175 @@ class MainWPCReport
         add_action('mainwp_delete_site', array(&$this, 'delete_site_delete_tokens'), 8, 1);        
         add_action('mainwp_shortcuts_widget', array(&$this, 'shortcuts_widget'), 10, 1);        
         add_filter('mainwp_managesites_column_url', array(&$this, 'managesites_column_url'), 10, 2);
+        add_action('mainwp_managesite_backup', array(&$this, 'managesite_backup'), 10, 3);
+        add_action('mainwp_managesite_schedule_backup', array(&$this, 'managesite_schedule_backup'), 10, 3);        
+        add_action('mainwp_client_report_piwik_filter_data', array(&$this, 'piwik_filter_data'));  
+        
+        self::$enabled_piwik = apply_filters('mainwp-extension-available-check', 'mainwp-piwik-extension'); 
+        self::$enabled_sucuri = apply_filters('mainwp-extension-available-check', 'mainwp-sucuri-extension'); 
+        self::$enabled_ga = apply_filters('mainwp-extension-available-check', 'mainwp-google-analytics-extension'); 
+        
     }     
     
+    function managesite_backup($website, $args, $information) {
+        if (empty($website))
+            return;
+        $type = isset($args['type']) ? $args['type'] : "";
+        if (empty($type))
+            return;        
+        //error_log(print_r($information,true));        
+        global $mainWPCReportExtensionActivator;
+        
+        $backup_type = ($type == 'full') ? "full backup" : ($type == 'db' ? "database backup" : ""); 
+        
+        $message = "";
+        $backup_status = 'success';
+        $backup_size = 0;
+        if (isset($information['error']))
+        {
+            $message = $information['error'];
+            $backup_status = 'failed';
+        }
+        else if ($type == 'db' && !$information['db'])
+        {
+            $message = 'Database backup failed.';
+            $backup_status = 'failed';
+        }
+        else if ($type == 'full' && !$information['full'])
+        {
+            $message = 'Full backup failed.';
+            $backup_status = 'failed';
+        }
+        else if (isset($information['db']))
+        {
+            if ($information['db'] != false)
+            {                
+                $message = "Backup database success.";
+            }
+            else if ($information['full'] != false)
+            {                
+                $message = "Full backup success.";
+            }
+            if (isset($information['size']))
+            {
+                $backup_size = $information['size'];
+            }                        
+        }
+        else
+        {
+            $message = 'Database backup failed due to an undefined error';
+            $backup_status = 'failed';
+        }
+        
+        // save results to child site stream
+        $post_data = array( 'mwp_action' => 'save_backup_stream',                           
+                            'size' => $backup_size,
+                            'message' => $message,
+                            'destination' => 'Local Server',
+                            'status' => $backup_status,
+                            'type' => $backup_type
+                        );        
+        apply_filters('mainwp_fetchurlauthed', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $website->id, 'client_report', $post_data);			                             
+    }
+    
+    function managesite_schedule_backup($website, $args, $backupResult) {
+        
+        if (empty($$website))
+            return;
+        
+        $type = isset($args['type']) ? $args['type'] : "";
+        if (empty($type))
+            return;  
+        
+        $destination = "";
+        if (is_array($backupResult)) {
+            $error = false;            
+            if (isset($backupResult['error']))
+            {
+                $destination .= $backupResult['error'] . '<br />';
+                $error = true;
+            }
+            
+            if (isset($backupResult['ftp'])) {
+                if ($backupResult['ftp'] != 'success') {            
+                    $destination .= 'FTP: '.$backupResult['ftp'] . '<br />';
+                    $error = true;
+                } else {
+                    $destination .= 'FTP: success<br />';
+                }
+            } 
+            
+            if (isset($backupResult['dropbox'])) {
+                if ($backupResult['dropbox'] != 'success') {                
+                    $destination .= 'Dropbox: '.$backupResult['dropbox'] . '<br />';
+                    $error = true;
+                } else {
+                    $destination .= 'Dropbox: success<br />';
+                }
+            }   
+            if (isset($backupResult['amazon'])) { 
+                if ($backupResult['amazon'] != 'success') {
+                    $destination .= 'Amazon: '.$backupResult['amazon'] . '<br />';
+                    $error = true;
+                } else {
+                    $destination .= 'Amazon: success<br />';
+                }
+            }
+            
+            if (isset($backupResult['copy'])) { 
+                if ($backupResult['copy'] != 'success') {
+                    $destination .= 'Copy.com: '.$backupResult['amazon'] . '<br />';
+                    $error = true;
+                } else {
+                    $destination .= 'Copy.com: success<br />';
+                }
+            }
+            
+            if (empty($destination)) {
+                $destination = "Local Server";
+            }
+        } else {                        
+            $destination = $backupResult;
+        }        
+        
+        if ($type == 'full') {
+            $message = 'Schedule full backup.';  
+            $backup_type = "full backup";
+        } else {
+            $message = 'Schedule database backup.';
+            $backup_type = "database backup";
+        }
+        
+        global $mainWPCReportExtensionActivator;
+        
+        // save results to child site stream
+        $post_data = array( 'mwp_action' => 'save_backup_stream',                           
+                            'size' => "N/A",
+                            'message' => $message,
+                            'destination' => $destination,
+                            'status' => "N/A",
+                            'type' => $backup_type
+                        );               
+        apply_filters('mainwp_fetchurlauthed', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $$website->id, 'client_report', $post_data);			                             
+
+    }
+    
+    
+    function mainwp_postprocess_backup_sites_feedback($output, $unique)
+    {
+        if (!is_array($output)) {
+            
+        } else 
+        {
+            foreach ($output as $key => $value)
+            {
+                $output[$key] = $value;
+            }
+        }
+
+        return $output;
+    }
+            
     public function init_cron() {
         
         add_action('mainwp_creport_cron_archive_reports', array('MainWPCReport', 'cron_archive_reports'));            
@@ -1544,6 +1754,8 @@ class MainWPCReport
         return $html; 
     }
     
+    
+    
     public static function filter_report($report) {         
         global $mainWPCReportExtensionActivator;
         $website = null;
@@ -1564,7 +1776,23 @@ class MainWPCReport
         foreach ($tokens as $token) {            
             $search_tokens[] = '[' . $token->token_name . ']';            
             $replace_values[] = isset($site_tokens[$token->id]) ? $site_tokens[$token->id]->token_value : "";            
-        }    
+        }  
+        
+        $piwik_tokens = self::piwik_data($website['id'], $report->date_from, $report->date_to); 
+        if (is_array($piwik_tokens)) {
+            foreach ($piwik_tokens as $token => $value) {            
+                $search_tokens[] = '[' . $token . ']';            
+                $replace_values[] = $value;            
+            }       
+        }  
+        
+        $ga_tokens = self::ga_data($website['id'], $report->date_from, $report->date_to); 
+        if (is_array($ga_tokens)) {
+            foreach ($ga_tokens as $token => $value) {            
+                $search_tokens[] = '[' . $token . ']';            
+                $replace_values[] = $value;            
+            }       
+        }  
         
         //$report->filtered_header = self::replace_content($report->header, $search_tokens, $replace_values);        
         //$report->body = self::replace_content($report->body, $search_tokens, $replace_values);        
@@ -1667,6 +1895,7 @@ class MainWPCReport
             $replaced_content = "";
             if (is_array($loop)) {                
                 foreach($loop as $replace) {
+                    $replace = self::sucuri_replace_data($replace);;
                     $replaced = self::replace_content($sec_content, $search, $replace);                    
                     $replaced_content .= $replaced . "<br>";
                 }               
@@ -1686,6 +1915,7 @@ class MainWPCReport
             $replaced_content = "";
             if (is_array($loop)) {                
                 foreach($loop as $replace) {
+                    $replace = self::sucuri_replace_data($replace);;
                     $replaced = self::replace_content($sec_content, $search, $replace);                    
                     $replaced_content .= $replaced . "<br>";
                 }               
@@ -1705,6 +1935,7 @@ class MainWPCReport
             $replaced_content = "";
             if (is_array($loop)) {                
                 foreach($loop as $replace) {
+                    $replace = self::sucuri_replace_data($replace);
                     $replaced = self::replace_content($sec_content, $search, $replace);                    
                     $replaced_content .= $replaced . "<br>";
                 }               
@@ -1714,13 +1945,102 @@ class MainWPCReport
         return $content;
     }
     
+    static function sucuri_replace_data($content) {        
+        $new_content = array();        
+        if (is_array($content)) {
+            foreach($content as $key => $value) {
+                $new_content[$key] = preg_replace_callback("/{sucuri_scan_([^_]*)_([0-9]*)}/is", array('MainWPCReport', 'sucuri_replace_mark'), $value);
+            }
+        }
+        return $new_content;
+    }
 
+    static function sucuri_replace_mark($matches) {
+        $token_info = $matches[1];
+        $timescan = $matches[2];        
+        if ($timescan) {
+            if (isset(self::$buffer[$timescan])) {
+                $data = self::$buffer[$timescan];
+            } else {
+                $report = apply_filters('mainwp_sucuri_scan_data', $timescan);             
+                if ($report) {                
+                    $data = unserialize($report->data);  
+                    self::$buffer[$timescan] = $data;                
+                }
+            }         
+            if ($data) {            
+                return self::get_stream_scan_data($data, $token_info);            
+            }
+        }
+        return "{sucuri_scan_" . $token_info . "_" . $timescan . "}";
+    }
+    
+    static function get_stream_scan_data($data, $token_info) {        
+        $blacklisted = isset($data['BLACKLIST']['WARN']) ? TRUE : FALSE;
+        $malware_exists = isset($data['MALWARE']['WARN']) ? TRUE : FALSE;
+        $system_error = isset($data['SYSTEM']['ERROR']) ? TRUE : FALSE;        
+        //print_r($data);
+        $status = array();
+        if ($blacklisted)
+            $status[] = "Site Blacklisted";
+        if ($malware_exists)
+            $status[] = "Site With Warnings";                
+         
+        $str = "";
+        
+        if ($token_info == "sucuri.status") {
+            $str = count($status) > 0 ? implode(", ", $status) : "Verified Clear";
+        } else if ($token_info == "sucuri.webtrust") {
+            $str = $blacklisted ? "Site Blacklisted" : "Trusted"; 
+        } else if ($token_info == "sucuri.result") {
+            $str = '<h3>' . __('Security Scan Report') . (($malware_exists || $system_error) ? "" : " (" . __("No Threats Found") . ")") . '</h3>';        
+            if( !$malware_exists && !$system_error ) { 
+                $str .= '<label>Blacklisted:</label> <span class="scr-status">NO</span><br>';
+                $str .= '<label>Malware:</label> <span class="scr-status">NO</span><br>';
+                $str .= '<label>Malicious javascript:</label> <span class="scr-status">NO</span><br>';
+                $str .= '<label>Malicious iframes:</label> <span class="scr-status">NO</span><br>';
+                $str .= '<label>Drive-By Downloads:</label> <span class="scr-status">NO</span><br>';
+                $str .= '<label>Anomaly detection:</label> <span class="scr-status">NO</span><br>';
+                $str .= '<label>IE-only attacks:</label> <span class="scr-status">NO</span><br>';
+                $str .= '<label>Suspicious redirections:</label> <span class="scr-status">NO</span><br>';
+                $str .= '<label>Blackhat SEO Spam:</label> <span class="scr-status">NO</span><br>';
+                $str .= '<label>Spam:</label> <span class="scr-status">NO</span><br>';
+            } else if ($malware_exists) {            
+                foreach( $data['MALWARE']['WARN'] as $malware ){                    
+                    if( !is_array($malware) ){
+                        $str .= htmlspecialchars($malware);
+                    }else{
+                        $mwdetails = explode("\n", htmlspecialchars($malware[1]));
+                        $mwdetails = explode("Details:", substr($mwdetails[0], 1));
+                        $str .= htmlspecialchars($malware[0])."\n<br />";
+                        $str .= $mwdetails[0] . ' - <a href="' .trim($mwdetails[1]) . '">' . __("Details") . '</a>.';
+                    }
+                    $str .='</p>';
+                }        
+            } else if ($system_error) { 
+                foreach( $data['SYSTEM']['ERROR'] as $error ){                       
+                    if( !is_array($error) ){
+                        $str .= htmlspecialchars($error);
+                    }else{                        
+                        $str .= htmlspecialchars($error[0])."<br />\n";
+                    }
+                }
+            }  
+        }        
+        return $str;
+    }    
+    
     public static function replace_content($content, $tokens, $replace_tokens) {
         return str_replace($tokens, $replace_tokens, $content);                
     }
     
     public static function parse_report_content($content, $client_tokens, $replace) {
-        $filtered_content = $content = str_replace($client_tokens, $replace, $content);
+        // remove piwik section tokens
+        $content = preg_replace_callback("/\[section\.piwik\](.*?)\[\/section\.piwik\]/is", create_function('$matches', 'return $matches[1];'), $content);
+        // remove ga section tokens
+        $content = preg_replace_callback("/\[section\.ga\](.*?)\[\/section\.ga\]/is", create_function('$matches', 'return $matches[1];'), $content);
+        
+        $filtered_content = $content = str_replace($client_tokens, $replace, $content);        
         $sections = array();
         if (preg_match_all("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is", $content, $matches)) {            
             for ($i = 0; $i < count($matches[1]) ; $i++) {
@@ -1752,6 +2072,76 @@ class MainWPCReport
         }
         $content =  str_replace($section_tokens, "", $content);                
         return array('content' => $content, 'section' => $section); 
+    }
+    
+    static function ga_data($site_id, $start_date, $end_date) {
+        if (!self::$enabled_ga)
+            return false;
+        
+        if (!$site_id || !$start_date || !$end_date) 
+            return false;        
+        $uniq = $site_id . "_" . $start_date . $end_date;
+        if (isset(self::$buffer[$uniq])) 
+            return self::$buffer[$uniq];
+        
+        $values = apply_filters('mainwp_ga_get_data', $site_id, $start_date, $end_date);    
+        //Wait 200ms
+        usleep(200000);
+        //print_r($values);
+        $output = null;      
+        if (!empty($values) && is_array($values)) { 
+            $output['ga.visits'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:visits'])) ? $values['aggregates']['ga:visits'] : 0;
+            $output['ga.pageviews'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:pageviews'])) ? $values['aggregates']['ga:pageviews'] : 0;
+            $output['ga.pages.visit'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:pageviewsPerVisit'])) ? $values['aggregates']['ga:pageviewsPerVisit'] : 0;
+            $output['ga.bounce.rate'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:visitBounceRate'])) ? self::format_stats_values($values['aggregates']['ga:visitBounceRate'], true, true) : 0;
+            $output['ga.new.visits'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:percentNewVisits'])) ? self::format_stats_values($values['aggregates']['ga:percentNewVisits'], true, true) : 0;
+            $output['ga.avg.time'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:avgTimeOnSite'])) ? self::format_stats_values($values['aggregates']['ga:avgTimeOnSite'], false, false, true) : 0;                               
+            self::$buffer[$uniq] = $output;                
+        }   
+        return $output;
+    }
+    
+    static function piwik_data($site_id, $start_date, $end_date) {
+        if (!self::$enabled_piwik)
+            return false;
+        if (!$site_id || !$start_date || !$end_date) 
+            return false;        
+        $uniq = $site_id . "_" . $start_date . $end_date;
+        if (isset(self::$buffer[$uniq])) 
+            return self::$buffer[$uniq];
+        
+        $values = apply_filters('mainwp_piwik_get_data', $site_id, $start_date, $end_date);    
+        //Wait 200ms
+        usleep(200000);
+        //print_r($values);        
+        $output = null;
+        if (!empty($values) && is_array($values)) { 
+            $output['piwik.visits'] = (isset($values['aggregates']) && isset($values['aggregates']['nb_visits'])) ? $values['aggregates']['nb_visits'] : 0;
+            $output['piwik.pageviews'] = (isset($values['aggregates']) && isset($values['aggregates']['nb_actions'])) ? $values['aggregates']['nb_actions'] : 0;
+            $output['piwik.pages.visit'] = (isset($values['aggregates']) && isset($values['aggregates']['nb_actions_per_visit'])) ? $values['aggregates']['nb_actions_per_visit'] : 0;
+            $output['piwik.bounce.rate'] = (isset($values['aggregates']) && isset($values['aggregates']['bounce_rate'])) ? $values['aggregates']['bounce_rate'] : 0;
+            $output['piwik.new.visits'] = (isset($values['aggregates']) && isset($values['aggregates']['nb_uniq_visitors'])) ? $values['aggregates']['nb_uniq_visitors'] : 0;
+            $output['piwik.avg.time'] = (isset($values['aggregates']) && isset($values['aggregates']['avg_time_on_site'])) ? self::format_stats_values($values['aggregates']['avg_time_on_site'], false, false, true) : 0;                               
+            self::$buffer[$uniq] = $output;                
+        }   
+        return $output;
+    }
+    
+     private static function format_stats_values($value, $round = false, $perc = false, $showAsTime = false)
+    {           
+        if ($showAsTime) {
+            $value = MainWPCReportUtility::sec2hms($value);            
+        }
+        else
+        {
+            if ($round) {
+                $value = round($value, 2);               
+            }
+            if ($perc) {
+                $value = $value . '%';                
+            }
+        }
+        return $value;     
     }
     
     public static function fetch_stream_data($website, $report, $sections, $tokens) {
@@ -2454,6 +2844,7 @@ class MainWPCReport
     }       
     
     public static function gen_insert_tokens_box($editor, $hide = false, $client_tokens_values, $client_tokens, $website) {
+            
     ?>
      <div class="creport_format_insert_tokens_box <?php echo $hide ? "hidden-field" : ""; ?>" editor="<?php echo $editor; ?>">
          <div class="creport_format_data_tokens">
@@ -2461,17 +2852,45 @@ class MainWPCReport
                 <?php
                     $visible = "client";
                     $nav_group = "";
-                    foreach (self::$tokens_nav_top as $group => $group_title) {                                                                
+                    foreach (self::$tokens_nav_top as $group => $group_title) {  
+                        $disabled = "";
+                         if ((!self::$enabled_sucuri && $group == 'sucuri') ||
+                                (!self::$enabled_ga && $group == 'ga') ||
+                                (!self::$enabled_piwik && $group == 'piwik')) 
+                                {       
+                                    $disabled = "disabled";
+                                } 
+                        
                         $current = ($visible == $group) ? "current" : "";
-                        $nav_group .= '<a href="#" group="' . $group . '" group-title="' . $group_title . '" class="creport_nav_group_lnk ' . $current . '">' . $group_title . '</a> | ';                                
+                        $nav_group .= '<a href="#" group="' . $group . '" group-title="' . $group_title . '" class="creport_nav_group_lnk ' . $current . ' ' . $disabled . '">' . $group_title . '</a> | ';                                
                     }  
                     $nav_group = rtrim($nav_group, ' | ');
                     echo $nav_group;
                 ?>                
             </div>
-            <?php
+            <?php                 
                 $visible_group = $visible."_tokens";
                 foreach (self::$stream_tokens as $group => $group_tokens) {
+                    $enabled = true;
+                    $str_requires = "";
+                    if (!self::$enabled_sucuri && $group == 'sucuri') {
+                        $str_requires = "Requires" . ' <a href="http://extensions.mainwp.com/product/mainwp-sucuri-extension/" title="MainWP Sucuri Extension">MainWP Sucuri Extension</a>'; 
+                        $enabled = false;
+                    } else if (!self::$enabled_ga && $group == 'ga') {
+                        $str_requires =  "Requires" . ' <a href="http://extensions.mainwp.com/product/mainwp-google-analytics-extension/" title="MainWP Google Analytics Extension">MainWP Google Analytics Extension</a>'; 
+                        $enabled = false;
+                    } else if (!self::$enabled_piwik && $group == 'piwik') {
+                        $str_requires = "Requires" . ' <a href="http://extensions.mainwp.com/product/mainwp-piwik-extension/" title="MainWP Piwik Extension">MainWP Piwik Extension</a>';  
+                        $enabled = false;
+                    }                    
+                    if (!$enabled) { ?>             
+                        <div class="creport_format_group_data_tokens" group="<?php echo $group; ?>">
+                            <div class="mainwp_info-box" style="text-align: center"><?php echo $str_requires; ?></div>    
+                        </div>     
+                        <?php 
+                        continue;
+                    }
+                    
                     foreach($group_tokens as $key => $tokens) {   
                         if ($key == "nav_group_tokens")
                             continue;
@@ -2513,7 +2932,15 @@ class MainWPCReport
             <?php
                 $visible = "client";
                 $visible_nav = "tokens";                                                       
-                foreach (self::$stream_tokens as $group => $group_tokens) {                        
+                foreach (self::$stream_tokens as $group => $group_tokens) {   
+                     if ((!self::$enabled_sucuri && $group == 'sucuri') ||
+                        (!self::$enabled_ga && $group == 'ga') ||
+                        (!self::$enabled_piwik && $group == 'piwik')) 
+                        {       
+                            echo '<div class="creport_format_group_nav bottom" group="' . $group . '">&nbsp</div>';        
+                            continue;
+                        } 
+                        
                     $nav_group_bottom = '';
                     $group_title = self::$tokens_nav_top[$group];
                     foreach ($group_tokens['nav_group_tokens'] as $nav_key => $nav_value) {                                            

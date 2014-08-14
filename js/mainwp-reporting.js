@@ -193,7 +193,15 @@ jQuery(document).ready(function($) {
         var gr = $(this).attr('group');
         var gr_title = $(this).attr('group-title');       
         parent.find('.creport_nav_group_lnk').removeClass('current');
-        $(this).addClass('current');        
+        $(this).addClass('current');
+        if ($(this).hasClass('disabled')) {
+            parent.find('.creport_format_group_data_tokens').removeClass('current');            
+            parent.find('.creport_format_group_data_tokens[group="' + gr + '"]').addClass('current');        
+            parent.find('.creport_format_group_nav.bottom').removeClass('current');
+            mainwp_creport_insert_token_set_breadcrumb(parent, gr_title, '');            
+            return false;
+        }    
+        
         var gr2 = 'sections';
         var gr2_title = 'Sections';        
         if (gr == 'client') {
