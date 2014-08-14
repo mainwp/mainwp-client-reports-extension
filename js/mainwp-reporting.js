@@ -207,7 +207,14 @@ jQuery(document).ready(function($) {
         if (gr == 'client') {
             gr2 = 'tokens';
             gr2_title = '';
-        }        
+        } else if (gr == 'ga') {
+            gr2 = 'ga';
+            gr2_title = 'GA';
+        } else if (gr == 'piwik') {
+            gr2 = 'piwik';
+            gr2_title = 'Piwik';
+        } 
+        
         parent.find('.creport_format_group_data_tokens').removeClass('current');
         parent.find('.creport_format_group_data_tokens[group="' + gr + '_' + gr2 + '"]').addClass('current');
         parent.find('.creport_format_group_nav.bottom').removeClass('current');

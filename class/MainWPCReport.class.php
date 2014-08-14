@@ -491,10 +491,8 @@ class MainWPCReport
 //                                                array("name" => "sucuri.spam.status", "desc" => "Description ...")                                                
                                             )                                
                             ),    
-            "ga" => array("sections" => array(                                                
-                                                array("name" => "section.ga", "desc" => "Description ...")                                                
-                                            ),  
-                               'nav_group_tokens' => array("sections" => "Sections",                                                     
+            "ga" => array(
+                               'nav_group_tokens' => array(                                                     
                                                 "ga" => "GA",
                                             ),
                                 "ga" => array(                                                
@@ -506,10 +504,8 @@ class MainWPCReport
                                                 array("name" => "ga.new.visits", "desc" => "Description ...")                                    
                                             ),
                             ), 
-            "piwik" => array("sections" => array(                                                
-                                                array("name" => "section.piwik", "desc" => "Description ...")                                                
-                                            ),  
-                               'nav_group_tokens' => array("sections" => "Sections",                                                     
+            "piwik" => array(
+                               'nav_group_tokens' => array(                                                     
                                                 "piwik" => "Piwik",                                                                                                     
                                             ),
                                 "piwik" => array(                                                
@@ -2036,9 +2032,9 @@ class MainWPCReport
     
     public static function parse_report_content($content, $client_tokens, $replace) {
         // remove piwik section tokens
-        $content = preg_replace_callback("/\[section\.piwik\](.*?)\[\/section\.piwik\]/is", create_function('$matches', 'return $matches[1];'), $content);
+        //$content = preg_replace_callback("/\[section\.piwik\](.*?)\[\/section\.piwik\]/is", create_function('$matches', 'return $matches[1];'), $content);
         // remove ga section tokens
-        $content = preg_replace_callback("/\[section\.ga\](.*?)\[\/section\.ga\]/is", create_function('$matches', 'return $matches[1];'), $content);
+        //$content = preg_replace_callback("/\[section\.ga\](.*?)\[\/section\.ga\]/is", create_function('$matches', 'return $matches[1];'), $content);
         
         $filtered_content = $content = str_replace($client_tokens, $replace, $content);        
         $sections = array();
