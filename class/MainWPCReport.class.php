@@ -2080,13 +2080,11 @@ class MainWPCReport
         
         if (!$site_id || !$start_date || !$end_date) 
             return false;        
-        $uniq = $site_id . "_" . $start_date . $end_date;
+        $uniq = "ga_" . $site_id . "_" . $start_date . "_" . $end_date;
         if (isset(self::$buffer[$uniq])) 
             return self::$buffer[$uniq];
         
-        $values = apply_filters('mainwp_ga_get_data', $site_id, $start_date, $end_date);    
-        //Wait 200ms
-        usleep(200000);
+        $values = apply_filters('mainwp_ga_get_data', $site_id, $start_date, $end_date);         
         //print_r($values);
         $output = null;      
         if (!empty($values) && is_array($values)) { 
@@ -2106,14 +2104,12 @@ class MainWPCReport
             return false;
         if (!$site_id || !$start_date || !$end_date) 
             return false;        
-        $uniq = $site_id . "_" . $start_date . $end_date;
+        $uniq = "pw_" . $site_id . "_" . $start_date . "_" . $end_date;
         if (isset(self::$buffer[$uniq])) 
             return self::$buffer[$uniq];
         
-        $values = apply_filters('mainwp_piwik_get_data', $site_id, $start_date, $end_date);    
-        //Wait 200ms
-        usleep(200000);
-        //print_r($values);        
+        $values = apply_filters('mainwp_piwik_get_data', $site_id, $start_date, $end_date);         
+//        print_r($values);        
         $output = null;
         if (!empty($values) && is_array($values)) { 
             $output['piwik.visits'] = (isset($values['aggregates']) && isset($values['aggregates']['nb_visits'])) ? $values['aggregates']['nb_visits'] : 0;
