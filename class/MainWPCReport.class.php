@@ -557,7 +557,7 @@ class MainWPCReport
         add_filter('mainwp_managesites_column_url', array(&$this, 'managesites_column_url'), 10, 2);
         add_action('mainwp_managesite_backup', array(&$this, 'managesite_backup'), 10, 3);
         add_action('mainwp_managesite_schedule_backup', array(&$this, 'managesite_schedule_backup'), 10, 3);                
-        add_action('mainwp_sucuri_scan_done', array(&$this, 'sucuri_scan_done'), 10, 2);                
+        add_action('mainwp_sucuri_scan_done', array(&$this, 'sucuri_scan_done'), 10, 3);                
         
         self::$enabled_piwik = apply_filters('mainwp-extension-available-check', 'mainwp-piwik-extension'); 
         self::$enabled_sucuri = apply_filters('mainwp-extension-available-check', 'mainwp-sucuri-extension'); 
@@ -574,7 +574,7 @@ class MainWPCReport
         //error_log(print_r($information,true));        
         global $mainWPCReportExtensionActivator;
         
-        $backup_type = ($type == 'full') ? "Full backup" : ($type == 'db' ? "Database backup" : ""); 
+        $backup_type = ($type == 'full') ? "Full" : ($type == 'db' ? "Database" : ""); 
         
         $message = "";
         $backup_status = 'success';
@@ -688,10 +688,10 @@ class MainWPCReport
         
         if ($type == 'full') {
             $message = 'Schedule full backup.';  
-            $backup_type = "Full backup";
+            $backup_type = "Full";
         } else {
             $message = 'Schedule database backup.';
-            $backup_type = "Database backup";
+            $backup_type = "Database";
         }
         
         global $mainWPCReportExtensionActivator;
@@ -2019,13 +2019,14 @@ class MainWPCReport
         }        
         return $str;
     }    
-    function sucuri_scan_done($scan_status, $scan_result) {
+    function sucuri_scan_done($website_id, $scan_status, $scan_result) {
         // save results to child site stream
         $post_data = array( 'mwp_action' => 'save_sucuri_stream',                           
                             'result' => base64_encode(serialize($scan_result)),
                             'status' => $scan_status
-                        );        
-        apply_filters('mainwp_fetchurlauthed', $mainWPSucuriExtensionActivator->getChildFile(), $mainWPSucuriExtensionActivator->getChildKey(), $website_id, 'client_report', $post_data);			                             
+                        );   
+        global $mainWPCReportExtensionActivator;
+        apply_filters('mainwp_fetchurlauthed', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $website_id, 'client_report', $post_data);			                             
     }
     
     public static function replace_content($content, $tokens, $replace_tokens) {
@@ -2088,7 +2089,7 @@ class MainWPCReport
         if (!empty($values) && is_array($values)) { 
             $output['ga.visits'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:visits'])) ? $values['aggregates']['ga:visits'] : 0;
             $output['ga.pageviews'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:pageviews'])) ? $values['aggregates']['ga:pageviews'] : 0;
-            $output['ga.pages.visit'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:pageviewsPerVisit'])) ? self::format_stats_values($values['aggregates']['ga:pageviewsPerVisit'], true, true) : 0;
+            $output['ga.pages.visit'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:pageviewsPerVisit'])) ? self::format_stats_values($values['aggregates']['ga:pageviewsPerVisit'], true, false) : 0;
             $output['ga.bounce.rate'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:visitBounceRate'])) ? self::format_stats_values($values['aggregates']['ga:visitBounceRate'], true, true) : 0;
             $output['ga.new.visits'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:percentNewVisits'])) ? self::format_stats_values($values['aggregates']['ga:percentNewVisits'], true, true) : 0;
             $output['ga.avg.time'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:avgTimeOnSite'])) ? self::format_stats_values($values['aggregates']['ga:avgTimeOnSite'], false, false, true) : 0;                               
@@ -2102,11 +2103,12 @@ class MainWPCReport
             return false;
         if (!$site_id || !$start_date || !$end_date) 
             return false;        
-        $uniq = "pw_" . $site_id . "_" . $start_date . "_" . $end_date;
+        $uniq = "pw_" . $site_id . "_" . $start_date . "_" . $end_date;  
         if (isset(self::$buffer[$uniq])) 
             return self::$buffer[$uniq];
         
         $values = apply_filters('mainwp_piwik_get_data', $site_id, $start_date, $end_date);         
+//        error_log(print_r($values, true));
 //        print_r($values);        
         $output = null;
         if (!empty($values) && is_array($values)) { 
