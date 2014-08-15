@@ -1886,7 +1886,7 @@ class MainWPCReport
             $replaced_content = "";
             if (is_array($loop)) {                
                 foreach($loop as $replace) {
-                    $replace = self::sucuri_replace_data($replace);;
+                    //$replace = self::sucuri_replace_data($replace);;
                     $replaced = self::replace_content($sec_content, $search, $replace);                    
                     $replaced_content .= $replaced . "<br>";
                 }               
@@ -1906,7 +1906,7 @@ class MainWPCReport
             $replaced_content = "";
             if (is_array($loop)) {                
                 foreach($loop as $replace) {
-                    $replace = self::sucuri_replace_data($replace);;
+                    //$replace = self::sucuri_replace_data($replace);;
                     $replaced = self::replace_content($sec_content, $search, $replace);                    
                     $replaced_content .= $replaced . "<br>";
                 }               
@@ -1926,7 +1926,7 @@ class MainWPCReport
             $replaced_content = "";
             if (is_array($loop)) {                
                 foreach($loop as $replace) {
-                    $replace = self::sucuri_replace_data($replace);
+                    //$replace = self::sucuri_replace_data($replace);
                     $replaced = self::replace_content($sec_content, $search, $replace);                    
                     $replaced_content .= $replaced . "<br>";
                 }               
@@ -1936,94 +1936,110 @@ class MainWPCReport
         return $content;
     }
     
-    static function sucuri_replace_data($content) {        
-        $new_content = array();        
-        if (is_array($content)) {
-            foreach($content as $key => $value) {
-                $new_content[$key] = preg_replace_callback("/{sucuri_scan_([^_]*)_([0-9]*)}/is", array('MainWPCReport', 'sucuri_replace_mark'), $value);
-            }
-        }
-        return $new_content;
-    }
+//    static function sucuri_replace_data($content) {        
+//        $new_content = array();        
+//        if (is_array($content)) {
+//            foreach($content as $key => $value) {
+//                $new_content[$key] = preg_replace_callback("/{sucuri_scan_([^_]*)_([0-9]*)}/is", array('MainWPCReport', 'sucuri_replace_mark'), $value);
+//            }
+//        }
+//        return $new_content;
+//    }
 
-    static function sucuri_replace_mark($matches) {
-        $token_info = $matches[1];
-        $timescan = $matches[2];        
-        if ($timescan) {
-            if (isset(self::$buffer[$timescan])) {
-                $data = self::$buffer[$timescan];
-            } else {
-                $report = apply_filters('mainwp_sucuri_scan_data', $timescan);             
-                if ($report) {                
-                    $data = unserialize($report->data);  
-                    self::$buffer[$timescan] = $data;                
-                }
-            }         
-            if ($data) {            
-                return self::get_stream_scan_data($data, $token_info);            
-            }
-        }
-        return "{sucuri_scan_" . $token_info . "_" . $timescan . "}";
-    }
+//    static function sucuri_replace_mark($matches) {
+//        $token_info = $matches[1];
+//        $timescan = $matches[2];        
+//        if ($timescan) {
+//            if (isset(self::$buffer[$timescan])) {
+//                $data = self::$buffer[$timescan];
+//            } else {
+//                $report = apply_filters('mainwp_sucuri_scan_data', $timescan);             
+//                if ($report) {                
+//                    $data = unserialize($report->data);  
+//                    self::$buffer[$timescan] = $data;                
+//                }
+//            }         
+//            if ($data) {            
+//                return self::get_stream_scan_data($data, $token_info);            
+//            }
+//        }
+//        return "{sucuri_scan_" . $token_info . "_" . $timescan . "}";
+//    }
     
-    static function get_stream_scan_data($data, $token_info) {        
-        $blacklisted = isset($data['BLACKLIST']['WARN']) ? TRUE : FALSE;
-        $malware_exists = isset($data['MALWARE']['WARN']) ? TRUE : FALSE;
-        $system_error = isset($data['SYSTEM']['ERROR']) ? TRUE : FALSE;        
-        //print_r($data);
-        $status = array();
-        if ($blacklisted)
-            $status[] = "Site Blacklisted";
-        if ($malware_exists)
-            $status[] = "Site With Warnings";                
-         
-        $str = "";
-        
-        if ($token_info == "sucuri.check.status") {
-            $str = count($status) > 0 ? implode(", ", $status) : "Verified Clear";
-        } else if ($token_info == "sucuri.check.webtrust") {
-            $str = $blacklisted ? "Site Blacklisted" : "Trusted"; 
-        } else if ($token_info == "sucuri.check.results") {            
-            if( !$malware_exists && !$system_error ) { 
-                $str .= '<label>Blacklisted:</label> <span class="scr-status">NO</span><br>';
-                $str .= '<label>Malware:</label> <span class="scr-status">NO</span><br>';
-                $str .= '<label>Malicious javascript:</label> <span class="scr-status">NO</span><br>';
-                $str .= '<label>Malicious iframes:</label> <span class="scr-status">NO</span><br>';
-                $str .= '<label>Drive-By Downloads:</label> <span class="scr-status">NO</span><br>';
-                $str .= '<label>Anomaly detection:</label> <span class="scr-status">NO</span><br>';
-                $str .= '<label>IE-only attacks:</label> <span class="scr-status">NO</span><br>';
-                $str .= '<label>Suspicious redirections:</label> <span class="scr-status">NO</span><br>';
-                $str .= '<label>Blackhat SEO Spam:</label> <span class="scr-status">NO</span><br>';
-                $str .= '<label>Spam:</label> <span class="scr-status">NO</span><br>';
-            } else if ($malware_exists) {            
-                foreach( $data['MALWARE']['WARN'] as $malware ){                    
-                    if( !is_array($malware) ){
-                        $str .= htmlspecialchars($malware);
-                    }else{
-                        $mwdetails = explode("\n", htmlspecialchars($malware[1]));
-                        $mwdetails = explode("Details:", substr($mwdetails[0], 1));
-                        $str .= htmlspecialchars($malware[0])."\n<br />";
-                        $str .= $mwdetails[0] . ' - <a href="' .trim($mwdetails[1]) . '">' . __("Details") . '</a>.';
-                    }
-                    $str .='</p>';
-                }        
-            } else if ($system_error) { 
-                foreach( $data['SYSTEM']['ERROR'] as $error ){                       
-                    if( !is_array($error) ){
-                        $str .= htmlspecialchars($error);
-                    }else{                        
-                        $str .= htmlspecialchars($error[0])."<br />\n";
-                    }
-                }
-            }  
+//    static function get_stream_scan_data($data, $token_info) {        
+//        $blacklisted = isset($data['BLACKLIST']['WARN']) ? TRUE : FALSE;
+//        $malware_exists = isset($data['MALWARE']['WARN']) ? TRUE : FALSE;
+//        $system_error = isset($data['SYSTEM']['ERROR']) ? TRUE : FALSE;        
+//        //print_r($data);
+//        $status = array();
+//        if ($blacklisted)
+//            $status[] = "Site Blacklisted";
+//        if ($malware_exists)
+//            $status[] = "Site With Warnings";                
+//         
+//        $str = "";
+//        
+//        if ($token_info == "sucuri.check.status") {
+//            $str = count($status) > 0 ? implode(", ", $status) : "Verified Clear";
+//        } else if ($token_info == "sucuri.check.webtrust") {
+//            $str = $blacklisted ? "Site Blacklisted" : "Trusted"; 
+//        } else if ($token_info == "sucuri.check.results") {            
+//            if( !$malware_exists && !$system_error ) { 
+//                $str .= '<label>Blacklisted:</label> <span class="scr-status">NO</span><br>';
+//                $str .= '<label>Malware:</label> <span class="scr-status">NO</span><br>';
+//                $str .= '<label>Malicious javascript:</label> <span class="scr-status">NO</span><br>';
+//                $str .= '<label>Malicious iframes:</label> <span class="scr-status">NO</span><br>';
+//                $str .= '<label>Drive-By Downloads:</label> <span class="scr-status">NO</span><br>';
+//                $str .= '<label>Anomaly detection:</label> <span class="scr-status">NO</span><br>';
+//                $str .= '<label>IE-only attacks:</label> <span class="scr-status">NO</span><br>';
+//                $str .= '<label>Suspicious redirections:</label> <span class="scr-status">NO</span><br>';
+//                $str .= '<label>Blackhat SEO Spam:</label> <span class="scr-status">NO</span><br>';
+//                $str .= '<label>Spam:</label> <span class="scr-status">NO</span><br>';
+//            } else if ($malware_exists) {            
+//                foreach( $data['MALWARE']['WARN'] as $malware ){                    
+//                    if( !is_array($malware) ){
+//                        $str .= htmlspecialchars($malware);
+//                    }else{
+//                        $mwdetails = explode("\n", htmlspecialchars($malware[1]));
+//                        $mwdetails = explode("Details:", substr($mwdetails[0], 1));
+//                        $str .= htmlspecialchars($malware[0])."\n<br />";
+//                        $str .= $mwdetails[0] . ' - <a href="' .trim($mwdetails[1]) . '">' . __("Details") . '</a>.';
+//                    }
+//                    $str .='</p>';
+//                }        
+//            } else if ($system_error) { 
+//                foreach( $data['SYSTEM']['ERROR'] as $error ){                       
+//                    if( !is_array($error) ){
+//                        $str .= htmlspecialchars($error);
+//                    }else{                        
+//                        $str .= htmlspecialchars($error[0])."<br />\n";
+//                    }
+//                }
+//            }  
+//        }        
+//        return $str;
+//    }  
+    
+    function sucuri_scan_done($website_id, $scan_status, $data) {
+        $scan_result = array();
+        if (is_array($data)) {            
+            $blacklisted = isset($data['BLACKLIST']['WARN']) ? TRUE : FALSE;
+            $malware_exists = isset($data['MALWARE']['WARN']) ? TRUE : FALSE;
+            $system_error = isset($data['SYSTEM']['ERROR']) ? TRUE : FALSE;        
+           
+            $status = array();
+            if ($blacklisted)
+                $status[] = __("Site Blacklisted", "mainwp");
+            if ($malware_exists)
+                $status[] = __("Site With Warnings", "mainwp");
+            
+            $scan_result['status'] = count($status) > 0 ? implode(", ", $status) : __("Verified Clear", "mainwp"); 
+            $scan_result['webtrust'] = $blacklisted ? __("Site Blacklisted", "mainwp") : __("Trusted", "mainwp");
         }        
-        return $str;
-    }    
-    function sucuri_scan_done($website_id, $scan_status, $scan_result) {
         // save results to child site stream
         $post_data = array( 'mwp_action' => 'save_sucuri_stream',                           
                             'result' => base64_encode(serialize($scan_result)),
-                            'status' => $scan_status
+                            'scan_status' => $scan_status
                         );   
         global $mainWPCReportExtensionActivator;
         apply_filters('mainwp_fetchurlauthed', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $website_id, 'client_report', $post_data);			                             
