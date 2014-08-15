@@ -2909,6 +2909,11 @@ class MainWPCReport
                         
                     ?>
                         <div class="creport_format_group_data_tokens <?php echo ($visible_group == $group . "_" . $key) ? "current" : ""; ?>" group="<?php echo $group . "_" . $key; ?>">
+                      <?php 
+                            if ($group == "sucuri" && $key == "sections") {                                        
+                                echo "<div class=\"mainwp_info-box\">" . __("Sucuri reports only work Version 0.0.3 and up previous version will show invalid data") . "</div>";
+                            }
+                       ?>             
                             <table>                                
                             <?php    
                                 if ($group == "client" && $key == "tokens" && is_array($client_tokens)) {
@@ -2925,7 +2930,7 @@ class MainWPCReport
                                                    . "</tr>";
                                         }
                                     }                                    
-                                } else {
+                                } else {                                                                        
                                     foreach($tokens as $token) {
                                        echo "<tr><td><a href=\"#\" token-value =\"\" class=\"creport_format_add_token\">[" . stripslashes($token["name"]) . "]</a></td>"
                                                . "<td class=\"creport_stream_token_desc\">" . stripslashes($token["desc"]) ."</td>"
