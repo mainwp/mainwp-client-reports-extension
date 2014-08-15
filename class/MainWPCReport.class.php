@@ -454,54 +454,49 @@ class MainWPCReport
                                             )
                             ),
             "backups" => array("sections" => array(                                                
-                                                array("name" => "section.backups", "desc" => "Description ...")                                                
+                                                array("name" => "section.backups.created", "desc" => " Loops through Backups Created during the selected date range")                                                
                                             ),  
                                'nav_group_tokens' => array("sections" => "Sections",                                                     
-                                                "backups" => "Backups",                                                     
+                                                "created" => "Created",                                                     
                                                 "additional" => "Additional"
                                             ),
-                                "backups" => array(   
-                                                array("name" => "backup.created.type", "desc" => "Description ..."),
-                                                array("name" => "backup.created.date", "desc" => "Description ..."),
-                                                array("name" => "backup.created.destination", "desc" => "Description ...")                                                
+                                "created" => array(   
+                                                array("name" => "backup.created.type", "desc" => " Displays the Created Backup type (Full or Database)"),
+                                                array("name" => "backup.created.date", "desc" => "Displays the Backups Creation date"),
+                                                //array("name" => "backup.created.destination", "desc" => "Displays the Created Backup destination")                                                
                                             ),
                                 "additional" => array(
-                                                array("name" => "backup.created.count", "desc" => "Description ..."),
+                                                array("name" => "backup.created.count", "desc" => "Displays the number of created backups during the selected date range"),
                                             )
                             ),
             "sucuri" => array(  "sections" => array(                                                
-                                                array("name" => "section.sucuri.checks", "desc" => "Description ...")                                                
+                                                array("name" => "section.sucuri.checks", "desc" => "Loops through Security Checks during the selected date range")                                                
                                             ),  
                                'nav_group_tokens' => array("sections" => "Sections",                                                     
-                                                "check" => "Checks"
+                                                "check" => "Checks",
+                                                "additional" => "Additional"
                                             ),
                                 "check" => array(                                                
-                                                array("name" => "sucuri.scan.date", "desc" => "Description ..."),
-                                                array("name" => "sucuri.status", "desc" => "Description ..."),
-                                                array("name" => "sucuri.webtrust", "desc" => "Description ..."),
-                                                array("name" => "sucuri.result", "desc" => "Description ..."),
-//                                                array("name" => "sucuri.blacklisted.status", "desc" => "Description ..."),
-//                                                array("name" => "sucuri.malicious.javascript.status", "desc" => "Description ..."),
-//                                                array("name" => "sucuri.malicious.iframe.status", "desc" => "Description ..."),
-//                                                array("name" => "sucuri.dribveby.downloads.status", "desc" => "Description ..."),
-//                                                array("name" => "sucuri.anomaly.detection.status", "desc" => "Description ..."),
-//                                                array("name" => "sucuri.IEonly.attacks.status", "desc" => "Description ..."),
-//                                                array("name" => "sucuri.suspicious.redirections.status", "desc" => "Description ..."),
-//                                                array("name" => "sucuri.blackhat.seo.spam.status", "desc" => "Description ..."),
-//                                                array("name" => "sucuri.spam.status", "desc" => "Description ...")                                                
-                                            )                                
+                                                array("name" => "sucuri.check.date", "desc" => "Displays the Security Check date"),
+                                                array("name" => "sucuri.check.status", "desc" => "Displays the Status info for the Child Site"),
+                                                array("name" => "sucuri.check.webtrust", "desc" => "Displays the Webtrust info for the Child Site"),
+                                                //array("name" => "sucuri.check.results", "desc" => "Displays the Security Check details from the Security Scan Report"),
+                                            ),
+                                "additional" => array(
+                                                array("name" => "sucuri.checks.count", "desc" => "Displays the number of performed security checks during the selected date range"),
+                                            )
                             ),    
             "ga" => array(
                                'nav_group_tokens' => array(                                                     
                                                 "ga" => "GA",
                                             ),
                                 "ga" => array(                                                
-                                                array("name" => "ga.visits", "desc" => "Description ..."),
-                                                array("name" => "ga.pageviews", "desc" => "Description ..."),
-                                                array("name" => "ga.pages.visit", "desc" => "Description ..."),
-                                                array("name" => "ga.bounce.rate", "desc" => "Description ..."),
-                                                array("name" => "ga.avg.time", "desc" => "Description ..."),
-                                                array("name" => "ga.new.visits", "desc" => "Description ...")                                    
+                                                array("name" => "ga.visits", "desc" => "Displays the Number Visits during the selected date range"),
+                                                array("name" => "ga.pageviews", "desc" => "Displays the Number of Page Views during the selected date range"),
+                                                array("name" => "ga.pages.visit", "desc" => "Displays the Number of Page visit during the selected date range"),
+                                                array("name" => "ga.bounce.rate", "desc" => "Displays the Bounce Rate during the selected date range"),
+                                                array("name" => "ga.avg.time", "desc" => "Displays the Average Visit Time during the selected date range"),
+                                                array("name" => "ga.new.visits", "desc" => "Displays the Number of New Visits during the selected date range")                                    
                                             ),
                             ), 
             "piwik" => array(
@@ -509,12 +504,12 @@ class MainWPCReport
                                                 "piwik" => "Piwik",                                                                                                     
                                             ),
                                 "piwik" => array(                                                
-                                                array("name" => "piwik.visits", "desc" => "Description ..."),
-                                                array("name" => "piwik.pageviews", "desc" => "Description ..."),
-                                                array("name" => "piwik.pages.visit", "desc" => "Description ..."),
-                                                array("name" => "piwik.bounce.rate", "desc" => "Description ..."),
-                                                array("name" => "piwik.avg.time", "desc" => "Description ..."),                                        
-                                                array("name" => "piwik.new.visits", "desc" => "Description ..."),
+                                                array("name" => "piwik.visits", "desc" => "Displays the Number Visits during the selected date range"),
+                                                array("name" => "piwik.pageviews", "desc" => "Displays the Number of Page Views during the selected date range"),
+                                                array("name" => "piwik.pages.visit", "desc" => "Displays the Number of Page visit during the selected date range"),
+                                                array("name" => "piwik.bounce.rate", "desc" => "Displays the Bounce Rate during the selected date range"),
+                                                array("name" => "piwik.avg.time", "desc" => "Displays the Average Visit Time during the selected date range"),                                        
+                                                array("name" => "piwik.new.visits", "desc" => "Displays the Number of New Visits during the selected date range"),
                                             ),                                
                             ), 
             );       
@@ -561,8 +556,8 @@ class MainWPCReport
         add_action('mainwp_shortcuts_widget', array(&$this, 'shortcuts_widget'), 10, 1);        
         add_filter('mainwp_managesites_column_url', array(&$this, 'managesites_column_url'), 10, 2);
         add_action('mainwp_managesite_backup', array(&$this, 'managesite_backup'), 10, 3);
-        add_action('mainwp_managesite_schedule_backup', array(&$this, 'managesite_schedule_backup'), 10, 3);        
-        add_action('mainwp_client_report_piwik_filter_data', array(&$this, 'piwik_filter_data'));  
+        add_action('mainwp_managesite_schedule_backup', array(&$this, 'managesite_schedule_backup'), 10, 3);                
+        add_action('mainwp_sucuri_scan_done', array(&$this, 'sucuri_scan_done'), 10, 2);                
         
         self::$enabled_piwik = apply_filters('mainwp-extension-available-check', 'mainwp-piwik-extension'); 
         self::$enabled_sucuri = apply_filters('mainwp-extension-available-check', 'mainwp-sucuri-extension'); 
@@ -579,7 +574,7 @@ class MainWPCReport
         //error_log(print_r($information,true));        
         global $mainWPCReportExtensionActivator;
         
-        $backup_type = ($type == 'full') ? "full backup" : ($type == 'db' ? "database backup" : ""); 
+        $backup_type = ($type == 'full') ? "Full backup" : ($type == 'db' ? "Database backup" : ""); 
         
         $message = "";
         $backup_status = 'success';
@@ -693,10 +688,10 @@ class MainWPCReport
         
         if ($type == 'full') {
             $message = 'Schedule full backup.';  
-            $backup_type = "full backup";
+            $backup_type = "Full backup";
         } else {
             $message = 'Schedule database backup.';
-            $backup_type = "database backup";
+            $backup_type = "Database backup";
         }
         
         global $mainWPCReportExtensionActivator;
@@ -1984,12 +1979,11 @@ class MainWPCReport
          
         $str = "";
         
-        if ($token_info == "sucuri.status") {
+        if ($token_info == "sucuri.check.status") {
             $str = count($status) > 0 ? implode(", ", $status) : "Verified Clear";
-        } else if ($token_info == "sucuri.webtrust") {
+        } else if ($token_info == "sucuri.check.webtrust") {
             $str = $blacklisted ? "Site Blacklisted" : "Trusted"; 
-        } else if ($token_info == "sucuri.result") {
-            $str = '<h3>' . __('Security Scan Report') . (($malware_exists || $system_error) ? "" : " (" . __("No Threats Found") . ")") . '</h3>';        
+        } else if ($token_info == "sucuri.check.results") {            
             if( !$malware_exists && !$system_error ) { 
                 $str .= '<label>Blacklisted:</label> <span class="scr-status">NO</span><br>';
                 $str .= '<label>Malware:</label> <span class="scr-status">NO</span><br>';
@@ -2025,6 +2019,14 @@ class MainWPCReport
         }        
         return $str;
     }    
+    function sucuri_scan_done($scan_status, $scan_result) {
+        // save results to child site stream
+        $post_data = array( 'mwp_action' => 'save_sucuri_stream',                           
+                            'result' => base64_encode(serialize($scan_result)),
+                            'status' => $scan_status
+                        );        
+        apply_filters('mainwp_fetchurlauthed', $mainWPSucuriExtensionActivator->getChildFile(), $mainWPSucuriExtensionActivator->getChildKey(), $website_id, 'client_report', $post_data);			                             
+    }
     
     public static function replace_content($content, $tokens, $replace_tokens) {
         return str_replace($tokens, $replace_tokens, $content);                
@@ -2086,7 +2088,7 @@ class MainWPCReport
         if (!empty($values) && is_array($values)) { 
             $output['ga.visits'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:visits'])) ? $values['aggregates']['ga:visits'] : 0;
             $output['ga.pageviews'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:pageviews'])) ? $values['aggregates']['ga:pageviews'] : 0;
-            $output['ga.pages.visit'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:pageviewsPerVisit'])) ? $values['aggregates']['ga:pageviewsPerVisit'] : 0;
+            $output['ga.pages.visit'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:pageviewsPerVisit'])) ? self::format_stats_values($values['aggregates']['ga:pageviewsPerVisit'], true, true) : 0;
             $output['ga.bounce.rate'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:visitBounceRate'])) ? self::format_stats_values($values['aggregates']['ga:visitBounceRate'], true, true) : 0;
             $output['ga.new.visits'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:percentNewVisits'])) ? self::format_stats_values($values['aggregates']['ga:percentNewVisits'], true, true) : 0;
             $output['ga.avg.time'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:avgTimeOnSite'])) ? self::format_stats_values($values['aggregates']['ga:avgTimeOnSite'], false, false, true) : 0;                               
