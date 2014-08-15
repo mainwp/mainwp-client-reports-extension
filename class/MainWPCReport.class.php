@@ -2911,7 +2911,7 @@ class MainWPCReport
                         <div class="creport_format_group_data_tokens <?php echo ($visible_group == $group . "_" . $key) ? "current" : ""; ?>" group="<?php echo $group . "_" . $key; ?>">
                       <?php 
                             if ($group == "sucuri" && $key == "sections") {                                        
-                                echo "<div class=\"mainwp_info-box\">" . __("Sucuri reports only work Version 0.0.3 and up previous version will show invalid data") . "</div>";
+                                echo "<div class=\"mainwp_info-box\">" . __("MainWP Sucuri Extensions version 0.0.6 is required. Previous version will show invalid data.") . "</div>";
                             }
                        ?>             
                             <table>                                
