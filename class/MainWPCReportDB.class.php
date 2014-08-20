@@ -1,7 +1,7 @@
 <?php
 class MainWPCReportDB
 {    
-    private $mainwp_wpcreport_db_version = "3.8";        
+    private $mainwp_wpcreport_db_version = "3.9";        
     private $table_prefix;
     
     //Singleton
@@ -403,6 +403,9 @@ PRIMARY KEY  (`id`)  ';
 `is_archived` tinyint(1) NOT NULL DEFAULT 0,
 `archive_report` text NOT NULL,
 `archive_report_pdf` text NOT NULL,
+`type` tinyint(1) NOT NULL DEFAULT 0, 
+`sites` text NOT NULL,
+`groups` text NOT NULL,
 `selected_site` int(11) NOT NULL';
         
             if ($currentVersion == '')
@@ -733,7 +736,10 @@ PRIMARY KEY  (`id`)  ';
                                 'attach_files',
                                 'scheduled',
                                 'schedule_lastsend',
-                                'schedule_nextsend'
+                                'schedule_nextsend',
+                                'type',
+                                'sites',
+                                'groups'
                             );
         
         $update_report = array();

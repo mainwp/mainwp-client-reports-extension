@@ -4,22 +4,27 @@ jQuery(document).ready(function($) {
     jQuery('.mainwp_creport_datepicker').datepicker({dateFormat:"yy-mm-dd"});
     
     $('#wpcr_report_tab_lnk').on('click', function () {   
-        showCReportTab(true, false, false, false);
+        showCReportTab(true, false, false, false, false);
         return false;
     });
     
     $('#wpcr_edit_tab_lnk').on('click', function () {  
-        showCReportTab(false, true, false, false);
+        showCReportTab(false, true, false, false, false);
         return false;
     });
-    
+        
     $('#wpcr_token_tab_lnk').on('click', function () {  
-        showCReportTab(false, false, true, false);
+        showCReportTab(false, false, true, false, false);
         return false;
     });
     
     $('#wpcr_stream_tab_lnk').on('click', function () {  
-        showCReportTab(false, false, false, true);
+        showCReportTab(false, false, false, true, false);
+        return false;
+    });
+    
+    $('#wpcr_edit_global_tab_lnk').on('click', function () {  
+        showCReportTab(false, false, false, false, true);
         return false;
     });
     
@@ -386,6 +391,7 @@ jQuery(document).ready(function($) {
         
         var errors = []; 
         var selected_sites = [];
+        var selected_groups = [];
         
         if ($.trim($('#mwp_creport_title').val()) == '') {
             errors.push(__('Title is required.'));
@@ -403,13 +409,34 @@ jQuery(document).ready(function($) {
                 $('#mwp_creport_date_to').addClass('form-invalid');
             }
             
-            jQuery("#selected_sites input[name='selected_site']:checked").each(function (i) {
-                selected_sites.push(jQuery(this).val());                       
-            });  
+            if (jQuery('#mwp_creport_report_type').val() == "global") {
+                if (jQuery('#select_by').val() == 'site') {
+                    jQuery("input[name='selected_sites[]']:checked").each(function (i) {
+                        selected_sites.push(jQuery(this).val());
+                    });
+                    if (selected_sites.length == 0) {
+                        errors.push(__('Please select websites or groups.'));
+                        $('#selected_sites').addClass('form-invalid'); 
+                    }
+                }
+                else {
+                    jQuery("input[name='selected_groups[]']:checked").each(function (i) {
+                        selected_groups.push(jQuery(this).val());
+                    });
+                    if (selected_groups.length == 0) {
+                        errors.push(__('Please select websites or groups.'));
+                        $('#selected_sites').addClass('form-invalid'); 
+                    }
+                }
+            } else {
+                jQuery("#selected_sites input[name='selected_site']:checked").each(function (i) {
+                    selected_sites.push(jQuery(this).val());                       
+                });  
 
-            if (selected_sites.length == 0) {
-                errors.push(__("Please select a website."));  
-                $('#selected_sites').addClass('form-invalid'); 
+                if (selected_sites.length == 0) {
+                    errors.push(__("Please select a website."));  
+                    $('#selected_sites').addClass('form-invalid'); 
+                }
             }
         }
         
@@ -958,7 +985,7 @@ mainwp_creport_stream_active_start_specific = function(pObj, bulk, selector) {
     return false;
 }
 
-showCReportTab = function(report, edit_report, token, tream) {
+showCReportTab = function(report, edit_report, token, tream, edit_global_report) {
     var report_tab_lnk = jQuery("#wpcr_report_tab_lnk");
     if (report)  report_tab_lnk.addClass('mainwp_action_down');
     else report_tab_lnk.removeClass('mainwp_action_down'); 
@@ -970,6 +997,14 @@ showCReportTab = function(report, edit_report, token, tream) {
         if (edit_report) edit_report_tab_lnk.addClass('mainwp_action_down');
         else edit_report_tab_lnk.removeClass('mainwp_action_down');
     }
+    
+    var edit_global_report_tab_lnk = jQuery("#wpcr_edit_global_tab_lnk");
+    if (edit_global_report_tab_lnk.attr('report-id') > 0)
+        edit_global_report_tab_lnk.remove();
+    else {
+        if (edit_global_report) edit_global_report_tab_lnk.addClass('mainwp_action_down');
+        else edit_global_report_tab_lnk.removeClass('mainwp_action_down');
+    }     
    
     var token_tab_lnk = jQuery("#wpcr_token_tab_lnk");
     if (token) token_tab_lnk.addClass('mainwp_action_down');
@@ -978,20 +1013,20 @@ showCReportTab = function(report, edit_report, token, tream) {
     var stream_tab_lnk = jQuery("#wpcr_stream_tab_lnk");
     if (tream) stream_tab_lnk.addClass('mainwp_action_down');
     else stream_tab_lnk.removeClass('mainwp_action_down');
-    
+        
     var report_tab = jQuery("#wpcr_report_tab");    
-    var edit_tab = jQuery("#wpcr_edit_tab");    
+    var edit_tab = jQuery("#wpcr_edit_tab");         
     var token_tab = jQuery("#wpcr_token_tab");
     var tream_tab = jQuery("#wpcr_stream_tab");
     var select_sites_box = jQuery("#creport_select_sites_box");    
     
     if (report) {
         report_tab.show();
-        edit_tab.hide();    
+        edit_tab.hide();           
         token_tab.hide();
         tream_tab.hide();
         select_sites_box.hide();
-    } else if (edit_report) {
+    } else if (edit_report || edit_global_report) {
         report_tab.hide();        
         edit_tab.show();
         token_tab.hide();
@@ -999,13 +1034,13 @@ showCReportTab = function(report, edit_report, token, tream) {
         select_sites_box.show();
     } else if (token) {
         report_tab.hide();
-        edit_tab.hide();   
+        edit_tab.hide();           
         token_tab.show();
         tream_tab.hide();
         select_sites_box.hide();
     }  else if (tream) {
         report_tab.hide();
-        edit_tab.hide();    
+        edit_tab.hide();
         token_tab.hide();
         tream_tab.show();
         select_sites_box.hide();
@@ -1024,11 +1059,19 @@ function mainwp_creport_load_tokens()
 
 mainwp_creport_remove_sites_without_streams = function(str_ids) {
     var ids = str_ids.split(",");
-    jQuery('#creport_select_sites_box #selected_sites .mainwp_selected_sites_item').each(function() {
-        var site_id = jQuery(this).find('input[type="radio"]').attr('siteid');
-        if (jQuery.inArray(site_id, ids) == -1)
-            jQuery(this).remove();
-    }) 
+    if (jQuery('#mwp_creport_report_type').val() == "global") {
+        jQuery('#creport_select_sites_box #selected_sites .mainwp_selected_sites_item').each(function() {
+            var site_id = jQuery(this).find('input[type="checkbox"]').attr('siteid');
+            if (jQuery.inArray(site_id, ids) == -1)
+                jQuery(this).remove();
+        }) 
+    } else {
+        jQuery('#creport_select_sites_box #selected_sites .mainwp_selected_sites_item').each(function() {
+            var site_id = jQuery(this).find('input[type="radio"]').attr('siteid');
+            if (jQuery.inArray(site_id, ids) == -1)
+                jQuery(this).remove();
+        }) 
+    }
 }
 
 mainwp_creport_preview_report = function() {   

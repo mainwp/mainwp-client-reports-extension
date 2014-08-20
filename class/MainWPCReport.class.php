@@ -999,18 +999,39 @@ class MainWPCReport
             if ($attach_files !== "NOTCHANGE")
                 $report['attach_files'] = $attach_files;
             
-            $selected_site = 0; 
-            if (isset($_POST['select_by'])) {                            
-                if (isset($_POST['selected_site'])) {                                        
-                    $selected_site = intval($_POST['selected_site']);                    
-                }                                                
-            }               
+            $selected_site = 0;
+            $selected_sites = $selected_groups = array();
+            if (isset($_POST['mwp_creport_report_type']) && $_POST['mwp_creport_report_type'] == "global") {
+                if (isset($_POST['select_by'])) {                    
+                    if (isset($_POST['selected_sites']) && is_array($_POST['selected_sites'])) {
+                        foreach ($_POST['selected_sites'] as $selected) {
+                            $selected_sites[] = $selected;
+                        }
+                    }
+                    
+                    if (isset($_POST['selected_groups']) && is_array($_POST['selected_groups'])) {
+                        foreach ($_POST['selected_groups'] as $selected) {
+                            $selected_groups[] = $selected;
+                        }
+                    }                    
+                } 
+                $report['type'] = 1;            
+            } else {
+                $report['type'] = 0; 
+                if (isset($_POST['select_by'])) {                            
+                    if (isset($_POST['selected_site'])) {                                        
+                        $selected_site = intval($_POST['selected_site']);                    
+                    }                                                
+                }               
+            }
+            $report['sites'] = base64_encode(serialize($selected_sites));
+            $report['groups'] = base64_encode(serialize($selected_groups));
             $report['selected_site'] = $selected_site;
+            
             
             if ("schedule" === $_POST['mwp_creport_report_submit_action']) {
                 $report['scheduled'] = 1;     
-            }
-            
+            }            
             $report['schedule_nextsend'] = self::cal_schedule_nextsend($report['recurring_schedule'], $report['recurring_date']);
             
             if ("save" === $_POST['mwp_creport_report_submit_action'] || 
@@ -1028,8 +1049,7 @@ class MainWPCReport
                 $return['saved'] = true;
             } else if ("preview" === (string)$_POST['mwp_creport_report_submit_action'] || 
                         "send_test_email" === (string)$_POST['mwp_creport_report_submit_action']
-                       ) {                
-
+                       ) {    
                 $submit_report = json_decode(json_encode($report));
                 $return['submit_report'] = $submit_report;
             }
@@ -1280,8 +1300,7 @@ class MainWPCReport
         $result_save = array();                
         
         if (!$current_is_archived && isset($_POST['mwp_creport_report_submit_action']) && !empty($_POST['mwp_creport_report_submit_action'])) {
-            $result_save = self::saveReport(); 
-            //print_r($result_save);
+            $result_save = self::saveReport();             
             $report_id = isset($result_save['id']) && $result_save['id'] ? $result_save['id'] : 0;
             
             if (isset($result_save['submit_report']) && is_object($result_save['submit_report'])) {
@@ -1340,7 +1359,7 @@ class MainWPCReport
         
         $selected_site = 0;      
         $style_tab_report = $style_tab_edit = $style_tab_token = $style_tab_stream = ' style="display: none" ';                
-        $do_create_new = false;
+        $do_create_new = $do_create_new_global = false;
         if (isset($_REQUEST['action'])) {                
             if ($_REQUEST['action'] == "token") {            
                 $style_tab_token = '';                
@@ -1348,8 +1367,11 @@ class MainWPCReport
                 $style_tab_edit = '';                   
             } else if ($_REQUEST['action'] == "newreport" ) { 
                 if (isset($_GET['selected_site']) && !empty($_GET['selected_site']))
-                    $selected_site = $_GET['selected_site'];                    
-                $do_create_new = true;
+                    $selected_site = $_GET['selected_site'];    
+                if (isset($_GET['type']) && $_GET['type'] == "global")
+                    $do_create_new_global = true;
+                else
+                    $do_create_new = true;
                 $style_tab_edit = '';                   
             } else if ($do_send || $do_archive_get) {
                 $style_tab_report = "";
@@ -1365,10 +1387,17 @@ class MainWPCReport
             if (empty($report) || !is_object($report)) {
                 $errors[] = __('Error report data');
                 $do_preview = $do_send = false;
-            } else if (empty($report->selected_site)) {
+            } else if (empty($report->type) && empty($report->selected_site)) {
                 $errors[] = __('Please select a website');
-                $do_preview = $do_send = false;
-            } 
+                $do_preview = $do_send = false;                
+            } else if ($report->type) {
+                $sel_sites = unserialize(base64_decode($report->sites));
+                $sel_groups = unserialize(base64_decode($report->groups));               
+                if ((!is_array($sel_sites) || count($sel_sites) == 0) && (!is_array($sel_groups) || count($sel_groups) == 0)) {
+                    $errors[] = __('Please select a website or group');
+                    $do_preview = $do_send = false;                
+                }
+            }
             
             if ($do_send && empty($report->email)) {
                 $errors[] = __('Send To Email Address field can not be empty');
@@ -1458,14 +1487,28 @@ class MainWPCReport
         $dbwebsites_stream = MainWPCReportStream::Instance()->get_websites_stream($dbwebsites, $selected_group);         
         
         //print_r($dbwebsites_stream);
-        unset($dbwebsites);
-        $edit_tab_lnk = !empty($report) ? '<a id="wpcr_edit_tab_lnk" href="#" report-id="' . $report->id .'"class="mainwp_action mid mainwp_action_down">' . __("Edit Report") . '</a>' : "";        
-        if ($do_create_new) 
-            $new_tab_lnk = '<a id="wpcr_edit_tab_lnk" href="#" report-id="0" class="mainwp_action mid mainwp_action_down">' . __("New Report") . '</a>';
-        else if (empty($report)) {
+        unset($dbwebsites);        
+        $report_type = "";
+        $edit_tab_lnk = (!empty($report) && empty($report->type)) ? '<a id="wpcr_edit_tab_lnk" href="#" report-id="' . $report->id .'"class="mainwp_action mid mainwp_action_down">' . __("Edit Report") . '</a>' : "";        
+        if ($do_create_new) {           
+            $new_tab_lnk = '<a id="wpcr_edit_tab_lnk" href="#" report-id="0" class="mainwp_action mid mainwp_action_down">' . __("New Report") . '</a>';            
+        } else if (empty($report) && !$do_create_new_global) {
             $new_tab_lnk = '<a id="wpcr_edit_tab_lnk" href="#" report-id="0" class="mainwp_action mid">' . __("New Report") . '</a>';
         } else  // button is new report button
             $new_tab_lnk = '<a id="wpcr_new_tab_lnk" href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=newreport" class="mainwp_action mid">' . __("New Report") . '</a>';
+        
+        $edit_global_tab_lnk = "";
+        if (!empty($report) && $report->type) {
+            $edit_global_tab_lnk = '<a id="wpcr_edit_global_tab_lnk" href="#" report-id="' . $report->id .'"class="mainwp_action mid mainwp_action_down">' . __("Edit Global Report") . '</a>';
+            $report_type = "global";
+        }         
+        
+        if ($do_create_new_global) {
+            $report_type = "global";
+            $new_global_tab_lnk = '<a id="wpcr_edit_global_tab_lnk" href="#" report-id="0" class="mainwp_action mid mainwp_action_down">' . __("New Global Report") . '</a>';            
+        } else 
+            $new_global_tab_lnk = '<a id="wpcr_new_global_tab_lnk" href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=newreport&type=global" class="mainwp_action mid">' . __("New Global Report") . '</a>';
+        
         ?>
             <div class="wrap" id="mainwp-ap-option">
             <div class="clearfix"></div>           
@@ -1478,7 +1521,7 @@ class MainWPCReport
                     <div class="mainwp_error error" id="wpcr_error_box"></div>
                     <div class="clear">
                         <br />
-                        <a id="wpcr_report_tab_lnk" href="#" class="mainwp_action left <?php  echo (empty($style_tab_report) ? "mainwp_action_down" : ""); ?>"><?php _e("Client Reports"); ?></a><?php echo $edit_tab_lnk; ?><?php echo $new_tab_lnk; ?><a id="wpcr_token_tab_lnk" href="#" class="mainwp_action mid <?php  echo (empty($style_tab_token) ? "mainwp_action_down" : ""); ?>"><?php _e("Report Tokens"); ?></a><a id="wpcr_stream_tab_lnk" href="#" class="mainwp_action right <?php  echo (empty($style_tab_stream) ? "mainwp_action_down" : ""); ?>"><?php _e("Stream Dashboard"); ?></a>
+                        <a id="wpcr_report_tab_lnk" href="#" class="mainwp_action left <?php  echo (empty($style_tab_report) ? "mainwp_action_down" : ""); ?>"><?php _e("Client Reports"); ?></a><?php echo $edit_tab_lnk; ?><?php echo $new_tab_lnk; ?><?php echo $edit_global_tab_lnk; ?><?php echo $new_global_tab_lnk; ?><a id="wpcr_token_tab_lnk" href="#" class="mainwp_action mid <?php  echo (empty($style_tab_token) ? "mainwp_action_down" : ""); ?>"><?php _e("Report Tokens"); ?></a><a id="wpcr_stream_tab_lnk" href="#" class="mainwp_action right <?php  echo (empty($style_tab_stream) ? "mainwp_action_down" : ""); ?>"><?php _e("Stream Dashboard"); ?></a>
                         <br /><br />                              
                         <div id="wpcr_report_tab" <?php echo $style_tab_report; ?>>
                                 <?php
@@ -1517,14 +1560,28 @@ class MainWPCReport
                                     ?>
                                     </select>
                                     <input type="button" id="mainwp_creport_select_site_btn_display" class="button" value="<?php _e("Display"); ?>" />
-                                </div>
-                            
-                            <?php self::reportTab($websites); ?>                            
-                        </div>
+                                </div>                            
+                            <?php self::reportTab($websites); ?>                                                                                  
+                        </div>                       
                         <form method="post" enctype="multipart/form-data" id="mwp_creport_edit_form" action="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=editreport<?php echo !empty($report_id) ? "&id=" . $report_id : ""; ?>">
                             <div id="creport_select_sites_box" class="mainwp_config_box_right" <?php echo $style_tab_edit; ?>>
-                            <?php do_action('mainwp_select_sites_box', __("Select Site", 'mainwp'), 'radio', false, false, 'mainwp_select_sites_box_right', "", array($selected_site), array()); ?>
+                            <?php if($do_create_new_global || (!empty($report) && $report->type)) { 
+                                    $sel_sites = $sel_groups = array();
+                                    if (!empty($report)) {
+                                        $sel_sites = unserialize(base64_decode($report->sites));
+                                        $sel_groups = unserialize(base64_decode($report->groups));
+                                    }
+                                    if (!is_array($sel_sites)) 
+                                        $sel_sites = array();
+                                    if (!is_array($sel_groups)) 
+                                        $sel_groups = array();                                
+                                ?>                                
+                                <?php do_action('mainwp_select_sites_box', __("Select Site", 'mainwp'), 'checkbox', true, true, 'mainwp_select_sites_box_right', "", $sel_sites, $sel_groups); ?>
+                            <?php } else { ?>
+                                <?php do_action('mainwp_select_sites_box', __("Select Site", 'mainwp'), 'radio', false, false, 'mainwp_select_sites_box_right', "", array($selected_site), array()); ?>                                
                                 <div class="mainwp_info-box-yellow"><strong style="font-style:initial">Note</strong>: <span class="description">Only sites with the Stream Plugin installed will be displayed in the list.</span></div>                                
+                            <?php } ?>
+                                
                             </div>                            
                             <div id="wpcr_edit_tab"  <?php echo $style_tab_edit; ?>> 
                                 <?php self::newReportTab($report);                                         
@@ -1545,7 +1602,8 @@ class MainWPCReport
                                         <input type="submit" value="<?php _e("Send Now"); ?>" class="button-primary" id="mwp-creport-send-btn" name="submit">
                                     </span>
                                 </p>
-                            </div>                              
+                            </div>  
+                        <input type="hidden" name="mwp_creport_report_type" id="mwp_creport_report_type" value="<?php echo $report_type; ?>">
                         <input type="hidden" name="mwp_creport_report_submit_action" id="mwp_creport_report_submit_action" value="">
                             <input type="hidden" name="id" value="<?php echo (is_object($report) && isset($report->id)) ? $report->id : "0"; ?>">
                             <input type="hidden" name="nonce" value="<?php echo wp_create_nonce('mwp_creport_nonce') ?>">
@@ -1581,8 +1639,8 @@ class MainWPCReport
         
         <script>
             jQuery(document).ready(function($){    
-                mainwp_creport_load_tokens();  
-                mainwp_creport_remove_sites_without_streams('<?php echo implode(",", $sites_with_streams)?>');
+                mainwp_creport_load_tokens();                  
+                mainwp_creport_remove_sites_without_streams('<?php echo implode(",", $sites_with_streams)?>');                
                 <?php if ($do_preview) { ?>
                         mainwp_creport_preview_report();
                 <?php } ?>
@@ -1614,17 +1672,16 @@ class MainWPCReport
         return false;
     }
     
-    public static function gen_preview_report($report) {      
+    public static function gen_preview_report($report) {         
         if (!empty($report)) {                
-            ob_start();            
+            ob_start();                        
             if (isset($report->is_archived) && $report->is_archived) {
                 echo $report->archive_report;
             } else {            
                 $str_message = "";
                 try {
-                    $filtered_report = self::filter_report($report);
-                    //print_r($filtered_report);
-                    $report = $filtered_report;
+                    $filtered_reports = self::filter_report($report); 
+                    $report = $filtered_reports;
                 } catch (Exception $e) 
                 {
                     $str_message = $e->getMessage(); 
@@ -1660,10 +1717,10 @@ class MainWPCReport
                 return $report->archive_report;
             } else {
                 try {
-                    $filtered_report = self::filter_report($report);                
-                    $report = $filtered_report;
+                    $filtered_reports = self::filter_report($report);                
+                    $report = $filtered_reports;
                 } catch (Exception $e) 
-                {                
+                {                       
                 }                        
                 return self::gen_report_content($report);            
             }
@@ -1671,8 +1728,12 @@ class MainWPCReport
         return false;        
     }
           
-    public static function gen_report_content($report) {  
-        ob_start();           
+    public static function gen_report_content($reports) {  
+        if (!is_array($reports)) {
+            $reports = array($reports);
+        }        
+        ob_start();        
+        foreach($reports as $report) {            
     ?>        
         <br>
         <div>
@@ -1706,6 +1767,7 @@ class MainWPCReport
             </div>
         </div>               
     <?php
+        }
         $output = ob_get_clean();
         return $output; 
     }
@@ -1719,8 +1781,8 @@ class MainWPCReport
                 return $report->archive_report_pdf;
             } else {
                 try {
-                    $filtered_report = self::filter_report($report);                
-                    $report = $filtered_report;
+                    $filtered_reports = self::filter_report($report);                
+                    $report = $filtered_reports;
                 } catch (Exception $e) 
                 {                
                 }                        
@@ -1730,17 +1792,19 @@ class MainWPCReport
         return "";        
     }
     
-     public static function gen_report_content_pdf($report) {  
-
-        $output = array();       
+     public static function gen_report_content_pdf($reports) {  
+        if (!is_array($reports)) {
+            $reports = array(0 => $reports);
+        }            
         ob_start();          
-        echo stripslashes(nl2br($report->filtered_header));
-        echo '<br><br>';
-        echo stripslashes(nl2br($report->filtered_body)); 
-        echo '<br><br>';
-        echo stripslashes(nl2br($report->filtered_footer)); 
-        echo '<br><br>';
-        
+        foreach($reports as $report) {
+            echo stripslashes(nl2br($report->filtered_header));
+            echo '<br><br>';
+            echo stripslashes(nl2br($report->filtered_body)); 
+            echo '<br><br>';
+            echo stripslashes(nl2br($report->filtered_footer)); 
+            echo '<br><br>';
+        }
         $html = ob_get_clean();                 
         return $html; 
     }
@@ -1749,132 +1813,162 @@ class MainWPCReport
     
     public static function filter_report($report) {         
         global $mainWPCReportExtensionActivator;
-        $website = null;
-        if ($report->selected_site) {
-            global $mainWPCReportExtensionActivator;
-            $website = apply_filters('mainwp-getsites', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $report->selected_site);            
-            if ($website && is_array($website)) {
-                $website = current($website);
-            }  
-        }
+        $websites = array(); 
+        if (empty($report->type)) {
+            if ($report->selected_site) {
+                global $mainWPCReportExtensionActivator;
+                $website = apply_filters('mainwp-getsites', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $report->selected_site);            
+                if ($website && is_array($website)) {
+                    $websites[] = current($website);
+                }  
+            }                      
+        } else {
+            $sel_sites = unserialize(base64_decode($report->sites));
+            $sel_groups = unserialize(base64_decode($report->groups));                                        
+            if (!is_array($sel_sites))
+                $sel_sites = array();   
+            if (!is_array($sel_groups))
+                $sel_groups = array();          
+            $dbwebsites = apply_filters('mainwp-getdbsites', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $sel_sites, $sel_groups);
+            $websites = array();
+            if (is_array($dbwebsites)) {
+                foreach($dbwebsites as $site) {
+                    $websites[] = MainWPCReportUtility::mapSite($site, array('id', 'name', 'url'));
+                }                
+            }
+        } 
         
-        if (!is_array($website) || empty($website['id']))
+        if (count($websites) == 0)
             return $report;
         
-        $tokens = MainWPCReportDB::Instance()->getTokens();
-        $site_tokens = MainWPCReportDB::Instance()->getSiteTokens($website['url']);        
-        $search_tokens = $replace_values = array();
-        foreach ($tokens as $token) {            
-            $search_tokens[] = '[' . $token->token_name . ']';            
-            $replace_values[] = isset($site_tokens[$token->id]) ? $site_tokens[$token->id]->token_value : "";            
-        }  
-        
-        $piwik_tokens = self::piwik_data($website['id'], $report->date_from, $report->date_to); 
-        if (is_array($piwik_tokens)) {
-            foreach ($piwik_tokens as $token => $value) {            
-                $search_tokens[] = '[' . $token . ']';            
-                $replace_values[] = $value;            
-            }       
-        }  
-        
-        $ga_tokens = self::ga_data($website['id'], $report->date_from, $report->date_to); 
-        if (is_array($ga_tokens)) {
-            foreach ($ga_tokens as $token => $value) {            
-                $search_tokens[] = '[' . $token . ']';            
-                $replace_values[] = $value;            
-            }       
-        }  
-        
-        //$report->filtered_header = self::replace_content($report->header, $search_tokens, $replace_values);        
-        //$report->body = self::replace_content($report->body, $search_tokens, $replace_values);        
-        //$report->filtered_footer = self::replace_content($report->footer, $search_tokens, $replace_values);        
-        
-        $report_header = $report->header;
-        $report_body = $report->body;
-        $report_footer = $report->footer;
-        
-        $result = self::parse_report_content($report_header, $search_tokens, $replace_values);
-        //print_r($result);
-        self::$buffer['sections']['header'] = $sections['header'] = $result['sections'];
-        $other_tokens['header'] = $result['other_tokens']; 
-        $report_header = $result['filtered_content'];
-        unset($result);
-        
-        $result = self::parse_report_content($report_body, $search_tokens, $replace_values);
-        //print_r($result);
-        self::$buffer['sections']['body'] = $sections['body'] = $result['sections'];
-        $other_tokens['body'] = $result['other_tokens']; 
-        $report_body = $result['filtered_content'];
-        unset($result);
-        
-        $result = self::parse_report_content($report_footer, $search_tokens, $replace_values);
-        //print_r($result);
-        self::$buffer['sections']['footer'] = $sections['footer'] = $result['sections'];
-        $other_tokens['footer'] = $result['other_tokens'];  
-        $report_footer = $result['filtered_content'];
-        unset($result);
-        
-        
-        $sections_data = $other_tokens_data = array();
-        $information = self::fetch_stream_data($website, $report, $sections, $other_tokens);                    
-        //print_r($information);
-        if (is_array($information)) {                
-            self::$buffer['sections_data'] = $sections_data = isset($information['sections_data']) ? $information['sections_data'] : array();
-            $other_tokens_data = isset($information['other_tokens_data']) ? $information['other_tokens_data'] : array();
-        }
-        unset($information);
-        if (isset($sections_data['header']) && is_array($sections_data['header']) && count($sections_data['header']) > 0) {
-            $report_header = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is",  array('MainWPCReport', 'section_mark_header'), $report_header);
-        }      
-
-        if (isset($sections_data['body']) && is_array($sections_data['body']) && count($sections_data['body']) > 0) {
-            $report_body = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is",  array('MainWPCReport', 'section_mark_body'), $report_body);
-        }      
-
-        if (isset($sections_data['footer']) && is_array($sections_data['footer']) && count($sections_data['footer']) > 0) {
-            $report_footer = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is",  array('MainWPCReport', 'section_mark_footer'), $report_footer);
-        }      
-
-        if (isset($other_tokens_data['header']) && is_array($other_tokens_data['header']) && count($other_tokens_data['header']) > 0) {
-            $search = $replace = array();
-            foreach ($other_tokens_data['header'] as $token => $value) {
-                if (in_array($token, $other_tokens['header'])) {
-                    $search[] = $token;
-                    $replace[] = $value;
-                }
-            }
-            $report_header = self::replace_content($report_header, $search, $replace);
-        }
-
-        if (isset($other_tokens_data['body']) && is_array($other_tokens_data['body']) && count($other_tokens_data['body']) > 0) {
-            $search = $replace = array();
-            foreach ($other_tokens_data['body'] as $token => $value) {
-                if (in_array($token, $other_tokens['body'])) {
-                    $search[] = $token;
-                    $replace[] = $value;
-                }
-            }
-            $report_body = self::replace_content($report_body, $search, $replace);
-        }
-
-        if (isset($other_tokens_data['footer']) && is_array($other_tokens_data['footer']) && count($other_tokens_data['footer']) > 0) {
-            $search = $replace = array();
-            foreach ($other_tokens_data['footer'] as $token => $value) {
-                if (in_array($token, $other_tokens['footer'])) {
-                    $search[] = $token;
-                    $replace[] = $value;
-                }
-            }
-            $report_footer = self::replace_content($report_footer, $search, $replace);
-        }            
-        
-        $report->filtered_header = $report_header;
-        $report->filtered_body = $report_body;
-        $report->filtered_footer = $report_footer;
-        
-        self::$buffer = array();
-        return $report;
+        $reports = array();
+        foreach($websites as $site) {
+            $reports[] =  self::filter_report_website($report, $site);                        
+        }                 
+        return $reports;
     } 
+    
+    public static function filter_report_website($report, $website) {  
+        $output = new stdClass();
+        $output->filtered_header = $report->header;
+        $output->filtered_body = $report->body;
+        $output->filtered_footer = $report->footer; 
+        
+         if ($website !== null) {            
+            $tokens = MainWPCReportDB::Instance()->getTokens();
+            $site_tokens = MainWPCReportDB::Instance()->getSiteTokens($website['url']);        
+            $search_tokens = $replace_values = array();
+            foreach ($tokens as $token) {            
+                $search_tokens[] = '[' . $token->token_name . ']';            
+                $replace_values[] = isset($site_tokens[$token->id]) ? $site_tokens[$token->id]->token_value : "";            
+            }  
+
+            $piwik_tokens = self::piwik_data($website['id'], $report->date_from, $report->date_to); 
+            if (is_array($piwik_tokens)) {
+                foreach ($piwik_tokens as $token => $value) {            
+                    $search_tokens[] = '[' . $token . ']';            
+                    $replace_values[] = $value;            
+                }       
+            }  
+
+            $ga_tokens = self::ga_data($website['id'], $report->date_from, $report->date_to); 
+            if (is_array($ga_tokens)) {
+                foreach ($ga_tokens as $token => $value) {            
+                    $search_tokens[] = '[' . $token . ']';            
+                    $replace_values[] = $value;            
+                }       
+            } 
+
+            //$report->filtered_header = self::replace_content($report->header, $search_tokens, $replace_values);        
+            //$report->body = self::replace_content($report->body, $search_tokens, $replace_values);        
+            //$report->filtered_footer = self::replace_content($report->footer, $search_tokens, $replace_values);        
+
+            $report_header = $report->header;
+            $report_body = $report->body;
+            $report_footer = $report->footer;
+
+            $result = self::parse_report_content($report_header, $search_tokens, $replace_values);
+            //print_r($result);
+            self::$buffer['sections']['header'] = $sections['header'] = $result['sections'];
+            $other_tokens['header'] = $result['other_tokens']; 
+            $report_header = $result['filtered_content'];
+            unset($result);
+
+            $result = self::parse_report_content($report_body, $search_tokens, $replace_values);
+            //print_r($result);
+            self::$buffer['sections']['body'] = $sections['body'] = $result['sections'];
+            $other_tokens['body'] = $result['other_tokens']; 
+            $report_body = $result['filtered_content'];
+            unset($result);
+
+            $result = self::parse_report_content($report_footer, $search_tokens, $replace_values);
+            //print_r($result);
+            self::$buffer['sections']['footer'] = $sections['footer'] = $result['sections'];
+            $other_tokens['footer'] = $result['other_tokens'];  
+            $report_footer = $result['filtered_content'];
+            unset($result);
+            //print_r($sections);
+
+            $sections_data = $other_tokens_data = array();
+            $information = self::fetch_stream_data($website, $report, $sections, $other_tokens);                    
+            //print_r($information);
+            if (is_array($information)) {                
+                self::$buffer['sections_data'] = $sections_data = isset($information['sections_data']) ? $information['sections_data'] : array();
+                $other_tokens_data = isset($information['other_tokens_data']) ? $information['other_tokens_data'] : array();
+            }
+            unset($information);
+            if (isset($sections_data['header']) && is_array($sections_data['header']) && count($sections_data['header']) > 0) {
+                $report_header = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is",  array('MainWPCReport', 'section_mark_header'), $report_header);
+            }      
+
+            if (isset($sections_data['body']) && is_array($sections_data['body']) && count($sections_data['body']) > 0) {
+                $report_body = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is",  array('MainWPCReport', 'section_mark_body'), $report_body);
+            }      
+
+            if (isset($sections_data['footer']) && is_array($sections_data['footer']) && count($sections_data['footer']) > 0) {
+                $report_footer = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is",  array('MainWPCReport', 'section_mark_footer'), $report_footer);
+            }      
+
+            if (isset($other_tokens_data['header']) && is_array($other_tokens_data['header']) && count($other_tokens_data['header']) > 0) {
+                $search = $replace = array();
+                foreach ($other_tokens_data['header'] as $token => $value) {
+                    if (in_array($token, $other_tokens['header'])) {
+                        $search[] = $token;
+                        $replace[] = $value;
+                    }
+                }
+                $report_header = self::replace_content($report_header, $search, $replace);
+            }
+
+            if (isset($other_tokens_data['body']) && is_array($other_tokens_data['body']) && count($other_tokens_data['body']) > 0) {
+                $search = $replace = array();
+                foreach ($other_tokens_data['body'] as $token => $value) {
+                    if (in_array($token, $other_tokens['body'])) {
+                        $search[] = $token;
+                        $replace[] = $value;
+                    }
+                }
+                $report_body = self::replace_content($report_body, $search, $replace);
+            }
+
+            if (isset($other_tokens_data['footer']) && is_array($other_tokens_data['footer']) && count($other_tokens_data['footer']) > 0) {
+                $search = $replace = array();
+                foreach ($other_tokens_data['footer'] as $token => $value) {
+                    if (in_array($token, $other_tokens['footer'])) {
+                        $search[] = $token;
+                        $replace[] = $value;
+                    }
+                }
+                $report_footer = self::replace_content($report_footer, $search, $replace);
+            }            
+
+            $output->filtered_header = $report_header;
+            $output->filtered_body = $report_body;
+            $output->filtered_footer = $report_footer;            
+            self::$buffer = array();
+        }       
+        return $output; 
+    }
     
     public static function section_mark_header($matches) {
         $content = $matches[0];
@@ -1899,18 +1993,18 @@ class MainWPCReport
     public static function section_mark_body($matches) {
         $content = $matches[0];
         $sec = $matches[1];        
-        $sec_content = trim($matches[2]);                
+        $sec_content = trim($matches[2]);                  
         if (isset(self::$buffer['sections_data']['body'][$sec])) {
             $search = self::$buffer['sections']['body'][$sec];            
             $loop = self::$buffer['sections_data']['body'][$sec]; 
-            $replaced_content = "";
+            $replaced_content = "";            
             if (is_array($loop)) {                
                 foreach($loop as $replace) {
                     //$replace = self::sucuri_replace_data($replace);;
                     $replaced = self::replace_content($sec_content, $search, $replace);                    
                     $replaced_content .= $replaced . "<br>";
                 }               
-            }
+            }            
             return $replaced_content;            
         }        
         return $content;
@@ -2175,7 +2269,7 @@ class MainWPCReport
         }
     }
     
-    public static function reportTab($websites) {
+    public static function reportTab($websites, $type = 0) {
         $orderby = "title";    
         $order = "asc";
         
@@ -2234,8 +2328,14 @@ class MainWPCReport
             usort($temp_reports, array('MainWPCReport', "creport_data_sort")); 
             $reports = $temp_reports;            
         }
-        
-        
+        $normal_reports = $global_reports = array();
+        foreach($reports as $rp) {
+            if (empty($rp->type))
+                $normal_reports[] = $rp;
+            else
+                $global_reports[] = $rp;
+                
+        }
     ?>
          <table id="mainwp-table" class="wp-list-table widefat" cellspacing="0">
             <thead>
@@ -2290,10 +2390,69 @@ class MainWPCReport
             </tfoot>
             <tbody>
              <?php                             
-                self::reportTableContent($reports, $all_sites);                               
+                self::reportTableContent($normal_reports, $all_sites);                               
              ?>
             </tbody>
         </table>     
+        
+        <?php
+        
+        if (count($global_reports) > 0) : ?>
+        <br>
+        <br>
+        <br>
+        <table id="mainwp-table" class="wp-list-table widefat" cellspacing="0">
+            <thead>
+                <tr> 
+                    <th scope="col" class="manage-column sortable <?php echo $title_order; ?>">
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=title&order=<?php echo (empty($title_order) ? 'asc' : $title_order); ?>"><span><?php _e('Title','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                    </th>
+                    <th scope="col" class="manage-column sortable <?php echo $client_order; ?>">
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=client&order=<?php echo (empty($client_order) ? 'asc' : $client_order); ?>"><span><?php _e('Client','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                    </th>                
+                    <th scope="col" class="manage-column sortable <?php echo $name_order; ?>">
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=name&order=<?php echo (empty($name_order) ? 'asc' : $name_order); ?>"><span><?php _e('Send To','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                    </th>                
+                    <th scope="col" class="manage-column sortable <?php echo $lastsend_order; ?>">
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=lastsend&order=<?php echo (empty($lastsend_order) ? 'asc' : $lastsend_order); ?>"><span><?php _e('Last Report Send','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                    </th>
+                    <th scope="col" class="manage-column sortable <?php echo $datefrom_order; ?>">
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=date_from&order=<?php echo (empty($datefrom_order) ? 'asc' : $datefrom_order); ?>"><span><?php _e('Report For','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                    </th>
+                    <th scope="col" class="manage-column sortable <?php echo $schedule_order; ?>">
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=schedule&order=<?php echo (empty($schedule_order) ? 'asc' : $schedule_order); ?>"><span><?php _e('Scheduled','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                    </th>                   
+                </tr>
+            </thead>
+            <tfoot>
+               <tr> 
+                    <th scope="col" class="manage-column sortable <?php echo $title_order; ?>">
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=title&order=<?php echo (empty($title_order) ? 'asc' : $title_order); ?>"><span><?php _e('Title','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                    </th>
+                     <th scope="col" class="manage-column sortable <?php echo $client_order; ?>">
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=client&order=<?php echo (empty($client_order) ? 'asc' : $client_order); ?>"><span><?php _e('Client','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                    </th>   
+                    <th scope="col" class="manage-column sortable <?php echo $name_order; ?>">
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=send&order=<?php echo (empty($name_order) ? 'asc' : $name_order); ?>"><span><?php _e('Send To','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                    </th>                
+                    <th scope="col" class="manage-column sortable <?php echo $lastsend_order; ?>">
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=lastsend&order=<?php echo (empty($lastsend_order) ? 'asc' : $lastsend_order); ?>"><span><?php _e('Last Report Send','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                    </th>
+                    <th scope="col" class="manage-column sortable <?php echo $datefrom_order; ?>">
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=date_from&order=<?php echo (empty($datefrom_order) ? 'asc' : $datefrom_order); ?>"><span><?php _e('Report For','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                    </th>
+                    <th scope="col" class="manage-column sortable <?php echo $schedule_order; ?>">
+                        <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=schedule&order=<?php echo (empty($schedule_order) ? 'asc' : $schedule_order); ?>"><span><?php _e('Scheduled','mainwp'); ?></span><span class="sorting-indicator"></span></a>
+                    </th>                    
+                </tr>
+            </tfoot>
+            <tbody>
+             <?php                             
+                self::reportTableContent($global_reports, $all_sites);                               
+             ?>
+            </tbody>
+        </table>  
+        <?php endif; ?>
     <?php
     }
     
@@ -2327,13 +2486,15 @@ class MainWPCReport
         
         $url_loader = plugins_url('images/loader.gif', dirname(__FILE__));
         foreach ($reports as $report) {
-            $website = ($report->selected_site && isset($websites[$report->selected_site])) ? $websites[$report->selected_site] : null;
-            $site_column  = "";
-            if (!empty($website)) {
-                $site_column = '<a href="admin.php?page=managesites&dashboard=' . $website['id']. '">' .  $website['name'] . "</a><br>" .
-                        '<div class="row-actions"><span class="dashboard"><a href="admin.php?page=managesites&dashboard=' . $website['id'] . '">' .  __("Dashboard") . '</a></span> | ' . 
-                        '<span class="edit"><a href="admin.php?page=managesites&id=' .  $website['id'] . '">' . __("Edit") . '</a></span></div>';                    
-            }
+            if(empty($report->type)) {
+                $website = ($report->selected_site && isset($websites[$report->selected_site])) ? $websites[$report->selected_site] : null;
+                $site_column  = "";
+                if (!empty($website)) {
+                    $site_column = '<a href="admin.php?page=managesites&dashboard=' . $website['id']. '">' .  $website['name'] . "</a><br>" .
+                            '<div class="row-actions"><span class="dashboard"><a href="admin.php?page=managesites&dashboard=' . $website['id'] . '">' .  __("Dashboard") . '</a></span> | ' . 
+                            '<span class="edit"><a href="admin.php?page=managesites&id=' .  $website['id'] . '">' . __("Edit") . '</a></span></div>';                    
+                }
+            } 
             
             $sche_column = _("No");
             if (!empty($report->recurring_schedule) && !empty($report->scheduled)) {
@@ -2382,9 +2543,11 @@ class MainWPCReport
             <td> 
                 <span class="creport_sche_column"><?php echo $sche_column; ?></span>
             </td>
+            <?php if(empty($report->type)) { ?>
             <td> 
                 <?php echo $site_column; ?>
             </td>
+            <?php } ?>
         </tr>
     <?php
         }    
