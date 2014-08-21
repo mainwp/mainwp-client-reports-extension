@@ -1571,8 +1571,6 @@ class MainWPCReport
             <div class="inside">                 
                 <div  class="mainwp_error error" id="mwp-creport-error-box" <?php echo !empty($str_error) ? "style=\"display:block;\"" : ""; ?>><?php echo !empty($str_error) ? "<p>" . $str_error . "</p>" : ""; ?></div>
                 <div  class="mainwp_info-box-yellow" id="mwp-creport-info-box"  <?php echo (empty($str_message) ? ' style="display: none" ' : ""); ?>><?php echo $str_message?></div>
-                            
-                <h3><?php _e("Client Reports Extension"); ?></h3>
                 <div id="mainwp_wpcr_option">
                     <div class="mainwp_error error" id="wpcr_error_box"></div>
                     <div class="clear">
@@ -2450,6 +2448,7 @@ class MainWPCReport
                 
         }
     ?>
+        <h3><?php _e("Client Reports", "mainwp");?></h3>
          <table id="mainwp-table" class="wp-list-table widefat" cellspacing="0">
             <thead>
                 <tr> 
@@ -2513,7 +2512,7 @@ class MainWPCReport
         if (count($global_reports) > 0) : ?>
         <br>
         <br>
-        <br>
+        <h3><?php _e("Global Reports", "mainwp");?></h3>
         <table id="mainwp-table" class="wp-list-table widefat" cellspacing="0">
             <thead>
                 <tr> 
@@ -2850,11 +2849,7 @@ class MainWPCReport
         $clients = MainWPCReportDB::Instance()->getClients();
         if (!is_array($clients)) 
             $clients = array();
-        
-        
-    ?>         
-        <tr><td colspan="2"><div class="mainwp_info-box-yellow"><?php _e("Tokens are not allowed here"); ?></div></td></tr>            
-    <?php        
+                
         if (!empty($report) && isset($report->id) && isset($report->is_archived) && $report->is_archived) {
     ?>
           <tr><td colspan="2"><div class="mainwp_info-box-yellow"><?php _e("This is an Archived Report");?></div></td></tr>            
