@@ -1,7 +1,7 @@
 <?php
 class MainWPCReportDB
 {    
-    private $mainwp_wpcreport_db_version = "3.9";        
+    private $mainwp_wpcreport_db_version = "4.0";        
     private $table_prefix;
     
     //Singleton
@@ -517,6 +517,10 @@ PRIMARY KEY  (`id`)  ';
         if (empty($by) || empty($value))
             return null;
         
+        if ($by == 'token_name') {
+            $value = str_replace(array('[',']'), '', $value);
+        }
+        
         $sql = "";
         if ($by == 'id') {
             $sql = $wpdb->prepare("SELECT * FROM " . $this->tableName('client_report_token') . " WHERE `id`=%d ", $value);
@@ -681,7 +685,7 @@ PRIMARY KEY  (`id`)  ';
         global $wpdb;  
         $id = isset($report['id']) ? $report['id'] : 0;
         $updatedClient = false;
-        if (!empty($report["client"])) {
+        if (!empty($report["client"])) { // client may be content tokens
             $update_client = array(
                                     'client' => $report["client"],
                                     'name' => $report["name"],
@@ -704,7 +708,7 @@ PRIMARY KEY  (`id`)  ';
                 } else if (isset($update_client['clientid'])) {
                     $report['client_id'] = $update_client['clientid'];
                 }
-            }            
+            }
         } else {
             if (isset($report['client_id']))
                 $report['client_id'] = 0;
@@ -739,7 +743,7 @@ PRIMARY KEY  (`id`)  ';
                                 'schedule_nextsend',
                                 'type',
                                 'sites',
-                                'groups'
+                                'groups'                               
                             );
         
         $update_report = array();
@@ -747,9 +751,10 @@ PRIMARY KEY  (`id`)  ';
             if (in_array($key, $report_fields))
                     $update_report[$key] = $value;
         }
-         
+        //print_r($update_report); 
         if (!empty($id)) {
             $updatedReport = $wpdb->update($this->tableName('client_report'), $update_report, array('id' => intval($id)));
+            //print_r($update_report); 
             if (!empty($updatedReport) || !empty($updatedClient)) {
                 return $this->getReportBy('id', $id);                                             
             }
@@ -781,7 +786,7 @@ PRIMARY KEY  (`id`)  ';
         }
         
         $sql = "";
-        if ($by == 'id') {
+        if ($by == 'id') {            
             $sql = $wpdb->prepare("SELECT rp.*, c.* FROM " . $this->tableName('client_report') . " rp "
                     . " LEFT JOIN " . $this->tableName('client_report_client') . " c "
                     . " ON rp.client_id = c.clientid "

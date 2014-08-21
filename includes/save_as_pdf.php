@@ -66,7 +66,14 @@ $pdf->SetPrintFooter(false);
 // Add a page
 // This method has several options, check the source code documentation for more information.
 $pdf->AddPage();
-$html = MainWPCReport::gen_email_content_pdf($report);
+$content = MainWPCReport::gen_email_content_pdf($report);
+if (is_array($content)) {
+    foreach($content as $ct) {
+        $html .= $ct;
+    }
+} else {
+    $html = $content;
+}
 $pdf->writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
 $pdf->Output('client-report.pdf', 'I');
 
