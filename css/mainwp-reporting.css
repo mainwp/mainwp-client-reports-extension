@@ -208,3 +208,10 @@ a.creport_format_add_token:hover {
 #mwp-creport-schedule-btn {
     margin-left: 100px;
 }
+.mwp_creport_tooltip_content{ 
+    display: none;
+    
+}
+.mwp_creport_token_tooltip {
+    cursor: pointer;
+}

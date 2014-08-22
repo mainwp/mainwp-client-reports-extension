@@ -555,8 +555,17 @@ PRIMARY KEY  (`id`)  ';
         global $wpdb;        
         return $wpdb->get_results("SELECT * FROM " . $this->tableName('client_report_token') . " WHERE 1 = 1 ORDER BY type DESC, token_name ASC");                
     }
+   
+    public function getSiteTokenValues($id) {
+        global $wpdb;    
+        if (empty($id))
+            return false;
+        $qry = " SELECT st.* FROM " . $this->tableName('client_report_site_token') . " st " .        
+                " WHERE st.token_id = '" . $id . "' ";
+        return $wpdb->get_results($qry);         
+    }
     
-    public function getSiteTokens($site_url) {
+    public function getSiteTokens($site_url, $index = 'id') {
         global $wpdb;           
         $site_url = trim($site_url);
         if (empty($site_url))
@@ -567,8 +576,11 @@ PRIMARY KEY  (`id`)  ';
         $site_tokens = $wpdb->get_results($qry);              
         $return = array();
         if (is_array($site_tokens)) {
-            foreach($site_tokens as $token) {                
-                $return[$token->token_id] = $token;
+            foreach($site_tokens as $token) { 
+                if ($index == 'id')
+                    $return[$token->token_id] = $token;
+                else 
+                    $return[$token->token_name] = $token;
             }
         }
         // get default token value if empty
@@ -577,10 +589,18 @@ PRIMARY KEY  (`id`)  ';
             foreach($tokens as $token) {
                 // check default tokens if it is empty
                 if (is_object($token)) {
-                    if ($token->type == 1 && (!isset($return[$token->id]) || empty($return[$token->id]))) {
-                        if (!isset($return[$token->id]))
-                            $return[$token->id] = new stdClass();
-                        $return[$token->id]->token_value = $this->_getDefaultTokenSite($token->token_name, $site_url);
+                    if ($index == 'id') {
+                        if ($token->type == 1 && (!isset($return[$token->id]) || empty($return[$token->id]))) {
+                            if (!isset($return[$token->id]))  
+                                $return[$token->id] = new stdClass();
+                            $return[$token->id]->token_value = $this->_getDefaultTokenSite($token->token_name, $site_url);
+                        }
+                    } else {
+                        if ($token->type == 1 && (!isset($return[$token->token_name]) || empty($return[$token->token_name]))) {
+                            if (!isset($return[$token->token_name]))  
+                                $return[$token->token_name] = new stdClass();
+                            $return[$token->token_name]->token_value = $this->_getDefaultTokenSite($token->token_name, $site_url);
+                        }
                     }
                 }
             }

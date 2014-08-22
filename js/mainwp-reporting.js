@@ -795,6 +795,16 @@ jQuery(document).ready(function($) {
     });    
 });
 
+jQuery(document).tooltip({
+    items: ".mwp_creport_token_tooltip",
+    track: true,
+    content: function() {
+        var element = jQuery( this );
+        return element.parents('.mwp_creport_tooltip_container').children('.mwp_creport_tooltip_content').html();
+    }
+});
+
+
 var creport_bulkMaxThreads = 3;
 var creport_bulkTotalThreads = 0;
 var creport_bulkCurrentThreads = 0;

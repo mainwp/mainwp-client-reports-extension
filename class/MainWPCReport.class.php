@@ -767,9 +767,9 @@ class MainWPCReport
                     if ($report->schedule_send_email == "email_auto") {
                         if ($report->schedule_bcc_me) 
                             $bcc = $my_email;
-                        self::send_report_mail($report, "", "", $bcc, true);     
+                        self::send_report_mail($report, "", "", $bcc);     
                     } else if ($report->schedule_send_email == "email_review" && !empty($my_email)) {
-                        self::send_report_mail($report, $my_email, "Review report", "", true);
+                        self::send_report_mail($report, $my_email, "Review report");
                     }
                     $sch_last_send = $report->schedule_nextsend;
                     
@@ -1116,7 +1116,7 @@ class MainWPCReport
     }
     
     
-    public static function send_report_mail($report, $email = "", $subject = "", $bcc = "", $multi_report = false)
+    public static function send_report_mail($report, $email = "", $subject = "", $bcc = "", $combine_report = false)
     {
         if (!is_object($report))
             return false;
@@ -1124,11 +1124,27 @@ class MainWPCReport
         $email = empty($email) ? $report->email : $email;
         if (empty($email)) 
             return;
+        
+        $email_subject = "";
+        if (!empty($subject)) 
+            $email_subject = $subject;
+        
+        $email_subject = isset($report->subject) && !empty($report->subject) ?  $email_subject . " - " . $report->subject : $email_subject . " - " . "Website Report";
+        $email_subject = ltrim($email_subject, " - "); 
+        
         global $mainWPCReportExtensionActivator;
-        $is_email_token = false;
-        $send_to_emails = array();
-        if (preg_match("/^\[.+\]/is", $email)) { 
-            $is_email_token = true;
+        $email_has_token = $subject_has_token = false;
+        $send_to_emails = $sites_token = array();        
+        
+        if (preg_match("/^\[.+\]/is", $email)) {
+            $email_has_token = true;
+        }
+        
+        if (preg_match("/\[.+\]/is", $email_subject)) {
+            $subject_has_token = true;
+        }
+        
+        if ($email_has_token || $subject_has_token) { 
             $sites = $groups = array();  
             if ($report->type == 1) {// global report                
                 $sites = unserialize(base64_decode($report->sites));
@@ -1140,21 +1156,20 @@ class MainWPCReport
                 $sites = array();
             if (!is_array($groups)) 
                 $groups = array();
-            $dbwebsites = apply_filters('mainwp-getdbsites', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $sites, $groups);
+            $dbwebsites = apply_filters('mainwp-getdbsites', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $sites, $groups);            
             foreach($dbwebsites as $dbsite) {
-                $token = MainWPCReportDB::Instance()->getTokensBy("token_name", $email, $dbsite->url);
-                if ($token) {
-                    $send_to_emails[$dbsite->id] = $token->site_token->token_value;
+                if ($email_has_token) {
+                    $token = MainWPCReportDB::Instance()->getTokensBy("token_name", $email, $dbsite->url);
+                    if ($token) {
+                        $send_to_emails[$dbsite->id] = $token->site_token->token_value;
+                    }                
                 }
+                if ($subject_has_token)
+                    $sites_token[$dbsite->id] = MainWPCReportDB::Instance()->getSiteTokens($dbsite->url, 'token_name');
             }            
         }  
+           
         
-        $email_subject = "";
-        if (!empty($subject)) 
-            $email_subject = $subject;
-        
-        $email_subject = isset($report->subject) && !empty($report->subject) ?  $email_subject . " - " . $report->subject : $email_subject . " - " . "Website Report";
-        $email_subject = ltrim($email_subject, " - "); 
         $from = "";        
         if (!empty($report->fname)) {
             $from = "From: " . $report->fname;
@@ -1189,18 +1204,30 @@ class MainWPCReport
             }
         }
         $success = 0;
-        $content = self::gen_email_content($report, $multi_report);
+        $content = self::gen_email_content($report, $combine_report);
         if (is_array($content)) {
-            if (!$multi_report) {
+            if ($combine_report || empty($report->type)) {
                 $send_content = current($content);
-                if ($is_email_token) {
-                    $to_email = isset($send_to_emails[$report->selected_site]) ? $send_to_emails[$report->selected_site] : "";
-                } else
-                    $to_email = $email;
+                $to_email = $email;
                 
+                if (empty($report->type) && $email_has_token) {
+                    $to_email = isset($send_to_emails[$report->selected_site]) ? $send_to_emails[$report->selected_site] : "";
+                }                    
+               
                 if (!empty($send_content) && !empty($to_email))
-                {   
-                    if (!empty($to_email) && wp_mail($to_email, stripslashes($email_subject), $send_content, $header, $attachments)) { 
+                {                       
+                    $send_subject = $email_subject;
+                    if ($subject_has_token &&  empty($report->type)) {  
+                        if (isset($sites_token[$report->selected_site]) && is_array($sites_token[$report->selected_site])) {
+                            $search_token = $replace_value = array();
+                            foreach($sites_token[$report->selected_site] as $token_name => $token) {
+                                $search_token[] = "[" . $token_name . "]";
+                                $replace_value[] = $token->token_value;
+                            }    
+                            $send_subject = str_replace($search_token, $replace_value, $send_subject);
+                        }
+                    }
+                    if (!empty($to_email) && wp_mail($to_email, stripslashes($send_subject), $send_content, $header, $attachments)) { 
                         if (!empty($report->id)) {
                             $report->lastsend = time();                    
                             $update_report = array('id' => $report->id, 'lastsend' => $report->lastsend);
@@ -1211,16 +1238,28 @@ class MainWPCReport
                 }
                 return false;
             } else {                
-                if (!$is_email_token)
+                if (!$email_has_token)
                     $to_email = $email;                
                 
                 foreach($content as $site_id => $send_content) {
-                    if ($is_email_token) {
+                    if ($email_has_token) {
                         $to_email = isset($send_to_emails[$site_id]) ? $send_to_emails[$site_id] : "";
                     }
+                    $send_subject = $email_subject;
+                    if ($subject_has_token) {                        
+                        if (isset($sites_token[$site_id]) && is_array($sites_token[$site_id])) {
+                            $search_token = $replace_value = array();
+                            foreach($sites_token[$site_id] as $token_name => $token) {
+                                $search_token[] = "[" . $token_name . "]";
+                                $replace_value[] = $token->token_value;
+                            }     
+                            $send_subject = str_replace($search_token, $replace_value, $send_subject);
+                         }
+                    }
+                        
                     if (!empty($send_content) && !empty($to_email))
                     {  
-                        if (wp_mail($to_email, stripslashes($email_subject), $send_content, $header, $attachments)) { 
+                        if (wp_mail($to_email, stripslashes($send_subject), $send_content, $header, $attachments)) { 
                             if (!empty($report->id)) {
                                 $report->lastsend = time();                    
                                 $update_report = array('id' => $report->id, 'lastsend' => $report->lastsend);
@@ -1464,7 +1503,7 @@ class MainWPCReport
         
         if (!empty($report) && is_object($report)) {                          
             if ($do_send) {                     
-                if (self::send_report_mail($report, "", "", "", true)) {                        
+                if (self::send_report_mail($report)) {                        
                     $messages[] = __('Report has been sent successfully.');  
                 } else {
                     $errors[] = __('Sending Report failed.');  
@@ -1475,7 +1514,7 @@ class MainWPCReport
             } else if ($do_send_test_email) {
                 $email = apply_filters('mainwp_getnotificationemail');                
                 if (!empty($email)) {                    
-                    if (self::send_report_mail($report, $email, "Send Test Email"))
+                    if (self::send_report_mail($report, $email, "Send Test Email", true))
                     {
                         $messages[] = __('Test Email has been sent successfully.');  
                     } else 
@@ -1713,8 +1752,8 @@ class MainWPCReport
         
         if ($report->is_archived)
             return false;     
-        $archive_content = self::gen_email_content($report, true); // to save archive always save as multi report                   
-        $archive_content_pdf = self::gen_email_content_pdf($report, true); 
+        $archive_content = self::gen_email_content($report, true); // to save archive always save as array report                   
+        $archive_content_pdf = self::gen_email_content_pdf($report); 
         $update_archive = array('id' => $report->id,
                                 'is_archived' => 1,
                                 'archive_report' => serialize($archive_content),
@@ -1760,7 +1799,7 @@ class MainWPCReport
                 </style>                    
                 <div id="crp_content_wrap" style="font:13px/20px Helvetica,Arial,Sans-serif;">
                     <?php 
-                    $result = self::gen_report_content($report);                     
+                    $result = self::gen_report_content($report, true);                     
                     if (isset($result[0]))
                         echo $result[0];                    
                     ?>
@@ -1777,7 +1816,7 @@ class MainWPCReport
         return $output;        
     }
     
-    public static function gen_email_content($report, $multi_report = false) {      
+    public static function gen_email_content($report, $combine_report = false) {      
         if (is_object($report)) {  
             if ($report->is_archived) {
                 if (!is_serialized($report->archive_report)) {
@@ -1785,7 +1824,7 @@ class MainWPCReport
                 } else {
                     $content = unserialize($report->archive_report);
                     if (is_array($content)) {
-                        if ($multi_report)
+                        if (!$combine_report)
                             return $content;
                         else {
                             $return = "";
@@ -1804,21 +1843,21 @@ class MainWPCReport
                 } catch (Exception $e) 
                 {                       
                 }                        
-                return self::gen_report_content($report, $multi_report);            
+                return self::gen_report_content($report, $combine_report);            
             }
         }        
         return false;        
     }
           
-    public static function gen_report_content($reports, $multi_report = false) {  
+    public static function gen_report_content($reports, $combine_report = false) {  
         if (!is_array($reports)) {
             $reports = array($reports);
         }  
         
-        if (!$multi_report)
+        if ($combine_report)
             ob_start();        
         foreach($reports as $site_id => $report) {  
-            if ($multi_report)
+            if (!$combine_report)
                 ob_start(); 
     ?>        
         <br>
@@ -1853,20 +1892,20 @@ class MainWPCReport
             </div>
         </div>               
     <?php
-            if ($multi_report) {
+            if (!$combine_report) {
                 $html = ob_get_clean();
                 $output[$site_id] = $html;
             }
                 
         }    
-        if (!$multi_report) {
+        if ($combine_report) {
             $html = ob_get_clean();        
             $output[] = $html;
         }
         return $output; 
     }
     
-     public static function gen_email_content_pdf($report, $multi_report = false) {  
+     public static function gen_email_content_pdf($report, $combine_report = false) {  
         // to fix bug
         if (!function_exists('wp_verify_nonce')) include_once(ABSPATH . WPINC . '/pluggable.php');
             wp_verify_nonce();
@@ -1884,22 +1923,22 @@ class MainWPCReport
                 } catch (Exception $e) 
                 {                
                 }                        
-                return self::gen_report_content_pdf($report, $multi_report);  
+                return self::gen_report_content_pdf($report, $combine_report);  
             }
         }        
         return "";        
     }
     
-     public static function gen_report_content_pdf($reports, $multi_report = false) {  
+     public static function gen_report_content_pdf($reports, $combine_report = false) {  
         if (!is_array($reports)) {
             $reports = array(0 => $reports);
         }  
         $output = array();
-        if (!$multi_report)
+        if ($combine_report)
            ob_start();
         
         foreach($reports as $site_id => $report) {
-            if ($multi_report)
+            if (!$combine_report)
                ob_start();         
             echo stripslashes(nl2br($report->filtered_header));
             echo '<br><br>';
@@ -1907,13 +1946,13 @@ class MainWPCReport
             echo '<br><br>';
             echo stripslashes(nl2br($report->filtered_footer)); 
             echo '<br><br>';
-            if ($multi_report) {
+            if (!$combine_report) {
                    $html = ob_get_clean();
                    $output[$site_id] = $html;
                }
                 
         }    
-        if (!$multi_report) {
+        if ($combine_report) {
             $html = ob_get_clean();        
             $output[] = $html;
         }                      
@@ -2595,9 +2634,36 @@ class MainWPCReport
                                     "biweekly" => __("Bi Weekly"),
                                     "monthly" => __("Monthly")
                                     );
-        
+        global $mainWPCReportExtensionActivator;
         $url_loader = plugins_url('images/loader.gif', dirname(__FILE__));
+        $sites_token = array(); 
         foreach ($reports as $report) {
+            
+            $client_tooltip = $report->client;
+            $client_name_tooltip = $report->name;
+            $email_tooltip = $report->email;
+            $company_tooltip = $report->company;
+            $subject_tooltip = $report->subject;
+            
+            if (preg_match("/\[.+\]/is", $client_tooltip)) {              
+                $client_tooltip = preg_replace_callback("/\[.+\]/is",  array('MainWPCReport', 'tooltip_mark_token'), $client_tooltip);
+            }     
+            
+            if (preg_match("/\[.+\]/is", $client_name_tooltip)) {
+                $client_tooltip = preg_replace_callback("/\[.+\]/is",  array('MainWPCReport', 'tooltip_mark_token'), $client_name_tooltip);
+            }    
+            $email_has_token = false;
+            if (preg_match("/^\[.+\]/is", $email_tooltip)) {
+                $email_has_token = true;
+                $email_tooltip = preg_replace_callback("/\[.+\]/is",  array('MainWPCReport', 'tooltip_mark_token'), $email_tooltip);
+            }
+            if (preg_match("/\[.+\]/is", $company_tooltip)) {
+                $company_tooltip = preg_replace_callback("/\[.+\]/is",  array('MainWPCReport', 'tooltip_mark_token'), $company_tooltip);
+            }            
+            if (preg_match("/\[.+\]/is", $subject_tooltip)) {
+                $subject_tooltip = preg_replace_callback("/\[.+\]/is",  array('MainWPCReport', 'tooltip_mark_token'), $subject_tooltip);
+            }
+            
             if(empty($report->type)) {
                 $website = ($report->selected_site && isset($websites[$report->selected_site])) ? $websites[$report->selected_site] : null;
                 $site_column  = "";
@@ -2640,10 +2706,17 @@ class MainWPCReport
                 <span class="loading"><span class="status hidden-field"></span><img src="<?php echo $url_loader; ?>" class="hidden-field"></span>
             </td> 
             <td>
-                <?php echo stripslashes($report->client); ?>
+                <?php echo stripslashes($client_tooltip); ?>
             </td> 
             <td>
-                <?php echo $report->name . " - " . $report->company ."<br>" . (!empty($report->email) ? "<a href=\"mailto:" . $report->email ."\">" . $report->email . "</a>" : ""); ?>
+                <?php 
+                echo $client_name_tooltip . " - " . $company_tooltip ."<br>";
+                if ($email_has_token) {
+                    echo $email_tooltip;
+                } else {
+                    echo !empty($report->email) ? "<a href=\"mailto:" . $report->email ."\">" . $report->email . "</a>" : ""; 
+                }
+                ?>
             </td> 
             <td> 
                 <?php echo !empty($report->lastsend) ? MainWPCReportUtility::formatTimestamp($report->lastsend) : ""; ?>
@@ -2663,8 +2736,32 @@ class MainWPCReport
         </tr>
     <?php
         }    
-    }       
-        
+    }   
+    
+    function tooltip_mark_token($matches) {    
+        $token_name = $matches[0];
+        $token = MainWPCReportDB::Instance()->getTokensBy("token_name", $token_name);
+        $tooltip = "";
+        if ($token) {
+            $token_site_values = MainWPCReportDB::Instance()->getSiteTokenValues($token->id);
+            if (is_array($token_site_values) && count($token_site_values) > 0 ) {
+                foreach($token_site_values as $tok) {
+                    if (!empty($tok->token_value)) {
+                        $tooltip .= $tok->token_value . "<br>";
+                    }                    
+                }
+                if (!empty($tooltip)) {
+                    $tooltip = rtrim($tooltip, "<br>");
+                    $tooltip = "<span class=\"mwp_creport_tooltip_content\">" . $tooltip . "</span>";
+                }        
+            }
+        }      
+        if (!empty($tooltip)) {
+            return "<span class=\"mwp_creport_tooltip_container\"><span class=\"mwp_creport_token_tooltip\">" . $matches[0] . "</span>" .  $tooltip . "</span>";
+        }
+        return $matches[0].$tooltip;  
+    }
+    
     public static function newReportTab($report = null) {
         self::newReportSetting($report);
         self::newReportFormat($report);
@@ -2811,7 +2908,13 @@ class MainWPCReport
     public static function newReportSettingTableContent($report = null) {
         $title = $date_from = $date_to = "";
         $from_name = $from_company = $from_email = "";
-        $to_client = $to_name = $to_company = $to_email = $email_subject = "";
+        
+        $to_client = "[client.name]";
+        $to_name = "[client.name]";
+        $to_company = "[client.company]";
+        $to_email = "[client.email]";
+        $email_subject = "Report for [client.site.name]";
+        
         $client_id = 0;  
         $recurringSchedule = $recurringDate = $attachFiles = "";
         $scheduleSendEmail = "email_auto";
@@ -2844,7 +2947,7 @@ class MainWPCReport
                     $to_email = $client->email;                    
                 }
             }                
-        } 
+        }
             
         $clients = MainWPCReportDB::Instance()->getClients();
         if (!is_array($clients)) 
