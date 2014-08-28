@@ -760,7 +760,7 @@ class MainWPCReport
                 if (empty($schedule) || empty($report->scheduled) || empty($recurring_date))
                     continue;
                  if (time() >= $report->schedule_nextsend) {                     
-                    $my_email = apply_filters('mainwp_getnotificationemail');   
+                    $my_email = @apply_filters('mainwp_getnotificationemail');   
                     $bcc = "";   
 //                    $report->date_from = $report->schedule_lastsend;
 //                    $report->date_to = $report->schedule_nextsend;
@@ -1512,7 +1512,7 @@ class MainWPCReport
                     unset($report);
                 }
             } else if ($do_send_test_email) {
-                $email = apply_filters('mainwp_getnotificationemail');                
+                $email = @apply_filters('mainwp_getnotificationemail');                
                 if (!empty($email)) {                    
                     if (self::send_report_mail($report, $email, "Send Test Email", true))
                     {
@@ -1906,9 +1906,9 @@ class MainWPCReport
     }
     
      public static function gen_email_content_pdf($report, $combine_report = false) {  
-        // to fix bug
-        if (!function_exists('wp_verify_nonce')) include_once(ABSPATH . WPINC . '/pluggable.php');
-            wp_verify_nonce();
+        // to fix bug from mainwp
+        if (!function_exists('wp_verify_nonce')) 
+            include_once(ABSPATH . WPINC . '/pluggable.php');
             
         if (!empty($report) && is_object($report)) {
             if ($report->is_archived) {
@@ -2738,7 +2738,7 @@ class MainWPCReport
         }    
     }   
     
-    function tooltip_mark_token($matches) {    
+    static function tooltip_mark_token($matches) {    
         $token_name = $matches[0];
         $token = MainWPCReportDB::Instance()->getTokensBy("token_name", $token_name);
         $tooltip = "";

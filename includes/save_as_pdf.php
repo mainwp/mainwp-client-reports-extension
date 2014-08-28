@@ -12,7 +12,7 @@ $pdf = new CREPORT_TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 
 
 // set document information
 $pdf->SetCreator(PDF_CREATOR);
-$pdf->SetAuthor($fname);
+//$pdf->SetAuthor($fname);
 $pdf->SetTitle('Client Report ' . stripslashes($report->title));
 $pdf->SetSubject('Client Report');
 $pdf->SetKeywords('Client Report');
@@ -67,6 +67,7 @@ $pdf->SetPrintFooter(false);
 // This method has several options, check the source code documentation for more information.
 $pdf->AddPage();
 $content = MainWPCReport::gen_email_content_pdf($report, true);
+$html = "";
 if (is_array($content)) {
     foreach($content as $ct) {
         $html .= $ct;
