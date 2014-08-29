@@ -1584,7 +1584,7 @@ class MainWPCReport
         //print_r($dbwebsites_stream);
         unset($dbwebsites);        
         $report_type = "";
-        $edit_tab_lnk = (!empty($report) && empty($report->type)) ? '<a id="wpcr_edit_tab_lnk" href="#" report-id="' . $report->id .'"class="mainwp_action mid mainwp_action_down">' . __("Edit Report") . '</a>' : "";        
+        $edit_tab_lnk = (!empty($report) && empty($report->type)) ? '<a id="wpcr_edit_tab_lnk" href="#" report-id="' . (!empty($report) && isset($report->id) ? $report->id : 0) .'"class="mainwp_action mid mainwp_action_down">' . __("Edit Report") . '</a>' : "";        
         if ($do_create_new) {           
             $new_tab_lnk = '<a id="wpcr_edit_tab_lnk" href="#" report-id="0" class="mainwp_action mid mainwp_action_down">' . __("New Report") . '</a>';            
         } else if (empty($report) && !$do_create_new_global) {
@@ -1679,7 +1679,7 @@ class MainWPCReport
                             <div id="wpcr_edit_tab"  <?php echo $style_tab_edit; ?>> 
                                 <?php self::newReportTab($report);                                         
                                     $_disabled = "";
-                                    if (!empty($report) && $report->id && isset($report->is_archived) && $report->is_archived) {
+                                    if (!empty($report) && isset($report->id) && isset($report->is_archived) && $report->is_archived) {
                                         $_disabled = "disabled";
                                     }
                                 ?>  
@@ -1767,7 +1767,7 @@ class MainWPCReport
     public static function gen_preview_report($report) {         
         if (!empty($report)) {                
             ob_start();                        
-            if ($report->is_archived) {
+            if (isset($report->is_archived) && $report->is_archived) {
                 if (!is_serialized($report->archive_report))
                     echo $report->archive_report;
                 else {
@@ -2003,7 +2003,7 @@ class MainWPCReport
         $output->filtered_header = $report->header;
         $output->filtered_body = $report->body;
         $output->filtered_footer = $report->footer; 
-        $output->id = $report->id;        
+        $output->id = isset($report->id) ? $report->id : 0;        
          if ($website !== null) {            
             $tokens = MainWPCReportDB::Instance()->getTokens();
             $site_tokens = MainWPCReportDB::Instance()->getSiteTokens($website['url']);        
@@ -2773,7 +2773,7 @@ class MainWPCReport
     ?>
         <fieldset class="mainwp-creport-report-setting-box">   
         <?php 
-            if (!empty($report) && $report->scheduled) { ?>
+            if (!empty($report) && isset($report->scheduled) && !empty($report->scheduled)) { ?>
                 <div class="mainwp_info-box-yellow"><?php _e("This report has been scheduled"); ?></div>
         <?php } ?>                                      
             <table class="wp-list-table widefat" cellspacing="0">
@@ -2857,7 +2857,7 @@ class MainWPCReport
             $recurringSchedule = $report->recurring_schedule;   
             $recurringDate = !empty($report->recurring_date) ? date("Y-m-d", $report->recurring_date) : "";
             $scheduleSendEmail = $report->schedule_send_email;
-            $scheduleBCCme = $report->schedule_bcc_me;
+            $scheduleBCCme = isset($report->schedule_bcc_me) ? $report->schedule_bcc_me : 0;
         }
     ?>        
         <br>
@@ -2915,10 +2915,10 @@ class MainWPCReport
         $to_email = "[client.email]";
         $email_subject = "Report for [client.site.name]";
         
-        $client_id = 0;  
-        $recurringSchedule = $recurringDate = $attachFiles = "";
-        $scheduleSendEmail = "email_auto";
-        $scheduleBCCme = 0;
+        $client_id = 0;
+        $attachFiles = "";
+        //$scheduleSendEmail = "email_auto";
+       // $scheduleBCCme = 0;
         //print_r($report);
         if (!empty($report)) {            
             $title = $report->title;
@@ -2932,11 +2932,11 @@ class MainWPCReport
             $to_email = $report->email;
             $to_client = $report->client;      
             $email_subject = $report->subject;      
-            $recurringSchedule = $report->recurring_schedule;    
-            $recurringDate = !empty($report->recurring_date) ? date("Y-m-d", $report->recurring_date) : "";
-            $scheduleSendEmail = $report->schedule_send_email;
-            $scheduleBCCme = $report->schedule_bcc_me;
-            $attachFiles = $report->attach_files;            
+            //$recurringSchedule = $report->recurring_schedule;    
+            //$recurringDate = !empty($report->recurring_date) ? date("Y-m-d", $report->recurring_date) : "";
+            //$scheduleSendEmail = $report->schedule_send_email;
+//            $scheduleBCCme = $report->schedule_bcc_me;
+            $attachFiles = isset($report->attach_files) ? $report->attach_files : "";            
             $client_id = intval($report->client_id);
             if ($client_id) {
                 $client = MainWPCReportDB::Instance()->getClientBy('clientid', $client_id);

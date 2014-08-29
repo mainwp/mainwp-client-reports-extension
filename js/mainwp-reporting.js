@@ -530,7 +530,7 @@ jQuery(document).ready(function($) {
     
     $('#mainwp_creport_select_site_btn_display').on('click' ,function(){     
         var site = $('#mainwp_creport_select_site').val();               
-        location.href = 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension&site=' + site;
+        location.href = 'admin.php?page=Extensions-Mainwp-Wordfence-Extension&save=setting';
     })
     
     
