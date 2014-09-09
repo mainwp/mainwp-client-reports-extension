@@ -17,10 +17,12 @@ Icon URI: http://extensions.mainwp.com/wp-content/uploads/2014/05/mainwp-client-
 
 == Changelog ==
 
-= 0.0.3-beta=
+= 0.0.3=
 * Add dashboard tokens
 * Add global report
 * Fix warning for Wordpress 4
+* Added Redirection to the extensions page after activating
+* Added Additional Plugin info
 
 = 0.0.2 =
 * New Feature Added: Email attachment
