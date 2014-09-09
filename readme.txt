@@ -18,11 +18,15 @@ Icon URI: http://extensions.mainwp.com/wp-content/uploads/2014/05/mainwp-client-
 == Changelog ==
 
 = 0.0.3=
-* Add dashboard tokens
-* Add global report
-* Fix warning for Wordpress 4
-* Added Redirection to the extensions page after activating
-* Added Additional Plugin info
+Added: Backup Tokens
+Added: Sucuri Tokens
+Added: Piwik Tokens
+Added: GA Tokens
+Added: Global Reports
+Added: Tokens in Report Settings Section
+Added: Redirection to the extensions page after activating
+Added: Aditional plugin info
+Fixed: PHP Warning
 
 = 0.0.2 =
 * New Feature Added: Email attachment
