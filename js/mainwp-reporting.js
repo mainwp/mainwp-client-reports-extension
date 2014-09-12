@@ -218,6 +218,12 @@ jQuery(document).ready(function($) {
         } else if (gr == 'piwik') {
             gr2 = 'piwik';
             gr2_title = 'Piwik';
+        } else if (gr == 'aum') {
+            gr2 = 'aum';
+            gr2_title = 'AUM';
+        } else if (gr == 'woocomstatus') {
+            gr2 = 'woocomstatus';
+            gr2_title = 'WooCommerce Status';
         } 
         
         parent.find('.creport_format_group_data_tokens').removeClass('current');

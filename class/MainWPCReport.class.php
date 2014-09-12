@@ -8,6 +8,8 @@ class MainWPCReport
     private static $enabled_piwik = false;
     private static $enabled_sucuri = false;
     private static $enabled_ga = false;
+    private static $enabled_aum = false;
+    private static $enabled_woocomstatus = false;
     
     public function __construct() { 
        
@@ -511,6 +513,32 @@ class MainWPCReport
                                                 array("name" => "piwik.new.visits", "desc" => "Displays the Number of New Visits during the selected date range"),
                                             ),                                
                             ), 
+            "aum" => array(
+                               'nav_group_tokens' => array(                                                     
+                                                "aum" => "AUM",                                                                                                     
+                                            ),
+                                "aum" => array(                                                
+                                                array("name" => "aum.alltimeuptimeratio", "desc" => "..."),
+                                                array("name" => "aum.uptime7", "desc" => "..."),
+                                                array("name" => "aum.uptime15", "desc" => "..."),
+                                                array("name" => "aum.uptime30", "desc" => "..."),
+                                                array("name" => "aum.uptime45", "desc" => "..."),
+                                                array("name" => "aum.uptime60", "desc" => "...")                                                
+                                            ),                                
+                            ),
+            "woocomstatus" => array(
+                               'nav_group_tokens' => array(                                                     
+                                                "woocomstatus" => "WooCommerce Status",                                                                                                     
+                                            ),
+                                "woocomstatus" => array(                                                
+                                                array("name" => "wcomstatus.sales", "desc" => "..."),
+                                                array("name" => "wcomstatus.topseller", "desc" => "..."),
+                                                array("name" => "wcomstatus.awaitingprocessing", "desc" => "..."),
+                                                array("name" => "wcomstatus.onhold", "desc" => "..."),
+                                                array("name" => "wcomstatus.lowonstock", "desc" => "..."),
+                                                array("name" => "wcomstatus.outofstock", "desc" => "..."),
+                                            ),                                
+                            ),
             );       
             
             self::$tokens_nav_top = array(
@@ -529,6 +557,8 @@ class MainWPCReport
                                         "sucuri" => "Sucuri",
                                         "ga" => "GA",
                                         "piwik" => "Piwik",
+                                        "aum" => "AUM",
+                                        "woocomstatus" => "WooCommerce Status",
                                     );          
                
     }
@@ -561,7 +591,8 @@ class MainWPCReport
         self::$enabled_piwik = apply_filters('mainwp-extension-available-check', 'mainwp-piwik-extension'); 
         self::$enabled_sucuri = apply_filters('mainwp-extension-available-check', 'mainwp-sucuri-extension'); 
         self::$enabled_ga = apply_filters('mainwp-extension-available-check', 'mainwp-google-analytics-extension'); 
-        
+        self::$enabled_aum = apply_filters('mainwp-extension-available-check', 'advanced-uptime-monitor-extension'); 
+        self::$enabled_woocomstatus = apply_filters('mainwp-extension-available-check', 'mainwp-woocommerce-status-extension');         
     }     
     
     function managesite_backup($website, $args, $information) {
@@ -2029,6 +2060,23 @@ class MainWPCReport
                 }       
             } 
 
+            $aum_tokens = self::aum_data($website['id'], $report->date_from, $report->date_to); 
+            if (is_array($aum_tokens)) {
+                foreach ($aum_tokens as $token => $value) {            
+                    $search_tokens[] = '[' . $token . ']';            
+                    $replace_values[] = $value;            
+                }       
+            } 
+            
+            $wcomstatus_tokens = self::woocomstatus_data($website['id'], $report->date_from, $report->date_to); 
+            if (is_array($wcomstatus_tokens)) {
+                foreach ($wcomstatus_tokens as $token => $value) {            
+                    $search_tokens[] = '[' . $token . ']';            
+                    $replace_values[] = $value;            
+                }       
+            }
+            
+            
             //$report->filtered_header = self::replace_content($report->header, $search_tokens, $replace_values);        
             //$report->body = self::replace_content($report->body, $search_tokens, $replace_values);        
             //$report->filtered_footer = self::replace_content($report->footer, $search_tokens, $replace_values);        
@@ -2357,7 +2405,7 @@ class MainWPCReport
         }   
         return $output;
     }
-    
+        
     static function piwik_data($site_id, $start_date, $end_date) {
         if (!self::$enabled_piwik)
             return false;
@@ -2383,6 +2431,60 @@ class MainWPCReport
         return $output;
     }
     
+    
+    static function aum_data($site_id, $start_date, $end_date) {
+        if (!self::$enabled_aum)
+            return false;
+        
+        if (!$site_id || !$start_date || !$end_date) 
+            return false;        
+        $uniq = "aum_" . $site_id . "_" . $start_date . "_" . $end_date;
+        if (isset(self::$buffer[$uniq])) 
+            return self::$buffer[$uniq];
+        
+        $values = apply_filters('mainwp_aum_get_data', $site_id, $start_date, $end_date);         
+        //print_r($values);
+        $output = null;      
+        if (!empty($values) && is_array($values)) { 
+            
+            $output['aum.alltimeuptimeratio'] = (isset($values['aum.alltimeuptimeratio'])) ? $values['aum.alltimeuptimeratio'] : 0;
+            $output['aum.uptime7'] = (isset($values['aum.uptime7'])) ? $values['aum.uptime7'] : 0;
+            $output['aum.uptime15'] = (isset($values['aum.uptime15'])) ? $values['aum.uptime15'] : 0;
+            $output['aum.uptime30'] = (isset($values['aum.uptime30'])) ? $values['aum.uptime30'] : 0;
+            $output['aum.uptime45'] = (isset($values['aum.uptime45'])) ? $values['aum.uptime45'] : 0;
+            $output['aum.uptime60'] = (isset($values['aum.uptime60'])) ? $values['aum.uptime60'] : 0;
+            
+            self::$buffer[$uniq] = $output;                
+        }   
+        return $output;
+    }
+    
+    static function woocomstatus_data($site_id, $start_date, $end_date) {
+        if (!self::$enabled_woocomstatus)
+            return false;
+        
+        if (!$site_id || !$start_date || !$end_date) 
+            return false;        
+        $uniq = "wcstatus_" . $site_id . "_" . $start_date . "_" . $end_date;
+        if (isset(self::$buffer[$uniq])) 
+            return self::$buffer[$uniq];
+        
+        $values = apply_filters('mainwp_woocomstatus_get_data', $site_id, $start_date, $end_date);         
+        //print_r($values);
+        $output = null;      
+        if (!empty($values) && is_array($values)) { 
+            $output['wcomstatus.sales'] = (isset($values['wcomstatus.sales'])) ? $values['wcomstatus.sales'] : 0;
+            $output['wcomstatus.topseller'] = (isset($values['wcomstatus.topseller'])) ? $values['wcomstatus.topseller'] : 0;
+            $output['wcomstatus.awaitingprocessing'] = (isset($values['wcomstatus.awaitingprocessing'])) ? $values['wcomstatus.awaitingprocessing'] : 0;
+            $output['wcomstatus.onhold'] = (isset($values['wcomstatus.onhold'])) ? $values['wcomstatus.onhold'] : 0;
+            $output['wcomstatus.lowonstock'] = (isset($values['wcomstatus.lowonstock'])) ? $values['wcomstatus.lowonstock'] : 0;
+            $output['wcomstatus.outofstock'] = (isset($values['wcomstatus.outofstock'])) ? $values['wcomstatus.outofstock'] : 0;
+            self::$buffer[$uniq] = $output;                
+        }   
+        return $output;
+    }
+    
+    
      private static function format_stats_values($value, $round = false, $perc = false, $showAsTime = false)
     {           
         if ($showAsTime) {
@@ -2407,7 +2509,7 @@ class MainWPCReport
                             'other_tokens' => base64_encode(serialize($tokens)),
                             'date_from' =>  $report->date_from,
                             'date_to' => $report->date_to);
-        
+
         $information = apply_filters('mainwp_fetchurlauthed', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $website['id'], 'client_report', $post_data);			                             
 //        print_r($sections);
 //        print_r($information);
@@ -3242,10 +3344,13 @@ class MainWPCReport
                         $disabled = "";
                          if ((!self::$enabled_sucuri && $group == 'sucuri') ||
                                 (!self::$enabled_ga && $group == 'ga') ||
-                                (!self::$enabled_piwik && $group == 'piwik')) 
-                                {       
-                                    $disabled = "disabled";
-                                } 
+                                (!self::$enabled_piwik && $group == 'piwik') ||
+                                (!self::$enabled_aum && $group == 'aum') ||
+                                (!self::$enabled_woocomstatus && $group == 'woocomstatus')
+                            ) 
+                            {       
+                                $disabled = "disabled";
+                            } 
                         
                         $current = ($visible == $group) ? "current" : "";
                         $nav_group .= '<a href="#" group="' . $group . '" group-title="' . $group_title . '" class="creport_nav_group_lnk ' . $current . ' ' . $disabled . '">' . $group_title . '</a> | ';                                
@@ -3267,6 +3372,12 @@ class MainWPCReport
                         $enabled = false;
                     } else if (!self::$enabled_piwik && $group == 'piwik') {
                         $str_requires = "Requires" . ' <a href="http://extensions.mainwp.com/product/mainwp-piwik-extension/" title="MainWP Piwik Extension">MainWP Piwik Extension</a>';  
+                        $enabled = false;
+                    } else if (!self::$enabled_aum && $group == 'aum') {
+                        $str_requires = "Requires" . ' <a href="http://extensions.mainwp.com/product/advanced-uptime-monitor-extension/" title="Advanced Uptime Monitor Extension">Advanced Uptime Monitor Extension</a>';  
+                        $enabled = false;
+                    } else if (!self::$enabled_woocomstatus && $group == 'woocomstatus') {
+                        $str_requires = "Requires" . ' <a href="http://extensions.mainwp.com/product/mainwp-woocommerce-status-extension/" title="MainWP WooCommerce Status Extension">MainWP WooCommerce Status Extension</a>';  
                         $enabled = false;
                     }                    
                     if (!$enabled) { ?>             
@@ -3325,8 +3436,11 @@ class MainWPCReport
                 $visible_nav = "tokens";                                                       
                 foreach (self::$stream_tokens as $group => $group_tokens) {   
                      if ((!self::$enabled_sucuri && $group == 'sucuri') ||
-                        (!self::$enabled_ga && $group == 'ga') ||
-                        (!self::$enabled_piwik && $group == 'piwik')) 
+                            (!self::$enabled_ga && $group == 'ga') ||
+                            (!self::$enabled_piwik && $group == 'piwik') ||
+                            (!self::$enabled_aum && $group == 'aum') ||
+                            (!self::$enabled_woocomstatus && $group == 'woocomstatus')
+                        ) 
                         {       
                             echo '<div class="creport_format_group_nav bottom" group="' . $group . '">&nbsp</div>';        
                             continue;
