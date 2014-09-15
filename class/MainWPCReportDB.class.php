@@ -848,7 +848,7 @@ PRIMARY KEY  (`id`)  ';
         $sql = "SELECT rp.*, c.* FROM " . $this->tableName('client_report') . " rp "
                     . " LEFT JOIN " . $this->tableName('client_report_client') . " c "
                     . " ON rp.client_id = c.clientid "
-                    . " WHERE rp.is_archived = 0 " 
+                    . " WHERE rp.is_archived = 0 AND rp.scheduled = 0" 
                     . " AND rp.date_from <= " . (time() - 3600 * 24 * 30) . "  "
                     . " AND rp.selected_site != 0 AND c.email IS NOT NULL "
                     . "";  

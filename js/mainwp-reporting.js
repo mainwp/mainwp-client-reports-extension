@@ -520,6 +520,10 @@ jQuery(document).ready(function($) {
         $('#mwp_creport_report_submit_action').val('archive_report');  
     });
     
+    $('#mwp-creport-unarchive-report-btn').on('click', function() {                
+        $('#mwp_creport_report_submit_action').val('unarchive_report');  
+    });
+    
     $('#mwp-creport-preview-btn-close').on('click' ,function(){
         jQuery('#mwp-creport-preview-box').dialog('destroy');        
     })

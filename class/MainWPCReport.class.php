@@ -497,7 +497,8 @@ class MainWPCReport
                                                 array("name" => "ga.pages.visit", "desc" => "Displays the Number of Page visit during the selected date range"),
                                                 array("name" => "ga.bounce.rate", "desc" => "Displays the Bounce Rate during the selected date range"),
                                                 array("name" => "ga.avg.time", "desc" => "Displays the Average Visit Time during the selected date range"),
-                                                array("name" => "ga.new.visits", "desc" => "Displays the Number of New Visits during the selected date range")                                    
+                                                array("name" => "ga.new.visits", "desc" => "Displays the Number of New Visits during the selected date range"),                                    
+                                                //array("name" => "ga.visits.chart", "desc" => "...")
                                             ),
                             ), 
             "piwik" => array(
@@ -1068,7 +1069,8 @@ class MainWPCReport
                 "send" === $_POST['mwp_creport_report_submit_action'] ||  
                 "save_pdf" === $_POST['mwp_creport_report_submit_action'] || 
                 "schedule" === $_POST['mwp_creport_report_submit_action'] ||
-                "archive_report" === $_POST['mwp_creport_report_submit_action'] ) {   
+                "archive_report" === $_POST['mwp_creport_report_submit_action'] || 
+                "unarchive_report" === $_POST['mwp_creport_report_submit_action'] ) {   
                 //print_r($report);
                 if($result = MainWPCReportDB::Instance()->updateReport($report)) {                    
                     $return['id'] = $result->id;   
@@ -1381,7 +1383,7 @@ class MainWPCReport
         global $current_user;                     
         $messages = $errors = $reporttab_messages = array();               
         $do_preview = $do_send = $do_schedule = $do_send_test_email = $do_save_pdf = $do_replicate = $do_archive = false;              
-        $do_save_pdf_get = $do_archive_get = false;
+        $do_save_pdf_get = $do_archive_get = $do_un_archive_get = false;
         $report_id = 0;
         $report = false;
         
@@ -1395,7 +1397,9 @@ class MainWPCReport
             else if ('save_pdf' === (string)$_REQUEST['action'])
                 $do_save_pdf_get = true; 
             else if ('archive_report' === (string)$_REQUEST['action'])
-                $do_archive_get = true;                 
+                $do_archive_get = true; 
+            else if ('unarchive_report' === $_GET['action'])
+                $do_un_archive_get = true; 
         }
         
         if (isset($_POST['mwp_creport_report_submit_action'])) {
@@ -1411,6 +1415,8 @@ class MainWPCReport
                 $do_archive = true;
             else if ("schedule" == $_POST['mwp_creport_report_submit_action'])
                 $do_schedule = true;
+            else if ("unarchive_report" === (string)$_POST['mwp_creport_report_submit_action'])
+                $do_un_archive = true;
         }
        
         $current_is_archived = false;
@@ -1467,10 +1473,19 @@ class MainWPCReport
             } else
                 $errors[] = __("Archive Report has been failed.");
             
+        } else if ($do_un_archive || $do_un_archive_get) {
+            if (self::un_archiveReport($report_id)) {
+                if ($do_un_archive_get) {
+                    $reporttab_messages[] = __("Report has been un-archived.");                              
+                } else {
+                    $messages[] = __("Report has been un-archived.");          
+                }                 
+            } else
+                $errors[] = __("Un-Archive Report has been failed.");
         }
     
         if ($report_id) {
-            if (!$do_archive_get && $report == null) {                 
+            if (!$do_archive_get && !$do_un_archive_get && $report == null) {                 
                 $report = MainWPCReportDB::Instance()->getReportBy('id', $report_id);
                 //print_r($report);
             }
@@ -1499,7 +1514,7 @@ class MainWPCReport
                 else
                     $do_create_new = true;
                 $style_tab_edit = '';                   
-            } else if ($do_send || $do_archive_get) {
+            } else if ($do_send || $do_archive_get || $do_un_archive_get) {
                 $style_tab_report = "";
             }
         } else if(isset($_POST['mainwp_creport_stream_groups_select']) || isset($_GET['s']) || isset($_GET['stream_orderby'])){
@@ -1709,9 +1724,11 @@ class MainWPCReport
                             </div>                            
                             <div id="wpcr_edit_tab"  <?php echo $style_tab_edit; ?>> 
                                 <?php self::newReportTab($report);                                         
+                                    $_archive_btn = '<input type="submit" value="' . __("Archive Report", "mainwp") . '" class="button" id="mwp-creport-archive-report-btn" name="button_archive">';
                                     $_disabled = "";
                                     if (!empty($report) && isset($report->id) && isset($report->is_archived) && $report->is_archived) {
-                                        $_disabled = "disabled";
+                                        $_archive_btn  =   '<input type="submit" value="' . __("Un-Archive Report", "mainwp") . '" class="button" id="mwp-creport-unarchive-report-btn" name="button_unarchive">';                                   
+                                        $_disabled = 'disabled="disabled"';
                                     }
                                 ?>  
                                 <p class="submit">                                    
@@ -1720,7 +1737,7 @@ class MainWPCReport
                                         <input type="submit" value="<?php _e("Send Test Email"); ?>" class="button" id="mwp-creport-send-test-email-btn" name="button_send_test_email">                                        
                                     </span>
                                     <span style="float:right;"> 
-                                        <input type="submit" <?php echo $_disabled; ?> value="<?php _e("Archive Report"); ?>" class="button" id="mwp-creport-archive-report-btn" name="button_archive">
+                                        <?php echo $_archive_btn; ?>                                        
                                         <input type="submit" value="<?php _e("Download PDF"); ?>" class="button" id="mwp-creport-save-pdf-btn" name="button_save_pdf">
                                         <input type="submit" <?php echo $_disabled; ?> value="<?php _e("Save Report"); ?>" class="button" id="mwp-creport-save-btn" name="button_save">
                                         <input type="submit" value="<?php _e("Send Now"); ?>" class="button-primary" id="mwp-creport-send-btn" name="submit">
@@ -1789,6 +1806,23 @@ class MainWPCReport
                                 'is_archived' => 1,
                                 'archive_report' => serialize($archive_content),
                                 'archive_report_pdf' => serialize($archive_content_pdf),
+                            );    
+        if (MainWPCReportDB::Instance()->updateReport($update_archive))
+            return true;
+        return false;
+    }
+    
+    public function un_archiveReport($report) {
+        if (!empty($report) && !is_object($report)) {
+            $report = MainWPCReportDB::Instance()->getReportBy('id', $report);
+        }
+        
+        if (!$report->is_archived)
+            return true;        
+        $update_archive = array('id' => $report->id,
+                                'is_archived' => 0,
+                                'archive_report' => '',
+                                'archive_report_pdf' => '',
                             );    
         if (MainWPCReportDB::Instance()->updateReport($update_archive))
             return true;
@@ -1900,7 +1934,8 @@ class MainWPCReport
                       <div style="display: block; width: 100% ; padding: .5em 0 ;">                          
                               <?php 
                               //echo apply_filters( 'the_content', $report->filtered_header );
-                              echo stripslashes(nl2br($report->filtered_header)); 
+                              //echo stripslashes(nl2br($report->filtered_header)); 
+                              echo self::do_filter_content($report->filtered_header);
                               ?>                          
                         <div style="clear: both;"></div>
                       </div>
@@ -1909,19 +1944,22 @@ class MainWPCReport
                     <div>
                         <?php 
                             //echo apply_filters( 'the_content', $report->filtered_body );                            
-                            echo stripslashes(nl2br($report->filtered_body)); ?>
+                            //echo stripslashes(nl2br($report->filtered_body)); 
+                            echo self::do_filter_content($report->filtered_body);                            
+                        ?>                        
                     </div>
                     <br><br><br>
                     <div style="display: block; width: 100% ;">
                         <?php 
                         //echo apply_filters( 'the_content', $report->filtered_footer );
-                        echo stripslashes(nl2br($report->filtered_footer)); 
+                        //echo stripslashes(nl2br($report->filtered_footer)); 
+                        echo self::do_filter_content($report->filtered_footer);
                         ?>
                    </div>                                
                     
                 </div>                            
             </div>
-        </div>               
+        </div>           
     <?php
             if (!$combine_report) {
                 $html = ob_get_clean();
@@ -1934,6 +1972,17 @@ class MainWPCReport
             $output[] = $html;
         }
         return $output; 
+    }
+    
+    static function do_filter_content($content) {
+        if (preg_match("/(<ga_chart>(.+)<\/ga_chart>)/is", $content, $matches)) {   
+            $chart_content = $matches[2];
+            $filtered_content = preg_replace("/(<ga_chart>.+<\/ga_chart>)/is",'[GA_CHART_MARKER]',$content);
+            $filtered_content = stripslashes(nl2br($filtered_content)); 
+            $filtered_content = preg_replace("/([GA_CHART_MARKER])/is",'$chart_content',$filtered_content);
+            $content = $filtered_content;
+        }        
+        return $content;
     }
     
      public static function gen_email_content_pdf($report, $combine_report = false) {  
@@ -2034,8 +2083,9 @@ class MainWPCReport
         $output->filtered_header = $report->header;
         $output->filtered_body = $report->body;
         $output->filtered_footer = $report->footer; 
-        $output->id = isset($report->id) ? $report->id : 0;        
-         if ($website !== null) {            
+        $output->id = isset($report->id) ? $report->id : 0;    
+        $get_ga_graph = ((strpos($report->header, "[ga.visits.chart]") !== false) || (strpos($report->body, "[ga.visits.chart]") !== false) || (strpos($report->footer, "[ga.visits.chart]") !== false)) ? true : false;
+        if ($website !== null) {            
             $tokens = MainWPCReportDB::Instance()->getTokens();
             $site_tokens = MainWPCReportDB::Instance()->getSiteTokens($website['url']);        
             $search_tokens = $replace_values = array();
@@ -2052,7 +2102,7 @@ class MainWPCReport
                 }       
             }  
 
-            $ga_tokens = self::ga_data($website['id'], $report->date_from, $report->date_to); 
+            $ga_tokens = self::ga_data($website['id'], $report->date_from, $report->date_to, $get_ga_graph); 
             if (is_array($ga_tokens)) {
                 foreach ($ga_tokens as $token => $value) {            
                     $search_tokens[] = '[' . $token . ']';            
@@ -2381,7 +2431,7 @@ class MainWPCReport
         return array('content' => $content, 'section' => $section); 
     }
     
-    static function ga_data($site_id, $start_date, $end_date) {
+    static function ga_data($site_id, $start_date, $end_date, $graph = false) {
         if (!self::$enabled_ga)
             return false;
         
@@ -2391,16 +2441,23 @@ class MainWPCReport
         if (isset(self::$buffer[$uniq])) 
             return self::$buffer[$uniq];
         
-        $values = apply_filters('mainwp_ga_get_data', $site_id, $start_date, $end_date);         
+        $result = apply_filters('mainwp_ga_get_data', $site_id, $start_date, $end_date, $graph);         
         //print_r($values);
         $output = null;      
-        if (!empty($values) && is_array($values)) { 
-            $output['ga.visits'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:visits'])) ? $values['aggregates']['ga:visits'] : 0;
-            $output['ga.pageviews'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:pageviews'])) ? $values['aggregates']['ga:pageviews'] : 0;
-            $output['ga.pages.visit'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:pageviewsPerVisit'])) ? self::format_stats_values($values['aggregates']['ga:pageviewsPerVisit'], true, false) : 0;
-            $output['ga.bounce.rate'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:visitBounceRate'])) ? self::format_stats_values($values['aggregates']['ga:visitBounceRate'], true, true) : 0;
-            $output['ga.new.visits'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:percentNewVisits'])) ? self::format_stats_values($values['aggregates']['ga:percentNewVisits'], true, true) : 0;
-            $output['ga.avg.time'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:avgTimeOnSite'])) ? self::format_stats_values($values['aggregates']['ga:avgTimeOnSite'], false, false, true) : 0;                               
+        if (!empty($result) && is_array($result)) { 
+            if (isset($result['stats_int'])) {
+                $values = $result['stats_int'];
+                $output['ga.visits'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:visits'])) ? $values['aggregates']['ga:visits'] : 0;
+                $output['ga.pageviews'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:pageviews'])) ? $values['aggregates']['ga:pageviews'] : 0;
+                $output['ga.pages.visit'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:pageviewsPerVisit'])) ? self::format_stats_values($values['aggregates']['ga:pageviewsPerVisit'], true, false) : 0;
+                $output['ga.bounce.rate'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:visitBounceRate'])) ? self::format_stats_values($values['aggregates']['ga:visitBounceRate'], true, true) : 0;
+                $output['ga.new.visits'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:percentNewVisits'])) ? self::format_stats_values($values['aggregates']['ga:percentNewVisits'], true, true) : 0;
+                $output['ga.avg.time'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:avgTimeOnSite'])) ? self::format_stats_values($values['aggregates']['ga:avgTimeOnSite'], false, false, true) : 0;                               
+            }
+            
+            if (isset($result['stats_graph'])) {
+                $output['ga.visits.chart'] = $result['stats_graph'];
+            }
             self::$buffer[$uniq] = $output;                
         }   
         return $output;
@@ -2796,7 +2853,7 @@ class MainWPCReport
                     if (!$report->is_archived)  { ?>
                         <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=archive_report&id=<?php echo $report->id; ?>"><?php _e("Archive");?></a> | 
                     <?php } else { ?>
-                        <?php _e("Archive");?> | 
+                        <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=unarchive_report&id=<?php echo $report->id; ?>"><?php _e("Un-Archive");?></a> |                       
                     <?php } ?>
                         
                     <?php if ($report->scheduled) { ?>
