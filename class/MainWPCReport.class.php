@@ -519,12 +519,12 @@ class MainWPCReport
                                                 "aum" => "AUM",                                                                                                     
                                             ),
                                 "aum" => array(                                                
-                                                array("name" => "aum.alltimeuptimeratio", "desc" => "..."),
-                                                array("name" => "aum.uptime7", "desc" => "..."),
-                                                array("name" => "aum.uptime15", "desc" => "..."),
-                                                array("name" => "aum.uptime30", "desc" => "..."),
-                                                array("name" => "aum.uptime45", "desc" => "..."),
-                                                array("name" => "aum.uptime60", "desc" => "...")                                                
+                                                array("name" => "aum.alltimeuptimeratio", "desc" => "Displays the Uptime ratio from the moment the monitor has been created"),
+                                                array("name" => "aum.uptime7", "desc" => "Displays the Uptime ratio for last 7 days"),
+                                                array("name" => "aum.uptime15", "desc" => "Displays the Uptime ration for last 15 days"),
+                                                array("name" => "aum.uptime30", "desc" => "Displays the Uptime ration for last 30 days"),
+                                                array("name" => "aum.uptime45", "desc" => "Displays the Uptime ration for last 45 days"),
+                                                array("name" => "aum.uptime60", "desc" => "Displays the Uptime ration for last 60 days")                                                
                                             ),                                
                             ),
             "woocomstatus" => array(
@@ -532,12 +532,12 @@ class MainWPCReport
                                                 "woocomstatus" => "WooCommerce Status",                                                                                                     
                                             ),
                                 "woocomstatus" => array(                                                
-                                                array("name" => "wcomstatus.sales", "desc" => "..."),
-                                                array("name" => "wcomstatus.topseller", "desc" => "..."),
-                                                array("name" => "wcomstatus.awaitingprocessing", "desc" => "..."),
-                                                array("name" => "wcomstatus.onhold", "desc" => "..."),
-                                                array("name" => "wcomstatus.lowonstock", "desc" => "..."),
-                                                array("name" => "wcomstatus.outofstock", "desc" => "..."),
+                                                array("name" => "wcomstatus.sales", "desc" => "Displays total sales during the selected data range"),
+                                                array("name" => "wcomstatus.topseller", "desc" => "Displays the top seller product during the selected data range"),
+                                                array("name" => "wcomstatus.awaitingprocessing", "desc" => "Displays the number of products currently awaiting for processing"),
+                                                array("name" => "wcomstatus.onhold", "desc" => "Displays the number of orders currently on hold"),
+                                                array("name" => "wcomstatus.lowonstock", "desc" => "Displays the number of products currently low on stock"),
+                                                array("name" => "wcomstatus.outofstock", "desc" => "Displays the number of products currently out of stock"),
                                             ),                                
                             ),
             );       
@@ -1383,7 +1383,7 @@ class MainWPCReport
         global $current_user;                     
         $messages = $errors = $reporttab_messages = array();               
         $do_preview = $do_send = $do_schedule = $do_send_test_email = $do_save_pdf = $do_replicate = $do_archive = false;              
-        $do_save_pdf_get = $do_archive_get = $do_un_archive_get = false;
+        $do_save_pdf_get = $do_un_archive = $do_archive_get = $do_un_archive_get = false;
         $report_id = 0;
         $report = false;
         
@@ -2504,12 +2504,12 @@ class MainWPCReport
         $output = null;      
         if (!empty($values) && is_array($values)) { 
             
-            $output['aum.alltimeuptimeratio'] = (isset($values['aum.alltimeuptimeratio'])) ? $values['aum.alltimeuptimeratio'] : 0;
-            $output['aum.uptime7'] = (isset($values['aum.uptime7'])) ? $values['aum.uptime7'] : 0;
-            $output['aum.uptime15'] = (isset($values['aum.uptime15'])) ? $values['aum.uptime15'] : 0;
-            $output['aum.uptime30'] = (isset($values['aum.uptime30'])) ? $values['aum.uptime30'] : 0;
-            $output['aum.uptime45'] = (isset($values['aum.uptime45'])) ? $values['aum.uptime45'] : 0;
-            $output['aum.uptime60'] = (isset($values['aum.uptime60'])) ? $values['aum.uptime60'] : 0;
+            $output['aum.alltimeuptimeratio'] = (isset($values['aum.alltimeuptimeratio'])) ? $values['aum.alltimeuptimeratio'] . "%" : "0%";
+            $output['aum.uptime7'] = (isset($values['aum.uptime7'])) ? $values['aum.uptime7']."%" : "0%";
+            $output['aum.uptime15'] = (isset($values['aum.uptime15'])) ? $values['aum.uptime15']."%" : "0%";
+            $output['aum.uptime30'] = (isset($values['aum.uptime30'])) ? $values['aum.uptime30'] ."%" : "0%";
+            $output['aum.uptime45'] = (isset($values['aum.uptime45'])) ? $values['aum.uptime45']."%" : "0%";
+            $output['aum.uptime60'] = (isset($values['aum.uptime60'])) ? $values['aum.uptime60'] ."%" : "0%";
             
             self::$buffer[$uniq] = $output;                
         }   
