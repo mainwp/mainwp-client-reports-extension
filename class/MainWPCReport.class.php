@@ -3040,7 +3040,7 @@ class MainWPCReport
             $recurringDate = !empty($report->recurring_date) ? date("Y-m-d", $report->recurring_date) : "";
             $scheduleSendEmail = $report->schedule_send_email;
             $scheduleBCCme = isset($report->schedule_bcc_me) ? $report->schedule_bcc_me : 0;
-        }
+        }        
     ?>        
         <br>
         <table class="wp-list-table widefat" cellspacing="0">
@@ -3856,7 +3856,7 @@ class MainWPCReport
         global $wpdb;
         $ret = array();        
         $id = intval($_POST['reportId']);
-        $update = array("id" => $id, "scheduled" => 0);
+        $update = array("id" => $id, "scheduled" => 0, 'recurring_schedule' => '');
         if ($id && MainWPCReportDB::Instance()->updateReport($update))                 
             $ret['status'] = 'success';        
         echo json_encode($ret);
