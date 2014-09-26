@@ -66,15 +66,28 @@ $pdf->SetPrintFooter(false);
 // Add a page
 // This method has several options, check the source code documentation for more information.
 $pdf->AddPage();
-$content = MainWPCReport::gen_email_content_pdf($report, true);
+
+$content = false; // to fix bug
+if (isset($_GET['id']) && $_GET['id'])
+{     
+    $content = get_option("mwp_creport_pdf_content_" . $_GET['id'], false);
+    if ($content !== false) {
+        $content = unserialize($content);            
+        delete_option("mwp_creport_pdf_content_" . $_GET['id']);
+    }
+}
+            
 $html = "";
 if (is_array($content)) {
-    foreach($content as $ct) {
+    foreach($content as $ct) {                             
         $html .= $ct;
     }
 } else {
     $html = $content;
 }
-$pdf->writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
-$pdf->Output('client-report.pdf', 'I');
+if ($content !== false) {
+    //error_log($html);
+    $pdf->writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
+    $pdf->Output('client-report.pdf', 'I');
+}
 

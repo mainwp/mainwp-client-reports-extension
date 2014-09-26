@@ -12,7 +12,7 @@ class MainWPCReport
     private static $enabled_woocomstatus = false;
     
     public function __construct() { 
-       
+        
     }
     
     public static function init() {
@@ -560,8 +560,8 @@ class MainWPCReport
                                         "piwik" => "Piwik",
                                         "aum" => "AUM",
                                         "woocomstatus" => "WooCommerce Status",
-                                    );          
-               
+                                    ); 
+              
     }
   
     public function admin_init() {
@@ -1069,8 +1069,7 @@ class MainWPCReport
                 "send" === $_POST['mwp_creport_report_submit_action'] ||  
                 "save_pdf" === $_POST['mwp_creport_report_submit_action'] || 
                 "schedule" === $_POST['mwp_creport_report_submit_action'] ||
-                "archive_report" === $_POST['mwp_creport_report_submit_action'] || 
-                "unarchive_report" === $_POST['mwp_creport_report_submit_action'] ) {   
+                "archive_report" === $_POST['mwp_creport_report_submit_action']) {   
                 //print_r($report);
                 if($result = MainWPCReportDB::Instance()->updateReport($report)) {                    
                     $return['id'] = $result->id;   
@@ -1381,7 +1380,7 @@ class MainWPCReport
    
     public static function renderTabs() {        
         global $current_user;                     
-        $messages = $errors = $reporttab_messages = array();               
+        $messages = $errors = $reporttab_messages = array();                       
         $do_preview = $do_send = $do_schedule = $do_send_test_email = $do_save_pdf = $do_replicate = $do_archive = false;              
         $do_save_pdf_get = $do_un_archive = $do_archive_get = $do_un_archive_get = false;
         $report_id = 0;
@@ -1414,16 +1413,33 @@ class MainWPCReport
             else if ("archive_report" === (string)$_POST['mwp_creport_report_submit_action'])
                 $do_archive = true;
             else if ("schedule" == $_POST['mwp_creport_report_submit_action'])
-                $do_schedule = true;
-            else if ("unarchive_report" === (string)$_POST['mwp_creport_report_submit_action'])
-                $do_un_archive = true;
+                $do_schedule = true;                       
         }
-       
-        $current_is_archived = false;
+        
+        if (isset($_POST['mwp_creport_do_un_archive']) && !empty($_POST['mwp_creport_do_un_archive'])) {
+            $do_un_archive = true;
+        }
+        
         if (isset($_REQUEST['id'])) {
             $report_id = $_REQUEST['id'];
+        }
+        
+        if ($do_un_archive || $do_un_archive_get) {
+            if (self::un_archiveReport($report_id)) {
+                if ($do_un_archive_get) {
+                    $reporttab_messages[] = __("Report has been un-archived.");                              
+                } else {
+                    $messages[] = __("Report has been un-archived.");          
+                }                 
+            } else
+                $errors[] = __("Un-Archive Report has been failed.");
+        }
+        
+        $current_is_archived = false;
+        if ($report_id) {            
             $current_report = MainWPCReportDB::Instance()->getReportBy('id', $report_id);
             $current_is_archived = !empty($current_report) && $current_report->is_archived ? true : false;
+            unset($current_report);
         }
         
         $save_successful = $save_without_error = false;    
@@ -1450,8 +1466,12 @@ class MainWPCReport
             }
            
         } 
-        
-        if ($do_save_pdf || $do_save_pdf_get ) {
+                
+        if ($report_id && ($do_save_pdf || $do_save_pdf_get)) {      
+            $report_pdf = MainWPCReportDB::Instance()->getReportBy('id', $report_id);
+            $content = MainWPCReport::gen_email_content_pdf($report_pdf, true);            
+            MainWPCReportUtility::update_option("mwp_creport_pdf_content_" . $report_id, serialize($content));
+            unset($report_pdf);                       
             ?>
                 <script>
                     jQuery(document).ready(function($) {                         
@@ -1462,7 +1482,7 @@ class MainWPCReport
                     });
                 </script>
             <?php
-                $messages[] = __('PDF downloading...');
+                $messages[] = __('PDF downloading...');                
         } else if (($do_archive && $save_without_error) || $do_archive_get) {
             if (self::archiveReport($report_id)) {
                 if ($do_archive_get) {
@@ -1473,16 +1493,7 @@ class MainWPCReport
             } else
                 $errors[] = __("Archive Report has been failed.");
             
-        } else if ($do_un_archive || $do_un_archive_get) {
-            if (self::un_archiveReport($report_id)) {
-                if ($do_un_archive_get) {
-                    $reporttab_messages[] = __("Report has been un-archived.");                              
-                } else {
-                    $messages[] = __("Report has been un-archived.");          
-                }                 
-            } else
-                $errors[] = __("Un-Archive Report has been failed.");
-        }
+        } 
     
         if ($report_id) {
             if (!$do_archive_get && !$do_un_archive_get && $report == null) {                 
@@ -1744,8 +1755,9 @@ class MainWPCReport
                                     </span>
                                 </p>
                             </div>  
-                        <input type="hidden" name="mwp_creport_report_type" id="mwp_creport_report_type" value="<?php echo $report_type; ?>">
-                        <input type="hidden" name="mwp_creport_report_submit_action" id="mwp_creport_report_submit_action" value="">
+                            <input type="hidden" name="mwp_creport_report_type" id="mwp_creport_report_type" value="<?php echo $report_type; ?>">
+                            <input type="hidden" name="mwp_creport_report_submit_action" id="mwp_creport_report_submit_action" value="">
+                            <input type="hidden" name="mwp_creport_do_un_archive" id="mwp_creport_do_un_archive" value="0">
                             <input type="hidden" name="id" value="<?php echo (is_object($report) && isset($report->id)) ? $report->id : "0"; ?>">
                             <input type="hidden" name="nonce" value="<?php echo wp_create_nonce('mwp_creport_nonce') ?>">
                         </form>
@@ -2084,7 +2096,10 @@ class MainWPCReport
         $output->filtered_body = $report->body;
         $output->filtered_footer = $report->footer; 
         $output->id = isset($report->id) ? $report->id : 0;    
-        $get_ga_graph = ((strpos($report->header, "[ga.visits.chart]") !== false) || (strpos($report->body, "[ga.visits.chart]") !== false) || (strpos($report->footer, "[ga.visits.chart]") !== false)) ? true : false;
+        $get_ga_tokens = ((strpos($report->header, "[ga.") !== false) || (strpos($report->body, "[ga.") !== false) || (strpos($report->footer, "[ga.") !== false)) ? true : false;
+        $get_piwik_tokens = ((strpos($report->header, "[piwik.") !== false) || (strpos($report->body, "[piwik.") !== false) || (strpos($report->footer, "[piwik.") !== false)) ? true : false;
+        $get_aum_tokens = ((strpos($report->header, "[aum.") !== false) || (strpos($report->body, "[aum.") !== false) || (strpos($report->footer, "[aum.") !== false)) ? true : false;
+        $get_woocom_tokens = ((strpos($report->header, "[wcomstatus.") !== false) || (strpos($report->body, "[wcomstatus.") !== false) || (strpos($report->footer, "[wcomstatus.") !== false)) ? true : false;
         if ($website !== null) {            
             $tokens = MainWPCReportDB::Instance()->getTokens();
             $site_tokens = MainWPCReportDB::Instance()->getSiteTokens($website['url']);        
@@ -2093,39 +2108,46 @@ class MainWPCReport
                 $search_tokens[] = '[' . $token->token_name . ']';            
                 $replace_values[] = isset($site_tokens[$token->id]) ? $site_tokens[$token->id]->token_value : "";            
             }  
-
-            $piwik_tokens = self::piwik_data($website['id'], $report->date_from, $report->date_to); 
-            if (is_array($piwik_tokens)) {
-                foreach ($piwik_tokens as $token => $value) {            
-                    $search_tokens[] = '[' . $token . ']';            
-                    $replace_values[] = $value;            
-                }       
-            }  
-
-            $ga_tokens = self::ga_data($website['id'], $report->date_from, $report->date_to, $get_ga_graph);         
-            if (is_array($ga_tokens)) {
-                foreach ($ga_tokens as $token => $value) {            
-                    $search_tokens[] = '[' . $token . ']';            
-                    $replace_values[] = $value;            
-                }       
-            } 
-
-            $aum_tokens = self::aum_data($website['id'], $report->date_from, $report->date_to);         
-            if (is_array($aum_tokens)) {
-                foreach ($aum_tokens as $token => $value) {            
-                    $search_tokens[] = '[' . $token . ']';            
-                    $replace_values[] = $value;            
-                }       
-            } 
             
-            $wcomstatus_tokens = self::woocomstatus_data($website['id'], $report->date_from, $report->date_to); 
-            if (is_array($wcomstatus_tokens)) {
-                foreach ($wcomstatus_tokens as $token => $value) {            
-                    $search_tokens[] = '[' . $token . ']';            
-                    $replace_values[] = $value;            
-                }       
+            if ($get_piwik_tokens) {
+                $piwik_tokens = self::piwik_data($website['id'], $report->date_from, $report->date_to); 
+                if (is_array($piwik_tokens)) {
+                    foreach ($piwik_tokens as $token => $value) {            
+                        $search_tokens[] = '[' . $token . ']';            
+                        $replace_values[] = $value;            
+                    }       
+                }  
+            }
+
+            if ($get_ga_tokens) {    
+                $ga_tokens = self::ga_data($website['id'], $report->date_from, $report->date_to);                    
+                if (is_array($ga_tokens)) {
+                    foreach ($ga_tokens as $token => $value) {            
+                        $search_tokens[] = '[' . $token . ']';            
+                        $replace_values[] = $value;            
+                    }       
+                } 
             }
             
+            if ($get_aum_tokens) {
+                $aum_tokens = self::aum_data($website['id'], $report->date_from, $report->date_to);         
+                if (is_array($aum_tokens)) {
+                    foreach ($aum_tokens as $token => $value) {            
+                        $search_tokens[] = '[' . $token . ']';            
+                        $replace_values[] = $value;            
+                    }       
+                } 
+            }
+            
+            if ($get_woocom_tokens) {
+                $wcomstatus_tokens = self::woocomstatus_data($website['id'], $report->date_from, $report->date_to); 
+                if (is_array($wcomstatus_tokens)) {
+                    foreach ($wcomstatus_tokens as $token => $value) {            
+                        $search_tokens[] = '[' . $token . ']';            
+                        $replace_values[] = $value;            
+                    }       
+                }
+            }
             
             //$report->filtered_header = self::replace_content($report->header, $search_tokens, $replace_values);        
             //$report->body = self::replace_content($report->body, $search_tokens, $replace_values);        
@@ -2441,25 +2463,24 @@ class MainWPCReport
         if (isset(self::$buffer[$uniq])) 
             return self::$buffer[$uniq];
         
-        $result = apply_filters('mainwp_ga_get_data', $site_id, $start_date, $end_date, $graph);         
-        //error_log(print_r($result, true));
-        $output = array('ga.visits' => 0,
-                        'ga.pageviews' => 0,
-                        'ga.pages.visit' => 0,
-                        'ga.bounce.rate' => 0,
-                        'ga.new.visits' => 0,
-                        'ga.avg.time' => 0, 
-                        'ga.visits.chart' => ''
+        $result = apply_filters('mainwp_ga_get_data', $site_id, $start_date, $end_date, $graph);                    
+        $output = array('ga.visits' => "N/A",
+                        'ga.pageviews' => "N/A",
+                        'ga.pages.visit' => "N/A",
+                        'ga.bounce.rate' => "N/A",
+                        'ga.new.visits' => "N/A",
+                        'ga.avg.time' => "N/A", 
+                        'ga.visits.chart' => "N/A"
                     );      
         if (!empty($result) && is_array($result)) { 
             if (isset($result['stats_int'])) {
                 $values = $result['stats_int'];
-                $output['ga.visits'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:visits'])) ? $values['aggregates']['ga:visits'] : 0;
-                $output['ga.pageviews'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:pageviews'])) ? $values['aggregates']['ga:pageviews'] : 0;
-                $output['ga.pages.visit'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:pageviewsPerVisit'])) ? self::format_stats_values($values['aggregates']['ga:pageviewsPerVisit'], true, false) : 0;
-                $output['ga.bounce.rate'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:visitBounceRate'])) ? self::format_stats_values($values['aggregates']['ga:visitBounceRate'], true, true) : 0;
-                $output['ga.new.visits'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:percentNewVisits'])) ? self::format_stats_values($values['aggregates']['ga:percentNewVisits'], true, true) : 0;
-                $output['ga.avg.time'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:avgTimeOnSite'])) ? self::format_stats_values($values['aggregates']['ga:avgTimeOnSite'], false, false, true) : 0;                               
+                $output['ga.visits'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:visits'])) ? $values['aggregates']['ga:visits'] : "N/A";
+                $output['ga.pageviews'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:pageviews'])) ? $values['aggregates']['ga:pageviews'] : "N/A";
+                $output['ga.pages.visit'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:pageviewsPerVisit'])) ? self::format_stats_values($values['aggregates']['ga:pageviewsPerVisit'], true, false) : "N/A";
+                $output['ga.bounce.rate'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:visitBounceRate'])) ? self::format_stats_values($values['aggregates']['ga:visitBounceRate'], true, true) : "N/A";
+                $output['ga.new.visits'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:percentNewVisits'])) ? self::format_stats_values($values['aggregates']['ga:percentNewVisits'], true, true) : "N/A";
+                $output['ga.avg.time'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:avgTimeOnSite'])) ? self::format_stats_values($values['aggregates']['ga:avgTimeOnSite'], false, false, true) : "N/A";                               
             }
             
             if (isset($result['stats_graph'])) {
@@ -2483,12 +2504,12 @@ class MainWPCReport
 //        error_log(print_r($values, true));
 //        print_r($values);        
         $output = array();        
-        $output['piwik.visits'] = (is_array($values) && isset($values['aggregates']) && isset($values['aggregates']['nb_visits'])) ? $values['aggregates']['nb_visits'] : 0;
-        $output['piwik.pageviews'] = (is_array($values) && isset($values['aggregates']) && isset($values['aggregates']['nb_actions'])) ? $values['aggregates']['nb_actions'] : 0;
-        $output['piwik.pages.visit'] = (is_array($values) && isset($values['aggregates']) && isset($values['aggregates']['nb_actions_per_visit'])) ? $values['aggregates']['nb_actions_per_visit'] : 0;
-        $output['piwik.bounce.rate'] = (is_array($values) && isset($values['aggregates']) && isset($values['aggregates']['bounce_rate'])) ? $values['aggregates']['bounce_rate'] : 0;
-        $output['piwik.new.visits'] = (is_array($values) && isset($values['aggregates']) && isset($values['aggregates']['nb_uniq_visitors'])) ? $values['aggregates']['nb_uniq_visitors'] : 0;
-        $output['piwik.avg.time'] = (is_array($values) && isset($values['aggregates']) && isset($values['aggregates']['avg_time_on_site'])) ? self::format_stats_values($values['aggregates']['avg_time_on_site'], false, false, true) : 0;                               
+        $output['piwik.visits'] = (is_array($values) && isset($values['aggregates']) && isset($values['aggregates']['nb_visits'])) ? $values['aggregates']['nb_visits'] : "N/A";
+        $output['piwik.pageviews'] = (is_array($values) && isset($values['aggregates']) && isset($values['aggregates']['nb_actions'])) ? $values['aggregates']['nb_actions'] : "N/A";
+        $output['piwik.pages.visit'] = (is_array($values) && isset($values['aggregates']) && isset($values['aggregates']['nb_actions_per_visit'])) ? $values['aggregates']['nb_actions_per_visit'] : "N/A";
+        $output['piwik.bounce.rate'] = (is_array($values) && isset($values['aggregates']) && isset($values['aggregates']['bounce_rate'])) ? $values['aggregates']['bounce_rate'] : "N/A";
+        $output['piwik.new.visits'] = (is_array($values) && isset($values['aggregates']) && isset($values['aggregates']['nb_uniq_visitors'])) ? $values['aggregates']['nb_uniq_visitors'] : "N/A";
+        $output['piwik.avg.time'] = (is_array($values) && isset($values['aggregates']) && isset($values['aggregates']['avg_time_on_site'])) ? self::format_stats_values($values['aggregates']['avg_time_on_site'], false, false, true) : "N/A";                               
         self::$buffer[$uniq] = $output;                
         
         return $output;
@@ -2508,12 +2529,12 @@ class MainWPCReport
         $values = apply_filters('mainwp_aum_get_data', $site_id, $start_date, $end_date);         
         //print_r($values);
         $output = array();      
-        $output['aum.alltimeuptimeratio'] = (is_array($values) && isset($values['aum.alltimeuptimeratio'])) ? $values['aum.alltimeuptimeratio'] . "%" : "0%";
-        $output['aum.uptime7'] = (is_array($values) && isset($values['aum.uptime7'])) ? $values['aum.uptime7']."%" : "0%";
-        $output['aum.uptime15'] = (is_array($values) && isset($values['aum.uptime15'])) ? $values['aum.uptime15']."%" : "0%";
-        $output['aum.uptime30'] = (is_array($values) && isset($values['aum.uptime30'])) ? $values['aum.uptime30'] ."%" : "0%";
-        $output['aum.uptime45'] = (is_array($values) && isset($values['aum.uptime45'])) ? $values['aum.uptime45']."%" : "0%";
-        $output['aum.uptime60'] = (is_array($values) && isset($values['aum.uptime60'])) ? $values['aum.uptime60'] ."%" : "0%";
+        $output['aum.alltimeuptimeratio'] = (is_array($values) && isset($values['aum.alltimeuptimeratio'])) ? $values['aum.alltimeuptimeratio'] . "%" : "N/A";
+        $output['aum.uptime7'] = (is_array($values) && isset($values['aum.uptime7'])) ? $values['aum.uptime7']."%" : "N/A";
+        $output['aum.uptime15'] = (is_array($values) && isset($values['aum.uptime15'])) ? $values['aum.uptime15']."%" : "N/A";
+        $output['aum.uptime30'] = (is_array($values) && isset($values['aum.uptime30'])) ? $values['aum.uptime30'] ."%" : "N/A";
+        $output['aum.uptime45'] = (is_array($values) && isset($values['aum.uptime45'])) ? $values['aum.uptime45']."%" : "N/A";
+        $output['aum.uptime60'] = (is_array($values) && isset($values['aum.uptime60'])) ? $values['aum.uptime60'] ."%" : "N/A";
 
         self::$buffer[$uniq] = $output;                
 

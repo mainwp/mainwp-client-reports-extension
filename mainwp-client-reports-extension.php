@@ -45,9 +45,7 @@ class MainWPCReportExtension
             isset($_GET['action']) && $_GET['action'] == "savepdf" &&
             isset($_GET['id']) && $_GET['id'])
         {   
-            $report = MainWPCReportDB::Instance()->getReportBy('id', $_GET['id']);
-            if (!empty($report))
-                require_once $this->plugin_dir.'/includes/save_as_pdf.php';
+            require_once $this->plugin_dir.'/includes/save_as_pdf.php';            
         }
     }
 

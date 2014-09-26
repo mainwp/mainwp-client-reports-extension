@@ -521,7 +521,7 @@ jQuery(document).ready(function($) {
     });
     
     $('#mwp-creport-unarchive-report-btn').on('click', function() {                
-        $('#mwp_creport_report_submit_action').val('unarchive_report');  
+        $('#mwp_creport_do_un_archive').val(1);  
     });
     
     $('#mwp-creport-preview-btn-close').on('click' ,function(){

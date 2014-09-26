@@ -54,4 +54,17 @@ class MainWPCReportUtility
         return $hms;
     }
     
+    static function update_option($option_name, $option_value)
+    {
+        $success = add_option($option_name, $option_value, '', 'no');
+
+         if (!$success)
+         {
+             $success = update_option($option_name, $option_value);
+         }
+
+         return $success;
+    }
+    
+    
 }
