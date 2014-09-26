@@ -2102,7 +2102,7 @@ class MainWPCReport
                 }       
             }  
 
-            $ga_tokens = self::ga_data($website['id'], $report->date_from, $report->date_to, $get_ga_graph); 
+            $ga_tokens = self::ga_data($website['id'], $report->date_from, $report->date_to, $get_ga_graph);         
             if (is_array($ga_tokens)) {
                 foreach ($ga_tokens as $token => $value) {            
                     $search_tokens[] = '[' . $token . ']';            
@@ -2110,7 +2110,7 @@ class MainWPCReport
                 }       
             } 
 
-            $aum_tokens = self::aum_data($website['id'], $report->date_from, $report->date_to); 
+            $aum_tokens = self::aum_data($website['id'], $report->date_from, $report->date_to);         
             if (is_array($aum_tokens)) {
                 foreach ($aum_tokens as $token => $value) {            
                     $search_tokens[] = '[' . $token . ']';            
@@ -2442,8 +2442,15 @@ class MainWPCReport
             return self::$buffer[$uniq];
         
         $result = apply_filters('mainwp_ga_get_data', $site_id, $start_date, $end_date, $graph);         
-        //print_r($values);
-        $output = null;      
+        //error_log(print_r($result, true));
+        $output = array('ga.visits' => 0,
+                        'ga.pageviews' => 0,
+                        'ga.pages.visit' => 0,
+                        'ga.bounce.rate' => 0,
+                        'ga.new.visits' => 0,
+                        'ga.avg.time' => 0, 
+                        'ga.visits.chart' => ''
+                    );      
         if (!empty($result) && is_array($result)) { 
             if (isset($result['stats_int'])) {
                 $values = $result['stats_int'];
@@ -2457,9 +2464,9 @@ class MainWPCReport
             
             if (isset($result['stats_graph'])) {
                 $output['ga.visits.chart'] = $result['stats_graph'];
-            }
-            self::$buffer[$uniq] = $output;                
+            }            
         }   
+        self::$buffer[$uniq] = $output;                
         return $output;
     }
         
@@ -2475,16 +2482,15 @@ class MainWPCReport
         $values = apply_filters('mainwp_piwik_get_data', $site_id, $start_date, $end_date);         
 //        error_log(print_r($values, true));
 //        print_r($values);        
-        $output = null;
-        if (!empty($values) && is_array($values)) { 
-            $output['piwik.visits'] = (isset($values['aggregates']) && isset($values['aggregates']['nb_visits'])) ? $values['aggregates']['nb_visits'] : 0;
-            $output['piwik.pageviews'] = (isset($values['aggregates']) && isset($values['aggregates']['nb_actions'])) ? $values['aggregates']['nb_actions'] : 0;
-            $output['piwik.pages.visit'] = (isset($values['aggregates']) && isset($values['aggregates']['nb_actions_per_visit'])) ? $values['aggregates']['nb_actions_per_visit'] : 0;
-            $output['piwik.bounce.rate'] = (isset($values['aggregates']) && isset($values['aggregates']['bounce_rate'])) ? $values['aggregates']['bounce_rate'] : 0;
-            $output['piwik.new.visits'] = (isset($values['aggregates']) && isset($values['aggregates']['nb_uniq_visitors'])) ? $values['aggregates']['nb_uniq_visitors'] : 0;
-            $output['piwik.avg.time'] = (isset($values['aggregates']) && isset($values['aggregates']['avg_time_on_site'])) ? self::format_stats_values($values['aggregates']['avg_time_on_site'], false, false, true) : 0;                               
-            self::$buffer[$uniq] = $output;                
-        }   
+        $output = array();        
+        $output['piwik.visits'] = (is_array($values) && isset($values['aggregates']) && isset($values['aggregates']['nb_visits'])) ? $values['aggregates']['nb_visits'] : 0;
+        $output['piwik.pageviews'] = (is_array($values) && isset($values['aggregates']) && isset($values['aggregates']['nb_actions'])) ? $values['aggregates']['nb_actions'] : 0;
+        $output['piwik.pages.visit'] = (is_array($values) && isset($values['aggregates']) && isset($values['aggregates']['nb_actions_per_visit'])) ? $values['aggregates']['nb_actions_per_visit'] : 0;
+        $output['piwik.bounce.rate'] = (is_array($values) && isset($values['aggregates']) && isset($values['aggregates']['bounce_rate'])) ? $values['aggregates']['bounce_rate'] : 0;
+        $output['piwik.new.visits'] = (is_array($values) && isset($values['aggregates']) && isset($values['aggregates']['nb_uniq_visitors'])) ? $values['aggregates']['nb_uniq_visitors'] : 0;
+        $output['piwik.avg.time'] = (is_array($values) && isset($values['aggregates']) && isset($values['aggregates']['avg_time_on_site'])) ? self::format_stats_values($values['aggregates']['avg_time_on_site'], false, false, true) : 0;                               
+        self::$buffer[$uniq] = $output;                
+        
         return $output;
     }
     
@@ -2501,18 +2507,16 @@ class MainWPCReport
         
         $values = apply_filters('mainwp_aum_get_data', $site_id, $start_date, $end_date);         
         //print_r($values);
-        $output = null;      
-        if (!empty($values) && is_array($values)) { 
-            
-            $output['aum.alltimeuptimeratio'] = (isset($values['aum.alltimeuptimeratio'])) ? $values['aum.alltimeuptimeratio'] . "%" : "0%";
-            $output['aum.uptime7'] = (isset($values['aum.uptime7'])) ? $values['aum.uptime7']."%" : "0%";
-            $output['aum.uptime15'] = (isset($values['aum.uptime15'])) ? $values['aum.uptime15']."%" : "0%";
-            $output['aum.uptime30'] = (isset($values['aum.uptime30'])) ? $values['aum.uptime30'] ."%" : "0%";
-            $output['aum.uptime45'] = (isset($values['aum.uptime45'])) ? $values['aum.uptime45']."%" : "0%";
-            $output['aum.uptime60'] = (isset($values['aum.uptime60'])) ? $values['aum.uptime60'] ."%" : "0%";
-            
-            self::$buffer[$uniq] = $output;                
-        }   
+        $output = array();      
+        $output['aum.alltimeuptimeratio'] = (is_array($values) && isset($values['aum.alltimeuptimeratio'])) ? $values['aum.alltimeuptimeratio'] . "%" : "0%";
+        $output['aum.uptime7'] = (is_array($values) && isset($values['aum.uptime7'])) ? $values['aum.uptime7']."%" : "0%";
+        $output['aum.uptime15'] = (is_array($values) && isset($values['aum.uptime15'])) ? $values['aum.uptime15']."%" : "0%";
+        $output['aum.uptime30'] = (is_array($values) && isset($values['aum.uptime30'])) ? $values['aum.uptime30'] ."%" : "0%";
+        $output['aum.uptime45'] = (is_array($values) && isset($values['aum.uptime45'])) ? $values['aum.uptime45']."%" : "0%";
+        $output['aum.uptime60'] = (is_array($values) && isset($values['aum.uptime60'])) ? $values['aum.uptime60'] ."%" : "0%";
+
+        self::$buffer[$uniq] = $output;                
+
         return $output;
     }
     
@@ -2528,16 +2532,14 @@ class MainWPCReport
         
         $values = apply_filters('mainwp_woocomstatus_get_data', $site_id, $start_date, $end_date);         
         //print_r($values);
-        $output = null;      
-        if (!empty($values) && is_array($values)) { 
-            $output['wcomstatus.sales'] = (isset($values['wcomstatus.sales'])) ? $values['wcomstatus.sales'] : 0;
-            $output['wcomstatus.topseller'] = (isset($values['wcomstatus.topseller'])) ? $values['wcomstatus.topseller'] : 0;
-            $output['wcomstatus.awaitingprocessing'] = (isset($values['wcomstatus.awaitingprocessing'])) ? $values['wcomstatus.awaitingprocessing'] : 0;
-            $output['wcomstatus.onhold'] = (isset($values['wcomstatus.onhold'])) ? $values['wcomstatus.onhold'] : 0;
-            $output['wcomstatus.lowonstock'] = (isset($values['wcomstatus.lowonstock'])) ? $values['wcomstatus.lowonstock'] : 0;
-            $output['wcomstatus.outofstock'] = (isset($values['wcomstatus.outofstock'])) ? $values['wcomstatus.outofstock'] : 0;
-            self::$buffer[$uniq] = $output;                
-        }   
+        $output = array();      
+        $output['wcomstatus.sales'] = (is_array($values) && isset($values['wcomstatus.sales'])) ? $values['wcomstatus.sales'] : 0;
+        $output['wcomstatus.topseller'] = (is_array($values) && isset($values['wcomstatus.topseller'])) ? $values['wcomstatus.topseller'] : 0;
+        $output['wcomstatus.awaitingprocessing'] = (is_array($values) && isset($values['wcomstatus.awaitingprocessing'])) ? $values['wcomstatus.awaitingprocessing'] : 0;
+        $output['wcomstatus.onhold'] = (is_array($values) && isset($values['wcomstatus.onhold'])) ? $values['wcomstatus.onhold'] : 0;
+        $output['wcomstatus.lowonstock'] = (is_array($values) && isset($values['wcomstatus.lowonstock'])) ? $values['wcomstatus.lowonstock'] : 0;
+        $output['wcomstatus.outofstock'] = (is_array($values) && isset($values['wcomstatus.outofstock'])) ? $values['wcomstatus.outofstock'] : 0;
+        self::$buffer[$uniq] = $output;                        
         return $output;
     }
     
