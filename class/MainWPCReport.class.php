@@ -1946,8 +1946,8 @@ class MainWPCReport
                       <div style="display: block; width: 100% ; padding: .5em 0 ;">                          
                               <?php 
                               //echo apply_filters( 'the_content', $report->filtered_header );
-                              //echo stripslashes(nl2br($report->filtered_header)); 
-                              echo self::do_filter_content($report->filtered_header);
+                              echo stripslashes(nl2br($report->filtered_header)); 
+                              //echo self::do_filter_content($report->filtered_header);
                               ?>                          
                         <div style="clear: both;"></div>
                       </div>
@@ -1956,16 +1956,16 @@ class MainWPCReport
                     <div>
                         <?php 
                             //echo apply_filters( 'the_content', $report->filtered_body );                            
-                            //echo stripslashes(nl2br($report->filtered_body)); 
-                            echo self::do_filter_content($report->filtered_body);                            
+                            echo stripslashes(nl2br($report->filtered_body)); 
+                            //echo self::do_filter_content($report->filtered_body);                            
                         ?>                        
                     </div>
                     <br><br><br>
                     <div style="display: block; width: 100% ;">
                         <?php 
                         //echo apply_filters( 'the_content', $report->filtered_footer );
-                        //echo stripslashes(nl2br($report->filtered_footer)); 
-                        echo self::do_filter_content($report->filtered_footer);
+                        echo stripslashes(nl2br($report->filtered_footer)); 
+                        //echo self::do_filter_content($report->filtered_footer);
                         ?>
                    </div>                                
                     
