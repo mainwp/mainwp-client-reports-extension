@@ -2148,7 +2148,7 @@ class MainWPCReport
                     }       
                 }
             }
-            
+           
             //$report->filtered_header = self::replace_content($report->header, $search_tokens, $replace_values);        
             //$report->body = self::replace_content($report->body, $search_tokens, $replace_values);        
             //$report->filtered_footer = self::replace_content($report->footer, $search_tokens, $replace_values);        
@@ -2551,15 +2551,23 @@ class MainWPCReport
         if (isset(self::$buffer[$uniq])) 
             return self::$buffer[$uniq];
         
-        $values = apply_filters('mainwp_woocomstatus_get_data', $site_id, $start_date, $end_date);         
+        $values = apply_filters('mainwp_woocomstatus_get_data', $site_id, $start_date, $end_date); 
+        $top_seller = "N/A";
+        if (is_array($values) && isset($values['wcomstatus.topseller'])) {
+            $top = $values['wcomstatus.topseller'];
+            if (is_object($top) && isset($top->name)) {
+                $top_seller = $top->name;
+            }
+        }
+        
         //print_r($values);
         $output = array();      
-        $output['wcomstatus.sales'] = (is_array($values) && isset($values['wcomstatus.sales'])) ? $values['wcomstatus.sales'] : 0;
-        $output['wcomstatus.topseller'] = (is_array($values) && isset($values['wcomstatus.topseller'])) ? $values['wcomstatus.topseller'] : 0;
-        $output['wcomstatus.awaitingprocessing'] = (is_array($values) && isset($values['wcomstatus.awaitingprocessing'])) ? $values['wcomstatus.awaitingprocessing'] : 0;
-        $output['wcomstatus.onhold'] = (is_array($values) && isset($values['wcomstatus.onhold'])) ? $values['wcomstatus.onhold'] : 0;
-        $output['wcomstatus.lowonstock'] = (is_array($values) && isset($values['wcomstatus.lowonstock'])) ? $values['wcomstatus.lowonstock'] : 0;
-        $output['wcomstatus.outofstock'] = (is_array($values) && isset($values['wcomstatus.outofstock'])) ? $values['wcomstatus.outofstock'] : 0;
+        $output['wcomstatus.sales'] = (is_array($values) && isset($values['wcomstatus.sales'])) ? $values['wcomstatus.sales'] : "N/A";
+        $output['wcomstatus.topseller'] = $top_seller;
+        $output['wcomstatus.awaitingprocessing'] = (is_array($values) && isset($values['wcomstatus.awaitingprocessing'])) ? $values['wcomstatus.awaitingprocessing'] : "N/A";
+        $output['wcomstatus.onhold'] = (is_array($values) && isset($values['wcomstatus.onhold'])) ? $values['wcomstatus.onhold'] : "N/A";
+        $output['wcomstatus.lowonstock'] = (is_array($values) && isset($values['wcomstatus.lowonstock'])) ? $values['wcomstatus.lowonstock'] : "N/A";
+        $output['wcomstatus.outofstock'] = (is_array($values) && isset($values['wcomstatus.outofstock'])) ? $values['wcomstatus.outofstock'] : "N/A";
         self::$buffer[$uniq] = $output;                        
         return $output;
     }
