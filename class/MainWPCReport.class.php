@@ -58,6 +58,8 @@ class MainWPCReport
                                                 array("name" => "plugin.deactivated.author", "desc" => "Displays the User who Deactivated the Plugin")                                               
                                             ),
                                 "updated" => array(
+                                                array("name" => "plugin.old.version", "desc" => "Displays the Plugin Version Before Update"),
+                                                array("name" => "plugin.current.version", "desc" => "Displays the Plugin Current Vesion"),
                                                 array("name" => "plugin.name", "desc" => "Displays the Plugin Name"),
                                                 array("name" => "plugin.updated.date", "desc" => "Displays the Plugin Update Date"),
                                                 array("name" => "plugin.updated.author", "desc" => "Displays the User who Updated the Plugin")                                               
@@ -67,9 +69,7 @@ class MainWPCReport
                                                 array("name" => "plugin.deleted.date", "desc" => "Displays the Plugin Deliting Date"),
                                                 array("name" => "plugin.deleted.author", "desc" => "Displays the User who Deleted the Plugin")                                               
                                             ),
-                                "additional" => array(
-                                                array("name" => "plugin.old.version", "desc" => "Displays the Plugin Version Before Update"),
-                                                array("name" => "plugin.current.version", "desc" => "Displays the Plugin Current Vesion"),
+                                "additional" => array(                                               
                                                 array("name" => "plugin.installed.count", "desc" => "Displays the Number of Installed Plugins"),                                               
                                                 array("name" => "plugin.edited.count", "desc" => "Displays the Number of Edited Plugins"),
                                                 array("name" => "plugin.activated.count", "desc" => "Displays the Number of Activated Plugins"),
@@ -109,6 +109,8 @@ class MainWPCReport
                                                 array("name" => "theme.edited.author", "desc" => "Displays the User who Edited the Theme")                                               
                                             ),
                                 "updated" => array(
+                                                array("name" => "theme.old.version", "desc" => "Displays the Theme Version Before Update"),
+                                                array("name" => "theme.current.version", "desc" => "Displays the Theme Current Version"),
                                                 array("name" => "theme.name", "desc" => "Displays the Theme Name"),
                                                 array("name" => "theme.updated.date", "desc" => "Displays the Theme Update Date"),
                                                 array("name" => "theme.updated.author", "desc" => "Displays the User who Updated the Theme")                                               
@@ -118,9 +120,7 @@ class MainWPCReport
                                                 array("name" => "theme.deleted.date", "desc" => "Displays the Theme Deleting Date"),
                                                 array("name" => "theme.deleted.author", "desc" => "Displays the User who Deleted the Theme")                                               
                                             ),
-                                "additional" => array(
-                                                array("name" => "theme.old.version", "desc" => "Displays the Theme Version Before Update"),
-                                                array("name" => "theme.current.version", "desc" => "Displays the Theme Current Version"),
+                                "additional" => array(                                                
                                                 array("name" => "theme.installed.count", "desc" => "Displays the Number of Installed Themes"),                                               
                                                 array("name" => "theme.edited.count", "desc" => "Displays the Number of Edited Themes"),
                                                 array("name" => "theme.activated.count", "desc" => "Displays the Number of Activated Themes"),                                                

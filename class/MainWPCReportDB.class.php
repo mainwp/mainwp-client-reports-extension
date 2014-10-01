@@ -1,7 +1,7 @@
 <?php
 class MainWPCReportDB
 {    
-    private $mainwp_wpcreport_db_version = "4.0";        
+    private $mainwp_wpcreport_db_version = "4.1";        
     private $table_prefix;
     
     //Singleton
@@ -114,7 +114,7 @@ $this->default_reports[] = array( "title" => "Default Full Report",
 
 <strong>[plugin.updated.count] Plugins Updated</strong>
 [section.plugins.updated]
-([plugin.updated.date]) [plugin.name] by [plugin.updated.author] - [theme.old.version] to [theme.current.version];
+([plugin.updated.date]) [plugin.name] by [plugin.updated.author] - [plugin.old.version] to [plugin.current.version];
 [/section.plugins.updated]
 
 <strong>[plugin.deleted.count] Plugins Deleted</strong>
