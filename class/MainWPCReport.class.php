@@ -2255,14 +2255,13 @@ class MainWPCReport
         $search = self::$buffer['sections']['header']['section_content_tokens'][$index];   
         self::$count_sec_header++;        
         $sec_content = trim($matches[2]); 
-        if (isset(self::$buffer['sections_data']['header'][$index]) && !empty(self::$buffer['sections_data']['header'][$index])) {
-                     
+        if (isset(self::$buffer['sections_data']['header'][$index]) && !empty(self::$buffer['sections_data']['header'][$index])) {                     
             $loop = self::$buffer['sections_data']['header'][$index]; 
             $replaced_content = "";
             if (is_array($loop)) {                
                 foreach($loop as $replace) {
                     //$replace = self::sucuri_replace_data($replace);;
-                    $replaced = self::replace_content($sec_content, $search, $replace);                    
+                    $replaced = self::replace_section_content($sec_content, $search, $replace);                    
                     $replaced_content .= $replaced . "<br>";
                 }               
             }            
@@ -2283,7 +2282,7 @@ class MainWPCReport
             if (is_array($loop)) {                
                 foreach($loop as $replace) {
                     //$replace = self::sucuri_replace_data($replace);;
-                    $replaced = self::replace_content($sec_content, $search, $replace);                    
+                    $replaced = self::replace_section_content($sec_content, $search, $replace);                    
                     $replaced_content .= $replaced . "<br>";
                 }               
             }            
@@ -2305,7 +2304,7 @@ class MainWPCReport
             if (is_array($loop)) {                
                 foreach($loop as $replace) {
                     //$replace = self::sucuri_replace_data($replace);
-                    $replaced = self::replace_content($sec_content, $search, $replace);                    
+                    $replaced = self::replace_section_content($sec_content, $search, $replace);                    
                     $replaced_content .= $replaced . "<br>";
                 }               
             }
@@ -2341,6 +2340,14 @@ class MainWPCReport
     
     public static function replace_content($content, $tokens, $replace_tokens) {
         return str_replace($tokens, $replace_tokens, $content);                
+    }
+    
+    public static function replace_section_content($content, $tokens, $replace_tokens) {        
+        foreach($replace_tokens as $token => $value) {
+            $content = str_replace($token, $value, $content);
+        } 
+        $content = str_replace($tokens, array(), $content); // clear others tokens
+        return $content;
     }
     
     public static function parse_report_content($content, $client_tokens, $replace) {         
