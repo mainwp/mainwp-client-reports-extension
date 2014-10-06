@@ -10,6 +10,9 @@ class MainWPCReport
     private static $enabled_ga = false;
     private static $enabled_aum = false;
     private static $enabled_woocomstatus = false;
+    private static $count_sec_header = 0;
+    private static $count_sec_body = 0;
+    private static $count_sec_footer = 0;
     
     public function __construct() { 
         
@@ -2083,7 +2086,7 @@ class MainWPCReport
         if (count($websites) == 0)
             return $report;
         
-        $filtered_reports = array();
+        $filtered_reports = array();      
         foreach($websites as $site) {
             $filtered_reports[$site['id']] =  self::filter_report_website($report, $site);                        
         }                 
@@ -2152,7 +2155,8 @@ class MainWPCReport
             //$report->filtered_header = self::replace_content($report->header, $search_tokens, $replace_values);        
             //$report->body = self::replace_content($report->body, $search_tokens, $replace_values);        
             //$report->filtered_footer = self::replace_content($report->footer, $search_tokens, $replace_values);        
-
+            
+            // use new variables
             $report_header = $report->header;
             $report_body = $report->body;
             $report_footer = $report->footer;
@@ -2161,24 +2165,26 @@ class MainWPCReport
             //print_r($result);
             self::$buffer['sections']['header'] = $sections['header'] = $result['sections'];
             $other_tokens['header'] = $result['other_tokens']; 
-            $report_header = $result['filtered_content'];
+            $filtered_header = $result['filtered_content'];
             unset($result);
 
             $result = self::parse_report_content($report_body, $search_tokens, $replace_values);
             //print_r($result);
             self::$buffer['sections']['body'] = $sections['body'] = $result['sections'];
             $other_tokens['body'] = $result['other_tokens']; 
-            $report_body = $result['filtered_content'];
+            $filtered_body = $result['filtered_content'];
             unset($result);
 
             $result = self::parse_report_content($report_footer, $search_tokens, $replace_values);
             //print_r($result);
+            
             self::$buffer['sections']['footer'] = $sections['footer'] = $result['sections'];
             $other_tokens['footer'] = $result['other_tokens'];  
-            $report_footer = $result['filtered_content'];
+            $filtered_footer = $result['filtered_content'];
             unset($result);
             //print_r($sections);
 
+            // get data from stream plugin    
             $sections_data = $other_tokens_data = array();
             $information = self::fetch_stream_data($website, $report, $sections, $other_tokens);                    
             //print_r($information);
@@ -2187,16 +2193,18 @@ class MainWPCReport
                 $other_tokens_data = isset($information['other_tokens_data']) ? $information['other_tokens_data'] : array();
             }
             unset($information);
+            
+            self::$count_sec_header = self::$count_sec_body = self::$count_sec_footer = 0;
             if (isset($sections_data['header']) && is_array($sections_data['header']) && count($sections_data['header']) > 0) {
-                $report_header = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is",  array('MainWPCReport', 'section_mark_header'), $report_header);
+                $filtered_header = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is",  array('MainWPCReport', 'section_mark_header'), $filtered_header);
             }      
 
             if (isset($sections_data['body']) && is_array($sections_data['body']) && count($sections_data['body']) > 0) {
-                $report_body = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is",  array('MainWPCReport', 'section_mark_body'), $report_body);
+                $filtered_body = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is",  array('MainWPCReport', 'section_mark_body'), $filtered_body);
             }      
 
             if (isset($sections_data['footer']) && is_array($sections_data['footer']) && count($sections_data['footer']) > 0) {
-                $report_footer = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is",  array('MainWPCReport', 'section_mark_footer'), $report_footer);
+                $filtered_footer = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is",  array('MainWPCReport', 'section_mark_footer'), $filtered_footer);
             }      
 
             if (isset($other_tokens_data['header']) && is_array($other_tokens_data['header']) && count($other_tokens_data['header']) > 0) {
@@ -2207,7 +2215,7 @@ class MainWPCReport
                         $replace[] = $value;
                     }
                 }
-                $report_header = self::replace_content($report_header, $search, $replace);
+                $filtered_header = self::replace_content($filtered_header, $search, $replace);
             }
 
             if (isset($other_tokens_data['body']) && is_array($other_tokens_data['body']) && count($other_tokens_data['body']) > 0) {
@@ -2218,7 +2226,7 @@ class MainWPCReport
                         $replace[] = $value;
                     }
                 }
-                $report_body = self::replace_content($report_body, $search, $replace);
+                $filtered_body = self::replace_content($filtered_body, $search, $replace);
             }
 
             if (isset($other_tokens_data['footer']) && is_array($other_tokens_data['footer']) && count($other_tokens_data['footer']) > 0) {
@@ -2229,12 +2237,12 @@ class MainWPCReport
                         $replace[] = $value;
                     }
                 }
-                $report_footer = self::replace_content($report_footer, $search, $replace);
+                $filtered_footer = self::replace_content($filtered_footer, $search, $replace);
             }            
 
-            $output->filtered_header = $report_header;
-            $output->filtered_body = $report_body;
-            $output->filtered_footer = $report_footer;            
+            $output->filtered_header = $filtered_header;
+            $output->filtered_body = $filtered_body;
+            $output->filtered_footer = $filtered_footer;            
             self::$buffer = array();
         }       
         return $output; 
@@ -2242,11 +2250,14 @@ class MainWPCReport
     
     public static function section_mark_header($matches) {
         $content = $matches[0];
-        $sec = $matches[1];        
-        $sec_content = trim($matches[2]);                
-        if (isset(self::$buffer['sections_data']['header'][$sec])) {
-            $search = self::$buffer['sections']['header'][$sec];            
-            $loop = self::$buffer['sections_data']['header'][$sec]; 
+        $sec = $matches[1];  
+        $index = self::$count_sec_header;     
+        $search = self::$buffer['sections']['header']['section_content_tokens'][$index];   
+        self::$count_sec_header++;        
+        $sec_content = trim($matches[2]); 
+        if (isset(self::$buffer['sections_data']['header'][$index]) && !empty(self::$buffer['sections_data']['header'][$index])) {
+                     
+            $loop = self::$buffer['sections_data']['header'][$index]; 
             $replaced_content = "";
             if (is_array($loop)) {                
                 foreach($loop as $replace) {
@@ -2254,19 +2265,20 @@ class MainWPCReport
                     $replaced = self::replace_content($sec_content, $search, $replace);                    
                     $replaced_content .= $replaced . "<br>";
                 }               
-            }
+            }            
             return $replaced_content;            
-        }        
-        return $content;
+        } 
+        return "";                           
     }
     
     public static function section_mark_body($matches) {
-        $content = $matches[0];
-        $sec = $matches[1];        
+        $content = $matches[0];             
+        $index = self::$count_sec_body;
+        $search = self::$buffer['sections']['body']['section_content_tokens'][$index];  
+        self::$count_sec_body++;
         $sec_content = trim($matches[2]);                  
-        if (isset(self::$buffer['sections_data']['body'][$sec])) {
-            $search = self::$buffer['sections']['body'][$sec];            
-            $loop = self::$buffer['sections_data']['body'][$sec]; 
+        if (isset(self::$buffer['sections_data']['body'][$index]) && !empty(self::$buffer['sections_data']['body'][$index])) {
+            $loop = self::$buffer['sections_data']['body'][$index]; 
             $replaced_content = "";            
             if (is_array($loop)) {                
                 foreach($loop as $replace) {
@@ -2276,17 +2288,19 @@ class MainWPCReport
                 }               
             }            
             return $replaced_content;            
-        }        
-        return $content;
+        }   
+        return "";      
     }
     
     public static function section_mark_footer($matches) {
         $content = $matches[0];
-        $sec = $matches[1];        
+        $sec = $matches[1];   
+        $index = self::$count_sec_footer;
+        $search = self::$buffer['sections']['footer']['section_content_tokens'][$index];   
+        self::$count_sec_footer++;
         $sec_content = trim($matches[2]);                
-        if (isset(self::$buffer['sections_data']['footer'][$sec])) {
-            $search = self::$buffer['sections']['footer'][$sec];            
-            $loop = self::$buffer['sections_data']['footer'][$sec]; 
+        if (isset(self::$buffer['sections_data']['footer'][$index]) && !empty(self::$buffer['sections_data']['footer'][$index])) {
+            $loop = self::$buffer['sections_data']['footer'][$index]; 
             $replaced_content = "";
             if (is_array($loop)) {                
                 foreach($loop as $replace) {
@@ -2297,92 +2311,8 @@ class MainWPCReport
             }
             return $replaced_content;            
         }        
-        return $content;
+        return ""; 
     }
-    
-//    static function sucuri_replace_data($content) {        
-//        $new_content = array();        
-//        if (is_array($content)) {
-//            foreach($content as $key => $value) {
-//                $new_content[$key] = preg_replace_callback("/{sucuri_scan_([^_]*)_([0-9]*)}/is", array('MainWPCReport', 'sucuri_replace_mark'), $value);
-//            }
-//        }
-//        return $new_content;
-//    }
-
-//    static function sucuri_replace_mark($matches) {
-//        $token_info = $matches[1];
-//        $timescan = $matches[2];        
-//        if ($timescan) {
-//            if (isset(self::$buffer[$timescan])) {
-//                $data = self::$buffer[$timescan];
-//            } else {
-//                $report = apply_filters('mainwp_sucuri_scan_data', $timescan);             
-//                if ($report) {                
-//                    $data = unserialize($report->data);  
-//                    self::$buffer[$timescan] = $data;                
-//                }
-//            }         
-//            if ($data) {            
-//                return self::get_stream_scan_data($data, $token_info);            
-//            }
-//        }
-//        return "{sucuri_scan_" . $token_info . "_" . $timescan . "}";
-//    }
-    
-//    static function get_stream_scan_data($data, $token_info) {        
-//        $blacklisted = isset($data['BLACKLIST']['WARN']) ? TRUE : FALSE;
-//        $malware_exists = isset($data['MALWARE']['WARN']) ? TRUE : FALSE;
-//        $system_error = isset($data['SYSTEM']['ERROR']) ? TRUE : FALSE;        
-//        //print_r($data);
-//        $status = array();
-//        if ($blacklisted)
-//            $status[] = "Site Blacklisted";
-//        if ($malware_exists)
-//            $status[] = "Site With Warnings";                
-//         
-//        $str = "";
-//        
-//        if ($token_info == "sucuri.check.status") {
-//            $str = count($status) > 0 ? implode(", ", $status) : "Verified Clear";
-//        } else if ($token_info == "sucuri.check.webtrust") {
-//            $str = $blacklisted ? "Site Blacklisted" : "Trusted"; 
-//        } else if ($token_info == "sucuri.check.results") {            
-//            if( !$malware_exists && !$system_error ) { 
-//                $str .= '<label>Blacklisted:</label> <span class="scr-status">NO</span><br>';
-//                $str .= '<label>Malware:</label> <span class="scr-status">NO</span><br>';
-//                $str .= '<label>Malicious javascript:</label> <span class="scr-status">NO</span><br>';
-//                $str .= '<label>Malicious iframes:</label> <span class="scr-status">NO</span><br>';
-//                $str .= '<label>Drive-By Downloads:</label> <span class="scr-status">NO</span><br>';
-//                $str .= '<label>Anomaly detection:</label> <span class="scr-status">NO</span><br>';
-//                $str .= '<label>IE-only attacks:</label> <span class="scr-status">NO</span><br>';
-//                $str .= '<label>Suspicious redirections:</label> <span class="scr-status">NO</span><br>';
-//                $str .= '<label>Blackhat SEO Spam:</label> <span class="scr-status">NO</span><br>';
-//                $str .= '<label>Spam:</label> <span class="scr-status">NO</span><br>';
-//            } else if ($malware_exists) {            
-//                foreach( $data['MALWARE']['WARN'] as $malware ){                    
-//                    if( !is_array($malware) ){
-//                        $str .= htmlspecialchars($malware);
-//                    }else{
-//                        $mwdetails = explode("\n", htmlspecialchars($malware[1]));
-//                        $mwdetails = explode("Details:", substr($mwdetails[0], 1));
-//                        $str .= htmlspecialchars($malware[0])."\n<br />";
-//                        $str .= $mwdetails[0] . ' - <a href="' .trim($mwdetails[1]) . '">' . __("Details") . '</a>.';
-//                    }
-//                    $str .='</p>';
-//                }        
-//            } else if ($system_error) { 
-//                foreach( $data['SYSTEM']['ERROR'] as $error ){                       
-//                    if( !is_array($error) ){
-//                        $str .= htmlspecialchars($error);
-//                    }else{                        
-//                        $str .= htmlspecialchars($error[0])."<br />\n";
-//                    }
-//                }
-//            }  
-//        }        
-//        return $str;
-//    }  
     
     function sucuri_scan_done($website_id, $scan_status, $data) {
         $scan_result = array();
@@ -2413,12 +2343,7 @@ class MainWPCReport
         return str_replace($tokens, $replace_tokens, $content);                
     }
     
-    public static function parse_report_content($content, $client_tokens, $replace) {
-        // remove piwik section tokens
-        //$content = preg_replace_callback("/\[section\.piwik\](.*?)\[\/section\.piwik\]/is", create_function('$matches', 'return $matches[1];'), $content);
-        // remove ga section tokens
-        //$content = preg_replace_callback("/\[section\.ga\](.*?)\[\/section\.ga\]/is", create_function('$matches', 'return $matches[1];'), $content);
-        
+    public static function parse_report_content($content, $client_tokens, $replace) {         
         $filtered_content = $content = str_replace($client_tokens, $replace, $content);        
         $sections = array();
         if (preg_match_all("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is", $content, $matches)) {            
@@ -2429,7 +2354,9 @@ class MainWPCReport
                 if(preg_match_all("/\[[^\]]+\]/is" , $sec_content, $matches2)) {
                     $sec_tokens = $matches2[0];
                 }                 
-                $sections[$sec] = $sec_tokens;            
+                //$sections[$sec] = $sec_tokens;            
+                $sections['section_token'][] = $sec;
+                $sections['section_content_tokens'][] = $sec_tokens;            
             }            
         }        
         $removed_sections = preg_replace_callback("/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is", create_function('$matches', 'return "";'), $content);
@@ -2483,9 +2410,9 @@ class MainWPCReport
                 $output['ga.avg.time'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:avgTimeOnSite'])) ? self::format_stats_values($values['aggregates']['ga:avgTimeOnSite'], false, false, true) : "N/A";                               
             }
             
-            if (isset($result['stats_graph'])) {
-                $output['ga.visits.chart'] = $result['stats_graph'];
-            }            
+//            if (isset($result['stats_graph'])) {
+//                $output['ga.visits.chart'] = $result['stats_graph'];
+//            }            
         }   
         self::$buffer[$uniq] = $output;                
         return $output;
