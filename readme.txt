@@ -8,7 +8,7 @@ Author URI:
 Icon URI: http://extensions.mainwp.com/wp-content/uploads/2014/05/mainwp-client-reports-extension.png
 
 == Installation ==
-1. Please install plugin "MainWPNetwork main system" and active it before install MainWP Client Reports Extension plugin (get MainWP system plugin from url:http://mainwp.com/)
+1. Please install plugin "MainWP Dashboard" and active it before install MainWP Client Reports Extension plugin (get MainWP system plugin from url:http://mainwp.com/)
 2. Upload the `mainwp-client-reports-extension` folder to the `/wp-content/plugins/` directory
 3. Activate the Mainwp Client Reports Extension plugin through the 'Plugins' menu in WordPress
 
