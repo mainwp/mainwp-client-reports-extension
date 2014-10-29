@@ -164,7 +164,9 @@ class MainWPCReportExtensionActivator
         if (!$this->childEnabled) return;
 
         $this->childKey = $this->childEnabled['key'];
-
+        
+        if (function_exists("mainwp_current_user_can")&& !mainwp_current_user_can("extension", "mainwp-client-reports-extension"))
+            return;
         new MainWPCReportExtension();
     }
 
