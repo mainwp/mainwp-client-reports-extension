@@ -662,7 +662,7 @@ class MainWPCReport
     
     function managesite_schedule_backup($website, $args, $backupResult) {
         
-        if (empty($$website))
+        if (empty($website))
             return;
         
         $type = isset($args['type']) ? $args['type'] : "";
@@ -738,7 +738,7 @@ class MainWPCReport
                             'status' => "N/A",
                             'type' => $backup_type
                         );               
-        apply_filters('mainwp_fetchurlauthed', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $$website->id, 'client_report', $post_data);			                             
+        apply_filters('mainwp_fetchurlauthed', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $website->id, 'client_report', $post_data);			                             
 
     }
     
