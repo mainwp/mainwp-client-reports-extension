@@ -52,7 +52,7 @@ class MainWPCReportExtension
     public function init()
     {
         $mwp_creport = new MainWPCReport();
-        $mwp_creport->init_cron();
+        $mwp_creport->init_cron();     
     }
  
     public function plugin_row_meta($plugin_meta, $plugin_file)
@@ -113,8 +113,8 @@ class MainWPCReportExtensionActivator
     {
         $this->childFile = __FILE__;        
         add_filter('mainwp-getextensions', array(&$this, 'get_this_extension'));
-        $this->mainwpMainActivated = apply_filters('mainwp-activated-check', false);
-
+        $this->mainwpMainActivated = apply_filters('mainwp-activated-check', false);             
+        
         if ($this->mainwpMainActivated !== false)
         {
             $this->activate_this_plugin();
@@ -125,8 +125,13 @@ class MainWPCReportExtensionActivator
         }
         add_action('admin_init', array(&$this, 'admin_init'));
         add_action('admin_notices', array(&$this, 'mainwp_error_notice'));
+        add_action("mainwp_cronload_action", array($this, "load_cron_actions"));
     }
-
+    
+    function load_cron_actions() {
+        add_action('mainwp_managesite_schedule_backup', array("MainWPCReport", 'managesite_schedule_backup'), 10, 3);                        
+    }
+    
     function admin_init() {
         if (get_option('mainwp_client_reports_activated') == 'yes')
         {
@@ -166,10 +171,10 @@ class MainWPCReportExtensionActivator
         $this->childKey = $this->childEnabled['key'];
         
         if (function_exists("mainwp_current_user_can")&& !mainwp_current_user_can("extension", "mainwp-client-reports-extension"))
-            return;
+            return;       
         new MainWPCReportExtension();
     }
-
+    
     public function getChildKey()
     {
         return $this->childKey;

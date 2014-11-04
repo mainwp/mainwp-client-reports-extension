@@ -588,8 +588,7 @@ class MainWPCReport
         add_action('mainwp_delete_site', array(&$this, 'delete_site_delete_tokens'), 8, 1);        
         add_action('mainwp_shortcuts_widget', array(&$this, 'shortcuts_widget'), 10, 1);        
         add_filter('mainwp_managesites_column_url', array(&$this, 'managesites_column_url'), 10, 2);
-        add_action('mainwp_managesite_backup', array(&$this, 'managesite_backup'), 10, 3);
-        add_action('mainwp_managesite_schedule_backup', array(&$this, 'managesite_schedule_backup'), 10, 3);                
+        add_action('mainwp_managesite_backup', array(&$this, 'managesite_backup'), 10, 3);        
         add_action('mainwp_sucuri_scan_done', array(&$this, 'sucuri_scan_done'), 10, 3);                
         
         self::$enabled_piwik = apply_filters('mainwp-extension-available-check', 'mainwp-piwik-extension'); 
@@ -660,7 +659,7 @@ class MainWPCReport
         apply_filters('mainwp_fetchurlauthed', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $website->id, 'client_report', $post_data);			                             
     }
     
-    function managesite_schedule_backup($website, $args, $backupResult) {
+    public static function managesite_schedule_backup($website, $args, $backupResult) {
         
         if (empty($website))
             return;
@@ -758,8 +757,7 @@ class MainWPCReport
         return $output;
     }
             
-    public function init_cron() {
-        
+    public function init_cron() {                
         add_action('mainwp_creport_cron_archive_reports', array('MainWPCReport', 'cron_archive_reports'));            
         $useWPCron = (get_option('mainwp_wp_cron') === false) || (get_option('mainwp_wp_cron') == 1);        
         if (($sched = wp_next_scheduled('mainwp_creport_cron_archive_reports')) == false)
