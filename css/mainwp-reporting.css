@@ -215,3 +215,8 @@ a.creport_format_add_token:hover {
 .mwp_creport_token_tooltip {
     cursor: pointer;
 }
+#mainwp_cr_remove_client {
+    color: red;
+    text-decoration: none;
+    display: none;
+}

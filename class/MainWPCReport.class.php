@@ -590,6 +590,8 @@ class MainWPCReport
         add_filter('mainwp_managesites_column_url', array(&$this, 'managesites_column_url'), 10, 2);
         add_action('mainwp_managesite_backup', array(&$this, 'managesite_backup'), 10, 3);        
         add_action('mainwp_sucuri_scan_done', array(&$this, 'sucuri_scan_done'), 10, 3);                
+        add_action('wp_ajax_mainwp_creport_delete_client', array(&$this, 'ajax_delete_client'));                
+        
         
         self::$enabled_piwik = apply_filters('mainwp-extension-available-check', 'mainwp-piwik-extension'); 
         self::$enabled_sucuri = apply_filters('mainwp-extension-available-check', 'mainwp-sucuri-extension'); 
@@ -1662,6 +1664,7 @@ class MainWPCReport
         } else 
             $new_global_tab_lnk = '<a id="wpcr_new_global_tab_lnk" href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=newreport&type=global" class="mainwp_action mid">' . __("New Global Report") . '</a>';
         
+        $url_loader = plugins_url('images/loader.gif', dirname(__FILE__));
         ?>
             <div class="wrap" id="mainwp-ap-option">
             <div class="clearfix"></div>           
@@ -1681,21 +1684,6 @@ class MainWPCReport
                                 }
                                 ?>
                                 <div class="tablenav top">
-                                    <select name="mainwp_creport_select_client" id="mainwp_creport_select_client">
-                                        <option value="0"><?php _e("Select a Client"); ?></option>
-                                    <?php
-                                    foreach ($clients as $client) {
-                                        $_select = "";
-                                        if (isset($_GET['client']) && $client->clientid == intval($_GET['client'])) {
-                                            $_select = "selected";
-                                        }                                        
-                                    ?>
-                                        <option value="<?php echo $client->clientid; ?>" <?php echo $_select; ?>><?php echo stripslashes($client->client); ?></option>
-                                    <?php
-                                    }
-                                    ?>
-                                    </select>
-                                    <input type="button" id="mainwp_creport_select_client_btn_display" class="button" value="<?php _e("Display"); ?>" />
                                     <select name="mainwp_creport_select_site" id="mainwp_creport_select_site">
                                         <option value="0"><?php _e("Select a Site"); ?></option>
                                     <?php
@@ -1711,6 +1699,23 @@ class MainWPCReport
                                     ?>
                                     </select>
                                     <input type="button" id="mainwp_creport_select_site_btn_display" class="button" value="<?php _e("Display"); ?>" />
+                                    <select name="mainwp_creport_select_client" id="mainwp_creport_select_client">
+                                        <option value="0"><?php _e("Select a Client"); ?></option>
+                                    <?php
+                                    foreach ($clients as $client) {
+                                        $_select = "";
+                                        if (isset($_GET['client']) && $client->clientid == intval($_GET['client'])) {
+                                            $_select = "selected";
+                                        }                                        
+                                    ?>
+                                        <option value="<?php echo $client->clientid; ?>" <?php echo $_select; ?>><?php echo stripslashes($client->client); ?></option>
+                                    <?php
+                                    }
+                                    ?>
+                                    </select>
+                                    <input type="button" id="mainwp_creport_select_client_btn_display" class="button" value="<?php _e("Display"); ?>" />
+                                    &nbsp;&nbsp;<a href="#" id="mainwp_cr_remove_client"><?php _e("Remove Client", "mainwp"); ?></a>
+                                    &nbsp;<span class="wpcr_report_tab_nav_action_working"><img src="<?php echo $url_loader; ?>" class="hidden"><span class="status hidden"></span></span>
                                 </div>                            
                             <?php self::reportTab($websites); ?>                                                                                  
                         </div>                       
@@ -2334,6 +2339,15 @@ class MainWPCReport
                         );   
         global $mainWPCReportExtensionActivator;
         apply_filters('mainwp_fetchurlauthed', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $website_id, 'client_report', $post_data);			                             
+    }
+    
+    function ajax_delete_client() {
+        $client_id = $_POST['client_id'];
+        if ($client_id) {              
+            if (MainWPCReportDB::Instance()->deleteClient('clientid', $client_id))
+                die('SUCCESS');
+        }       
+        die('FAILED');
     }
     
     public static function replace_content($content, $tokens, $replace_tokens) {

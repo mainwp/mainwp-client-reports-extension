@@ -805,6 +805,54 @@ jQuery(document).ready(function($) {
     });    
 });
 
+jQuery(document).on('change', '#mainwp_creport_select_client', function()
+{
+    var clientId = jQuery(this).val();    
+    if (clientId > 0) {
+        jQuery('#mainwp_cr_remove_client').show();
+    } else {
+        jQuery('#mainwp_cr_remove_client').hide();
+    }
+
+});
+
+jQuery(document).ready(function($) {     
+    $('#mainwp_cr_remove_client').on('click', function(){
+        var clientId = jQuery('#mainwp_creport_select_client').val();   
+        if (clientId) {
+            if (!confirm("Are you sure?")) 
+                return false;
+            var data = {
+                action: 'mainwp_creport_delete_client',
+                client_id: clientId                
+            }        
+            var me = jQuery(this);
+            var loadingEl = $('.wpcr_report_tab_nav_action_working').find('img');
+            var statusEl = $('.wpcr_report_tab_nav_action_working').find('.status');
+            loadingEl.show();
+            statusEl.hide();
+            jQuery.post(ajaxurl, data, function (response) {
+                loadingEl.hide();
+                statusEl.css('color', '#21759B');
+                 if (response == 'SUCCESS') {
+                    me.hide();
+                    $('#mainwp_creport_select_client option:selected').remove();
+                    statusEl.html("Client has been removed.").show();                    
+                    setTimeout(function() {
+                        statusEl.fadeOut(1000);
+                    }, 2000);                    
+                 } else {
+                    //statusEl.css('color', 'red');
+                    statusEl.html("Error: Client are not removed.").show();                     
+                 }  
+            }); 
+            
+        }
+        return false;
+    });     
+})
+
+
 jQuery(document).tooltip({
     items: ".mwp_creport_token_tooltip",
     track: true,

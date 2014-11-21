@@ -343,15 +343,6 @@ $this->default_reports[] = array( "title" => "Default Full Report",
         $currentVersion = get_site_option('mainwp_wpcreport_db_version');        
         if ($currentVersion == $this->mainwp_wpcreport_db_version) return;    
         
-//        if ($currentVersion !== "1.0") {
-//            $wpdb->query("DROP TABLE " . $this->tableName('client_report_token')); 
-//            $wpdb->query("DROP TABLE " . $this->tableName('client_report_site_token')); 
-//            $wpdb->query("DROP TABLE " . $this->tableName('client_report')); 
-//            $wpdb->query("DROP TABLE " . $this->tableName('client_report_client'));                      
-//            $currentVersion = "";
-//        }
-        
-        
         $charset_collate = $wpdb->get_charset_collate();        
         $sql = array();
         
@@ -924,6 +915,15 @@ PRIMARY KEY  (`id`)  ';
         return false;
     }
     
+    public function deleteClient($by, $value) {
+        global $wpdb;        
+        if ($by == "clientid") {
+            if ($wpdb->query($wpdb->prepare("DELETE FROM " . $this->tableName('client_report_client') . " WHERE clientid=%d ", $value))) {                
+                return true;
+            }                    
+        }
+        return false;
+    }
     
      public function getFormats($type = null) {
         global $wpdb;        
