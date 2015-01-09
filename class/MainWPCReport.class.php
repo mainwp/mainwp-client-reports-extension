@@ -1862,17 +1862,7 @@ class MainWPCReport
                     }
                 }                 
             } else {            
-                $str_message = "";
-                try {
-                    $filtered_reports = self::filter_report($report); 
-                    $report = $filtered_reports;
-                } catch (Exception $e) 
-                {
-                    $str_message = $e->getMessage(); 
-                }            
-                if (!empty($str_message)) {
-                    ?> <div class="mainwp_info-box-yellow"><?php echo $str_message;?></div> <?php                
-                }        
+                $filtered_reports = self::filter_report($report);                    
                 ?>
                 <style>
                     #crp_content_wrap ul {list-style-type:square; margin-left: 20px;}
@@ -1882,7 +1872,7 @@ class MainWPCReport
                 </style>                    
                 <div id="crp_content_wrap" style="font:13px/20px Helvetica,Arial,Sans-serif;">
                     <?php 
-                    $result = self::gen_report_content($report, true);                     
+                    $result = self::gen_report_content($filtered_reports, true);                     
                     if (isset($result[0]))
                         echo $result[0];                    
                     ?>
@@ -1920,13 +1910,8 @@ class MainWPCReport
                     return false;
                 }
             } else {
-                try {
-                    $filtered_reports = self::filter_report($report);                
-                    $report = $filtered_reports;
-                } catch (Exception $e) 
-                {                       
-                }                        
-                return self::gen_report_content($report, $combine_report);            
+                $filtered_reports = self::filter_report($report);                                                      
+                return self::gen_report_content($filtered_reports, $combine_report);            
             }
         }        
         return false;        
@@ -1942,6 +1927,8 @@ class MainWPCReport
         foreach($reports as $site_id => $report) {  
             if (!$combine_report)
                 ob_start(); 
+            
+            if (is_object($report)) {
     ?>        
         <br>
         <div>
@@ -1979,6 +1966,23 @@ class MainWPCReport
             </div>
         </div>           
     <?php
+            } else if (is_string($report)) {
+                ?>        
+                <br>
+                <div>
+                   <br>
+                   <div style="background:#ffffff;padding:0 1.618em;padding-bottom:50px!important">
+                       <div style="width:600px;background:#fff;margin-left:auto;margin-right:auto;margin-top:10px;margin-bottom:25px;padding:0!important;border:10px Solid #fff;border-radius:10px;overflow:hidden">
+                           <div style="display: block; width: 100% ; ">
+                             <div style="display: block; width: 100% ; padding: .5em 0 ;">       
+                                    <?php echo $report; ?>
+                            </div>   
+                            </div>                            
+                       </div>
+                   </div>    
+            <?php
+            }
+            
             if (!$combine_report) {
                 $html = ob_get_clean();
                 $output[$site_id] = $html;
@@ -2014,14 +2018,9 @@ class MainWPCReport
                     return array($report->archive_report_pdf);
                 else 
                     return unserialize($report->archive_report_pdf);
-            } else {
-                try {
-                    $filtered_reports = self::filter_report($report);                
-                    $report = $filtered_reports;
-                } catch (Exception $e) 
-                {                
-                }                        
-                return self::gen_report_content_pdf($report, $combine_report);  
+            } else {                
+                $filtered_reports = self::filter_report($report);                
+                return self::gen_report_content_pdf($filtered_reports, $combine_report);  
             }
         }        
         return "";        
@@ -2038,12 +2037,16 @@ class MainWPCReport
         foreach($reports as $site_id => $report) {
             if (!$combine_report)
                ob_start();         
-            echo stripslashes(nl2br($report->filtered_header));
-            echo '<br><br>';
-            echo stripslashes(nl2br($report->filtered_body)); 
-            echo '<br><br>';
-            echo stripslashes(nl2br($report->filtered_footer)); 
-            echo '<br><br>';
+            if (is_object($report)) {
+                echo stripslashes(nl2br($report->filtered_header));
+                echo '<br><br>';
+                echo stripslashes(nl2br($report->filtered_body)); 
+                echo '<br><br>';
+                echo stripslashes(nl2br($report->filtered_footer)); 
+                echo '<br><br>';
+            } else if(is_string($report)){
+                echo $report;
+            }
             if (!$combine_report) {
                    $html = ob_get_clean();
                    $output[$site_id] = $html;
@@ -2091,7 +2094,12 @@ class MainWPCReport
         
         $filtered_reports = array();      
         foreach($websites as $site) {
-            $filtered_reports[$site['id']] =  self::filter_report_website($report, $site);                        
+            $result = self::filter_report_website($report, $site);   
+            if (is_object($result)) {
+                $filtered_reports[$site['id']] = $result;                      
+            } else if (is_string($result)){
+                $filtered_reports[$site['id']] = "Website: " . $site['url'] . " : " . $result; 
+            }
         }                 
         return $filtered_reports;
     } 
@@ -2194,6 +2202,8 @@ class MainWPCReport
             if (is_array($information)) {                
                 self::$buffer['sections_data'] = $sections_data = isset($information['sections_data']) ? $information['sections_data'] : array();
                 $other_tokens_data = isset($information['other_tokens_data']) ? $information['other_tokens_data'] : array();
+            } else {
+                return $information;
             }
             unset($information);
             
@@ -2550,8 +2560,15 @@ class MainWPCReport
         if (is_array($information) && !isset($information['error'])) {
             return $information;
         } else {
-            $error = is_array($information) ? @implode("<br>", $information) : $information;
-            throw new Exception($error);
+            if (isset($information['error'])) {
+                $error =  $information['error'];               
+                if ($error == "NO_STREAM") {
+                    $error = __("Error Report (NO_STREAM).");
+                }
+            } else {
+                $error = is_array($information) ? @implode("<br>", $information) : $information;
+            }
+            return "";          
         }
     }
     
