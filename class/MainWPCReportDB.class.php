@@ -852,9 +852,7 @@ PRIMARY KEY  (`id`)  ';
         $sql = "SELECT rp.*, c.* FROM " . $this->tableName('client_report') . " rp "
                     . " LEFT JOIN " . $this->tableName('client_report_client') . " c "
                     . " ON rp.client_id = c.clientid "
-                    . " WHERE rp.recurring_schedule != '' AND rp.scheduled = 1"                     
-                    . " AND rp.selected_site != 0 "
-                    . "";  
+                    . " WHERE rp.recurring_schedule != '' AND rp.scheduled = 1";                                                             
         //echo $sql;
         return $wpdb->get_results($sql);  
     }            
