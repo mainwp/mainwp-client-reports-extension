@@ -1928,7 +1928,22 @@ class MainWPCReport
             if (!$combine_report)
                 ob_start(); 
             
-            if (is_object($report)) {
+            if (is_array($report) && isset($report['error'])) {   
+                 ?>        
+                <br>
+                <div>
+                   <br>
+                   <div style="background:#ffffff;padding:0 1.618em;padding-bottom:50px!important">
+                       <div style="width:600px;background:#fff;margin-left:auto;margin-right:auto;margin-top:10px;margin-bottom:25px;padding:0!important;border:10px Solid #fff;border-radius:10px;overflow:hidden">
+                           <div style="display: block; width: 100% ; ">
+                             <div style="display: block; width: 100% ; padding: .5em 0 ;">       
+                                    <?php echo $report['error']; ?>
+                            </div>   
+                            </div>                            
+                       </div>
+                   </div>    
+            <?php           
+            } else if (is_object($report)) {
     ?>        
         <br>
         <div>
@@ -1966,22 +1981,7 @@ class MainWPCReport
             </div>
         </div>           
     <?php
-            } else if (is_string($report)) {
-                ?>        
-                <br>
-                <div>
-                   <br>
-                   <div style="background:#ffffff;padding:0 1.618em;padding-bottom:50px!important">
-                       <div style="width:600px;background:#fff;margin-left:auto;margin-right:auto;margin-top:10px;margin-bottom:25px;padding:0!important;border:10px Solid #fff;border-radius:10px;overflow:hidden">
-                           <div style="display: block; width: 100% ; ">
-                             <div style="display: block; width: 100% ; padding: .5em 0 ;">       
-                                    <?php echo $report; ?>
-                            </div>   
-                            </div>                            
-                       </div>
-                   </div>    
-            <?php
-            }
+            } 
             
             if (!$combine_report) {
                 $html = ob_get_clean();
@@ -2036,21 +2036,23 @@ class MainWPCReport
         
         foreach($reports as $site_id => $report) {
             if (!$combine_report)
-               ob_start();         
-            if (is_object($report)) {
+               ob_start();  
+            
+            if (is_array($report) && isset($report['error'])) {            
+                echo $report['error'];              
+            } else if (is_object($report)) {
                 echo stripslashes(nl2br($report->filtered_header));
                 echo '<br><br>';
                 echo stripslashes(nl2br($report->filtered_body)); 
                 echo '<br><br>';
                 echo stripslashes(nl2br($report->filtered_footer)); 
                 echo '<br><br>';
-            } else if(is_string($report)){
-                echo $report;
-            }
+            } 
+            
             if (!$combine_report) {
-                   $html = ob_get_clean();
-                   $output[$site_id] = $html;
-               }
+                $html = ob_get_clean();
+                $output[$site_id] = $html;
+            }
                 
         }    
         if ($combine_report) {
@@ -2094,12 +2096,7 @@ class MainWPCReport
         
         $filtered_reports = array();      
         foreach($websites as $site) {
-            $result = self::filter_report_website($report, $site);   
-            if (is_object($result)) {
-                $filtered_reports[$site['id']] = $result;                      
-            } else if (is_string($result)){
-                $filtered_reports[$site['id']] = "Website: " . $site['url'] . " : " . $result; 
-            }
+            $filtered_reports[$site['id']] = self::filter_report_website($report, $site);                                                 
         }                 
         return $filtered_reports;
     } 
@@ -2199,10 +2196,11 @@ class MainWPCReport
             $sections_data = $other_tokens_data = array();
             $information = self::fetch_stream_data($website, $report, $sections, $other_tokens);                    
             //print_r($information);
-            if (is_array($information)) {                
+            if (is_array($information) && !isset($information['error'])) {                
                 self::$buffer['sections_data'] = $sections_data = isset($information['sections_data']) ? $information['sections_data'] : array();
                 $other_tokens_data = isset($information['other_tokens_data']) ? $information['other_tokens_data'] : array();
             } else {
+                self::$buffer = array();
                 return $information;
             }
             unset($information);
@@ -2556,7 +2554,8 @@ class MainWPCReport
 
         $information = apply_filters('mainwp_fetchurlauthed', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $website['id'], 'client_report', $post_data);			                             
 //        print_r($sections);
-//        print_r($information);
+        //print_r($information);
+        //error_log(print_r($information, true));
         if (is_array($information) && !isset($information['error'])) {
             return $information;
         } else {
@@ -2568,7 +2567,7 @@ class MainWPCReport
             } else {
                 $error = is_array($information) ? @implode("<br>", $information) : $information;
             }
-            return "";          
+            return array('error' => $error);          
         }
     }
     
