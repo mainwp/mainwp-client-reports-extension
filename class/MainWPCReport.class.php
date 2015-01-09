@@ -1941,7 +1941,8 @@ class MainWPCReport
                             </div>   
                             </div>                            
                        </div>
-                   </div>    
+                   </div>  
+                </div>  
             <?php           
             } else if (is_object($report)) {
     ?>        
