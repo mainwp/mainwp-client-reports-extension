@@ -826,14 +826,14 @@ class MainWPCReport
             return 0;          
         $next_report_date_to =  0;
         if ($scheduleLastSend < $start_recurring_date) { 
-            $next_report_date_to = strtotime(date("Y-m-d", $start_recurring_date) . " 00:00:00");            
+            $next_report_date_to = strtotime(date("Y-m-d", $start_recurring_date) . " 23:59:59");            
         } else {                
             if ($schedule == "daily") { 
-                $next_report_date_to = strtotime(date("Y-m-d", $scheduleLastSend + 24 * 3600) . " 00:00:00");                                  
+                $next_report_date_to = strtotime(date("Y-m-d", $scheduleLastSend + 24 * 3600) . " 23:59:59");                                  
             } else if ($schedule == "weekly") {
-                $next_report_date_to = strtotime(date("Y-m-d", $scheduleLastSend + 7 * 24 * 3600) . " 00:00:00");         
+                $next_report_date_to = strtotime(date("Y-m-d", $scheduleLastSend + 7 * 24 * 3600) . " 23:59:59");         
             } else if ($schedule == "biweekly") {
-                $next_report_date_to = strtotime(date("Y-m-d", $scheduleLastSend + 2 * 7 * 24 * 3600) . " 00:00:00");
+                $next_report_date_to = strtotime(date("Y-m-d", $scheduleLastSend + 2 * 7 * 24 * 3600) . " 23:59:59");
             } else if ($schedule == "monthly") {
                 $day_to_send = date("d", $start_recurring_date);
                 $month_last_send = date("m", $scheduleLastSend);
@@ -2097,7 +2097,7 @@ class MainWPCReport
         
         $filtered_reports = array();      
         foreach($websites as $site) {
-            $filtered_reports[$site['id']] = self::filter_report_website($report, $site);                                                 
+            $filtered_reports[$site['id']] = self::filter_report_website($report, $site);                 
         }                 
         return $filtered_reports;
     } 
@@ -2556,7 +2556,7 @@ class MainWPCReport
         $information = apply_filters('mainwp_fetchurlauthed', $mainWPCReportExtensionActivator->getChildFile(), $mainWPCReportExtensionActivator->getChildKey(), $website['id'], 'client_report', $post_data);			                             
 //        print_r($sections);
         //print_r($information);
-        //error_log(print_r($information, true));
+        //error_log(print_r($information, true));        
         if (is_array($information) && !isset($information['error'])) {
             return $information;
         } else {
