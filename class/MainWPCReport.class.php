@@ -5,11 +5,11 @@ class MainWPCReport
     private static $tokens_nav_top = array();    
     private static $buffer = array();  
     private static $order = "";    
-    private static $enabled_piwik = false;
-    private static $enabled_sucuri = false;
-    private static $enabled_ga = false;
-    private static $enabled_aum = false;
-    private static $enabled_woocomstatus = false;
+    private static $enabled_piwik = null;
+    private static $enabled_sucuri = false; 
+    private static $enabled_ga = null;
+    private static $enabled_aum = null;
+    private static $enabled_woocomstatus = null;
     private static $count_sec_header = 0;
     private static $count_sec_body = 0;
     private static $count_sec_footer = 0;
@@ -2409,6 +2409,10 @@ class MainWPCReport
     }
     
     static function ga_data($site_id, $start_date, $end_date, $graph = false) {
+        // fix bug cron job
+        if (self::$enabled_ga === null)
+            self::$enabled_ga = apply_filters('mainwp-extension-available-check', 'mainwp-google-analytics-extension'); 
+        
         if (!self::$enabled_ga)
             return false;
         
@@ -2447,6 +2451,10 @@ class MainWPCReport
     }
         
     static function piwik_data($site_id, $start_date, $end_date) {
+        // fix bug cron job
+        if (self::$enabled_piwik === null)
+            self::$enabled_piwik = apply_filters('mainwp-extension-available-check', 'mainwp-piwik-extension'); 
+        
         if (!self::$enabled_piwik)
             return false;
         if (!$site_id || !$start_date || !$end_date) 
@@ -2472,6 +2480,10 @@ class MainWPCReport
     
     
     static function aum_data($site_id, $start_date, $end_date) {
+        
+        if (self::$enabled_aum === null)
+            self::$enabled_aum = apply_filters('mainwp-extension-available-check', 'advanced-uptime-monitor-extension'); 
+        
         if (!self::$enabled_aum)
             return false;
         
@@ -2497,6 +2509,11 @@ class MainWPCReport
     }
     
     static function woocomstatus_data($site_id, $start_date, $end_date) {
+        
+        // fix bug cron job
+        if (self::$enabled_woocomstatus === null)
+            self::$enabled_woocomstatus = apply_filters('mainwp-extension-available-check', 'mainwp-woocommerce-status-extension');         
+        
         if (!self::$enabled_woocomstatus)
             return false;
         
