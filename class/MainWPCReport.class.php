@@ -795,9 +795,8 @@ class MainWPCReport
                 $recurring_date = $report->recurring_date;
                 if (empty($schedule) || empty($report->scheduled) || empty($recurring_date))
                     continue;      
-                $start_of_nextsend_day = strtotime(date("Y-m-d", $report->schedule_nextsend - 60 * 5) . " 00:00:00"); // - 5 minutes
-                 
-                if (time() >= $start_of_nextsend_day) {                            
+                
+                if (time() >= $report->schedule_nextsend - 60 * 5) {                            
                     $my_email = @apply_filters('mainwp_getnotificationemail');   
                     $bcc = "";                       
                     if ($report->schedule_send_email == "email_auto") {
