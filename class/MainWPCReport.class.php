@@ -765,8 +765,9 @@ class MainWPCReport
         if (($sched = wp_next_scheduled('mainwp_creport_cron_archive_reports')) == false)
         {            
             if ($useWPCron) {    
+                $time = strtotime(date("Y-m-d") . " 23:59:59");
                 // minutely
-                wp_schedule_event(time(), 'daily', 'mainwp_creport_cron_archive_reports');                            
+                wp_schedule_event($time, 'daily', 'mainwp_creport_cron_archive_reports');                            
             }
         } 
         else
@@ -794,7 +795,7 @@ class MainWPCReport
                 $recurring_date = $report->recurring_date;
                 if (empty($schedule) || empty($report->scheduled) || empty($recurring_date))
                     continue;      
-                $start_of_nextsend_day = strtotime(date("Y-m-d", $report->schedule_nextsend) . " 00:00:00");
+                $start_of_nextsend_day = strtotime(date("Y-m-d", $report->schedule_nextsend - 60 * 5) . " 00:00:00"); // - 5 minutes
                  
                 if (time() >= $start_of_nextsend_day) {                            
                     $my_email = @apply_filters('mainwp_getnotificationemail');   
@@ -824,40 +825,43 @@ class MainWPCReport
         if (empty($schedule) || empty($start_recurring_date))
             return 0;          
         
-        $now = time();
+        $start_today = strtotime(date("Y-m-d") . " 00:00:00");
+        $end_today = strtotime(date("Y-m-d") . " 23:59:59");
+                
         $next_report_date_to = 0;
         if ($scheduleLastSend == 0) { 
-            if ($start_recurring_date > $now) {
+            if ($start_recurring_date > $end_today) {
                 $next_report_date_to = $start_recurring_date;
+            } else if ($start_recurring_date > $start_today) {
+                    $next_report_date_to = $end_today;
             } else {
-                $scheduleLastSend = $start_recurring_date;            
-            }
-                
-        }
-                
+                    $scheduleLastSend = $start_recurring_date;             
+            }                
+        }       
+        
         // need to calc next send report date
-        if ($next_report_date_to == 0) {
+        if ($next_report_date_to == 0) {            
             if ($schedule == "daily") { 
                 $next_report_date_to = $scheduleLastSend + 24 * 3600;
-                while($next_report_date_to < $now) {
+                while($next_report_date_to < $start_today) {
                     $next_report_date_to += 24 * 3600;                                  
                 }
             } else if ($schedule == "weekly") {
                 $next_report_date_to = $scheduleLastSend + 7 * 24 * 3600;
-                while($next_report_date_to < $now) {
+                while($next_report_date_to < $start_today) {
                     $next_report_date_to += 24 * 3600;                                  
                 }
             } else if ($schedule == "biweekly") {
                 $next_report_date_to = $scheduleLastSend + 2 * 7 * 24 * 3600;
-                while($next_report_date_to < $now) {
+                while($next_report_date_to < $start_today) {
                     $next_report_date_to += 2 * 7 * 24 * 3600;                                  
                 }
             } else if ($schedule == "monthly") {
                 $next_report_date_to = self::calc_next_monthly_date($start_recurring_date, $scheduleLastSend);            
-                while($next_report_date_to < $now) {
+                while($next_report_date_to < $start_today) {
                     $next_report_date_to = self::calc_next_monthly_date($start_recurring_date, $next_report_date_to);            
                 }
-            }   
+            }               
         }
         return $next_report_date_to;
     }
@@ -878,7 +882,7 @@ class MainWPCReport
             $month_to_send = 1;
             $year_to_send = $year_last_send + 1;
         }                          
-        return strtotime($year_to_send . "-" . $month_to_send . "-" . $day_to_send . " " . date("H:i:s"));                                                                                                                    
+        return strtotime($year_to_send . "-" . $month_to_send . "-" . $day_to_send . " 23:59:59");                                                                                                                    
     }
     
     public function shortcuts_widget($website) {        
@@ -1412,8 +1416,12 @@ class MainWPCReport
         $do_preview = $do_send = $do_schedule = $do_send_test_email = $do_save_pdf = $do_replicate = $do_archive = false;              
         $do_save_pdf_get = $do_un_archive = $do_archive_get = $do_un_archive_get = false;
         $report_id = 0;
-        $report = false;
+        $report = false;       
         
+//        $sched = wp_next_scheduled('mainwp_creport_cron_archive_reports');                
+//        $d1 = date("Y-m-d H:i:m") . " " . date("Y-m-d H:i:m", $sched) ;
+//        echo $d1;
+                
         if (isset($_GET['action'])) {
             if ("sendreport" === (string)$_GET['action'])
                 $do_send = true; 
