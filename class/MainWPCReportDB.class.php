@@ -568,10 +568,12 @@ PRIMARY KEY  (`id`)  ';
         $return = array();
         if (is_array($site_tokens)) {
             foreach($site_tokens as $token) { 
-                if ($index == 'id')
-                    $return[$token->token_id] = $token;
-                else 
-                    $return[$token->token_name] = $token;
+                if (isset($token->token_name)) {
+                    if ($index == 'id')
+                        $return[$token->token_id] = $token;
+                    else 
+                        $return[$token->token_name] = $token;
+                }
             }
         }
         // get default token value if empty

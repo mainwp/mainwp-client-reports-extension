@@ -787,18 +787,18 @@ class MainWPCReport
     
     public static function send_schedule_reports() {
          // check to send schedule reports
-        $sche_reports = MainWPCReportDB::Instance()->getScheduleReports();        
+        $sche_reports = MainWPCReportDB::Instance()->getScheduleReports(); 
         if (is_array($sche_reports)) {
             foreach($sche_reports as $report) {
                 $schedule = $report->recurring_schedule; 
                 $recurring_date = $report->recurring_date;
                 if (empty($schedule) || empty($report->scheduled) || empty($recurring_date))
-                    continue;
-                 if (time() >= $report->schedule_nextsend) {                     
+                    continue;      
+                $start_of_nextsend_day = strtotime(date("Y-m-d", $report->schedule_nextsend) . " 00:00:00");
+                 
+                if (time() >= $start_of_nextsend_day) {                            
                     $my_email = @apply_filters('mainwp_getnotificationemail');   
-                    $bcc = "";   
-//                    $report->date_from = $report->schedule_lastsend;
-//                    $report->date_to = $report->schedule_nextsend;
+                    $bcc = "";                       
                     if ($report->schedule_send_email == "email_auto") {
                         if ($report->schedule_bcc_me) 
                             $bcc = $my_email;
@@ -806,8 +806,7 @@ class MainWPCReport
                     } else if ($report->schedule_send_email == "email_review" && !empty($my_email)) {
                         self::send_report_mail($report, $my_email, "Review report");
                     }
-                    $sch_last_send = $report->schedule_nextsend;
-                    
+                    $sch_last_send = time();                    
                     $schedule_nextsend = self::cal_schedule_nextsend($schedule, $recurring_date, $sch_last_send);
                     $update_report = array('id' => $report->id,     
                                             'date_from' => $sch_last_send + 1, 
@@ -824,36 +823,62 @@ class MainWPCReport
     public static function cal_schedule_nextsend($schedule, $start_recurring_date, $scheduleLastSend = 0) {
         if (empty($schedule) || empty($start_recurring_date))
             return 0;          
-        $next_report_date_to =  0;
-        if ($scheduleLastSend < $start_recurring_date) { 
-            $next_report_date_to = strtotime(date("Y-m-d", $start_recurring_date) . " 23:59:59");            
-        } else {                
-            if ($schedule == "daily") { 
-                $next_report_date_to = strtotime(date("Y-m-d", $scheduleLastSend + 24 * 3600) . " 23:59:59");                                  
-            } else if ($schedule == "weekly") {
-                $next_report_date_to = strtotime(date("Y-m-d", $scheduleLastSend + 7 * 24 * 3600) . " 23:59:59");         
-            } else if ($schedule == "biweekly") {
-                $next_report_date_to = strtotime(date("Y-m-d", $scheduleLastSend + 2 * 7 * 24 * 3600) . " 23:59:59");
-            } else if ($schedule == "monthly") {
-                $day_to_send = date("d", $start_recurring_date);
-                $month_last_send = date("m", $scheduleLastSend);
-                $year_last_send = date("Y", $scheduleLastSend);
-
-                $day_in_month = date("t");
-                if ($day_to_send > $day_in_month) {
-                    $day_to_send = $day_in_month;
-                }   
-
-                $month_to_send = $month_last_send + 1;
-                $year_to_send = $year_last_send;
-                if ($month_to_send > 12) {
-                    $month_to_send = 1;
-                    $year_to_send = $year_last_send + 1;
-                }                          
-                $next_report_date_to = strtotime($year_to_send . "-" . $month_to_send . "-" . $day_to_send);                                                                                                            
+        
+        $now = time();
+        $next_report_date_to = 0;
+        if ($scheduleLastSend == 0) { 
+            if ($start_recurring_date > $now) {
+                $next_report_date_to = $start_recurring_date;
+            } else {
+                $scheduleLastSend = $start_recurring_date;            
             }
-        }        
+                
+        }
+                
+        // need to calc next send report date
+        if ($next_report_date_to == 0) {
+            if ($schedule == "daily") { 
+                $next_report_date_to = $scheduleLastSend + 24 * 3600;
+                while($next_report_date_to < $now) {
+                    $next_report_date_to += 24 * 3600;                                  
+                }
+            } else if ($schedule == "weekly") {
+                $next_report_date_to = $scheduleLastSend + 7 * 24 * 3600;
+                while($next_report_date_to < $now) {
+                    $next_report_date_to += 24 * 3600;                                  
+                }
+            } else if ($schedule == "biweekly") {
+                $next_report_date_to = $scheduleLastSend + 2 * 7 * 24 * 3600;
+                while($next_report_date_to < $now) {
+                    $next_report_date_to += 2 * 7 * 24 * 3600;                                  
+                }
+            } else if ($schedule == "monthly") {
+                $next_report_date_to = self::calc_next_monthly_date($start_recurring_date, $scheduleLastSend);            
+                while($next_report_date_to < $now) {
+                    $next_report_date_to = self::calc_next_monthly_date($start_recurring_date, $next_report_date_to);            
+                }
+            }   
+        }
         return $next_report_date_to;
+    }
+    
+    public static function calc_next_monthly_date($recurring_date, $lastSend) {
+        $day_to_send = date("d", $recurring_date);
+        $month_last_send = date("m", $lastSend);
+        $year_last_send = date("Y", $lastSend);
+
+        $day_in_month = date("t");
+        if ($day_to_send > $day_in_month) {
+            $day_to_send = $day_in_month;
+        }   
+
+        $month_to_send = $month_last_send + 1;
+        $year_to_send = $year_last_send;
+        if ($month_to_send > 12) {
+            $month_to_send = 1;
+            $year_to_send = $year_last_send + 1;
+        }                          
+        return strtotime($year_to_send . "-" . $month_to_send . "-" . $day_to_send . " " . date("H:i:s"));                                                                                                                    
     }
     
     public function shortcuts_widget($website) {        
@@ -981,7 +1006,7 @@ class MainWPCReport
             }
             if(isset($_POST['mainwp_creport_schedule_date'])) {
                 $rec_date = trim($_POST['mainwp_creport_schedule_date']);
-                $report['recurring_date'] = !empty($rec_date) ? strtotime($rec_date) : 0;    
+                $report['recurring_date'] = !empty($rec_date) ? strtotime($rec_date . " " . date("H:i:s"))  : 0;    
             }            
             if(isset($_POST['mainwp_creport_schedule_send_email'])) {
                 $report['schedule_send_email'] = trim($_POST['mainwp_creport_schedule_send_email']);   
@@ -1574,7 +1599,7 @@ class MainWPCReport
             } else if ($do_send_test_email) {
                 $email = @apply_filters('mainwp_getnotificationemail');                
                 if (!empty($email)) {                    
-                    if (self::send_report_mail($report, $email, "Send Test Email", true))
+                    if (self::send_report_mail($report, $email, "Send Test Email"))
                     {
                         $messages[] = __('Test Email has been sent successfully.');  
                     } else 
