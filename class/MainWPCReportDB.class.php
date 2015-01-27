@@ -561,21 +561,20 @@ PRIMARY KEY  (`id`)  ';
         $site_url = trim($site_url);
         if (empty($site_url))
             return false;
-        $qry = " SELECT st.* FROM " . $this->tableName('client_report_site_token') . " st " .        
-                " WHERE st.site_url = '" . $site_url . "' ";
+        $qry = " SELECT st.*, t.token_name FROM " . $this->tableName('client_report_site_token') . " st , " . $this->tableName('client_report_token') . " t " .        
+                " WHERE st.site_url = '" . $site_url . "' AND st.token_id = t.id ";
         //echo $qry;
-        $site_tokens = $wpdb->get_results($qry);              
+        $site_tokens = $wpdb->get_results($qry);             
         $return = array();
         if (is_array($site_tokens)) {
-            foreach($site_tokens as $token) { 
-                if (isset($token->token_name)) {
-                    if ($index == 'id')
-                        $return[$token->token_id] = $token;
-                    else 
-                        $return[$token->token_name] = $token;
+            foreach($site_tokens as $token) {                 
+                if ($index == 'id') {
+                    $return[$token->token_id] = $token;
+                } else {
+                    $return[$token->token_name] = $token;                
                 }
             }
-        }
+        }  
         // get default token value if empty
         $tokens = $this->getTokens();
         if (is_array($tokens)) {
@@ -602,7 +601,7 @@ PRIMARY KEY  (`id`)  ';
     }    
     
     public function _getDefaultTokenSite($token_name, $site_url) {    
-		$website = apply_filters('mainwp_getwebsitesbyurl', $site_url);    
+        $website = apply_filters('mainwp_getwebsitesbyurl', $site_url);    
         if (empty($this->default_tokens[$token_name]) || !$website)
             return false;
         $website = current($website);
