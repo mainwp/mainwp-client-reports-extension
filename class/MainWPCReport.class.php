@@ -3644,13 +3644,10 @@ class MainWPCReport
     }
     
     public function delete_site_delete_tokens($website) 
-    {
-        global $wpdb;
-        if (isset($_POST['submit'])) {            
-            if ($website) {                
-                MainWPCReportDB::Instance()->deleteSiteTokens($website->url);             
-            }
-        }
+    {        
+        if ($website) {                
+            MainWPCReportDB::Instance()->deleteSiteTokens($website->url);             
+        }        
     }
     
     public function load_tokens() {
