@@ -501,6 +501,13 @@ class MainWPCReport
                                                 array("name" => "ga.bounce.rate", "desc" => "Displays the Bounce Rate during the selected date range"),
                                                 array("name" => "ga.avg.time", "desc" => "Displays the Average Visit Time during the selected date range"),
                                                 array("name" => "ga.new.visits", "desc" => "Displays the Number of New Visits during the selected date range"),                                    
+                                                
+                                                
+                                                array("name" => "ga.visits.chart", "desc" => "Displays a chart for the activity over the past month"),                                     
+                                                array("name" => "ga.visits.maximum", "desc" => "Displays the maximum visitor number and it's day within the past month"),
+                                                array("name" => "ga.startdate", "desc" => "Displays the startdate for the chart"),
+                                                array("name" => "ga.enddate", "desc" => "Displays the enddate or the chart")
+
                                                 //array("name" => "ga.visits.chart", "desc" => "...")
                                             ),
                             ), 
@@ -2141,6 +2148,9 @@ class MainWPCReport
         $output->filtered_footer = $report->footer; 
         $output->id = isset($report->id) ? $report->id : 0;    
         $get_ga_tokens = ((strpos($report->header, "[ga.") !== false) || (strpos($report->body, "[ga.") !== false) || (strpos($report->footer, "[ga.") !== false)) ? true : false;
+        $get_ga_chart = ((strpos($report->header, "[ga.visits.chart]") !== false) || (strpos($report->body, "[ga.visits.chart]") !== false) || (strpos($report->footer, "[ga.visits.chart]") !== false)) ? true : false;                
+        $get_ga_chart = $get_ga_chart || (((strpos($report->header, "[ga.visits.maximum]") !== false) || (strpos($report->body, "[ga.visits.maximum]") !== false) || (strpos($report->footer, "[ga.visits.maximum]") !== false)) ? true : false);
+        
         $get_piwik_tokens = ((strpos($report->header, "[piwik.") !== false) || (strpos($report->body, "[piwik.") !== false) || (strpos($report->footer, "[piwik.") !== false)) ? true : false;
         $get_aum_tokens = ((strpos($report->header, "[aum.") !== false) || (strpos($report->body, "[aum.") !== false) || (strpos($report->footer, "[aum.") !== false)) ? true : false;
         $get_woocom_tokens = ((strpos($report->header, "[wcomstatus.") !== false) || (strpos($report->body, "[wcomstatus.") !== false) || (strpos($report->footer, "[wcomstatus.") !== false)) ? true : false;
@@ -2164,7 +2174,7 @@ class MainWPCReport
             }
 
             if ($get_ga_tokens) {    
-                $ga_tokens = self::ga_data($website['id'], $report->date_from, $report->date_to);                    
+                $ga_tokens = self::ga_data($website['id'], $report->date_from, $report->date_to, $get_ga_chart);                                    
                 if (is_array($ga_tokens)) {
                     foreach ($ga_tokens as $token => $value) {            
                         $search_tokens[] = '[' . $token . ']';            
@@ -2440,7 +2450,7 @@ class MainWPCReport
         return array('content' => $content, 'section' => $section); 
     }
     
-    static function ga_data($site_id, $start_date, $end_date, $graph = false) {
+    static function ga_data($site_id, $start_date, $end_date, $chart = false) {
         // fix bug cron job
         if (self::$enabled_ga === null)
             self::$enabled_ga = apply_filters('mainwp-extension-available-check', 'mainwp-google-analytics-extension'); 
@@ -2448,20 +2458,27 @@ class MainWPCReport
         if (!self::$enabled_ga)
             return false;
         
+        //===============================================================
+        //enym new
+//        $end_date = strtotime("-1 day", time());                                
+//        $start_date = strtotime( '-31 day', time() ); //31 days is more robust than "1 month" and this must match steprange in MainWPGA.class.php
+        //=============================================================== 
+        
         if (!$site_id || !$start_date || !$end_date) 
             return false;        
         $uniq = "ga_" . $site_id . "_" . $start_date . "_" . $end_date;
         if (isset(self::$buffer[$uniq])) 
             return self::$buffer[$uniq];
         
-        $result = apply_filters('mainwp_ga_get_data', $site_id, $start_date, $end_date, $graph);                    
+        $result = apply_filters('mainwp_ga_get_data', $site_id, $start_date, $end_date, $chart);                             
         $output = array('ga.visits' => "N/A",
                         'ga.pageviews' => "N/A",
                         'ga.pages.visit' => "N/A",
                         'ga.bounce.rate' => "N/A",
                         'ga.new.visits' => "N/A",
                         'ga.avg.time' => "N/A", 
-                        'ga.visits.chart' => "N/A"
+                        'ga.visits.chart' => "N/A",      //enym new
+                        'ga.visits.maximum' => "N/A"      //enym new
                     );      
         if (!empty($result) && is_array($result)) { 
             if (isset($result['stats_int'])) {
@@ -2474,9 +2491,108 @@ class MainWPCReport
                 $output['ga.avg.time'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:avgTimeOnSite'])) ? self::format_stats_values($values['aggregates']['ga:avgTimeOnSite'], false, false, true) : "N/A";                               
             }
             
-//            if (isset($result['stats_graph'])) {
-//                $output['ga.visits.chart'] = $result['stats_graph'];
-//            }            
+            //===============================================================
+            //enym new   requires change in mainWPGA.class.php in Ga extension [send pure graph data in array]
+            //help: http://charts.streitenberger.net/#
+            //if (isset($result['stats_graph'])) {
+            if ($chart && isset($result['stats_graphdata'])) {
+                //INTERVALL chxr=1,1,COUNTALLVALUES
+                $intervalls = "1,1,".count($result['stats_graphdata']);
+                                              
+                //MAX DIMENSIONS chds=0,HIGHEST*2
+                foreach($result['stats_graphdata'] as $k=>$v) {
+                    if($v['1']>$maximum_value) {
+                       $maximum_value = $v['1'];
+                       $maximum_value_date = $v['0'];
+                    }   
+                }
+                
+                $vertical_max = ceil($maximum_value*1.3);
+                $dimensions = '0,'.$vertical_max;
+                
+                //DATA chd=t:1,2,3,4,5,6,7,8,9,10,11,12,13,14|
+                 $graph_values = "";
+                 foreach ($result['stats_graphdata'] as $arr) {
+                     $graph_values .= $arr["1"] . ",";
+                 }
+                 $graph_values = trim($graph_values, ","); 
+                 
+                //AXISLEGEND chd=t:1.1|2.1|3.1 ...
+                $graph_dates = "";
+                
+                $step = 1;
+                if (count($result['stats_graphdata']) > 20) {                    
+                    $step = 2;
+                }                
+                $nro = 1;               
+                foreach ($result['stats_graphdata'] as $arr) {
+                     $nro = $nro+1;
+                     if ($nro % $step == 0) {
+                     
+                        $teile = explode(" ", $arr["0"]);
+                        if ($teile[0]== "Jan") $teile[0] = "1";
+                        if ($teile[0]== "Feb") $teile[0] = "2";
+                        if ($teile[0]== "Mar") $teile[0] = "3";
+                        if ($teile[0]== "Apr") $teile[0] = "4";
+                        if ($teile[0]== "May") $teile[0] = "5";
+                        if ($teile[0]== "Jun") $teile[0] = "6";
+                        if ($teile[0]== "Jul") $teile[0] = "7";
+                        if ($teile[0]== "Aug") $teile[0] = "8";
+                        if ($teile[0]== "Sep") $teile[0] = "9";
+                        if ($teile[0]== "Oct") $teile[0] = "10";
+                        if ($teile[0]== "Nov") $teile[0] = "11";
+                        if ($teile[0]== "Dec") $teile[0] = "12";
+                        $graph_dates .= $teile[1].".".$teile[0].".|";
+                        
+                      }   
+                }
+                //$graph_dates = urlencode($graph_dates);
+                $graph_dates = trim($graph_dates, "|");
+                
+                //SCALE chxr=1,0,HIGHEST*2
+                $scale = "1,0,".$vertical_max;
+                
+                //WIREFRAME chg=0,10,1,4
+                $wire = "0,10,1,4";
+                
+                //COLORS
+                $barcolor = "508DDE";//4d89f9";
+                $fillcolor = "EDF5FF";//CCFFFF";
+                
+                //LINEFORMAT chls=1,0,0
+                $lineformat = "1,0,0";
+                
+                //TITLE
+                //&chtt=Last+2+Weeks+Sales
+                
+                //LEGEND
+                //&chdl=Sales
+                
+                $output['ga.visits.chart'] = '<img src="http://chart.apis.google.com/chart?cht=lc&chs=600x250&chd=t:'.$graph_values.'&chds='.$dimensions.'&chco='.$barcolor.'&chm=B,'.$fillcolor.',0,0,0&chls='.$lineformat.'&chxt=x,y&chxl=0:|'.$graph_dates.'&chxr='.$scale.'&chg='.$wire.'">';
+                
+                $date1 = explode(" ", $maximum_value_date);
+                if ($date1[0]== "Jan") $date1[0] = "1";
+                if ($date1[0]== "Feb") $date1[0] = "2";
+                if ($date1[0]== "Mar") $date1[0] = "3";
+                if ($date1[0]== "Apr") $date1[0] = "4";
+                if ($date1[0]== "May") $date1[0] = "5";
+                if ($date1[0]== "Jun") $date1[0] = "6";
+                if ($date1[0]== "Jul") $date1[0] = "7";
+                if ($date1[0]== "Aug") $date1[0] = "8";
+                if ($date1[0]== "Sep") $date1[0] = "9";
+                if ($date1[0]== "Oct") $date1[0] = "10";
+                if ($date1[0]== "Nov") $date1[0] = "11";
+                if ($date1[0]== "Dec") $date1[0] = "12";
+                $maximum_value_date = $date1[1].".".$date1[0].".";
+                $output['ga.visits.maximum'] = $maximum_value.' ('.$maximum_value_date.')';
+            }
+            
+            $output['ga.startdate'] =  date('d.m.Y', $start_date);
+            $output['ga.enddate'] = date('d.m.Y', $end_date);
+            //} 
+            //enym end
+            //===============================================================          
+            
         }   
         self::$buffer[$uniq] = $output;                
         return $output;
