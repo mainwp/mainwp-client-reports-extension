@@ -1074,13 +1074,13 @@ class MainWPCReport
                 if (isset($_POST['select_by'])) {                    
                     if (isset($_POST['selected_sites']) && is_array($_POST['selected_sites'])) {
                         foreach ($_POST['selected_sites'] as $selected) {
-                            $selected_sites[] = $selected;
+                            $selected_sites[] = intval($selected);
                         }
                     }
                     
                     if (isset($_POST['selected_groups']) && is_array($_POST['selected_groups'])) {
                         foreach ($_POST['selected_groups'] as $selected) {
-                            $selected_groups[] = $selected;
+                            $selected_groups[] = intval($selected);
                         }
                     }                    
                 } 
@@ -1355,6 +1355,7 @@ class MainWPCReport
                 $file_size = $file_input['size'];
                 $file_type = $file_input['type'];
                 $file_name = $file_input['name'];
+                $file_extension = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
 
                 if (($file_size > 500 * 1025)){   
                     $output["error"][] = "File size is too large."; 
@@ -1366,7 +1367,15 @@ class MainWPCReport
                     ($file_type != "image/png")    
                 ){                        
                     $output["error"][] = "File Type is not allowed."; 
-                }    
+                }
+                elseif (
+                    ($file_extension != "jpeg") &&
+                    ($file_extension != "jpg") &&
+                    ($file_extension != "gif") &&
+                    ($file_extension != "png")
+                ){
+                    $output["error"][] = "File Extension is not allowed.";
+                }
                 else {   
                     $dest_file = $dest_dir . $file_name;                     
                     $dest_file = dirname( $dest_file ) . '/' . wp_unique_filename( dirname( $dest_file ), basename( $dest_file ) );
@@ -1518,7 +1527,7 @@ class MainWPCReport
                 <script>
                     jQuery(document).ready(function($) {                         
                         window.open(
-                            '<?php echo get_site_url(); ?>/wp-admin/admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=savepdf&id=<?php echo $report_id; ?>',
+                            '<?php echo get_site_url(); ?>/wp-admin/admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=savepdf&id=<?php echo esc_attr($report_id); ?>',
                             '_blank' 
                         );                        
                     });
@@ -1732,7 +1741,7 @@ class MainWPCReport
                                             $_select = "selected";
                                         }                                        
                                     ?>
-                                        <option value="<?php echo $site['id']; ?>" <?php echo $_select; ?>><?php echo stripslashes($site['name']); ?></option>
+                                        <option value="<?php echo $site['id']; ?>" <?php echo $_select; ?>><?php echo esc_html(stripslashes($site['name'])); ?></option>
                                     <?php
                                     }
                                     ?>
@@ -1747,7 +1756,7 @@ class MainWPCReport
                                             $_select = "selected";
                                         }                                        
                                     ?>
-                                        <option value="<?php echo $client->clientid; ?>" <?php echo $_select; ?>><?php echo stripslashes($client->client); ?></option>
+                                        <option value="<?php echo $client->clientid; ?>" <?php echo $_select; ?>><?php echo esc_html(stripslashes($client->client)); ?></option>
                                     <?php
                                     }
                                     ?>
@@ -2745,7 +2754,7 @@ class MainWPCReport
             $orderby = $_GET['orderby'];
         }    
         if (isset($_GET['order']) && !empty($_GET['order'])) {            
-            $order = $_GET['order'];
+            $order =($_GET['order'] == "desc") ? "asc" : "desc";
         }        
         
         $title_order = $name_order = $lastsend_order = $datefrom_order = $client_order = $site_order = $schedule_order = "";                     
@@ -2764,7 +2773,9 @@ class MainWPCReport
         } else if ($orderby == "schedule") {
             $orderby = "recurring_schedule";
             $schedule_order = ($order == "desc") ? "asc" : "desc";        
-        }  
+        } else {
+            $orderby = "title";
+        }
         
         $get_by = 'all';
         $value = null;
@@ -2986,7 +2997,7 @@ class MainWPCReport
                 $website = ($report->selected_site && isset($websites[$report->selected_site])) ? $websites[$report->selected_site] : null;
                 $site_column  = "";
                 if (!empty($website)) {
-                    $site_column = '<a href="admin.php?page=managesites&dashboard=' . $website['id']. '">' .  $website['name'] . "</a><br>" .
+                    $site_column = '<a href="admin.php?page=managesites&dashboard=' . $website['id']. '">' .  esc_html($website['name']) . "</a><br>" .
                             '<div class="row-actions"><span class="dashboard"><a href="admin.php?page=managesites&dashboard=' . $website['id'] . '">' .  __("Dashboard") . '</a></span> | ' . 
                             '<span class="edit"><a href="admin.php?page=managesites&id=' .  $website['id'] . '">' . __("Edit") . '</a></span></div>';                    
                 }
@@ -3279,7 +3290,7 @@ class MainWPCReport
         <tr>
             <th><span><?php _e("Title"); ?> <span class="desc-light"><?php _e("(required)"); ?></span></span></th>
             <td class="title">
-                <input type="text" name="mwp_creport_title" id="mwp_creport_title" value="<?php echo stripslashes($title); ?>" />
+                <input type="text" name="mwp_creport_title" id="mwp_creport_title" value="<?php echo esc_attr(stripslashes($title)); ?>" />
             </td>
         </tr>
         <tr>
@@ -3291,15 +3302,15 @@ class MainWPCReport
         <tr>
             <th><span><?php _e("Send From"); ?></span></th>
             <td>
-                <input type="text" name="mwp_creport_fname" placeholder="Name" value="<?php echo stripslashes($from_name); ?>" />&nbsp;&nbsp;
-                <input type="text" name="mwp_creport_fcompany" placeholder="Company" value="<?php echo stripslashes($from_company); ?>" />&nbsp;&nbsp;
-                <input type="text" name="mwp_creport_femail" placeholder="Email" value="<?php echo stripslashes($from_email); ?>" />
+                <input type="text" name="mwp_creport_fname" placeholder="Name" value="<?php echo esc_attr(stripslashes($from_name)); ?>" />&nbsp;&nbsp;
+                <input type="text" name="mwp_creport_fcompany" placeholder="Company" value="<?php echo esc_attr(stripslashes($from_company)); ?>" />&nbsp;&nbsp;
+                <input type="text" name="mwp_creport_femail" placeholder="Email" value="<?php echo esc_attr(stripslashes($from_email)); ?>" />
             </td>
         </tr>
         <tr>
             <th><span><?php _e("Client"); ?></span></th>
             <td>
-                <input type="text" name="mwp_creport_client" value="<?php echo stripslashes($to_client); ?>" 
+                <input type="text" name="mwp_creport_client" value="<?php echo esc_attr(stripslashes($to_client)); ?>"
                        autocompletelist="clients_list" id="mainwp_creport_autocomplete_client" /> 
                 <span id="mainwp_creport_client_loading"><img src="<?php echo plugins_url('images/loader.gif', dirname(__FILE__)); ?>" class="hidden-field"></span> 
                     <datalist id="clients_list">
@@ -3316,15 +3327,15 @@ class MainWPCReport
         <tr>
             <th><span><?php _e("Send To"); ?></span></th>
             <td>
-                <input type="text" name="mwp_creport_name" placeholder="Name" value="<?php echo stripslashes($to_name); ?>" />&nbsp;&nbsp;
-                <input type="text" name="mwp_creport_company" placeholder="Company" value="<?php echo stripslashes($to_company); ?>" />&nbsp;&nbsp;
-                <input type="text" name="mwp_creport_email" id="mwp_creport_email" placeholder="Email" value="<?php echo stripslashes($to_email); ?>" />
+                <input type="text" name="mwp_creport_name" placeholder="Name" value="<?php echo esc_attr(stripslashes($to_name)); ?>" />&nbsp;&nbsp;
+                <input type="text" name="mwp_creport_company" placeholder="Company" value="<?php echo esc_attr(stripslashes($to_company)); ?>" />&nbsp;&nbsp;
+                <input type="text" name="mwp_creport_email" id="mwp_creport_email" placeholder="Email" value="<?php echo esc_attr(stripslashes($to_email)); ?>" />
             </td>
         </tr>
         <tr>
             <th><span><?php _e("Email Subject"); ?></span></th>
             <td>
-                <input type="text" name="mwp_creport_email_subject" value="<?php echo stripslashes($email_subject); ?>" 
+                <input type="text" name="mwp_creport_email_subject" value="<?php echo esc_attr(stripslashes($email_subject)); ?>"
                     id="mwp_creport_email_subject" />                  
             </td>
         </tr>       
@@ -3346,7 +3357,7 @@ class MainWPCReport
            </td>
         </tr>
         
-        <input type="hidden" name="mwp_creport_client_id" value="<?php echo $client_id; ?>">
+        <input type="hidden" name="mwp_creport_client_id" value="<?php echo esc_attr($client_id); ?>">
     <?php
     }            
     
@@ -3429,7 +3440,7 @@ class MainWPCReport
                         <option value="0"><?php _e("Select a Report Header"); ?></option>
                         <?php
                             foreach ($header_formats as $format) {
-                                echo "<option value=\"" . $format->id . "\">" . $format->title . "</option>";                                
+                                echo "<option value=\"" . $format->id . "\">" . esc_html($format->title) . "</option>";
                             }
                         ?>
                     </select>
@@ -3480,7 +3491,7 @@ class MainWPCReport
                             <option value="0"><?php _e("Select a Report Body"); ?></option>
                             <?php
                                 foreach ($body_formats as $format) {
-                                    echo "<option value=\"" . $format->id . "\">" . $format->title . "</option>";                                
+                                    echo "<option value=\"" . $format->id . "\">" . esc_html($format->title) . "</option>";
                                 }
                             ?>
                         </select>
@@ -3529,7 +3540,7 @@ class MainWPCReport
                             <option value="0"><?php _e("Select a Report Body"); ?></option>
                             <?php
                                 foreach ($footer_formats as $format) {
-                                    echo "<option value=\"" . $format->id . "\">" . $format->title . "</option>";                                
+                                    echo "<option value=\"" . $format->id . "\">" . esc_html($format->title) . "</option>";
                                 }
                             ?>
                         </select>
@@ -3620,21 +3631,21 @@ class MainWPCReport
                                 if ($group == "client" && $key == "tokens" && is_array($client_tokens)) {
                                     if (is_array($client_tokens_values) && count($client_tokens_values) > 0) {
                                         foreach($client_tokens_values as $token) {                                    
-                                           echo "<tr><td><a href=\"#\" token-value = \"" . stripslashes($token['token_value']) . "\"class=\"creport_format_add_token\">[" . stripslashes($token['token_name']) . "]</a></td>"
-                                                   . "<td class=\"creport_stream_token_desc\">" . stripslashes($token['token_value']) ."</td>"
+                                           echo "<tr><td><a href=\"#\" token-value = \"" . esc_attr(stripslashes($token['token_value'])) . "\"class=\"creport_format_add_token\">[" . esc_html(stripslashes($token['token_name'])) . "]</a></td>"
+                                                   . "<td class=\"creport_stream_token_desc\">" . esc_html(stripslashes($token['token_value'])) ."</td>"
                                                    . "</tr>";
                                         }
                                     } else if (is_array($client_tokens) && count($client_tokens) > 0) {
                                         foreach($client_tokens as $token) {                                    
-                                           echo "<tr><td><a href=\"#\" token-value =\"\" class=\"creport_format_add_token\">[" . stripslashes($token->token_name) . "]</a></td>"
-                                                   . "<td class=\"creport_stream_token_desc\">" . stripslashes($token->token_description) ."</td>"
+                                           echo "<tr><td><a href=\"#\" token-value =\"\" class=\"creport_format_add_token\">[" . esc_html(stripslashes($token->token_name)) . "]</a></td>"
+                                                   . "<td class=\"creport_stream_token_desc\">" . esc_html(stripslashes($token->token_description)) ."</td>"
                                                    . "</tr>";
                                         }
                                     }                                    
                                 } else {                                                                        
                                     foreach($tokens as $token) {
-                                       echo "<tr><td><a href=\"#\" token-value =\"\" class=\"creport_format_add_token\">[" . stripslashes($token["name"]) . "]</a></td>"
-                                               . "<td class=\"creport_stream_token_desc\">" . stripslashes($token["desc"]) ."</td>"
+                                       echo "<tr><td><a href=\"#\" token-value =\"\" class=\"creport_format_add_token\">[" . esc_html(stripslashes($token["name"])) . "]</a></td>"
+                                               . "<td class=\"creport_stream_token_desc\">" . esc_html(stripslashes($token["desc"])) ."</td>"
                                                . "</tr>";
                                     }
                                 }
@@ -3705,13 +3716,13 @@ class MainWPCReport
                             continue;
                     $token_value = "";
                     if (isset($site_tokens[$token->id]) && $site_tokens[$token->id])
-                        $token_value = htmlspecialchars(stripslashes($site_tokens[$token->id]->token_value)); 
+                        $token_value = stripslashes($site_tokens[$token->id]->token_value);
 
                     $input_name = "creport_token_" . str_replace(array('.', " ", "-"), '_', $token->token_name);
                     $html .= '<tr>						
-                            <th scope="row" class="token-name" >[' . stripslashes($token->token_name) . ']</th>        
+                            <th scope="row" class="token-name" >[' . esc_html(stripslashes($token->token_name)) . ']</th>
                             <td>										
-                            <input type="text" value="' . $token_value . '" class="regular-text" name="' . $input_name  . '"/>	
+                            <input type="text" value="' . esc_attr($token_value) . '" class="regular-text" name="' . esc_attr($input_name)  . '"/>
                             </td>					   		
                     </tr>';
              }
@@ -3826,8 +3837,8 @@ class MainWPCReport
                 $tokens = array();
                 if (count($client_tokens_values) > 0) {              
                     foreach($client_tokens_values as $token) {                                    
-                        $html .= "<tr><td><a href=\"#\" token-value = \"" . stripcslashes($token['token_value']) . "\"class=\"creport_format_add_token\">[" . stripcslashes($token['token_name']) . "]</a></td>"
-                                . "<td class=\"creport_stream_token_desc\">" . stripcslashes($token['token_value']) ."</td>"
+                        $html .= "<tr><td><a href=\"#\" token-value = \"" . esc_attr(stripcslashes($token['token_value'])) . "\"class=\"creport_format_add_token\">[" . esc_html(stripcslashes($token['token_name'])) . "]</a></td>"
+                                . "<td class=\"creport_stream_token_desc\">" . esc_html(stripcslashes($token['token_value'])) ."</td>"
                                 . "</tr>";
                     }
                     $tokens = array('client.name' => $client_tokens_values['client.name']['token_value'],
@@ -3952,13 +3963,13 @@ class MainWPCReport
             $html =  '<tr class="managetoken-item" token_id="' . $token->id . '">';
         
         $html .= '<td class="token-name">                            
-                    <span class="text" ' . (($token->type == 1) ? '' : 'value="' . $token->token_name) . '">[' . stripslashes($token->token_name) . ']</span>' .
-                        (($token->type == 1) ? '' : '<span class="input hidden"><input type="text" value="' . htmlspecialchars(stripslashes($token->token_name)) . '" name="token_name"></span>') .
+                    <span class="text" ' . (($token->type == 1) ? '' : 'value="' . $token->token_name) . '">[' . esc_html(stripslashes($token->token_name)) . ']</span>' .
+                        (($token->type == 1) ? '' : '<span class="input hidden"><input type="text" value="' . esc_attr(stripslashes($token->token_name)) . '" name="token_name"></span>') .
                 '</td>        
                 <td class="token-description" ' . $colspan . '>                            
-                    <span class="text" ' . (($token->type == 1) ? '' : 'value="' . stripslashes($token->token_description)) . '">' . stripslashes($token->token_description) . '</span>';
+                    <span class="text" ' . (($token->type == 1) ? '' : 'value="' . esc_attr(stripslashes($token->token_description))) . '">' . esc_html(stripslashes($token->token_description)) . '</span>';
          if ($token->type != 1) { 
-            $html .= '<span class="input hidden"><input type="text" value="' . htmlspecialchars(stripslashes($token->token_description)) . '" name="token_description"></span>
+            $html .= '<span class="input hidden"><input type="text" value="' . esc_attr(stripslashes($token->token_description)) . '" name="token_description"></span>
                         <span class="mainwp_more_loading"><img src="' . MainWPCReportExtension::$plugin_url . 'images/loader.gif"/></span>';                        
             } 
         $html .= '</td>';
