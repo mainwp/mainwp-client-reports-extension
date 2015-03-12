@@ -224,6 +224,9 @@ jQuery(document).ready(function($) {
         } else if (gr == 'woocomstatus') {
             gr2 = 'woocomstatus';
             gr2_title = 'WooCommerce Status';
+        } else if (gr == 'report') {
+            gr2 = 'report';
+            gr2_title = 'Report';
         } 
         
         parent.find('.creport_format_group_data_tokens').removeClass('current');

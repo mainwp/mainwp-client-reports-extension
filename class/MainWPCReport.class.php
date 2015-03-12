@@ -473,6 +473,12 @@ class MainWPCReport
                                                 array("name" => "backup.created.count", "desc" => "Displays the number of created backups during the selected date range"),
                                             )
                             ),
+            "report" => array(
+                                'nav_group_tokens' => array("report" => "Report"),
+                                "report" => array(   
+                                                array("name" => "report.daterange", "desc" => "Displays the report date range")
+                                            )
+                            ),
             "sucuri" => array(  "sections" => array(                                                
                                                 array("name" => "section.sucuri.checks", "desc" => "Loops through Security Checks during the selected date range")                                                
                                             ),  
@@ -554,6 +560,7 @@ class MainWPCReport
             
             self::$tokens_nav_top = array(
                                         "client" => "Client Tokens", 
+                                        "report" => "Report", 
                                         "plugins" => "Plugins",
                                         "themes" => "Themes",
                                         "posts" => "Posts",
@@ -2046,13 +2053,13 @@ class MainWPCReport
     }
     
     static function do_filter_content($content) {
-        if (preg_match("/(<ga_chart>(.+)<\/ga_chart>)/is", $content, $matches)) {   
-            $chart_content = $matches[2];
-            $filtered_content = preg_replace("/(<ga_chart>.+<\/ga_chart>)/is",'[GA_CHART_MARKER]',$content);
-            $filtered_content = stripslashes(nl2br($filtered_content)); 
-            $filtered_content = preg_replace("/([GA_CHART_MARKER])/is",'$chart_content',$filtered_content);
-            $content = $filtered_content;
-        }        
+//        if (preg_match("/(<ga_chart>(.+)<\/ga_chart>)/is", $content, $matches)) {   
+//            $chart_content = $matches[2];
+//            $filtered_content = preg_replace("/(<ga_chart>.+<\/ga_chart>)/is",'[GA_CHART_MARKER]',$content);
+//            $filtered_content = stripslashes(nl2br($filtered_content)); 
+//            $filtered_content = preg_replace("/([GA_CHART_MARKER])/is",'$chart_content',$filtered_content);
+//            $content = $filtered_content;
+//        }        
         return $content;
     }
     
@@ -2211,7 +2218,10 @@ class MainWPCReport
                     }       
                 }
             }
-           
+            
+            $search_tokens[] = '[report.daterange]';
+            $replace_values[] = MainWPCReportUtility::formatTimestamp($report->date_from) . " - " .  MainWPCReportUtility::formatTimestamp($report->date_to);
+            
             //$report->filtered_header = self::replace_content($report->header, $search_tokens, $replace_values);        
             //$report->body = self::replace_content($report->body, $search_tokens, $replace_values);        
             //$report->filtered_footer = self::replace_content($report->footer, $search_tokens, $replace_values);        
