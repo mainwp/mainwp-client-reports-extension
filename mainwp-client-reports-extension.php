@@ -10,7 +10,9 @@ Support Forum URI: https://mainwp.com/forum/forumdisplay.php?100-Client-Reports
 Documentation URI: http://docs.mainwp.com/category/mainwp-extensions/mainwp-client-reports/
 Icon URI: http://extensions.mainwp.com/wp-content/uploads/2014/05/mainwp-client-reports-extension.png
 */
-
+if (!defined('MAINWP_CLIENT_REPORTS_PLUGIN_FILE')) {
+    define('MAINWP_CLIENT_REPORTS_PLUGIN_FILE', __FILE__);
+}
 
 class MainWPCReportExtension
 {
