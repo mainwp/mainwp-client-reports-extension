@@ -2502,12 +2502,12 @@ class MainWPCReport
         if (!empty($result) && is_array($result)) { 
             if (isset($result['stats_int'])) {
                 $values = $result['stats_int'];
-                $output['ga.visits'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:visits'])) ? $values['aggregates']['ga:visits'] : "N/A";
+                $output['ga.visits'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:sessions'])) ? $values['aggregates']['ga:sessions'] : "N/A";
                 $output['ga.pageviews'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:pageviews'])) ? $values['aggregates']['ga:pageviews'] : "N/A";
-                $output['ga.pages.visit'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:pageviewsPerVisit'])) ? self::format_stats_values($values['aggregates']['ga:pageviewsPerVisit'], true, false) : "N/A";
-                $output['ga.bounce.rate'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:visitBounceRate'])) ? self::format_stats_values($values['aggregates']['ga:visitBounceRate'], true, true) : "N/A";
-                $output['ga.new.visits'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:percentNewVisits'])) ? self::format_stats_values($values['aggregates']['ga:percentNewVisits'], true, true) : "N/A";
-                $output['ga.avg.time'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:avgTimeOnSite'])) ? self::format_stats_values($values['aggregates']['ga:avgTimeOnSite'], false, false, true) : "N/A";                               
+                $output['ga.pages.visit'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:pageviewsPerSession'])) ? self::format_stats_values($values['aggregates']['ga:pageviewsPerSession'], true, false) : "N/A";
+                $output['ga.bounce.rate'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:bounceRate'])) ? self::format_stats_values($values['aggregates']['ga:bounceRate'], true, true) : "N/A";
+                $output['ga.new.visits'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:percentNewSessions'])) ? self::format_stats_values($values['aggregates']['ga:percentNewSessions'], true, true) : "N/A";
+                $output['ga.avg.time'] = (isset($values['aggregates']) && isset($values['aggregates']['ga:avgSessionDuration'])) ? self::format_stats_values($values['aggregates']['ga:avgSessionDuration'], false, false, true) : "N/A";                               
             }
             
             //===============================================================
