@@ -913,6 +913,7 @@ mainwp_creport_stream_showhide_start_specific = function(pObj, bulk, selector) {
     var loader = parent.find('.creport-action-working .loading');  
     var statusEl = parent.find('.creport-action-working .status');        
     var showhide = pObj.attr('showhide');
+    var isStream = parent.attr('is-stream');
     if (bulk) 
         creport_bulkCurrentThreads++;
     
@@ -930,13 +931,23 @@ mainwp_creport_stream_showhide_start_specific = function(pObj, bulk, selector) {
             statusEl.css('color', 'red');
             statusEl.html(response['error']).show();
         }
-        else if (response && response['result'] == 'SUCCESS') {                
-            if (showhide == 'show') {
-                pObj.text(__("Hide Stream Plugin"));
+        else if (response && response['result'] == 'SUCCESS') {    
+            if (isStream == 1) {
+                if (showhide == 'show') 
+                    pObj.text(__("Hide Stream Plugin"));
+                else
+                    pObj.text(__("Show Stream Plugin"));
+            } else {
+                if (showhide == 'show') 
+                    pObj.text(__("Hide MainWP Child Reports Plugin"));
+                else
+                    pObj.text(__("Show MainWP Child Reports Plugin"));
+            }
+            
+            if (showhide == 'show') {            
                 pObj.attr('showhide', 'hide');
                 parent.find('.stream_hidden_title').html(__('No'));
-            } else {
-                pObj.text(__("Show Stream Plugin"));        
+            } else {                
                 pObj.attr('showhide', 'show');
                 parent.find('.stream_hidden_title').html(__('Yes'));
             }
@@ -975,6 +986,7 @@ mainwp_creport_stream_upgrade_start_specific = function(pObj, bulk, selector) {
     var parent = pObj.closest('.ext-upgrade-noti');
     var workingRow = parent.find('.creport-stream-row-working');         
     var slug = parent.attr('plugin-slug');        
+    var isStream = pObj.closest('tr').attr('is-stream');
     var data = {
         action: 'mainwp_creport_upgrade_plugin',
         websiteId: parent.attr('website-id'),
@@ -992,8 +1004,12 @@ mainwp_creport_stream_upgrade_start_specific = function(pObj, bulk, selector) {
         if (response && response['error']) {
             workingRow.find('.status').html('<font color="red">'+response['error']+'</font>');
         }
-        else if (response && response['upgrades'][slug]) {           
-            pObj.after('Stream plugin has been updated');
+        else if (response && response['upgrades'][slug]) {  
+            if (isStream == 1)
+                pObj.after('Stream plugin has been updated');
+            else 
+                pObj.after('MainWP Child Reports plugin has been updated');
+            
             pObj.remove();
         }  
         else {
@@ -1025,7 +1041,8 @@ mainwp_creport_stream_active_start_next = function(selector) {
 mainwp_creport_stream_active_start_specific = function(pObj, bulk, selector) {
     var parent = pObj.closest('.ext-upgrade-noti');
     var workingRow = parent.find('.creport-stream-row-working'); 
-    var slug = parent.attr('plugin-slug');        
+    var slug = parent.attr('plugin-slug');     
+    var isStream = pObj.closest('tr').attr('is-stream');
     var data = {
         action: 'mainwp_creport_active_plugin',
         websiteId: parent.attr('website-id'),
@@ -1042,8 +1059,12 @@ mainwp_creport_stream_active_start_specific = function(pObj, bulk, selector) {
         if (response && response['error']) {
             workingRow.find('.status').html('<font color="red">'+response['error']+'</font>');
         }
-        else if (response && response['result']) {
-            pObj.after('Stream plugin has been activated');
+        else if (response && response['result']) {   
+            if (isStream == 1) {
+                pObj.after('Stream plugin has been activated');
+            } else {
+                pObj.after('MainWP Child Reports plugin has been activated');
+            }
             pObj.remove();
         }           
         if (bulk) {

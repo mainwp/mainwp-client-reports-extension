@@ -1677,7 +1677,13 @@ class MainWPCReport
                 if (is_array($plugins) && count($plugins) != 0) {                            
                     foreach ($plugins as $plugin)
                     {                            
-                        if ($plugin['slug'] == "stream/stream.php" || strpos($plugin['slug'], "/stream.php") !== false) {                                    
+                        if ($plugin['slug'] == "stream/stream.php") {                                    
+                            if ($plugin['active']) {
+                                $all_stream_sites[] = MainWPCReportUtility::mapSite($website, array('id', 'name'));
+                                $sites_with_streams[] =  $website->id;
+                                break;
+                            }
+                        } else if ($plugin['slug'] == "mainwp-child-reports/mainwp-child-reports.php") {                                    
                             if ($plugin['active']) {
                                 $all_stream_sites[] = MainWPCReportUtility::mapSite($website, array('id', 'name'));
                                 $sites_with_streams[] =  $website->id;
@@ -2747,7 +2753,7 @@ class MainWPCReport
             if (isset($information['error'])) {
                 $error =  $information['error'];               
                 if ($error == "NO_STREAM") {
-                    $error = __("Error Report (NO_STREAM).");
+                    $error = __("Error: No Stream or MainWP Client Reports plugin installed.");
                 }
             } else {
                 $error = is_array($information) ? @implode("<br>", $information) : $information;
