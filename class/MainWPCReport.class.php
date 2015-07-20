@@ -842,6 +842,7 @@ class MainWPCReport
         $end_today = strtotime(date("Y-m-d") . " 23:59:59");
                 
         $next_report_date_to = 0;
+        
         if ($scheduleLastSend == 0) { 
             if ($start_recurring_date > $end_today) {
                 $next_report_date_to = $start_recurring_date;
@@ -870,16 +871,31 @@ class MainWPCReport
                     $next_report_date_to += 2 * 7 * 24 * 3600;                                  
                 }
             } else if ($schedule == "monthly") {
-                $next_report_date_to = self::calc_next_monthly_date($start_recurring_date, $scheduleLastSend);            
+                $next_report_date_to = self::calc_next_schedule_send_date($start_recurring_date, $scheduleLastSend, 1);            
                 while($next_report_date_to < $start_today) {
-                    $next_report_date_to = self::calc_next_monthly_date($start_recurring_date, $next_report_date_to);            
+                    $next_report_date_to = self::calc_next_schedule_send_date($start_recurring_date, $next_report_date_to, 1);            
                 }
-            }               
+            } else if ($schedule == "quarterly") {
+                $next_report_date_to = self::calc_next_schedule_send_date($start_recurring_date, $scheduleLastSend, 3);            
+                while($next_report_date_to < $start_today) {
+                    $next_report_date_to = self::calc_next_schedule_send_date($start_recurring_date, $next_report_date_to, 3);            
+                }
+            } else if ($schedule == "twice_a_year") {
+                $next_report_date_to = self::calc_next_schedule_send_date($start_recurring_date, $scheduleLastSend, 6);            
+                while($next_report_date_to < $start_today) {
+                    $next_report_date_to = self::calc_next_schedule_send_date($start_recurring_date, $next_report_date_to, 6);            
+                }
+            } else if ($schedule == "yearly") {
+                $next_report_date_to = self::calc_next_schedule_send_date($start_recurring_date, $scheduleLastSend, 12);            
+                while($next_report_date_to < $start_today) {
+                    $next_report_date_to = self::calc_next_schedule_send_date($start_recurring_date, $next_report_date_to, 12);            
+                }
+            }
         }
         return $next_report_date_to;
     }
     
-    public static function calc_next_monthly_date($recurring_date, $lastSend) {
+    public static function calc_next_schedule_send_date($recurring_date, $lastSend, $monthSteps) {
         $day_to_send = date("d", $recurring_date);
         $month_last_send = date("m", $lastSend);
         $year_last_send = date("Y", $lastSend);
@@ -889,10 +905,10 @@ class MainWPCReport
             $day_to_send = $day_in_month;
         }   
 
-        $month_to_send = $month_last_send + 1;
+        $month_to_send = $month_last_send + $monthSteps;
         $year_to_send = $year_last_send;
         if ($month_to_send > 12) {
-            $month_to_send = 1;
+            $month_to_send = $month_to_send - 12;
             $year_to_send = $year_last_send + 1;
         }                          
         return strtotime($year_to_send . "-" . $month_to_send . "-" . $day_to_send . " 23:59:59");                                                                                                                    
@@ -1438,7 +1454,7 @@ class MainWPCReport
         $do_preview = $do_send = $do_schedule = $do_send_test_email = $do_save_pdf = $do_replicate = $do_archive = false;              
         $do_save_pdf_get = $do_un_archive = $do_archive_get = $do_un_archive_get = false;
         $report_id = 0;
-        $report = false;       
+        $report = false;    
         
 //        $sched = wp_next_scheduled('mainwp_creport_cron_archive_reports');                
 //        $d1 = date("Y-m-d H:i:m") . " " . date("Y-m-d H:i:m", $sched) ;
@@ -2977,7 +2993,10 @@ class MainWPCReport
         $recurring_schedule = array("daily" => __("Daily"), 
                                     "weekly" => __("Weekly"), 
                                     "biweekly" => __("Bi Weekly"),
-                                    "monthly" => __("Monthly")
+                                    "monthly" => __("Monthly"),
+                                    "quarterly" => __("Quarterly"),
+                                    "twice_a_year" => __("Twice a Year"),
+                                    "yearly" => __("Yearly"),
                                     );
         global $mainWPCReportExtensionActivator;
         $url_loader = plugins_url('images/loader.gif', dirname(__FILE__));
@@ -3188,13 +3207,15 @@ class MainWPCReport
      <?php
     }
     
-    public static function newReportSchedule($report) {        
+    public static function newReportSchedule($report) {    
         $recurring_schedule = array("daily" => __("Daily"), 
                                     "weekly" => __("Weekly"), 
                                     "biweekly" => __("Bi Weekly"),
-                                    "monthly" => __("Monthly")
-                                    );
-        
+                                    "monthly" => __("Monthly"),
+                                    "quarterly" => __("Quarterly"),
+                                    "twice_a_year" => __("Twice a Year"),
+                                    "yearly" => __("Yearly"),
+                                    );        
         $recurringSchedule = $recurringDate = "";
         $scheduleSendEmail = "email_auto";
         $scheduleBCCme = 0;
