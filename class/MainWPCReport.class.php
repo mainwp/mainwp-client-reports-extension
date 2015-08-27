@@ -1019,14 +1019,29 @@ class MainWPCReport
             }
             
             $to_email = "";
+            $valid_emails = array();
             if(!empty($_POST['mwp_creport_email'])) {                
-                $to_email = trim($_POST['mwp_creport_email']);								
-                if (!preg_match("/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/is", $to_email) && !preg_match("/^\[.+\]/is", $to_email))				
-                {
-                    $to_email = "";
-                    $errors[] = "Incorrect Email Address in the Send To field.";
-                }              
+                $to_emails = explode(",", trim($_POST['mwp_creport_email']));	                
+                if (is_array($to_emails)) {
+                    foreach($to_emails as $_email) {
+                        if (!preg_match("/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/is", $_email) && !preg_match("/^\[.+\]/is", $_email))				
+                        {
+                            $to_email = "";
+                            $errors[] = "Incorrect Email Address in the Send To field.";
+                        }  else {
+                            $valid_emails[] = $_email;
+                        }            
+                    }
+                }
             }
+            
+            if (count($valid_emails) > 0) {
+                $to_email = implode(",", $valid_emails);
+            } else {
+                $to_email = "";
+                $errors[] = "Incorrect Email Address in the Send To field.";
+            }
+            
             $report['email'] = $to_email;
             
             if(isset($_POST['mwp_creport_email_subject'])) {
@@ -3280,6 +3295,7 @@ class MainWPCReport
         $to_company = "[client.company]";
         $to_email = "[client.email]";
         $email_subject = "Report for [client.site.name]";
+        $to_orther_email = "";
         
         $client_id = 0;
         $attachFiles = "";
@@ -3297,7 +3313,9 @@ class MainWPCReport
             $to_company = $report->company;
             $to_email = $report->email;
             $to_client = $report->client;      
-            $email_subject = $report->subject;      
+            $email_subject = $report->subject;  
+            $to_orther_email = $report->to_other_email;
+            
             //$recurringSchedule = $report->recurring_schedule;    
             //$recurringDate = !empty($report->recurring_date) ? date("Y-m-d", $report->recurring_date) : "";
             //$scheduleSendEmail = $report->schedule_send_email;
@@ -3368,7 +3386,7 @@ class MainWPCReport
                 <input type="text" name="mwp_creport_company" placeholder="Company" value="<?php echo esc_attr(stripslashes($to_company)); ?>" />&nbsp;&nbsp;
                 <input type="text" name="mwp_creport_email" id="mwp_creport_email" placeholder="Email" value="<?php echo esc_attr(stripslashes($to_email)); ?>" />
             </td>
-        </tr>
+        </tr>       
         <tr>
             <th><span><?php _e("Email Subject"); ?></span></th>
             <td>

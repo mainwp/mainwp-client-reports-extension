@@ -1,7 +1,7 @@
 <?php
 class MainWPCReportDB
 {    
-    private $mainwp_wpcreport_db_version = "4.1";        
+    private $mainwp_wpcreport_db_version = "4.2";        
     private $table_prefix;
     
     //Singleton
@@ -410,7 +410,7 @@ PRIMARY KEY  (`id`)  ';
 `client` text NOT NULL,
 `name` VARCHAR(512),
 `company` VARCHAR(512),
-`email` VARCHAR(128)';
+`email` text NOT NULL';
         if ($currentVersion == '')
                     $tbl .= ',
 PRIMARY KEY  (`clientid`)  ';
@@ -697,30 +697,59 @@ PRIMARY KEY  (`id`)  ';
         global $wpdb;  
         $id = isset($report['id']) ? $report['id'] : 0;
         $updatedClient = false;
-        if (!empty($report["client"])) { // client may be content tokens
-            $update_client = array(
-                                    'client' => $report["client"],
-                                    'name' => $report["name"],
-                                    'company' => $report["company"],
-                                    'email' => $report["email"],
-                                );
-            
-            if (isset($report['client_id']) && !empty($report['client_id']))
-                $update_client['clientid'] = $report['client_id'];
-            else {
-                $client = $this->getClientBy('client', $report["client"]);
-                if (!empty($client)) 
-                    $update_client['clientid'] = $client->clientid;                
-            }            
-            $updatedClient = $this->updateClient($update_client);   
-            
-            if (!isset($report['client_id']) || empty($report['client_id'])) {
-                if ($updatedClient && $updatedClient->clientid) {
-                    $report['client_id'] = $updatedClient->clientid;
-                } else if (isset($update_client['clientid'])) {
-                    $report['client_id'] = $update_client['clientid'];
+        if (!empty($report["client"]) || !empty($report["email"])) { // client may be content tokens
+            $client_id = 0;
+            if (!empty($report["client"])) {
+                $update_client = array(
+                                        'client' => isset($report["client"]) ? $report["client"] : "",
+                                        'name' => isset($report["name"]) ? $report["name"] : "",
+                                        'company' => isset($report["company"]) ? $report["company"] : "",
+                                        'email' => isset($report["email"]) ? $report["email"] : "",
+                                    );
+
+                if (isset($report['client_id']) && !empty($report['client_id']))
+                    $update_client['clientid'] = $report['client_id'];
+                else {    
+                    $client = null;           
+                    $client = $this->getClientBy('client', $report["client"]);
+                    if (empty($client) && !empty($report["email"])) {
+                        $client = $this->getClientBy('email', $report["client"]);
+                    }
+                    
+                    if (!empty($client)) {
+                        $client_id = $client->clientid;
+                        $update_client['clientid'] = $client_id;                
+                    }
+                }  
+                 
+                if ($updatedClient = $this->updateClient($update_client)) {
+                    $client_id = $updatedClient->clientid;
                 }
-            }
+            } else if (!empty($report["email"])) {
+                    $client = $this->getClientBy('email', $report["client"]);
+                    if (!empty($client)) {
+                        $client_id = $client->clientid;                       
+                    } else {
+                        // create client if not found client with the email
+                        $update_client = array(
+                                        'client' => "",
+                                        'name' => isset($report["name"]) ? $report["name"] : "",
+                                        'company' => isset($report["company"]) ? $report["company"] : "",
+                                        'email' => isset($report["email"]) ? $report["email"] : "",
+                                    );
+                        if ($updatedClient = $this->updateClient($update_client)) {
+                            $client_id = $updatedClient->clientid;
+                        }
+                    }
+            }                        
+//            if (!isset($report['client_id']) || empty($report['client_id'])) {
+//                if ($updatedClient && $updatedClient->clientid) {
+//                    $report['client_id'] = $updatedClient->clientid;
+//                } else if (isset($update_client['clientid'])) {
+//                   
+//                }
+//            }
+            $report['client_id'] = $client_id;
         } else {
             if (isset($report['client_id']))
                 $report['client_id'] = 0;
@@ -886,6 +915,9 @@ PRIMARY KEY  (`id`)  ';
         } else if ($by == 'client') {
             $sql = $wpdb->prepare("SELECT * FROM " . $this->tableName('client_report_client')
                     . " WHERE `client` = %s " , $value);
+        } else if ($by == 'email') {
+            $sql = $wpdb->prepare("SELECT * FROM " . $this->tableName('client_report_client')
+                    . " WHERE `email` = %s " , $value);
         }       
         
         if (!empty($sql))

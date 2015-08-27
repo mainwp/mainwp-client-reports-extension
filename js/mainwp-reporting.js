@@ -1190,12 +1190,9 @@ mainwp_creport_client_change = function() {
         jQuery('input[name="mwp_creport_client_id"]').val(0);
         if (response && response.clientid) {                        
             jQuery('input[name="mwp_creport_client_id"]').val(response.clientid);
-            if (response.name)
-                jQuery('input[name="mwp_creport_name"]').val(response.name);
-            if (response.name)
-                jQuery('input[name="mwp_creport_company"]').val(response.company);
-            if (response.name)
-                jQuery('input[name="mwp_creport_email"]').val(response.email);                        
+            jQuery('input[name="mwp_creport_name"]').val(response.name);            
+            jQuery('input[name="mwp_creport_company"]').val(response.company);            
+            jQuery('input[name="mwp_creport_email"]').val(response.email);                        
         } 
     }, 'json');
 } 
