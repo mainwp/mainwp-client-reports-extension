@@ -3603,15 +3603,15 @@ class MainWP_CReport {
 					$nav_group = '';
 					foreach ( self::$tokens_nav_top as $group => $group_title ) {
 						$disabled = '';
-						if ( ( ! 'sucuri' == self::$enabled_sucuri && $group) ||
-								( ! 'ga' == self::$enabled_ga && $group) ||
-								( ! 'piwik' == self::$enabled_piwik && $group) ||
-								( ! 'aum' == self::$enabled_aum && $group) ||
-								( ! (self::$enabled_woocomstatus && 'woocomstatus' == $group))
+						if ( ( ! self::$enabled_sucuri && ('sucuri' == $group)) ||
+								( ! self::$enabled_ga && ('ga' == $group)) ||
+								( ! self::$enabled_piwik && ('piwik' == $group)) ||
+								( ! self::$enabled_aum && ('aum' == $group)) ||
+								( ! self::$enabled_woocomstatus && ('woocomstatus' == $group))
 						) {
 							$disabled = 'disabled';
 						}
-
+							
 						$current = ($visible == $group) ? 'current' : '';
 						$nav_group .= '<a href="#" group="' . $group . '" group-title="' . $group_title . '" class="creport_nav_group_lnk ' . $current . ' ' . $disabled . '">' . $group_title . '</a> | ';
 					}
