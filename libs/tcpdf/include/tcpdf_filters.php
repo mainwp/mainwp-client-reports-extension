@@ -1,4 +1,5 @@
 <?php
+
 //============================================================+
 // File name   : tcpdf_filters.php
 // Version     : 1.0.001
@@ -79,49 +80,49 @@ class TCPDF_FILTERS {
 	public static function decodeFilter($filter, $data) {
 		switch ($filter) {
 			case 'ASCIIHexDecode': {
-				return self::decodeFilterASCIIHexDecode($data);
-				break;
-			}
+					return self::decodeFilterASCIIHexDecode($data);
+					break;
+				}
 			case 'ASCII85Decode': {
-				return self::decodeFilterASCII85Decode($data);
-				break;
-			}
+					return self::decodeFilterASCII85Decode($data);
+					break;
+				}
 			case 'LZWDecode': {
-				return self::decodeFilterLZWDecode($data);
-				break;
-			}
+					return self::decodeFilterLZWDecode($data);
+					break;
+				}
 			case 'FlateDecode': {
-				return self::decodeFilterFlateDecode($data);
-				break;
-			}
+					return self::decodeFilterFlateDecode($data);
+					break;
+				}
 			case 'RunLengthDecode': {
-				return self::decodeFilterRunLengthDecode($data);
-				break;
-			}
+					return self::decodeFilterRunLengthDecode($data);
+					break;
+				}
 			case 'CCITTFaxDecode': {
-				return self::decodeFilterCCITTFaxDecode($data);
-				break;
-			}
+					return self::decodeFilterCCITTFaxDecode($data);
+					break;
+				}
 			case 'JBIG2Decode': {
-				return self::decodeFilterJBIG2Decode($data);
-				break;
-			}
+					return self::decodeFilterJBIG2Decode($data);
+					break;
+				}
 			case 'DCTDecode': {
-				return self::decodeFilterDCTDecode($data);
-				break;
-			}
+					return self::decodeFilterDCTDecode($data);
+					break;
+				}
 			case 'JPXDecode': {
-				return self::decodeFilterJPXDecode($data);
-				break;
-			}
+					return self::decodeFilterJPXDecode($data);
+					break;
+				}
 			case 'Crypt': {
-				return self::decodeFilterCrypt($data);
-				break;
-			}
+					return self::decodeFilterCrypt($data);
+					break;
+				}
 			default: {
-				return self::decodeFilterStandard($data);
-				break;
-			}
+					return self::decodeFilterStandard($data);
+					break;
+				}
 		}
 	}
 
@@ -165,7 +166,7 @@ class TCPDF_FILTERS {
 			// odd number of hexadecimal digits
 			if ($eod) {
 				// EOD shall behave as if a 0 (zero) followed the last digit
-				$data = substr($data, 0, -1).'0'.substr($data, -1);
+				$data = substr($data, 0, -1) . '0' . substr($data, -1);
 			} else {
 				self::Error('decodeFilterASCIIHexDecode: invalid code');
 			}
@@ -210,11 +211,11 @@ class TCPDF_FILTERS {
 			self::Error('decodeFilterASCII85Decode: invalid code');
 		}
 		// z sequence
-		$zseq = chr(0).chr(0).chr(0).chr(0);
+		$zseq = chr(0) . chr(0) . chr(0) . chr(0);
 		// position inside a group of 4 bytes (0-3)
 		$group_pos = 0;
 		$tuple = 0;
-		$pow85 = array((85*85*85*85), (85*85*85), (85*85), 85, 1);
+		$pow85 = array((85 * 85 * 85 * 85), (85 * 85 * 85), (85 * 85), 85, 1);
 		$last_pos = ($data_length - 1);
 		// for each byte
 		for ($i = 0; $i < $data_length; ++$i) {
@@ -230,7 +231,7 @@ class TCPDF_FILTERS {
 				// the value represented by a group of 5 characters should never be greater than 2^32 - 1
 				$tuple += (($char - 33) * $pow85[$group_pos]);
 				if ($group_pos == 4) {
-					$decoded .= chr($tuple >> 24).chr($tuple >> 16).chr($tuple >> 8).chr($tuple);
+					$decoded .= chr($tuple >> 24) . chr($tuple >> 16) . chr($tuple >> 8) . chr($tuple);
 					$tuple = 0;
 					$group_pos = 0;
 				} else {
@@ -244,21 +245,21 @@ class TCPDF_FILTERS {
 		// last tuple (if any)
 		switch ($group_pos) {
 			case 4: {
-				$decoded .= chr($tuple >> 24).chr($tuple >> 16).chr($tuple >> 8);
-				break;
-			}
+					$decoded .= chr($tuple >> 24) . chr($tuple >> 16) . chr($tuple >> 8);
+					break;
+				}
 			case 3: {
-				$decoded .= chr($tuple >> 24).chr($tuple >> 16);
-				break;
-			}
+					$decoded .= chr($tuple >> 24) . chr($tuple >> 16);
+					break;
+				}
 			case 2: {
-				$decoded .= chr($tuple >> 24);
-				break;
-			}
+					$decoded .= chr($tuple >> 24);
+					break;
+				}
 			case 1: {
-				self::Error('decodeFilterASCII85Decode: invalid code');
-				break;
-			}
+					self::Error('decodeFilterASCII85Decode: invalid code');
+					break;
+				}
 		}
 		return $decoded;
 	}
@@ -295,7 +296,7 @@ class TCPDF_FILTERS {
 		// previous val
 		$prev_index = 0;
 		// while we encounter EOD marker (257), read code_length bits
-		while (($data_length > 0) AND (($index = bindec(substr($bitstring, 0, $bitlen))) != 257)) {
+		while (($data_length > 0) AND ( ($index = bindec(substr($bitstring, 0, $bitlen))) != 257)) {
 			// remove read bits from string
 			$bitstring = substr($bitstring, $bitlen);
 			// update number of bits
@@ -320,12 +321,12 @@ class TCPDF_FILTERS {
 				if ($index < $dix) {
 					// index exist on dictionary
 					$decoded .= $dictionary[$index];
-					$dic_val = $dictionary[$prev_index].$dictionary[$index][0];
+					$dic_val = $dictionary[$prev_index] . $dictionary[$index][0];
 					// store current index
 					$prev_index = $index;
 				} else {
 					// index do not exist on dictionary
-					$dic_val = $dictionary[$prev_index].$dictionary[$prev_index][0];
+					$dic_val = $dictionary[$prev_index] . $dictionary[$prev_index][0];
 					$decoded .= $dic_val;
 				}
 				// update dictionary
@@ -374,7 +375,7 @@ class TCPDF_FILTERS {
 		// data length
 		$data_length = strlen($data);
 		$i = 0;
-		while($i < $data_length) {
+		while ($i < $data_length) {
 			// get current byte value
 			$byte = ord($data{$i});
 			if ($byte == 128) {
@@ -471,10 +472,12 @@ class TCPDF_FILTERS {
 	 * @public static
 	 */
 	public static function Error($msg) {
-		throw new Exception('TCPDF_PARSER ERROR: '.$msg);
+		throw new Exception('TCPDF_PARSER ERROR: ' . $msg);
 	}
 
-} // END OF TCPDF_FILTERS CLASS
+}
+
+// END OF TCPDF_FILTERS CLASS
 
 //============================================================+
 // END OF FILE

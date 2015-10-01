@@ -1,4 +1,5 @@
 <?php
+
 //============================================================+
 // File name   : tcpdf_import.php
 // Version     : 1.0.001
@@ -41,11 +42,10 @@
  * @author Nicola Asuni
  * @version 1.0.001
  */
-
 // include the TCPDF class
-require_once(dirname(__FILE__).'/tcpdf.php');
+require_once(dirname(__FILE__) . '/tcpdf.php');
 // include PDF parser class
-require_once(dirname(__FILE__).'/tcpdf_parser.php');
+require_once(dirname(__FILE__) . '/tcpdf_parser.php');
 
 /**
  * @class TCPDF_IMPORT
@@ -69,7 +69,7 @@ class TCPDF_IMPORT extends TCPDF {
 		// load document
 		$rawdata = file_get_contents($filename);
 		if ($rawdata === false) {
-			$this->Error('Unable to get the content of the file: '.$filename);
+			$this->Error('Unable to get the content of the file: ' . $filename);
 		}
 		// configuration parameters for parser
 		$cfg = array(
@@ -97,7 +97,9 @@ class TCPDF_IMPORT extends TCPDF {
 		unset($pdf);
 	}
 
-} // END OF CLASS
+}
+
+// END OF CLASS
 
 //============================================================+
 // END OF FILE

@@ -40,13 +40,12 @@
  * @package com.tecnick.tcpdf
  * @version 1.0.000
  */
-
 if (php_sapi_name() != 'cli') {
-  echo 'You need to run this command from console.';
-  exit(1);
+	echo 'You need to run this command from console.';
+	exit(1);
 }
 
-$tcpdf_include_dirs = array(realpath(dirname(__FILE__).'/../tcpdf.php'), '/usr/share/php/tcpdf/tcpdf.php', '/usr/share/tcpdf/tcpdf.php', '/usr/share/php-tcpdf/tcpdf.php', '/var/www/tcpdf/tcpdf.php', '/var/www/html/tcpdf/tcpdf.php', '/usr/local/apache2/htdocs/tcpdf/tcpdf.php');
+$tcpdf_include_dirs = array(realpath(dirname(__FILE__) . '/../tcpdf.php'), '/usr/share/php/tcpdf/tcpdf.php', '/usr/share/tcpdf/tcpdf.php', '/usr/share/php-tcpdf/tcpdf.php', '/var/www/tcpdf/tcpdf.php', '/var/www/html/tcpdf/tcpdf.php', '/usr/local/apache2/htdocs/tcpdf/tcpdf.php');
 foreach ($tcpdf_include_dirs as $tcpdf_include_path) {
 	if (@file_exists($tcpdf_include_path)) {
 		require_once($tcpdf_include_path);
@@ -121,7 +120,7 @@ Options:
 	-h
 	--help      Display this help and exit.
 EOD;
-	echo $help."\n\n";
+	echo $help . "\n\n";
 	exit(0);
 }
 
@@ -130,11 +129,11 @@ array_shift($argv);
 
 // no options chosen
 if (!is_array($argv)) {
-  showHelp();
+	showHelp();
 }
 
 // initialize the array of options
-$options = array('type'=>'', 'enc'=>'', 'flags'=>32, 'outpath'=>K_PATH_FONTS, 'platid'=>3, 'encid'=>1, 'addcbbox'=>false, 'link'=>false);
+$options = array('type' => '', 'enc' => '', 'flags' => 32, 'outpath' => K_PATH_FONTS, 'platid' => 3, 'encid' => 1, 'addcbbox' => false, 'link' => false);
 
 // short input options
 $sopt = '';
@@ -170,60 +169,60 @@ foreach ($inopt as $opt => $val) {
 	switch ($opt) {
 		case 't':
 		case 'type': {
-			if (in_array($val, array('TrueTypeUnicode', 'TrueType', 'Type1', 'CID0JP', 'CID0KR', 'CID0CS', 'CID0CT'))) {
-				$options['type'] = $val;
+				if (in_array($val, array('TrueTypeUnicode', 'TrueType', 'Type1', 'CID0JP', 'CID0KR', 'CID0CS', 'CID0CT'))) {
+					$options['type'] = $val;
+				}
+				break;
 			}
-			break;
-		}
 		case 'e':
 		case 'enc': {
-			$options['enc'] = $val;
-			break;
-		}
+				$options['enc'] = $val;
+				break;
+			}
 		case 'f':
 		case 'flags': {
-			$options['flags'] = intval($val);
-			break;
-		}
+				$options['flags'] = intval($val);
+				break;
+			}
 		case 'o':
 		case 'outpath': {
-			$options['outpath'] = realpath($val);
-			if (substr($options['outpath'], -1) != '/') {
-				$options['outpath'] .= '/';
+				$options['outpath'] = realpath($val);
+				if (substr($options['outpath'], -1) != '/') {
+					$options['outpath'] .= '/';
+				}
+				break;
 			}
-			break;
-		}
 		case 'p':
 		case 'platid': {
-			$options['platid'] = min(max(1, intval($val)), 3);
-			break;
-		}
+				$options['platid'] = min(max(1, intval($val)), 3);
+				break;
+			}
 		case 'n':
 		case 'encid': {
-			$options['encid'] = min(max(0, intval($val)), 10);
-			break;
-		}
+				$options['encid'] = min(max(0, intval($val)), 10);
+				break;
+			}
 		case 'b':
 		case 'addcbbox': {
-			$options['addcbbox'] = true;
-			break;
-		}
+				$options['addcbbox'] = true;
+				break;
+			}
 		case 'l':
 		case 'link': {
-			$options['link'] = true;
-			break;
-		}
+				$options['link'] = true;
+				break;
+			}
 		case 'i':
 		case 'fonts': {
-			$options['fonts'] = explode(',', $val);
-			break;
-		}
+				$options['fonts'] = explode(',', $val);
+				break;
+			}
 		case 'h':
 		case 'help':
 		default: {
-			showHelp();
-			break;
-		}
+				showHelp();
+				break;
+			}
 	} // end of switch
 } // end of while loop
 
@@ -233,14 +232,14 @@ if (empty($options['fonts'])) {
 }
 
 // check the output path
-if (!is_dir($options['outpath']) OR !is_writable($options['outpath'])) {
-	echo "ERROR: Can't write to ".$options['outpath']."\n\n";
+if (!is_dir($options['outpath']) OR ! is_writable($options['outpath'])) {
+	echo "ERROR: Can't write to " . $options['outpath'] . "\n\n";
 	exit(3);
 }
 
 echo "\n>>> Converting fonts for TCPDF:\n";
 
-echo '*** Output dir set to '.$options['outpath']."\n";
+echo '*** Output dir set to ' . $options['outpath'] . "\n";
 
 // check if there are conversion errors
 $errors = false;
@@ -250,9 +249,9 @@ foreach ($options['fonts'] as $font) {
 	$fontname = TCPDF_FONTS::addTTFfont($fontfile, $options['type'], $options['enc'], $options['flags'], $options['outpath'], $options['platid'], $options['encid'], $options['addcbbox'], $options['link']);
 	if ($fontname === false) {
 		$errors = true;
-		echo "--- ERROR: can't add ".$font."\n";
+		echo "--- ERROR: can't add " . $font . "\n";
 	} else {
-		echo "+++ OK   : ".$fontfile.' added as '.$fontname."\n";
+		echo "+++ OK   : " . $fontfile . ' added as ' . $fontname . "\n";
 	}
 }
 

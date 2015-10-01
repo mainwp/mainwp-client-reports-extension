@@ -1,4 +1,5 @@
 <?php
-include_once('bootstrap.php');
 
-MainWPCReport::cron_archive_reports();
+include_once( 'bootstrap.php' );
+
+MainWP_CReport::cron_archive_reports();

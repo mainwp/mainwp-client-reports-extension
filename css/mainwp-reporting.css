@@ -1,144 +1,144 @@
 /* Token list */
 .creport_list_tokens {
-    font-family: sans-serif;
-    margin: 20px 0 0;
-    overflow: hidden;
-    padding: 0;
+	font-family: sans-serif;
+	margin: 20px 0 0;
+	overflow: hidden;
+	padding: 0;
 }
 .creport_list_tokens tr:nth-child(2n+1) {
-    background: none repeat scroll 0 0 #FAFAFA;
+	background: none repeat scroll 0 0 #FAFAFA;
 }
 .creport_list_tokens > table > tbody > tr > td.token-name {
-    width: 46%;
+	width: 46%;
 }
 .creport_list_tokens > table > tbody > tr > td {
-    padding: 2px 10px;
+	padding: 2px 10px;
 }
 .creport_list_tokens .managetoken-item .text {
-    padding-left: 8px;
+	padding-left: 8px;
 }
 .creport_list_tokens .token-name,  .creport_list_tokens .form-table th.token-name {
-    color: #7FB100;
+	color: #7FB100;
 }
 .creport_list_tokens > table > tbody tr {
-    font-size: 13px;
-    line-height: 24px;
+	font-size: 13px;
+	line-height: 24px;
 }
 .creport_list_tokens .managetoken-item input[type="text"] {
-    border-radius: 5px !important;
-    height: 35px;
-    width: 93%;
+	border-radius: 5px !important;
+	height: 35px;
+	width: 93%;
 }
 .creport_list_tokens > table {
-    padding-bottom: 10px;
+	padding-bottom: 10px;
 }
 
 /* new report */
 .creport-option-row {
-    margin-top: 7px;
+	margin-top: 7px;
 }
 .creport-option-row input{
-    margin-right: 5px;    
+	margin-right: 5px;
 }
 .creport-option-row label {
-    width: 180px;
-    display: inline-block;
+	width: 180px;
+	display: inline-block;
 }
 .creport-option-row.title input{
-    width: 500px;
+	width: 500px;
 }
 .creport-option-row.date input{
-    width: 120px;
+	width: 120px;
 }
 .mainwp-creport-report-setting-box .desc-light {
-    font-style:italic;
-    color: #DDDDDD;
+	font-style:italic;
+	color: #DDDDDD;
 }
 .mainwp-creport-report-setting-box .title input, #mwp_creport_email_subject {
-    width: 500px;
+	width: 500px;
 }
 .mainwp-creport-report-setting-box .date input, #mainwp_creport_schedule_date{
-    width: 120px;
+	width: 120px;
 }
 .mainwp-creport-report-setting-box{
-    margin: 0px 272px 0 0;
+	margin: 0px 272px 0 0;
 }
 .crp-editor-field {
-    float: left;    
+	float: left;
 }
 #wpcr_edit_tab tr th{
-    vertical-align: text-top;    
+	vertical-align: text-top;
 }
 .creport_format_data_tokens {
-    background: none repeat scroll 0 0 #F5F5F5;
-    padding: 5px;
-    min-height: 280px;
+	background: none repeat scroll 0 0 #F5F5F5;
+	padding: 5px;
+	min-height: 280px;
 }
 
 .creport_format_group_nav.top {
-    border-bottom: 1px solid #fff;
-    padding: 5px;
+	border-bottom: 1px solid #fff;
+	padding: 5px;
 }
-.creport_format_group_nav.bottom {        
-    display: none;
-    background: none repeat scroll 0 0 #F5F5F5;
-    padding: 2px 10px;
+.creport_format_group_nav.bottom {
+	display: none;
+	background: none repeat scroll 0 0 #F5F5F5;
+	padding: 2px 10px;
 }
 
-.creport_format_group_nav.bottom.current {        
-    display: block;
+.creport_format_group_nav.bottom.current {
+	display: block;
 }
 
 .creport_format_group_nav .current {
-    color: #AA0000;
+	color: #AA0000;
 }
 .creport_stream_token_desc {
-    font-style:italic;
+	font-style:italic;
 }
 a.creport_format_add_token{
-    padding: 0.2em 0.5em;
+	padding: 0.2em 0.5em;
 }
 a.creport_format_add_token:hover {
-    background: #7FB100;
-    color: #fff !important;
-    cursor: pointer;
+	background: #7FB100;
+	color: #fff !important;
+	cursor: pointer;
 }
 .creport_format_group_data_tokens {
-    display: none;
-    min-height: 180px;
+	display: none;
+	min-height: 180px;
 }
 .creport_format_group_data_tokens.current{
-    display: block;
+	display: block;
 }
 .creport_format_group_data_tokens td {
-    padding: 3px;
+	padding: 3px;
 }
 .mwp_creport_logo_image img{
-    max-width: 800px;
+	max-width: 800px;
 }
 
 #wpcr_report_tab tr .loading .status {
-    font-style: italic;
+	font-style: italic;
 }
 .mainwp_page_Extensions-Mainwp-Client-Reports-Extension .ui-dialog[aria-describedby="mwp-creport-preview-box"] {
-    width: 800px !important;    
+	width: 800px !important;
 }
 .creport_format_nav_bottom{
-    background: none repeat scroll 0 0 #F5F5F5;
-    padding-bottom: 2px;
+	background: none repeat scroll 0 0 #F5F5F5;
+	padding-bottom: 2px;
 }
 .creport_format_nav_bottom_breadcrumb {
-    padding: 5px;
-    margin: 5px;
-    border: 2px solid #DDDDDD;
+	padding: 5px;
+	margin: 5px;
+	border: 2px solid #DDDDDD;
 }
 
 .mainwp_creport_format_section_header > h3 {
-    padding: 10px 0;
+	padding: 10px 0;
 }
 .mainwp_creport_format_section_header h3 {
-    border-bottom: 1px solid #aaa;    
-    margin: 0;
+	border-bottom: 1px solid #aaa;
+	margin: 0;
 }
 /*.mainwp_creport_format_section_header .handlediv{
     float: right;
@@ -146,17 +146,17 @@ a.creport_format_add_token:hover {
     width: 27px;
 }*/
 .mainwp_creport_format_section_header .handlelnk{
-    margin: 10px 10px 0;    
-    float: right;
-    text-decoration: none;
-    font-size: 13px;
+	margin: 10px 10px 0;
+	float: right;
+	text-decoration: none;
+	font-size: 13px;
 }
 /*
 .mainwp_creport_format_section_header .handlediv:before{
-   content: '\f142'; 
+   content: '\f142';
 }
 .mainwp_creport_format_section_header.closed .handlediv:before{
-    content: '\f140'; 
+    content: '\f140';
 }
 .mainwp_creport_format_section_header .handlediv:before{
     right: 12px;
@@ -173,62 +173,62 @@ a.creport_format_add_token:hover {
 */
 
 .mainwp_creport_format_section .logo {
-    width: 100%;
-    text-align: center;
-    padding-top: 55px;
+	width: 100%;
+	text-align: center;
+	padding-top: 55px;
 }
 .mainwp_creport_format_save_section {
-    width: 100%;
-    margin: 3px 0;
+	width: 100%;
+	margin: 3px 0;
 }
 .mainwp_creport_format_save_section .inner{
-    float: left;
-    width: 50%;
-    text-align: left;
+	float: left;
+	width: 50%;
+	text-align: left;
 }
 .mainwp_creport_format_save_section {
-    margin: 10px 0 10px;
-    height: 30px;
+	margin: 10px 0 10px;
+	height: 30px;
 }
 
-.mainwp_creport_format_save_section .inner > input[type="text"], 
+.mainwp_creport_format_save_section .inner > input[type="text"],
 .mainwp_creport_format_save_section .inner > select {
-    width: 190px;
+	width: 190px;
 }
 .mainwp_creport_format_save_section .inner .status, .creport-action-working .status {
-    font-style: italic;
+	font-style: italic;
 }
 
 #mainwp-cr-tips {
-    display: none;
+	display: none;
 }
 .mainwp-cr-tut, #mainwp-cr-tips {
-    display: none;
+	display: none;
 }
 #mwp-creport-schedule-btn {
-    margin-left: 100px;
+	margin-left: 100px;
 }
-.mwp_creport_tooltip_content{ 
-    display: none;
-    
+.mwp_creport_tooltip_content{
+	display: none;
+
 }
 .mwp_creport_token_tooltip {
-    cursor: pointer;
+	cursor: pointer;
 }
 #mainwp_cr_remove_client {
-    color: red;
-    text-decoration: none;
-    display: none;
+	color: red;
+	text-decoration: none;
+	display: none;
 }
 
 .mainwp_ext_info_box {
-    background-color: #fff;
-    border: 1px Solid #e5e5e5;
-    padding: 1em;
-    margin-bottom: 1em;
-    text-decoration: none !important;
+	background-color: #fff;
+	border: 1px Solid #e5e5e5;
+	padding: 1em;
+	margin-bottom: 1em;
+	text-decoration: none !important;
 }
 
 .mainwp_ext_info_box a {
-    text-decoration: none !important;
+	text-decoration: none !important;
 }
