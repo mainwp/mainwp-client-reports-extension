@@ -18,7 +18,7 @@ Icon URI: http://extensions.mainwp.com/wp-content/uploads/2014/05/mainwp-client-
 
 == Changelog ==
 
-= 0.1.2 = 
+= 0.1.2 = 8-3-2015
 * Added: Support for the MainWP Child Reports plugin
 * Added: Additional schedule options (Quarterly, Twice a Year, Yearly)
 
