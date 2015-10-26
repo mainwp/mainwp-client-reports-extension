@@ -1096,7 +1096,9 @@ class MainWP_CReport {
 			$return = array();
 			if ( isset( $_FILES['mainwp_creport_attach_files'] ) && ! empty( $_FILES['mainwp_creport_attach_files']['name'][0] ) ) {
 				if ( ! empty( $current_attach_files ) ) {
-					self::delete_attach_files( $current_attach_files, $creport_dir ); }
+					self::delete_attach_files( $current_attach_files, $creport_dir );
+				}
+
 				$output = self::handle_upload_files( $_FILES['mainwp_creport_attach_files'], $creport_dir );
 				//print_r($output);
 				if ( isset( $output['error'] ) ) {
@@ -1193,7 +1195,7 @@ class MainWP_CReport {
 	public static function handle_upload_files( $file_input, $dest_dir ) {
 		$output = array();
 		$attachFiles = array();
-		$allowed_files = array( 'jpeg', 'jpg', 'gif', 'png', 'rar', 'zip' );
+		$allowed_files = array( 'jpeg', 'jpg', 'gif', 'png', 'rar', 'zip', 'pdf' );
 
 		$tmp_files = $file_input['tmp_name'];
 		if ( is_array( $tmp_files ) ) {
@@ -1202,10 +1204,10 @@ class MainWP_CReport {
 					$file_size = $file_input['size'][ $i ];
 					// = $file_input['type'][$i];
 					$file_name = $file_input['name'][ $i ];
-
+					$file_ext = strtolower( end( explode( '.', $file_name ) ) );
 					if ( ($file_size > 5 * 1024 * 1024) ) {
 						$output['error'][] = $file_name . ' - ' . __( 'File size too big' );
-					} else if ( ! in_array( end( explode( '.', $file_name ) ), $allowed_files ) ) {
+					} else if ( ! in_array( $file_ext, $allowed_files ) ) {
 						$output['error'][] = $file_name . ' - ' . __( 'File type are not allowed' );
 					} else {
 						$dest_file = $dest_dir . $file_name;
@@ -3030,7 +3032,7 @@ class MainWP_CReport {
 				$website = ($report->selected_site && isset( $websites[ $report->selected_site ] )) ? $websites[ $report->selected_site ] : null;
 				$site_column = '';
 				if ( ! empty( $website ) ) {
-					$site_column = '<a href="admin.php?page=managesites&dashboard=' . $website['id'] . '">' . esc_html( $website['name'] ) . '</a><br>' .
+					$site_column = '<a href="admin.php?page=managesites&dashboard=' . $website['id'] . '">' . esc_html( stripslashes($website['name']) ) . '</a><br>' .
 							'<div class="row-actions"><span class="dashboard"><a href="admin.php?page=managesites&dashboard=' . $website['id'] . '">' . __( 'Dashboard' ) . '</a></span> | ' .
 							'<span class="edit"><a href="admin.php?page=managesites&id=' . $website['id'] . '">' . __( 'Edit' ) . '</a></span></div>';
 				}

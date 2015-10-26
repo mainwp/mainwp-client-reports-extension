@@ -164,7 +164,7 @@ class MainWP_CReport_Stream {
                     <input type="checkbox"  name="checked[]">
                 </th>
                 <td>
-					<a href="admin.php?page=managesites&dashboard=<?php echo $website_id; ?>"><?php echo $website['name']; ?></a><br/>
+					<a href="admin.php?page=managesites&dashboard=<?php echo $website_id; ?>"><?php echo stripslashes( $website['name'] ); ?></a><br/>
 					<div class="row-actions"><span class="dashboard"><a href="admin.php?page=managesites&dashboard=<?php echo $website_id; ?>"><?php _e( 'Dashboard' ); ?></a></span> |  <span class="edit"><a href="admin.php?page=managesites&id=<?php echo $website_id; ?>"><?php _e( 'Edit' ); ?></a> | <?php echo $showhide_link; ?></span></div>                    
 					<div class="creport-action-working"><span class="status" style="display:none;"></span><span class="loading" style="display:none;"><img src="<?php echo $url_loader; ?>"> <?php _e( 'Please wait...' ); ?></span></div>
                 </td>
@@ -402,7 +402,7 @@ class MainWP_CReport_Stream {
 					<?php
 					if ( is_array( $websites ) && count( $websites ) > 0 ) {
 						foreach ( $websites as $website ) {
-							echo '<option>' . $website['name'] . '</option>';
+							echo '<option>' . stripslashes( $website['name'] ) . '</option>';
 						}
 					}
 					?>                
