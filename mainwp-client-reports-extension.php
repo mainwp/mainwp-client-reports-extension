@@ -118,10 +118,11 @@ register_activation_hook( __FILE__, 'wpcreport_extension_activate' );
 register_deactivation_hook( __FILE__, 'wpcreport_extension_deactivate' );
 
 function wpcreport_extension_activate() {
-
 	update_option( 'mainwp_client_reports_activated', 'yes' );
 	$extensionActivator = new MainWP_CReport_Extension_Activator();
 	$extensionActivator->activate();
+	$plugin_slug = plugin_basename(__FILE__);  	
+	do_action('mainwp_enable_extension', $plugin_slug);
 }
 
 function wpcreport_extension_deactivate() {
