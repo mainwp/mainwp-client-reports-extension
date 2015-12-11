@@ -40,6 +40,7 @@ class MainWP_CReport_Extension {
 
 		add_action( 'init', array( &$this, 'init' ) );
 		add_filter( 'plugin_row_meta', array( &$this, 'plugin_row_meta' ), 10, 2 );
+		add_action( 'after_plugin_row', array( &$this, 'after_plugin_row' ), 10, 3 );
 		add_action( 'admin_init', array( &$this, 'admin_init' ) );
 
 		MainWP_CReport_DB::get_instance()->install();
@@ -67,6 +68,29 @@ class MainWP_CReport_Extension {
 		$plugin_meta[] = '<a href="?do=checkUpgrade" title="Check for updates.">Check for updates now</a>';
 		return $plugin_meta;
 	}
+	
+	public function after_plugin_row( $plugin_file, $plugin_data, $status ) {	
+		if ( $this->plugin_slug != $plugin_file ) {
+			return ;
+		}	
+		$slug = basename($plugin_file, ".php");
+		$api_data = get_option( $slug. '_APIManAdder');
+		
+		if (!is_array($api_data) || !isset($api_data['activated_key']) || $api_data['activated_key'] != 'Activated'){
+			if (!isset($api_data['api_key']) || empty($api_data['api_key'])) {
+				?>
+				<style type="text/css">
+					tr#<?php echo $slug;?> td, tr#<?php echo $slug;?> th{
+						box-shadow: none;
+					}
+				</style>
+				<tr class="plugin-update-tr active"><td colspan="3" class="plugin-update colspanchange"><div class="update-message api-deactivate">
+				<?php echo (sprintf(__("API not activated check your %sMainWP account%s for updates. For automatic update notification please activate the API.", "mainwp"), '<a href="https://extensions.mainwp.com/my-account" target="_blank">', '</a>')); ?>
+				</div></td></tr>
+				<?php
+			}
+		}		
+	}	
 
 	public function admin_init() {
 
