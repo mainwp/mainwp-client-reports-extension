@@ -1,14 +1,14 @@
 <?php
 /*
   Plugin Name: MainWP Client Reports Extension
-  Plugin URI: http://extensions.mainwp.com
+  Plugin URI: https://mainwp.com
   Description: MainWP Client Reports Extension allows you to generate activity reports for your clients sites. Requires MainWP Dashboard.
   Version: 0.1.2
   Author: MainWP
-  Author URI: http://mainwp.com
+  Author URI: https://mainwp.com
   Support Forum URI: https://mainwp.com/forum/forumdisplay.php?100-Client-Reports
   Documentation URI: http://docs.mainwp.com/category/mainwp-extensions/mainwp-client-reports/
-  Icon URI: http://extensions.mainwp.com/wp-content/uploads/2014/05/mainwp-client-reports-extension.png
+  Icon URI:
  */
 if ( ! defined( 'MAINWP_CLIENT_REPORTS_PLUGIN_FILE' ) ) {
 	define( 'MAINWP_CLIENT_REPORTS_PLUGIN_FILE', __FILE__ );
