@@ -75,16 +75,16 @@ class MainWP_CReport_Stream {
                         <input type="checkbox"  id="cb-select-all-1" >
                     </th>
 					<th scope="col" class="manage-column sortable <?php echo $name_order; ?>">
-						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=name&stream_order=<?php echo (empty( $name_order ) ? 'asc' : $name_order); ?>"><span><?php _e( 'Site', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=name&stream_order=<?php echo (empty( $name_order ) ? 'asc' : $name_order); ?>"><span><?php _e( 'Site', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>
 					<th scope="col" class="manage-column sortable <?php echo $url_order; ?>">
-						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=url&stream_order=<?php echo (empty( $url_order ) ? 'asc' : $url_order); ?>"><span><?php _e( 'URL', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=url&stream_order=<?php echo (empty( $url_order ) ? 'asc' : $url_order); ?>"><span><?php _e( 'URL', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>
 					<th scope="col" class="manage-column sortable <?php echo $version_order; ?>">
-						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=version&stream_order=<?php echo (empty( $version_order ) ? 'asc' : $version_order); ?>"><span><?php _e( 'Plugin Version', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=version&stream_order=<?php echo (empty( $version_order ) ? 'asc' : $version_order); ?>"><span><?php _e( 'Plugin Version', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>
 					<th scope="col" class="manage-column <?php echo $hidden_order; ?>">
-						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=hidden&stream_order=<?php echo (empty( $hidden_order ) ? 'asc' : $hidden_order); ?>"><span><?php _e( 'Plugin Hidden', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=hidden&stream_order=<?php echo (empty( $hidden_order ) ? 'asc' : $hidden_order); ?>"><span><?php _e( 'Plugin Hidden', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>
                 </tr>
             </thead>
@@ -94,16 +94,16 @@ class MainWP_CReport_Stream {
                         <input type="checkbox"  id="cb-select-all-2" >
                     </th>
 					<th scope="col" class="manage-column sortable <?php echo $name_order; ?>">
-						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=name&stream_order=<?php echo (empty( $name_order ) ? 'asc' : $name_order); ?>"><span><?php _e( 'Site', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=name&stream_order=<?php echo (empty( $name_order ) ? 'asc' : $name_order); ?>"><span><?php _e( 'Site', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>
 					<th scope="col" class="manage-column sortable <?php echo $url_order; ?>">
-						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=url&stream_order=<?php echo (empty( $url_order ) ? 'asc' : $url_order); ?>"><span><?php _e( 'URL', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=url&stream_order=<?php echo (empty( $url_order ) ? 'asc' : $url_order); ?>"><span><?php _e( 'URL', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>
 					<th scope="col" class="manage-column sortable <?php echo $version_order; ?>">
-						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=version&stream_order=<?php echo (empty( $version_order ) ? 'asc' : $version_order); ?>"><span><?php _e( 'Plugin Version', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=version&stream_order=<?php echo (empty( $version_order ) ? 'asc' : $version_order); ?>"><span><?php _e( 'Plugin Version', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>     
 					<th scope="col" class="manage-column <?php echo $hidden_order; ?>">
-						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=hidden&stream_order=<?php echo (empty( $hidden_order ) ? 'asc' : $hidden_order); ?>"><span><?php _e( 'Plugin Hidden', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=hidden&stream_order=<?php echo (empty( $hidden_order ) ? 'asc' : $hidden_order); ?>"><span><?php _e( 'Plugin Hidden', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>
                 </tr>
             </tfoot>
@@ -166,11 +166,11 @@ class MainWP_CReport_Stream {
                 <td>
 					<a href="admin.php?page=managesites&dashboard=<?php echo $website_id; ?>"><?php echo stripslashes( $website['name'] ); ?></a><br/>
 					<div class="row-actions"><span class="dashboard"><a href="admin.php?page=managesites&dashboard=<?php echo $website_id; ?>"><?php _e( 'Dashboard' ); ?></a></span> |  <span class="edit"><a href="admin.php?page=managesites&id=<?php echo $website_id; ?>"><?php _e( 'Edit' ); ?></a> | <?php echo $showhide_link; ?></span></div>                    
-					<div class="creport-action-working"><span class="status" style="display:none;"></span><span class="loading" style="display:none;"><img src="<?php echo $url_loader; ?>"> <?php _e( 'Please wait...' ); ?></span></div>
+					<div class="creport-action-working"><span class="status" style="display:none;"></span><span class="loading" style="display:none;"><img src="<?php echo $url_loader; ?>"> <?php _e( 'Please wait...', 'mainwp-client-reports-extension' ); ?></span></div>
                 </td>
                 <td>
 					<a href="<?php echo $website['url']; ?>" target="_blank"><?php echo $website['url']; ?></a><br/>
-					<div class="row-actions"><span class="edit"><a target="_blank" href="admin.php?page=SiteOpen&newWindow=yes&websiteid=<?php echo $website_id; ?>"><?php _e( 'Open WP-Admin' ); ?></a></span> | <span class="edit"><a href="admin.php?page=SiteOpen&newWindow=yes&websiteid=<?php echo $website_id; ?>&location=<?php echo base64_encode( $location ); ?>" target="_blank"><?php echo $openlink_title; ?></a></span></div>                    
+					<div class="row-actions"><span class="edit"><a target="_blank" href="admin.php?page=SiteOpen&newWindow=yes&websiteid=<?php echo $website_id; ?>"><?php _e( 'Open WP-Admin', 'mainwp-client-reports-extension' ); ?></a></span> | <span class="edit"><a href="admin.php?page=SiteOpen&newWindow=yes&websiteid=<?php echo $website_id; ?>&location=<?php echo base64_encode( $location ); ?>" target="_blank"><?php echo $openlink_title; ?></a></span></div>                    
                 </td>
                 <td>
 					<?php
@@ -202,11 +202,11 @@ class MainWP_CReport_Stream {
 				if ( isset( $website['reports_upgrade'] ) ) {
 					if ( isset( $website['reports_upgrade']['new_version'] ) ) {
 						$version = $website['reports_upgrade']['new_version']; }
-					$update_link = '<a href="#" class="creport_upgrade_plugin" >' . __( 'Update MainWP Child Reports plugin' ) . '</a>';
+					$update_link = '<a href="#" class="creport_upgrade_plugin" >' . __( 'Update MainWP Child Reports plugin', 'mainwp-client-reports-extension' ) . '</a>';
 				} else if ( isset( $website['stream_upgrade'] ) ) {
 					if ( isset( $website['stream_upgrade']['new_version'] ) ) {
 						$version = $website['stream_upgrade']['new_version']; }
-					$update_link = '<a href="#" class="creport_upgrade_plugin" >' . __( 'Update Stream plugin' ) . '</a>';
+					$update_link = '<a href="#" class="creport_upgrade_plugin" >' . __( 'Update Stream plugin', 'mainwp-client-reports-extension' ) . '</a>';
 				}
 
 				if ( ! empty( $active_link ) || ! empty( $update_link ) ) {
@@ -384,7 +384,7 @@ class MainWP_CReport_Stream {
 
         <div class="alignleft actions bulkactions">
             <select id="creport_stream_action">
-				<option selected="selected" value="-1"><?php _e( 'Bulk Actions' ); ?></option>
+				<option selected="selected" value="-1"><?php _e( 'Bulk Actions', 'mainwp-client-reports-extension' ); ?></option>
 				<option value="activate-selected"><?php _e( 'Active' ); ?></option>
 				<option value="update-selected"><?php _e( 'Update' ); ?></option>
 				<option value="hide-selected"><?php _e( 'Hide' ); ?></option>
@@ -396,7 +396,7 @@ class MainWP_CReport_Stream {
         <div class="alignleft actions">
             <form action="" method="GET">
                 <input type="hidden" name="page" value="Extensions-Mainwp-Client-Reports-Extension">
-				<span role="status" aria-live="polite" class="ui-helper-hidden-accessible"><?php _e( 'No search results.', 'mainwp' ); ?></span>
+				<span role="status" aria-live="polite" class="ui-helper-hidden-accessible"><?php _e( 'No search results.', 'mainwp-client-reports-extension' ); ?></span>
 				<input type="text" class="mainwp_autocomplete ui-autocomplete-input" name="s" autocompletelist="sites" value="<?php echo stripslashes( $search ); ?>" autocomplete="off">
                 <datalist id="sites">
 					<?php
@@ -413,7 +413,7 @@ class MainWP_CReport_Stream {
         <div class="alignleft actions">
             <form method="post" action="admin.php?page=Extensions-Mainwp-Client-Reports-Extension">
                 <select name="mainwp_creport_stream_groups_select">
-					<option value="0"><?php _e( 'Select a group' ); ?></option>
+					<option value="0"><?php _e( 'Select a group', 'mainwp-client-reports-extension' ); ?></option>
 					<?php
 					if ( is_array( $groups ) && count( $groups ) > 0 ) {
 						foreach ( $groups as $group ) {
@@ -425,7 +425,7 @@ class MainWP_CReport_Stream {
 					}
 					?>
                 </select>&nbsp;&nbsp;                     
-				<input class="button" type="button" name="creport_stream_btn_display" id="creport_stream_btn_display"value="<?php _e( 'Display', 'mainwp' ); ?>">
+				<input class="button" type="button" name="creport_stream_btn_display" id="creport_stream_btn_display"value="<?php _e( 'Display', 'mainwp-client-reports-extension' ); ?>">
             </form>  
         </div>    
 		<?php

@@ -924,13 +924,13 @@ class MainWP_CReport {
 			$reports = MainWP_CReport_DB::get_instance()->get_report_by( 'site', $website->id );
 			$reports_lnk = '';
 			if ( is_array( $reports ) && count( $reports ) > 0 ) {
-				$reports_lnk = '<a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&site=' . $website->id . '">' . __( 'Reports', 'mainwp' ) . '</a> | ';
+				$reports_lnk = '<a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&site=' . $website->id . '">' . __( 'Reports', 'mainwp-client-reports-extension' ) . '</a> | ';
 			}
 			?>
 			<div class="mainwp-row">
-				<div style="display: inline-block; width: 100px;"><?php _e( 'Client Reports:', 'mainwp' ); ?></div>
+				<div style="display: inline-block; width: 100px;"><?php _e( 'Client Reports:', 'mainwp-client-reports-extension' ); ?></div>
 				<?php echo $reports_lnk; ?>
-				<a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=newreport&selected_site=<?php echo $website->id; ?>"><?php _e( 'New Report', 'mainwp' ); ?></a>
+				<a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=newreport&selected_site=<?php echo $website->id; ?>"><?php _e( 'New Report', 'mainwp-client-reports-extension' ); ?></a>
 			</div>
 			<?php
 		}
@@ -941,10 +941,10 @@ class MainWP_CReport {
 			$reports = MainWP_CReport_DB::get_instance()->get_report_by( 'site', $site_id );
 			$link = '';
 			if ( is_array( $reports ) && count( $reports ) > 0 ) {
-				$link = '<a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&site=' . $site_id . '">' . __( 'Reports', 'mainwp' ) . '</a> ' .
-						'( <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=newreport&selected_site=' . $site_id . '">' . __( 'New', 'mainwp' ) . '</a> )';
+				$link = '<a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&site=' . $site_id . '">' . __( 'Reports', 'mainwp-client-reports-extension' ) . '</a> ' .
+						'( <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=newreport&selected_site=' . $site_id . '">' . __( 'New', 'mainwp-client-reports-extension' ) . '</a> )';
 			} else {
-				$link = '<a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=newreport&selected_site=' . $site_id . '">' . __( 'New Report', 'mainwp' ) . '</a>';
+				$link = '<a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=newreport&selected_site=' . $site_id . '">' . __( 'New Report', 'mainwp-client-reports-extension' ) . '</a>';
 			}
 			$actions['client_reports'] = $link;
 		}
@@ -1782,7 +1782,7 @@ class MainWP_CReport {
 									?>
                                 </select>
 								<input type="button" id="mainwp_creport_select_client_btn_display" class="button" value="<?php _e( 'Display' ); ?>" />
-								&nbsp;&nbsp;<a href="#" id="mainwp_cr_remove_client"><?php _e( 'Remove Client', 'mainwp' ); ?></a>
+								&nbsp;&nbsp;<a href="#" id="mainwp_cr_remove_client"><?php _e( 'Remove Client', 'mainwp-client-reports-extension' ); ?></a>
 								&nbsp;<span class="wpcr_report_tab_nav_action_working"><img src="<?php echo $url_loader; ?>" class="hidden"><span class="status hidden"></span></span>
                             </div>                            
 							<?php self::report_tab( $websites ); ?>                                                                                  
@@ -1801,9 +1801,9 @@ class MainWP_CReport {
 									if ( ! is_array( $sel_groups ) ) {
 										$sel_groups = array(); }
 									?>                                
-									<?php do_action( 'mainwp_select_sites_box', __( 'Select Site', 'mainwp' ), 'checkbox', true, true, 'mainwp_select_sites_box_right', '', $sel_sites, $sel_groups ); ?>
+									<?php do_action( 'mainwp_select_sites_box', __( 'Select Site', 'mainwp-client-reports-extension' ), 'checkbox', true, true, 'mainwp_select_sites_box_right', '', $sel_sites, $sel_groups ); ?>
 								<?php } else { ?>
-									<?php do_action( 'mainwp_select_sites_box', __( 'Select Site', 'mainwp' ), 'radio', false, false, 'mainwp_select_sites_box_right', '', array( $selected_site ), array() ); ?>                                
+									<?php do_action( 'mainwp_select_sites_box', __( 'Select Site', 'mainwp-client-reports-extension' ), 'radio', false, false, 'mainwp_select_sites_box_right', '', array( $selected_site ), array() ); ?>                                
                                     <div class="mainwp_info-box-yellow"><strong style="font-style:initial">Note</strong>: <span class="description">Only sites with the Stream Plugin installed will be displayed in the list.</span></div>                                
 								<?php } ?>
 
@@ -1811,10 +1811,10 @@ class MainWP_CReport {
 							<div id="wpcr_edit_tab"  <?php echo $style_tab_edit; ?>> 
 								<?php
 								self::new_report_tab( $report );
-								$_archive_btn = '<input type="submit" value="' . __( 'Archive Report', 'mainwp' ) . '" class="button" id="mwp-creport-archive-report-btn" name="button_archive">';
+								$_archive_btn = '<input type="submit" value="' . __( 'Archive Report', 'mainwp-client-reports-extension' ) . '" class="button" id="mwp-creport-archive-report-btn" name="button_archive">';
 								$_disabled = '';
 								if ( ! empty( $report ) && isset( $report->id ) && isset( $report->is_archived ) && $report->is_archived ) {
-									$_archive_btn = '<input type="submit" value="' . __( 'Un-Archive Report', 'mainwp' ) . '" class="button" id="mwp-creport-unarchive-report-btn" name="button_unarchive">';
+									$_archive_btn = '<input type="submit" value="' . __( 'Un-Archive Report', 'mainwp-client-reports-extension' ) . '" class="button" id="mwp-creport-unarchive-report-btn" name="button_unarchive">';
 									$_disabled = 'disabled="disabled"';
 								}
 								?>  
@@ -1842,7 +1842,7 @@ class MainWP_CReport {
                             <div id="creport_list_tokens" class="postbox"></div>                                                                       
                         </div> 
 						<div id="wpcr_stream_tab" <?php echo $style_tab_stream; ?>>
-							<div class="mainwp_info-box-yellow"><span><a href="#" id="mainwp-cr-dashboard-tips-dismiss" style="float: right; margin-left: 1em;"><?php _e( 'Dismiss', 'mainwp' ); ?></a></span><span class="clearfix"></span><?php _e( 'In the Stream settings page (you can find it in your child sites), it enables you to set the number of days to keep records. We strongly recommend to set it blank, this way you will be able to generate reports for unlimited period of time. By default it is set to 90 days.' ); ?></div>
+							<div class="mainwp_info-box-yellow"><span><a href="#" id="mainwp-cr-dashboard-tips-dismiss" style="float: right; margin-left: 1em;"><?php _e( 'Dismiss', 'mainwp-client-reports-extension' ); ?></a></span><span class="clearfix"></span><?php _e( 'In the Stream settings page (you can find it in your child sites), it enables you to set the number of days to keep records. We strongly recommend to set it blank, this way you will be able to generate reports for unlimited period of time. By default it is set to 90 days.' ); ?></div>
                             <div class="tablenav top">
 								<?php MainWP_CReport_Stream::gen_select_sites( $dbwebsites_stream, $selected_group ); ?>  
                             </div>                            
@@ -2403,12 +2403,12 @@ class MainWP_CReport {
 
 			$status = array();
 			if ( $blacklisted ) {
-				$status[] = __( 'Site Blacklisted', 'mainwp' ); }
+				$status[] = __( 'Site Blacklisted', 'mainwp-client-reports-extension' ); }
 			if ( $malware_exists ) {
-				$status[] = __( 'Site With Warnings', 'mainwp' ); }
+				$status[] = __( 'Site With Warnings', 'mainwp-client-reports-extension' ); }
 
-			$scan_result['status'] = count( $status ) > 0 ? implode( ', ', $status ) : __( 'Verified Clear', 'mainwp' );
-			$scan_result['webtrust'] = $blacklisted ? __( 'Site Blacklisted', 'mainwp' ) : __( 'Trusted', 'mainwp' );
+			$scan_result['status'] = count( $status ) > 0 ? implode( ', ', $status ) : __( 'Verified Clear', 'mainwp-client-reports-extension' );
+			$scan_result['webtrust'] = $blacklisted ? __( 'Site Blacklisted', 'mainwp-client-reports-extension' ) : __( 'Trusted', 'mainwp-client-reports-extension' );
 		}
 		// save results to child site stream
 		$post_data = array(
@@ -2851,55 +2851,55 @@ class MainWP_CReport {
 				$global_reports[] = $rp; }
 		}
 		?>
-		<h3><?php _e( 'Client Reports', 'mainwp' ); ?></h3>
+		<h3><?php _e( 'Client Reports', 'mainwp-client-reports-extension' ); ?></h3>
         <table id="mainwp-table" class="wp-list-table widefat" cellspacing="0">
             <thead>
                 <tr> 
 					<th scope="col" class="manage-column sortable <?php echo $title_order; ?>">
-						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=title&order=<?php echo (empty( $title_order ) ? 'asc' : $title_order); ?>"><span><?php _e( 'Title', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=title&order=<?php echo (empty( $title_order ) ? 'asc' : $title_order); ?>"><span><?php _e( 'Title', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>
 					<th scope="col" class="manage-column sortable <?php echo $client_order; ?>">
-						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=client&order=<?php echo (empty( $client_order ) ? 'asc' : $client_order); ?>"><span><?php _e( 'Client', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=client&order=<?php echo (empty( $client_order ) ? 'asc' : $client_order); ?>"><span><?php _e( 'Client', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>                
 					<th scope="col" class="manage-column sortable <?php echo $name_order; ?>">
-						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=name&order=<?php echo (empty( $name_order ) ? 'asc' : $name_order); ?>"><span><?php _e( 'Send To', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=name&order=<?php echo (empty( $name_order ) ? 'asc' : $name_order); ?>"><span><?php _e( 'Send To', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>                
 					<th scope="col" class="manage-column sortable <?php echo $lastsend_order; ?>">
-						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=lastsend&order=<?php echo (empty( $lastsend_order ) ? 'asc' : $lastsend_order); ?>"><span><?php _e( 'Last Report Send', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=lastsend&order=<?php echo (empty( $lastsend_order ) ? 'asc' : $lastsend_order); ?>"><span><?php _e( 'Last Report Send', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>
 					<th scope="col" class="manage-column sortable <?php echo $datefrom_order; ?>">
-						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=date_from&order=<?php echo (empty( $datefrom_order ) ? 'asc' : $datefrom_order); ?>"><span><?php _e( 'Report For', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=date_from&order=<?php echo (empty( $datefrom_order ) ? 'asc' : $datefrom_order); ?>"><span><?php _e( 'Report For', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>
 					<th scope="col" class="manage-column sortable <?php echo $schedule_order; ?>">
-						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=schedule&order=<?php echo (empty( $schedule_order ) ? 'asc' : $schedule_order); ?>"><span><?php _e( 'Scheduled', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=schedule&order=<?php echo (empty( $schedule_order ) ? 'asc' : $schedule_order); ?>"><span><?php _e( 'Scheduled', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>
 					<th scope="col" class="manage-column sortable  <?php echo $site_order; ?>">
-						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=site&order=<?php echo (empty( $site_order ) ? 'asc' : $site_order); ?>"><span><span><?php _e( 'Site', 'mainwp' ); ?></span></span><span class="sorting-indicator"></span></a>
+						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=site&order=<?php echo (empty( $site_order ) ? 'asc' : $site_order); ?>"><span><span><?php _e( 'Site', 'mainwp-client-reports-extension' ); ?></span></span><span class="sorting-indicator"></span></a>
                     </th>
                 </tr>
             </thead>
             <tfoot>
                 <tr> 
 					<th scope="col" class="manage-column sortable <?php echo $title_order; ?>">
-						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=title&order=<?php echo (empty( $title_order ) ? 'asc' : $title_order); ?>"><span><?php _e( 'Title', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=title&order=<?php echo (empty( $title_order ) ? 'asc' : $title_order); ?>"><span><?php _e( 'Title', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>
 					<th scope="col" class="manage-column sortable <?php echo $client_order; ?>">
-						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=client&order=<?php echo (empty( $client_order ) ? 'asc' : $client_order); ?>"><span><?php _e( 'Client', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=client&order=<?php echo (empty( $client_order ) ? 'asc' : $client_order); ?>"><span><?php _e( 'Client', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>   
 					<th scope="col" class="manage-column sortable <?php echo $name_order; ?>">
-						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=send&order=<?php echo (empty( $name_order ) ? 'asc' : $name_order); ?>"><span><?php _e( 'Send To', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=send&order=<?php echo (empty( $name_order ) ? 'asc' : $name_order); ?>"><span><?php _e( 'Send To', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>                
 					<th scope="col" class="manage-column sortable <?php echo $lastsend_order; ?>">
-						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=lastsend&order=<?php echo (empty( $lastsend_order ) ? 'asc' : $lastsend_order); ?>"><span><?php _e( 'Last Report Send', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=lastsend&order=<?php echo (empty( $lastsend_order ) ? 'asc' : $lastsend_order); ?>"><span><?php _e( 'Last Report Send', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>
 					<th scope="col" class="manage-column sortable <?php echo $datefrom_order; ?>">
-						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=date_from&order=<?php echo (empty( $datefrom_order ) ? 'asc' : $datefrom_order); ?>"><span><?php _e( 'Report For', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=date_from&order=<?php echo (empty( $datefrom_order ) ? 'asc' : $datefrom_order); ?>"><span><?php _e( 'Report For', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>
 					<th scope="col" class="manage-column sortable <?php echo $schedule_order; ?>">
-						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=schedule&order=<?php echo (empty( $schedule_order ) ? 'asc' : $schedule_order); ?>"><span><?php _e( 'Scheduled', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=schedule&order=<?php echo (empty( $schedule_order ) ? 'asc' : $schedule_order); ?>"><span><?php _e( 'Scheduled', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>
 					<th scope="col" class="manage-column sortable <?php echo $site_order; ?>">
-						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=site&order=<?php echo (empty( $site_order ) ? 'asc' : $site_order); ?>"><span><span><?php _e( 'Site', 'mainwp' ); ?></span></span><span class="sorting-indicator"></span></a>
+						<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=site&order=<?php echo (empty( $site_order ) ? 'asc' : $site_order); ?>"><span><span><?php _e( 'Site', 'mainwp-client-reports-extension' ); ?></span></span><span class="sorting-indicator"></span></a>
                     </th>
                 </tr>
             </tfoot>
@@ -2913,49 +2913,49 @@ class MainWP_CReport {
 		<?php if ( count( $global_reports ) > 0 ) : ?>
             <br>
             <br>
-			<h3><?php _e( 'Global Reports', 'mainwp' ); ?></h3>
+			<h3><?php _e( 'Global Reports', 'mainwp-client-reports-extension' ); ?></h3>
             <table id="mainwp-table" class="wp-list-table widefat" cellspacing="0">
                 <thead>
                     <tr> 
 						<th scope="col" class="manage-column sortable <?php echo $title_order; ?>">
-							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=title&order=<?php echo (empty( $title_order ) ? 'asc' : $title_order); ?>"><span><?php _e( 'Title', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=title&order=<?php echo (empty( $title_order ) ? 'asc' : $title_order); ?>"><span><?php _e( 'Title', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>
 						<th scope="col" class="manage-column sortable <?php echo $client_order; ?>">
-							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=client&order=<?php echo (empty( $client_order ) ? 'asc' : $client_order); ?>"><span><?php _e( 'Client', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=client&order=<?php echo (empty( $client_order ) ? 'asc' : $client_order); ?>"><span><?php _e( 'Client', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>                
 						<th scope="col" class="manage-column sortable <?php echo $name_order; ?>">
-							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=name&order=<?php echo (empty( $name_order ) ? 'asc' : $name_order); ?>"><span><?php _e( 'Send To', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=name&order=<?php echo (empty( $name_order ) ? 'asc' : $name_order); ?>"><span><?php _e( 'Send To', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>                
 						<th scope="col" class="manage-column sortable <?php echo $lastsend_order; ?>">
-							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=lastsend&order=<?php echo (empty( $lastsend_order ) ? 'asc' : $lastsend_order); ?>"><span><?php _e( 'Last Report Send', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=lastsend&order=<?php echo (empty( $lastsend_order ) ? 'asc' : $lastsend_order); ?>"><span><?php _e( 'Last Report Send', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>
 						<th scope="col" class="manage-column sortable <?php echo $datefrom_order; ?>">
-							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=date_from&order=<?php echo (empty( $datefrom_order ) ? 'asc' : $datefrom_order); ?>"><span><?php _e( 'Report For', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=date_from&order=<?php echo (empty( $datefrom_order ) ? 'asc' : $datefrom_order); ?>"><span><?php _e( 'Report For', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>
 						<th scope="col" class="manage-column sortable <?php echo $schedule_order; ?>">
-							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=schedule&order=<?php echo (empty( $schedule_order ) ? 'asc' : $schedule_order); ?>"><span><?php _e( 'Scheduled', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=schedule&order=<?php echo (empty( $schedule_order ) ? 'asc' : $schedule_order); ?>"><span><?php _e( 'Scheduled', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>                   
                     </tr>
                 </thead>
                 <tfoot>
                     <tr> 
 						<th scope="col" class="manage-column sortable <?php echo $title_order; ?>">
-							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=title&order=<?php echo (empty( $title_order ) ? 'asc' : $title_order); ?>"><span><?php _e( 'Title', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=title&order=<?php echo (empty( $title_order ) ? 'asc' : $title_order); ?>"><span><?php _e( 'Title', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>
 						<th scope="col" class="manage-column sortable <?php echo $client_order; ?>">
-							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=client&order=<?php echo (empty( $client_order ) ? 'asc' : $client_order); ?>"><span><?php _e( 'Client', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=client&order=<?php echo (empty( $client_order ) ? 'asc' : $client_order); ?>"><span><?php _e( 'Client', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>   
 						<th scope="col" class="manage-column sortable <?php echo $name_order; ?>">
-							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=send&order=<?php echo (empty( $name_order ) ? 'asc' : $name_order); ?>"><span><?php _e( 'Send To', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=send&order=<?php echo (empty( $name_order ) ? 'asc' : $name_order); ?>"><span><?php _e( 'Send To', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>                
 						<th scope="col" class="manage-column sortable <?php echo $lastsend_order; ?>">
-							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=lastsend&order=<?php echo (empty( $lastsend_order ) ? 'asc' : $lastsend_order); ?>"><span><?php _e( 'Last Report Send', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=lastsend&order=<?php echo (empty( $lastsend_order ) ? 'asc' : $lastsend_order); ?>"><span><?php _e( 'Last Report Send', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>
 						<th scope="col" class="manage-column sortable <?php echo $datefrom_order; ?>">
-							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=date_from&order=<?php echo (empty( $datefrom_order ) ? 'asc' : $datefrom_order); ?>"><span><?php _e( 'Report For', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=date_from&order=<?php echo (empty( $datefrom_order ) ? 'asc' : $datefrom_order); ?>"><span><?php _e( 'Report For', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>
 						<th scope="col" class="manage-column sortable <?php echo $schedule_order; ?>">
-							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=schedule&order=<?php echo (empty( $schedule_order ) ? 'asc' : $schedule_order); ?>"><span><?php _e( 'Scheduled', 'mainwp' ); ?></span><span class="sorting-indicator"></span></a>
+							<a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=schedule&order=<?php echo (empty( $schedule_order ) ? 'asc' : $schedule_order); ?>"><span><?php _e( 'Scheduled', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>                    
                     </tr>
                 </tfoot>
@@ -3140,7 +3140,7 @@ class MainWP_CReport {
                 <thead>
                     <tr>          
                         <th scope="col" colspan="2">
-							<?php _e( 'Client Report Settings', 'mainwp' ); ?>
+							<?php _e( 'Client Report Settings', 'mainwp-client-reports-extension' ); ?>
                         </th>
                     </tr>
                 </thead>
@@ -3185,7 +3185,7 @@ class MainWP_CReport {
             <thead>
                 <tr>          
                     <th scope="col" colspan="2">
-						<?php _e( 'Report Format', 'mainwp' ); ?>
+						<?php _e( 'Report Format', 'mainwp-client-reports-extension' ); ?>
                     </th>
                 </tr>
             </thead>
@@ -3228,7 +3228,7 @@ class MainWP_CReport {
             <thead>
                 <tr>          
                     <th scope="col" colspan="2">
-						<?php _e( 'Schedule Report', 'mainwp' ); ?>
+						<?php _e( 'Schedule Report', 'mainwp-client-reports-extension' ); ?>
                     </th>
                 </tr>
             </thead>
@@ -3385,7 +3385,7 @@ class MainWP_CReport {
 				<p><?php echo $attachFiles ?></p>                                
                     <p>
                     <input type="checkbox" class="mainwp-checkbox2" value="1"  id="mainwp_creport_delete_attach_files" name="mainwp_creport_delete_attach_files">
-					<label class="mainwp-label2" for="mainwp_creport_delete_attach_files"><?php _e( 'Delete attach files', 'mainwp' ); ?></label>
+					<label class="mainwp-label2" for="mainwp_creport_delete_attach_files"><?php _e( 'Delete attach files', 'mainwp-client-reports-extension' ); ?></label>
                     </p>
 					<?php
 			}
@@ -4006,8 +4006,8 @@ class MainWP_CReport {
 
 		if ( $token->type == 0 ) {
 			$html .= '<td class="token-option">
-                    <span class="mainwp_group-actions actions-text" ><a class="creport_managetoken-edit" href="#">' . __( 'Edit', 'mainwp' ) . '</a> | <a class="creport_managetoken-delete" href="#">' . __( 'Delete', 'mainwp' ) . '</a></span>
-                    <span class="mainwp_group-actions actions-input hidden" ><a class="creport_managetoken-save" href="#">' . __( 'Save', 'mainwp' ) . '</a> | <a class="creport_managetoken-cancel" href="#">' . __( 'Cancel', 'mainwp' ) . '</a></span>
+                    <span class="mainwp_group-actions actions-text" ><a class="creport_managetoken-edit" href="#">' . __( 'Edit', 'mainwp-client-reports-extension' ) . '</a> | <a class="creport_managetoken-delete" href="#">' . __( 'Delete', 'mainwp-client-reports-extension' ) . '</a></span>
+                    <span class="mainwp_group-actions actions-input hidden" ><a class="creport_managetoken-save" href="#">' . __( 'Save', 'mainwp-client-reports-extension' ) . '</a> | <a class="creport_managetoken-cancel" href="#">' . __( 'Cancel', 'mainwp-client-reports-extension' ) . '</a></span>
                 </td>';
 		}
 		if ( $with_tr ) {
@@ -4047,9 +4047,9 @@ class MainWP_CReport {
         <div  class="mainwp_ext_info_box" id="cs-pth-notice-box">
 			<div class="mainwp-ext-description"><?php echo $description; ?></div><br/>
 			<b><?php echo __( 'Need Help?' ); ?></b> <?php echo __( 'Review the Extension' ); ?> <a href="<?php echo $documentation_url; ?>" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Documentation' ); ?></a>. 
-			<a href="#" id="mainwp-cr-quick-start-guide"><i class="fa fa-info-circle"></i> <?php _e( 'Show Quick Start Guide', 'mainwp' ); ?></a></div>
+			<a href="#" id="mainwp-cr-quick-start-guide"><i class="fa fa-info-circle"></i> <?php _e( 'Show Quick Start Guide', 'mainwp-client-reports-extension' ); ?></a></div>
         <div  class="mainwp_ext_info_box" id="mainwp-cr-tips" style="color: #333!important; text-shadow: none!important;">
-			<span><a href="#" class="mainwp-show-tut" number="1"><i class="fa fa-book"></i> <?php _e( 'Creating a Client Report', 'mainwp' ) ?></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="mainwp-show-tut"  number="2"><i class="fa fa-book"></i> <?php _e( 'Add Client Tokens', 'mainwp' ) ?></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="mainwp-show-tut"  number="3"><i class="fa fa-book"></i> <?php _e( 'Edit Client Tokens', 'mainwp' ) ?></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="mainwp-show-tut"  number="4"><i class="fa fa-book"></i> <?php _e( 'Insert Tokens in Client Report', 'mainwp' ) ?></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="mainwp-show-tut"  number="5"><i class="fa fa-book"></i> <?php _e( 'Client Report Tokens', 'mainwp' ) ?></a></span><span><a href="#" id="mainwp-cr-tips-dismiss" style="float: right;"><i class="fa fa-times-circle"></i> <?php _e( 'Dismiss', 'mainwp' ); ?></a></span>
+			<span><a href="#" class="mainwp-show-tut" number="1"><i class="fa fa-book"></i> <?php _e( 'Creating a Client Report', 'mainwp-client-reports-extension' ) ?></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="mainwp-show-tut"  number="2"><i class="fa fa-book"></i> <?php _e( 'Add Client Tokens', 'mainwp-client-reports-extension' ) ?></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="mainwp-show-tut"  number="3"><i class="fa fa-book"></i> <?php _e( 'Edit Client Tokens', 'mainwp-client-reports-extension' ) ?></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="mainwp-show-tut"  number="4"><i class="fa fa-book"></i> <?php _e( 'Insert Tokens in Client Report', 'mainwp-client-reports-extension' ) ?></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="mainwp-show-tut"  number="5"><i class="fa fa-book"></i> <?php _e( 'Client Report Tokens', 'mainwp-client-reports-extension' ) ?></a></span><span><a href="#" id="mainwp-cr-tips-dismiss" style="float: right;"><i class="fa fa-times-circle"></i> <?php _e( 'Dismiss', 'mainwp-client-reports-extension' ); ?></a></span>
             <div class="clear"></div>
             <div id="mainwp-cr-tuts">
                 <div class="mainwp-cr-tut" number="1">

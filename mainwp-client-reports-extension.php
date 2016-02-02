@@ -37,7 +37,7 @@ class MainWP_CReport_Extension {
 		self::$plugin_url = plugin_dir_url( __FILE__ );
 		$this->plugin_slug = plugin_basename( __FILE__ );
 		$this->option = get_option( $this->option_handle );
-
+		add_action( 'init', array( &$this, 'localization' ) );
 		add_action( 'init', array( &$this, 'init' ) );
 		add_filter( 'plugin_row_meta', array( &$this, 'plugin_row_meta' ), 10, 2 );
 		add_action( 'after_plugin_row', array( &$this, 'after_plugin_row' ), 10, 3 );
@@ -53,6 +53,10 @@ class MainWP_CReport_Extension {
 		}
 	}
 
+	public function localization() {
+		load_plugin_textdomain( 'mainwp-client-reports-extension', false,  dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+	}
+
 	public function init() {
 
 		$mwp_creport = new MainWP_CReport();
@@ -64,7 +68,13 @@ class MainWP_CReport_Extension {
 		if ( $this->plugin_slug != $plugin_file ) {
 			return $plugin_meta;
 		}
-
+		
+		$slug = basename($plugin_file, ".php");
+		$api_data = get_option( $slug. '_APIManAdder');		
+		if (!is_array($api_data) || !isset($api_data['activated_key']) || $api_data['activated_key'] != 'Activated' || !isset($api_data['api_key']) || empty($api_data['api_key']) ) {
+			return $plugin_meta;
+		}
+		
 		$plugin_meta[] = '<a href="?do=checkUpgrade" title="Check for updates.">Check for updates now</a>';
 		return $plugin_meta;
 	}
@@ -85,7 +95,7 @@ class MainWP_CReport_Extension {
 					}
 				</style>
 				<tr class="plugin-update-tr active"><td colspan="3" class="plugin-update colspanchange"><div class="update-message api-deactivate">
-				<?php echo (sprintf(__("API not activated check your %sMainWP account%s for updates. For automatic update notification please activate the API.", "mainwp"), '<a href="https://extensions.mainwp.com/my-account" target="_blank">', '</a>')); ?>
+				<?php echo (sprintf(__("API not activated check your %sMainWP account%s for updates. For automatic update notification please activate the API.", "mainwp"), '<a href="https://mainwp.com/my-account" target="_blank">', '</a>')); ?>
 				</div></td></tr>
 				<?php
 			}
@@ -144,9 +154,7 @@ register_deactivation_hook( __FILE__, 'wpcreport_extension_deactivate' );
 function wpcreport_extension_activate() {
 	update_option( 'mainwp_client_reports_activated', 'yes' );
 	$extensionActivator = new MainWP_CReport_Extension_Activator();
-	$extensionActivator->activate();
-	$plugin_slug = plugin_basename(__FILE__);  	
-	do_action('mainwp_enable_extension', $plugin_slug);
+	$extensionActivator->activate();	
 }
 
 function wpcreport_extension_deactivate() {
@@ -200,27 +208,16 @@ class MainWP_CReport_Extension_Activator {
 	}
 
 	function settings() {
-
-		do_action( 'mainwp-pageheader-extensions', __FILE__ );
-		if ( $this->childEnabled ) {
-			MainWP_CReport::render();
-		} else {
-			?><div class="mainwp_info-box-yellow"><strong><?php _e( 'The Extension has to be enabled to change the settings.' ); ?></strong></div><?php
-		}
+		do_action( 'mainwp-pageheader-extensions', __FILE__ );		
+		MainWP_CReport::render();		
 		do_action( 'mainwp-pagefooter-extensions', __FILE__ );
 	}
 
 	function activate_this_plugin() {
 
 		$this->mainwpMainActivated = apply_filters( 'mainwp-activated-check', $this->mainwpMainActivated );
-
-		$this->childEnabled = apply_filters( 'mainwp-extension-enabled-check', __FILE__ );
-		if ( ! $this->childEnabled ) {
-			return;
-		}
-
+		$this->childEnabled = apply_filters( 'mainwp-extension-enabled-check', __FILE__ );		
 		$this->childKey = $this->childEnabled['key'];
-
 		if ( function_exists( 'mainwp_current_user_can' ) && ! mainwp_current_user_can( 'extension', 'mainwp-client-reports-extension' ) ) {
 			return;
 		}
@@ -241,7 +238,7 @@ class MainWP_CReport_Extension_Activator {
 
 		global $current_screen;
 		if ( $current_screen->parent_base == 'plugins' && $this->mainwpMainActivated == false ) {
-			echo '<div class="error"><p>MainWP Client Reports Extension ' . __( 'requires <a href="http://mainwp.com/" target="_blank">MainWP</a> Plugin to be activated in order to work. Please install and activate <a href="http://mainwp.com/" target="_blank">MainWP</a> first.' ) . '</p></div>';
+			echo '<div class="error"><p>MainWP Client Reports Extension ' . __( 'requires <a href="http://mainwp.com/" target="_blank">MainWP Dashboard Plugin</a> to be activated in order to work. Please install and activate <a href="http://mainwp.com/" target="_blank">MainWP Dashboard Plugin</a> first.' ) . '</p></div>';
 		}
 	}
 
