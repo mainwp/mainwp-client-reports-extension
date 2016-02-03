@@ -42,7 +42,8 @@ class MainWP_CReport_Extension {
 		add_filter( 'plugin_row_meta', array( &$this, 'plugin_row_meta' ), 10, 2 );
 		add_action( 'after_plugin_row', array( &$this, 'after_plugin_row' ), 10, 3 );
 		add_action( 'admin_init', array( &$this, 'admin_init' ) );
-
+		add_filter( 'mainwp-sync-extensions-options', array( &$this, 'mainwp_sync_extensions_options' ), 10, 1 );		
+		
 		MainWP_CReport_DB::get_instance()->install();
 
 		if ( isset( $_GET['page'] ) && ('Extensions-Mainwp-Client-Reports-Extension' == $_GET['page']) &&
@@ -114,6 +115,15 @@ class MainWP_CReport_Extension {
 		$mwp_creport_stream->admin_init();
 	}
 
+	function mainwp_sync_extensions_options($values = array()) {
+		$values['mainwp-client-reports-extension'] = array(
+			'plugin_name' => 'MainWP Child Reports',
+			'plugin_slug' => 'mainwp-child-reports/mainwp-child-reports.php',
+			'no_setting' => true
+		);
+		return $values;
+	}	
+	
 	public function get_option( $key, $default = '' ) {
 		if ( isset( $this->option[ $key ] ) ) {
 			return $this->option[ $key ];
