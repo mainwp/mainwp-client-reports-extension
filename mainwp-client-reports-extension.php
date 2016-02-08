@@ -278,4 +278,5 @@ class MainWP_CReport_Extension_Activator {
 	}
 }
 
+global $MainWP_CReport_Extension_Activator;
 $mainWPCReportExtensionActivator = new MainWP_CReport_Extension_Activator();
