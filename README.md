@@ -1,4 +1,0 @@
-clientreports
-=============
-
-Client Reports Extension
