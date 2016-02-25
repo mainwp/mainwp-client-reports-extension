@@ -3627,19 +3627,19 @@ class MainWP_CReport {
 					$enabled = true;
 					$str_requires = '';
 					if ( ! self::$enabled_sucuri && 'sucuri' == $group ) {
-						$str_requires = 'Requires' . ' <a href="http://extensions.mainwp.com/product/mainwp-sucuri-extension/" title="MainWP Sucuri Extension">MainWP Sucuri Extension</a>';
+						$str_requires = 'Requires' . ' <a href="https://mainwp.com/extension/sucuri/" title="MainWP Sucuri Extension">MainWP Sucuri Extension</a>';
 						$enabled = false;
 					} else if ( ! self::$enabled_ga && 'ga' == $group ) {
-						$str_requires = 'Requires' . ' <a href="http://extensions.mainwp.com/product/mainwp-google-analytics-extension/" title="MainWP Google Analytics Extension">MainWP Google Analytics Extension</a>';
+						$str_requires = 'Requires' . ' <a href="https://mainwp.com/extension/google-analytics/" title="MainWP Google Analytics Extension">MainWP Google Analytics Extension</a>';
 						$enabled = false;
 					} else if ( ! self::$enabled_piwik && 'piwik' == $group ) {
-						$str_requires = 'Requires' . ' <a href="http://extensions.mainwp.com/product/mainwp-piwik-extension/" title="MainWP Piwik Extension">MainWP Piwik Extension</a>';
+						$str_requires = 'Requires' . ' <a href="https://mainwp.com/extension/piwik/" title="MainWP Piwik Extension">MainWP Piwik Extension</a>';
 						$enabled = false;
 					} else if ( ! self::$enabled_aum && 'aum' == $group ) {
-						$str_requires = 'Requires' . ' <a href="http://extensions.mainwp.com/product/advanced-uptime-monitor-extension/" title="Advanced Uptime Monitor Extension">Advanced Uptime Monitor Extension</a>';
+						$str_requires = 'Requires' . ' <a href="https://mainwp.com/extension/advanced-uptime-monitor/" title="Advanced Uptime Monitor Extension">Advanced Uptime Monitor Extension</a>';
 						$enabled = false;
 					} else if ( ! self::$enabled_woocomstatus && 'woocomstatus' == $group ) {
-						$str_requires = 'Requires' . ' <a href="http://extensions.mainwp.com/product/mainwp-woocommerce-status-extension/" title="MainWP WooCommerce Status Extension">MainWP WooCommerce Status Extension</a>';
+						$str_requires = 'Requires' . ' <a href="https://mainwp.com/extension/woocommerce-status/" title="MainWP WooCommerce Status Extension">MainWP WooCommerce Status Extension</a>';
 						$enabled = false;
 					}
 					if ( ! $enabled ) {
