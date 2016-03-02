@@ -3042,7 +3042,7 @@ class MainWP_CReport {
 			if ( ! empty( $report->recurring_schedule ) && ! empty( $report->scheduled ) ) {
 				$sche_column = $recurring_schedule[ $report->recurring_schedule ];
 				if ( ! empty( $report->schedule_nextsend ) ) {
-					$sche_column .= '<br> Next Send: ' . MainWP_CReport_Utility::format_timestamp( $report->schedule_nextsend ); }
+					$sche_column .= '<br> Next Send: ' . MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $report->schedule_nextsend ) ); }
 			}
 			?>   
 			<tr id="<?php echo $report->id; ?>">            
@@ -3081,7 +3081,7 @@ class MainWP_CReport {
 				?>
             </td> 
             <td> 
-				<?php echo ! empty( $report->lastsend ) ? MainWP_CReport_Utility::format_timestamp( $report->lastsend ) : ''; ?>
+				<?php echo ! empty( $report->lastsend ) ? MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $report->lastsend ) ): ''; ?>
             </td>
             <td> 
 				<?php echo ! empty( $report->date_from ) ? 'From: ' . MainWP_CReport_Utility::format_timestamp( $report->date_from ) . '<br>' : ''; ?>
