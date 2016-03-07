@@ -1150,8 +1150,16 @@ mainwp_creport_client_change = function () {
 		client: jQuery( '#mainwp_creport_autocomplete_client' ).val()
 	}
 	jQuery( '#mainwp_creport_client_loading' ).find( 'img' ).show();
-	jQuery.post(ajaxurl, data, function (response) {
+        jQuery( 'input[name="mwp_creport_name"]' ).attr('disabled', 'disabled');
+        jQuery( 'input[name="mwp_creport_company"]' ).attr('disabled', 'disabled');
+        jQuery( 'input[name="mwp_creport_email"]' ).attr('disabled', 'disabled');
+	jQuery.post(ajaxurl, data, function (response) {                
 		jQuery( '#mainwp_creport_client_loading' ).find( 'img' ).hide();
+                
+                jQuery( 'input[name="mwp_creport_name"]' ).removeAttr('disabled');
+                jQuery( 'input[name="mwp_creport_company"]' ).removeAttr('disabled');
+                jQuery( 'input[name="mwp_creport_email"]' ).removeAttr('disabled');
+                
 		jQuery( 'input[name="mwp_creport_name"]' ).val( '' );
 		jQuery( 'input[name="mwp_creport_company"]' ).val( '' );
 		jQuery( 'input[name="mwp_creport_email"]' ).val( '' );

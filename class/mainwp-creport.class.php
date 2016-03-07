@@ -611,7 +611,7 @@ class MainWP_CReport {
 		add_action( 'wp_ajax_mainwp_creport_save_token', array( &$this, 'save_token' ) );
 		add_action( 'wp_ajax_mainwp_creport_delete_report', array( &$this, 'delete_report' ) );
 		add_action( 'wp_ajax_mainwp_creport_cancel_scheduled_report', array( &$this, 'cancel_scheduled_report' ) );
-		add_action( 'wp_ajax_mainwp_creport_load_client', array( &$this, 'load_client' ) );
+		add_action( 'wp_ajax_mainwp_creport_load_client', array( &$this, 'ajax_load_client' ) );
 		add_action( 'wp_ajax_mainwp_creport_load_site_tokens', array( &$this, 'load_site_tokens' ) );
 		add_action( 'wp_ajax_mainwp_creport_save_format', array( &$this, 'save_format' ) );
 		add_action( 'wp_ajax_mainwp_creport_get_format', array( &$this, 'get_format' ) );
@@ -3923,7 +3923,7 @@ class MainWP_CReport {
 		die( json_encode( 'failed' ) );
 	}
 
-	public function load_client() {
+	public function ajax_load_client() {
 		if ( isset( $_POST['client'] ) ) {
 			$client = MainWP_CReport_DB::get_instance()->get_client_by( 'client', $_POST['client'] );
 			if ( ! empty( $client ) ) {

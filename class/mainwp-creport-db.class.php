@@ -700,7 +700,8 @@ PRIMARY KEY  (`id`)  '; }
 				);
 
 				if ( isset( $report['client_id'] ) && ! empty( $report['client_id'] ) ) {
-					$update_client['clientid'] = $report['client_id']; } else {
+					$update_client['clientid'] = $report['client_id']; 					
+				} else {
 					$client = null;
 					$client = $this->get_client_by( 'client', $report['client'] );
 					if ( empty( $client ) && ! empty( $report['email'] ) ) {
@@ -711,11 +712,11 @@ PRIMARY KEY  (`id`)  '; }
 						$client_id = $client->clientid;
 						$update_client['clientid'] = $client_id;
 					}
-					}
+				}
 
-					if ( $updatedClient = $this->update_client( $update_client ) ) {
-						$client_id = $updatedClient->clientid;
-					}
+				if ( $updatedClient = $this->update_client( $update_client ) ) {
+					$client_id = $updatedClient->clientid;
+				}
 			} else if ( ! empty( $report['email'] ) ) {
 				$client = $this->get_client_by( 'email', $report['client'] );
 				if ( ! empty( $client ) ) {
@@ -740,6 +741,12 @@ PRIMARY KEY  (`id`)  '; }
 			//
 			//                }
 			//            }
+			
+			// to fix bug not save report client
+			if (empty($client_id) && !empty($report['client_id'])) {
+				$client_id = $report['client_id'];
+			}
+			
 			$report['client_id'] = $client_id;
 		} else {
 			if ( isset( $report['client_id'] ) ) {
