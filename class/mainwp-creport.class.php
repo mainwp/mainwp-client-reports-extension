@@ -3575,7 +3575,7 @@ class MainWP_CReport {
                 <div class="inner">
 					<?php _e( 'Report Footer' ); ?>
                     <select name="mainwp_creport_report_insert_header_sle">
-						<option value="0"><?php _e( 'Select a Report Body' ); ?></option>
+						<option value="0"><?php _e( 'Select a Report Footer' ); ?></option>
 						<?php
 						foreach ( $footer_formats as $format ) {
 							echo '<option value="' . $format->id . '">' . esc_html( $format->title ) . '</option>';
@@ -3906,7 +3906,7 @@ class MainWP_CReport {
 		$type = isset( $_POST['type'] ) ? trim( $_POST['type'] ) : 'H';
 		if ( ! empty( $title ) ) {
 			$format = array( 'title' => $title, 'content' => $content, 'type' => $type );
-			if ( MainWP_CReport_DB::get_instance()->updateformat( $format ) ) {
+			if ( MainWP_CReport_DB::get_instance()->update_format( $format ) ) {
 				die( 'success' ); }
 		}
 		die( 'failed' );
@@ -4090,11 +4090,11 @@ class MainWP_CReport {
                     <p>
                     <ol>
                         <li>Click the Report Tokens tab<br/><br/>
-                            <img src="http://docs.mainwp.com/wp-content/uploads/2014/06/cr-report-tokens-tab.png" style="wight: 100% !important;" alt="screenshot"/>
+                            <img src="//docs.mainwp.com/wp-content/uploads/2014/06/cr-report-tokens-tab.png" style="wight: 100% !important;" alt="screenshot"/>
                         </li>
                         <li>
                             At the bottom, locate the empty fields<br/><br/>
-                            <img src="http://docs.mainwp.com/wp-content/uploads/2014/06/cr-new-token-fields-1024x407.png" style="wight: 100% !important;" alt="screenshot"/>
+                            <img src="//docs.mainwp.com/wp-content/uploads/2014/06/cr-new-token-fields-1024x407.png" style="wight: 100% !important;" alt="screenshot"/>
                         </li>
                         <li>Enter a Token and Token Description.</li>
                         <li>
@@ -4113,7 +4113,7 @@ class MainWP_CReport {
                         <li>Scroll down until you see the Client Report Settings section</li>
                         <li>
                             Enter wanted values <br/><br/>
-                            <img src="http://docs.mainwp.com/wp-content/uploads/2014/06/cr-client-report-settings-values-1024x715.png" style="wight: 100% !important;" alt="screenshot"/>
+                            <img src="//docs.mainwp.com/wp-content/uploads/2014/06/cr-client-report-settings-values-1024x715.png" style="wight: 100% !important;" alt="screenshot"/>
                         </li>
                         <li>Click the Update Site button</li>
                     </ol>
@@ -4122,12 +4122,12 @@ class MainWP_CReport {
                 <div class="mainwp-cr-tut"  number="4">
                     <h3>Insert Tokens in Client Report</h3>
                     <p>Under the Header, Body and Footer sections in the Report Format area you can find the list of tokens which you can insert in your reports. Simply by clicking on a token it will be added to the edit box right in a place where you have your cursor placed.</p>
-                    <img src="http://docs.mainwp.com/wp-content/uploads/2014/06/cr-insert-tokens-box.png" style="wight: 100% !important;" alt="screenshot"/>
+                    <img src="//docs.mainwp.com/wp-content/uploads/2014/06/cr-insert-tokens-box.png" style="wight: 100% !important;" alt="screenshot"/>
                     <p>If you use section tokens, it will insert both, opening and closing tag.</p>
                     <p>If the Insert Tokens box is hidden, click the Show Available Tokens link to display the box.</p>
-                    <img src="http://docs.mainwp.com/wp-content/uploads/2014/06/cr-show-available-tokens.png" style="wight: 100% !important;" alt="screenshot"/>
+                    <img src="//docs.mainwp.com/wp-content/uploads/2014/06/cr-show-available-tokens.png" style="wight: 100% !important;" alt="screenshot"/>
                     <p>Use the provided navigation system to toggle between different group of tokens.</p>
-                    <img src="http://docs.mainwp.com/wp-content/uploads/2014/06/cr-tokens-nav.png" style="wight: 100% !important;" alt="screenshot"/>
+                    <img src="//docs.mainwp.com/wp-content/uploads/2014/06/cr-tokens-nav.png" style="wight: 100% !important;" alt="screenshot"/>
                     <p>Upper navigation will enable you to toggle between different groups of tokens, and the lower part to toggle between available groups of tokens for the selected group in the upper part.</p>
                 </div>
                 <div class="mainwp-cr-tut"  number="5">
