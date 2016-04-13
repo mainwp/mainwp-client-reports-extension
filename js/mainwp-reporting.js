@@ -190,27 +190,14 @@ jQuery( document ).ready(function ($) {
 			return false;
 		}
 
-		var gr2 = 'sections';
-		var gr2_title = 'Sections';
-		if (gr == 'client') {
-			gr2 = 'tokens';
-			gr2_title = '';
-		} else if (gr == 'ga') {
-			gr2 = 'ga';
-			gr2_title = 'GA';
-		} else if (gr == 'piwik') {
-			gr2 = 'piwik';
-			gr2_title = 'Piwik';
-		} else if (gr == 'aum') {
-			gr2 = 'aum';
-			gr2_title = 'AUM';
-		} else if (gr == 'woocomstatus') {
-			gr2 = 'woocomstatus';
-			gr2_title = 'WooCommerce Status';
-		} else if (gr == 'report') {
-			gr2 = 'report';
-			gr2_title = 'Report';
-		}
+//		var gr2 = '';
+//		var gr2_title = '';
+//		if (gr == 'client') {
+//			gr2 = 'tokens';			
+//		} else {
+                    gr2 = $( this ).attr( 'first-group' );;
+                    gr2_title = $( this ).attr( 'first-title' );
+//		}
 
 		parent.find( '.creport_format_group_data_tokens' ).removeClass( 'current' );
 		parent.find( '.creport_format_group_data_tokens[group="' + gr + '_' + gr2 + '"]' ).addClass( 'current' );

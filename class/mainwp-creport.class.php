@@ -21,9 +21,11 @@ class MainWP_CReport {
 
 	public static function init() {
 		self::$stream_tokens = array(
-			'client' => array(
-		'tokens' => array(),
-				'nav_group_tokens' => array(),
+			'client' => array(				
+				'nav_group_tokens' => array(
+					'tokens' => 'Tokens',
+				),
+				'tokens' => array(),
 			),
 			'plugins' => array(
 			'sections' => array(
@@ -35,7 +37,7 @@ class MainWP_CReport {
 					array( 'name' => 'section.plugins.deleted', 'desc' => 'Loops through Plugins Deleted during the selected date range' ),
 				),
 				'nav_group_tokens' => array(
-			'sections' => 'Sections',
+					'sections' => 'Sections',
 					'installed' => 'Installed',
 					'activated' => 'Activated',
 					'edited' => 'Edited',
@@ -633,7 +635,11 @@ class MainWP_CReport {
 		self::$enabled_sucuri = apply_filters( 'mainwp-extension-available-check', 'mainwp-sucuri-extension' );
 		self::$enabled_ga = apply_filters( 'mainwp-extension-available-check', 'mainwp-google-analytics-extension' );
 		self::$enabled_aum = apply_filters( 'mainwp-extension-available-check', 'advanced-uptime-monitor-extension' );
-		self::$enabled_woocomstatus = apply_filters( 'mainwp-extension-available-check', 'mainwp-woocommerce-status-extension' );
+		self::$enabled_woocomstatus = apply_filters( 'mainwp-extension-available-check', 'mainwp-woocommerce-status-extension' );						
+		
+		self::$stream_tokens = apply_filters( 'mainwp_client_reports_tokens_groups', self::$stream_tokens );
+		self::$tokens_nav_top = apply_filters( 'mainwp_client_reports_tokens_nav_top', self::$tokens_nav_top );
+		
 	}
 
 	function managesite_backup( $website, $args, $information ) {
@@ -1990,15 +1996,17 @@ class MainWP_CReport {
 	public static function gen_report_content( $reports, $combine_report = false ) {
 		if ( ! is_array( $reports ) ) {
 			$reports = array( $reports );
-		}
-
+		}		
+		
+		$remove_default_html = apply_filters('mainwp_client_reports_remove_default_html_tags', false, $reports);
+		
 		if ( $combine_report ) {
 			ob_start(); }
 		foreach ( $reports as $site_id => $report ) {
 			if ( ! $combine_report ) {
 				ob_start(); }
 
-			if ( is_array( $report ) && isset( $report['error'] ) ) {
+			if ( is_array( $report ) && isset( $report['error'] ) ) {				
 				?>        
                 <br>
                 <div>
@@ -2015,43 +2023,49 @@ class MainWP_CReport {
                 </div>  
 				<?php
 			} else if ( is_object( $report ) ) {
-				?>        
-                <br>
-                <div>
-                    <br>
-                    <div style="background:#ffffff;padding:0 1.618em;padding-bottom:50px!important">
-                        <div style="width:600px;background:#fff;margin-left:auto;margin-right:auto;margin-top:10px;margin-bottom:25px;padding:0!important;border:10px Solid #fff;border-radius:10px;overflow:hidden">
-                            <div style="display: block; width: 100% ; ">
-                                <div style="display: block; width: 100% ; padding: .5em 0 ;">                          
+				if ($remove_default_html) {
+					echo stripslashes( nl2br( $report->filtered_header ) ); 
+					echo stripslashes( nl2br( $report->filtered_body ) );
+					echo stripslashes( nl2br( $report->filtered_footer ) );
+				} else {
+					?>        
+					<br>
+					<div>
+						<br>
+						<div style="background:#ffffff;padding:0 1.618em;padding-bottom:50px!important">
+							<div style="width:600px;background:#fff;margin-left:auto;margin-right:auto;margin-top:10px;margin-bottom:25px;padding:0!important;border:10px Solid #fff;border-radius:10px;overflow:hidden">
+								<div style="display: block; width: 100% ; ">
+									<div style="display: block; width: 100% ; padding: .5em 0 ;">                          
+										<?php
+										//echo apply_filters( 'the_content', $report->filtered_header );
+										echo stripslashes( nl2br( $report->filtered_header ) );
+										//echo self::do_filter_content($report->filtered_header);
+										?>                          
+										<div style="clear: both;"></div>
+									</div>
+								</div>
+								<br><br><br>
+								<div>
 									<?php
-									//echo apply_filters( 'the_content', $report->filtered_header );
-									echo stripslashes( nl2br( $report->filtered_header ) );
-									//echo self::do_filter_content($report->filtered_header);
-									?>                          
-                                    <div style="clear: both;"></div>
-                                </div>
-                            </div>
-                            <br><br><br>
-                            <div>
-								<?php
-								//echo apply_filters( 'the_content', $report->filtered_body );
-								echo stripslashes( nl2br( $report->filtered_body ) );
-								//echo self::do_filter_content($report->filtered_body);
-								?>                        
-                            </div>
-                            <br><br><br>
-                            <div style="display: block; width: 100% ;">
-								<?php
-								//echo apply_filters( 'the_content', $report->filtered_footer );
-								echo stripslashes( nl2br( $report->filtered_footer ) );
-								//echo self::do_filter_content($report->filtered_footer);
-								?>
-                            </div>                                
+									//echo apply_filters( 'the_content', $report->filtered_body );
+									echo stripslashes( nl2br( $report->filtered_body ) );
+									//echo self::do_filter_content($report->filtered_body);
+									?>                        
+								</div>
+								<br><br><br>
+								<div style="display: block; width: 100% ;">
+									<?php
+									//echo apply_filters( 'the_content', $report->filtered_footer );
+									echo stripslashes( nl2br( $report->filtered_footer ) );
+									//echo self::do_filter_content($report->filtered_footer);
+									?>
+								</div>                                
 
-                        </div>                            
-                    </div>
-                </div>           
-				<?php
+							</div>                            
+						</div>
+					</div>           
+					<?php
+				}
 			}
 
 			if ( ! $combine_report ) {
@@ -2099,6 +2113,9 @@ class MainWP_CReport {
 		if ( ! is_array( $reports ) ) {
 			$reports = array( 0 => $reports );
 		}
+		
+		$remove_default_html = apply_filters('mainwp_client_reports_remove_default_html_tags', false, $reports);
+		
 		$output = array();
 		if ( $combine_report ) {
 			ob_start(); }
@@ -2110,12 +2127,18 @@ class MainWP_CReport {
 			if ( is_array( $report ) && isset( $report['error'] ) ) {
 				echo $report['error'];
 			} else if ( is_object( $report ) ) {
-				echo stripslashes( nl2br( $report->filtered_header ) );
-				echo '<br><br>';
-				echo stripslashes( nl2br( $report->filtered_body ) );
-				echo '<br><br>';
-				echo stripslashes( nl2br( $report->filtered_footer ) );
-				echo '<br><br>';
+				if ($remove_default_html) {
+					echo stripslashes( nl2br( $report->filtered_header ) );					
+					echo stripslashes( nl2br( $report->filtered_body ) );				
+					echo stripslashes( nl2br( $report->filtered_footer ) );
+				} else {
+					echo stripslashes( nl2br( $report->filtered_header ) );
+					echo '<br><br>';
+					echo stripslashes( nl2br( $report->filtered_body ) );
+					echo '<br><br>';
+					echo stripslashes( nl2br( $report->filtered_footer ) );
+					echo '<br><br>';
+				}
 			}
 
 			if ( ! $combine_report ) {
@@ -2183,18 +2206,16 @@ class MainWP_CReport {
 		if ( null !== $website ) {
 			$tokens = MainWP_CReport_DB::get_instance()->get_tokens();
 			$site_tokens = MainWP_CReport_DB::get_instance()->get_site_tokens( $website['url'] );
-			$search_tokens = $replace_values = array();
-			foreach ( $tokens as $token ) {
-				$search_tokens[] = '[' . $token->token_name . ']';
-				$replace_values[] = isset( $site_tokens[ $token->id ] ) ? $site_tokens[ $token->id ]->token_value : '';
+			$replace_tokens_values = array();
+			foreach ( $tokens as $token ) {				
+				$replace_tokens_values['[' . $token->token_name . ']'] = isset( $site_tokens[ $token->id ] ) ? $site_tokens[ $token->id ]->token_value : '';				
 			}
 
 			if ( $get_piwik_tokens ) {
 				$piwik_tokens = self::piwik_data( $website['id'], $report->date_from, $report->date_to );
 				if ( is_array( $piwik_tokens ) ) {
-					foreach ( $piwik_tokens as $token => $value ) {
-						$search_tokens[] = '[' . $token . ']';
-						$replace_values[] = $value;
+					foreach ( $piwik_tokens as $token => $value ) {									
+						$replace_tokens_values['[' . $token . ']'] = $value;												
 					}
 				}
 			}
@@ -2202,9 +2223,8 @@ class MainWP_CReport {
 			if ( $get_ga_tokens ) {
 				$ga_tokens = self::ga_data( $website['id'], $report->date_from, $report->date_to, $get_ga_chart );
 				if ( is_array( $ga_tokens ) ) {
-					foreach ( $ga_tokens as $token => $value ) {
-						$search_tokens[] = '[' . $token . ']';
-						$replace_values[] = $value;
+					foreach ( $ga_tokens as $token => $value ) {					
+						$replace_tokens_values['[' . $token . ']'] = $value;
 					}
 				}
 			}
@@ -2212,9 +2232,8 @@ class MainWP_CReport {
 			if ( $get_aum_tokens ) {
 				$aum_tokens = self::aum_data( $website['id'], $report->date_from, $report->date_to );
 				if ( is_array( $aum_tokens ) ) {
-					foreach ( $aum_tokens as $token => $value ) {
-						$search_tokens[] = '[' . $token . ']';
-						$replace_values[] = $value;
+					foreach ( $aum_tokens as $token => $value ) {						
+						$replace_tokens_values['[' . $token . ']'] = $value;
 					}
 				}
 			}
@@ -2222,39 +2241,33 @@ class MainWP_CReport {
 			if ( $get_woocom_tokens ) {
 				$wcomstatus_tokens = self::woocomstatus_data( $website['id'], $report->date_from, $report->date_to );
 				if ( is_array( $wcomstatus_tokens ) ) {
-					foreach ( $wcomstatus_tokens as $token => $value ) {
-						$search_tokens[] = '[' . $token . ']';
-						$replace_values[] = $value;
+					foreach ( $wcomstatus_tokens as $token => $value ) {						
+						$replace_tokens_values['[' . $token . ']'] = $value;
 					}
 				}
 			}
-
-			$search_tokens[] = '[report.daterange]';
-			$replace_values[] = MainWP_CReport_Utility::format_timestamp( $report->date_from ) . ' - ' . MainWP_CReport_Utility::format_timestamp( $report->date_to );
-
-			//$report->filtered_header = self::replace_content($report->header, $search_tokens, $replace_values);
-			//$report->body = self::replace_content($report->body, $search_tokens, $replace_values);
-			//$report->filtered_footer = self::replace_content($report->footer, $search_tokens, $replace_values);
-			// use new variables
+			$replace_tokens_values['[report.daterange]'] = MainWP_CReport_Utility::format_timestamp( $report->date_from ) . ' - ' . MainWP_CReport_Utility::format_timestamp( $report->date_to );;
+			$replace_tokens_values = apply_filters('mainwp_client_reports_custom_tokens', $replace_tokens_values, $report);
+			
 			$report_header = $report->header;
 			$report_body = $report->body;
 			$report_footer = $report->footer;
 
-			$result = self::parse_report_content( $report_header, $search_tokens, $replace_values );
+			$result = self::parse_report_content( $report_header, $replace_tokens_values );
 			//print_r($result);
 			self::$buffer['sections']['header'] = $sections['header'] = $result['sections'];
 			$other_tokens['header'] = $result['other_tokens'];
 			$filtered_header = $result['filtered_content'];
 			unset( $result );
 
-			$result = self::parse_report_content( $report_body, $search_tokens, $replace_values );
+			$result = self::parse_report_content( $report_body, $replace_tokens_values );
 			//print_r($result);
 			self::$buffer['sections']['body'] = $sections['body'] = $result['sections'];
 			$other_tokens['body'] = $result['other_tokens'];
 			$filtered_body = $result['filtered_content'];
 			unset( $result );
 
-			$result = self::parse_report_content( $report_footer, $search_tokens, $replace_values );
+			$result = self::parse_report_content( $report_footer, $replace_tokens_values );
 			//print_r($result);
 
 			self::$buffer['sections']['footer'] = $sections['footer'] = $result['sections'];
@@ -2441,8 +2454,10 @@ class MainWP_CReport {
 		return $content;
 	}
 
-	public static function parse_report_content( $content, $client_tokens, $replace ) {
-		$filtered_content = $content = str_replace( $client_tokens, $replace, $content );
+	public static function parse_report_content( $content, $replaceTokensValues ) {
+		$client_tokens = array_keys($replaceTokensValues);
+		$replace_values = array_values($replaceTokensValues);		
+		$filtered_content = $content = str_replace( $client_tokens, $replace_values, $content );
 		$sections = array();
 		if ( preg_match_all( '/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is', $content, $matches ) ) {
 			for ( $i = 0; $i < count( $matches[1] ); $i++ ) {
@@ -3612,10 +3627,12 @@ class MainWP_CReport {
 								( ! self::$enabled_woocomstatus && ('woocomstatus' == $group))
 						) {
 							$disabled = 'disabled';
-						}
-							
+						}							
+						$first_group = current(array_keys(self::$stream_tokens[$group]['nav_group_tokens']));
+						$first_title = reset(self::$stream_tokens[$group]['nav_group_tokens']);
+						
 						$current = ($visible == $group) ? 'current' : '';
-						$nav_group .= '<a href="#" group="' . $group . '" group-title="' . $group_title . '" class="creport_nav_group_lnk ' . $current . ' ' . $disabled . '">' . $group_title . '</a> | ';
+						$nav_group .= '<a href="#" group="' . $group . '" group-title="' . $group_title . '" class="creport_nav_group_lnk ' . $current . ' ' . $disabled . '" first-group="' . $first_group . '" first-title="' . $first_title . '">' . $group_title . '</a> | ';
 					}
 					$nav_group = rtrim( $nav_group, ' | ' );
 					echo $nav_group;
