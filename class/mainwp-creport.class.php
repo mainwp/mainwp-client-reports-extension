@@ -1297,10 +1297,11 @@ class MainWP_CReport {
 			$from .= $report->femail;
 		}
 
-		if ( empty( $from ) ) {
-			$from = 'From: Noname'; }
-
-		$header = array( $from, 'content-type: text/html' );
+		$header = array( 'content-type: text/html' );
+		
+		if ( !empty( $from ) ) {			
+			$header[] = $from;
+		}
 
 		if ( ! empty( $bcc ) ) {
 			$header[] = 'Bcc: ' . $bcc;
