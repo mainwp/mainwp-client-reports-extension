@@ -1067,10 +1067,8 @@ class MainWP_CReport {
 			}
 			if ( isset( $_POST['mainwp_creport_schedule_send_email'] ) ) {
 				$report['schedule_send_email'] = trim( $_POST['mainwp_creport_schedule_send_email'] );
-			}
-			if ( isset( $_POST['mainwp_creport_schedule_bbc_me_email'] ) ) {
-				$report['schedule_bcc_me'] = isset( $_POST['mainwp_creport_schedule_bbc_me_email'] ) ? 1 : 0;
-			}
+			}			
+			$report['schedule_bcc_me'] = isset( $_POST['mainwp_creport_schedule_bbc_me_email'] ) ? 1 : 0;			
 			if ( isset( $_POST['mainwp_creport_report_header'] ) ) {
 				$report['header'] = trim( $_POST['mainwp_creport_report_header'] );
 			}
