@@ -195,7 +195,8 @@ a.creport_format_add_token:hover {
 .mainwp_creport_format_save_section .inner > select {
 	width: 190px;
 }
-.mainwp_creport_format_save_section .inner .status, .creport-action-working .status {
+.mainwp_creport_format_save_section .inner .status, 
+.creport-action-working .status {
 	font-style: italic;
 }
 
@@ -204,9 +205,6 @@ a.creport_format_add_token:hover {
 }
 .mainwp-cr-tut, #mainwp-cr-tips {
 	display: none;
-}
-#mwp-creport-schedule-btn {
-	margin-left: 100px;
 }
 .mwp_creport_tooltip_content{
 	display: none;
@@ -231,4 +229,19 @@ a.creport_format_add_token:hover {
 
 .mainwp_ext_info_box a {
 	text-decoration: none !important;
+}
+.mainwp-creport-report-setting-box .show_if_scheduled,
+.mainwp-creport-report-setting-box table.scheduled_creport .hide_if_scheduled
+{
+    display: none;
+}
+
+table#mwp_creport_settings_tbl th {
+    min-width: 80px;
+}
+.mainwp-creport-report-setting-box table.scheduled_creport .show_if_scheduled{
+    display: inline;
+}
+table.mainwp-cr-table thead th,  table.mainwp-cr-table tfoot th {
+    vertical-align: top;
 }

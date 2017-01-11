@@ -2,31 +2,26 @@ jQuery( document ).ready(function ($) {
 
 	jQuery( '.mainwp_creport_datepicker' ).datepicker( {dateFormat: "yy-mm-dd"} );
 
-	$( '#wpcr_report_tab_lnk' ).on('click', function () {
-		showCReportTab( true, false, false, false, false );
-		return false;
+	$( '#wpcr_report_tab_lnk' ).on('click', function () {             
+            return showCReportTab( this, true, false, false, false, false, false );		
 	});
 
-	$( '#wpcr_edit_tab_lnk' ).on('click', function () {
-		showCReportTab( false, true, false, false, false );
-		return false;
+	$( '#wpcr_edit_tab_lnk' ).on('click', function () {               
+            return showCReportTab( this, false, true, false, false, false, false );		
 	});
 
-	$( '#wpcr_token_tab_lnk' ).on('click', function () {
-		showCReportTab( false, false, true, false, false );
-		return false;
+	$( '#wpcr_token_tab_lnk' ).on('click', function () {               
+            return showCReportTab( this, false, false, true, false, false, false );
 	});
 
-	$( '#wpcr_stream_tab_lnk' ).on('click', function () {
-		showCReportTab( false, false, false, true, false );
-		return false;
+	$( '#wpcr_stream_tab_lnk' ).on('click', function () {              
+            return showCReportTab( this, false, false, false, true, false, false );		
 	});
 
-	$( '#wpcr_edit_global_tab_lnk' ).on('click', function () {
-		showCReportTab( false, false, false, false, true );
-		return false;
+	$( '#wpcr_edit_global_tab_lnk' ).on('click', function () {               
+            return showCReportTab( this, false, false, false, false, true, false );		
 	});
-
+        
 	$( '#mainwp_creport_schedule_send_email_auto' ).change(function () {
 		if ($( this ).is( ':checked' )) {
 			$( '#mainwp_creport_schedule_bbc_me_email' ).removeAttr( "disabled" );
@@ -36,7 +31,49 @@ jQuery( document ).ready(function ($) {
 		}
 	});
 
-	$( '#mainwp_creport_schedule_send_email_me_review' ).change(function () {
+	$( '#mainwp_creport_type' ).change(function () {
+                if ( $( this ).val() == 1 ) {                        
+                    $( '#mwp_creport_settings_tbl' ).addClass('scheduled_creport');			
+                    $( '#mwp-creport-send-btn' ).hide();   
+                    $( '#mwp-creport-schedule-btn' ).show();
+		} else {
+                    $( '#mwp_creport_settings_tbl' ).removeClass('scheduled_creport');			
+                    $( '#mwp-creport-send-btn' ).show();   
+                    $( '#mwp-creport-schedule-btn' ).hide();
+		}                
+	});
+        
+        $( '#mainwp_creport_recurring_schedule' ).change(function () {
+            var val = $( this ).val();
+            $( '.show_if_monthly' ).hide();
+            if ( val == 'weekly' || val == 'monthly' || val == 'yearly' ) {                      
+                if (val == 'weekly') {
+                    $( '#scheduled_send_on_day_of_week_wrap' ).show(); 
+                    $( '#scheduled_send_on_day_of_month_wrap' ).hide();
+                    $( '#scheduled_send_on_month_wrap' ).hide();
+                } else if (val == 'monthly') {
+                    $( '#scheduled_send_on_day_of_week_wrap' ).hide(); 
+                    $( '#scheduled_send_on_day_of_month_wrap' ).show();                     
+                    $( '#scheduled_send_on_month_wrap' ).hide();                    
+                    $( '.show_if_monthly' ).show();                    
+                } else {
+                    $( '#scheduled_send_on_day_of_week_wrap' ).hide(); 
+                    $( '#scheduled_send_on_day_of_month_wrap' ).show();
+                    $( '#scheduled_send_on_month_wrap' ).show();
+                }
+                $( '#mainwp_creport_send_on_wrap' ).show();                
+            } else {                    			
+                $( '#mainwp_creport_send_on_wrap' ).hide();
+            }
+            mainwp_creport_recurring_select_date_init();
+	});
+        
+        
+        $( '#mainwp_creport_schedule_month' ).change(function () {
+            mainwp_creport_recurring_select_date_init();             
+	});        
+        
+        $( '#mainwp_creport_schedule_send_email_me_review' ).change(function () {
 		if ($( this ).is( ':checked' )) {
 			$( '#mainwp_creport_schedule_bbc_me_email' ).attr( "disabled", "disabled" );
 			$( '#mainwp_creport_schedule_bbc_me_email' ).removeAttr( "checked" );
@@ -62,10 +99,14 @@ jQuery( document ).ready(function ($) {
 			$( '#mwp-creport-error-box' ).html( '<p>' + errors.join( '<br />' ) + '</p>' ).show();
 			return false;
 		}
-		var fields = {token_name: parent.find( 'input[name="token_name"]' ).val(),
-			token_description: parent.find( 'input[name="token_description"]' ).val(),
-			action: 'mainwp_creport_save_token'
+		
+                var fields = {
+                    token_name: parent.find( 'input[name="token_name"]' ).val(),
+                    token_description: parent.find( 'input[name="token_description"]' ).val(),
+                    action: 'mainwp_creport_save_token',
+                    nonce: mainwp_clientreport_loc.nonce
 		};
+                
 		parent.find( '.mainwp_more_loading' ).show();
 		$.post(ajaxurl, fields, function (response) {
 			parent.find( '.mainwp_more_loading' ).hide();
@@ -129,7 +170,8 @@ jQuery( document ).ready(function ($) {
 		var fields = {token_name: parent.find( 'input[name="token_name"]' ).val(),
 			token_description: parent.find( 'input[name="token_description"]' ).val(),
 			token_id: parent.attr( 'token_id' ),
-			action: 'mainwp_creport_save_token'
+			action: 'mainwp_creport_save_token',
+                        nonce: mainwp_clientreport_loc.nonce
 		};
 
 		$.post(ajaxurl, fields, function (response) {
@@ -162,7 +204,8 @@ jQuery( document ).ready(function ($) {
 			parent.find( '.mainwp_more_loading' ).show();
 			jQuery.post(ajaxurl, {
 				action: 'mainwp_creport_delete_token',
-				token_id: parent.attr( 'token_id' )
+				token_id: parent.attr( 'token_id' ),
+                                nonce: mainwp_clientreport_loc.nonce
 				}, function (data) {
 					parent.find( '.mainwp_more_loading' ).hide();
 					if (data && data.success) {
@@ -307,53 +350,11 @@ jQuery( document ).ready(function ($) {
 			obj.setSelectionRange( selectionStart, selectionEnd );
 		}
 	}
-
-	$( '.mwp-creport-report-item-delete-lnk' ).on('click', function () {
-		if ( ! confirm( "Are you sure?" )) {
-			return false; }
-
-		var row = $( this ).closest( 'tr' );
-		var loaderEl = row.find( '.loading img' );
-		var statusEl = row.find( '.loading .status' );
-
-		var data = {
-			action: 'mainwp_creport_delete_report',
-			reportId: row.attr( 'id' )
-		};
-		loaderEl.show();
-		$.post(ajaxurl, data, function (response) {
-			loaderEl.hide();
-			if (response && response['status'] == 'success') {
-				row.html( '<td colspan="6">' + __( 'Report has been deleted.' ) + '</td>' );
-			} else {
-				statusEl.html( __( 'Delete failed.' ) ).fadeIn();
-				statusEl.css( 'color', 'red' );
-			}
-		}, 'json');
-		return false;
-	});
-
-	$( '.mwp-creport-report-item-cancel-scheduled-lnk' ).on('click', function () {
-		var me = $( this );
-		var row = $( this ).closest( 'tr' );
-		var loaderEl = row.find( '.loading img' );
-		var statusEl = row.find( '.loading .status' );
-
-		var data = {
-			action: 'mainwp_creport_cancel_scheduled_report',
-			reportId: row.attr( 'id' )
-		};
-		loaderEl.show();
-		$.post(ajaxurl, data, function (response) {
-			loaderEl.hide();
-			if (response && response['status'] == 'success') {
-				me.parent( ".schedule" ).html( __( 'Schedule Cancelled' ) );
-				row.find( '.creport_sche_column' ).html( __( "No" ) );
-			} else {
-				statusEl.html( __( 'Cancel failed.' ) ).fadeIn();
-				statusEl.css( 'color', 'red' );
-			}
-		}, 'json');
+        
+	$( '.creport_action_row_lnk' ).on('click', function () {
+                var actionObj = jQuery(this).closest('.row-actions');
+                var what = jQuery(this).attr('action');
+                mainwp_creport_do_action_start_specific(actionObj, what, false);		
 		return false;
 	});
 
@@ -363,8 +364,8 @@ jQuery( document ).ready(function ($) {
 		$( '#mwp_creport_date_to' ).removeClass( 'form-invalid' );
 		$( '#selected_sites' ).removeClass( 'form-invalid' );
 		$( '#mwp_creport_email' ).removeClass( 'form-invalid' );
+                $( '#mwp_creport_femail' ).removeClass( 'form-invalid' );
 		$( '#mainwp_creport_recurring_schedule' ).removeClass( 'form-invalid' );
-		$( '#mainwp_creport_schedule_date' ).removeClass( 'form-invalid' );
 
 		var errors = [];
 		var selected_sites = [];
@@ -376,59 +377,53 @@ jQuery( document ).ready(function ($) {
 		}
 
 		if (action !== 'save') {
-			if ($.trim( $( '#mwp_creport_date_from' ).val() ) == '') {
-				errors.push( __( 'Date From is required.' ) );
-				$( '#mwp_creport_date_from' ).addClass( 'form-invalid' );
-			}
+                        
+                        if ($( '#mainwp_creport_type' ).val() == 0) {
+                            if ($.trim( $( '#mwp_creport_date_from' ).val() ) == '') {
+                                    errors.push( __( 'Date From is required.' ) );
+                                    $( '#mwp_creport_date_from' ).addClass( 'form-invalid' );
+                            }
 
-			if ($.trim( $( '#mwp_creport_date_to' ).val() ) == '') {
-				errors.push( __( 'Date To is required.' ) );
-				$( '#mwp_creport_date_to' ).addClass( 'form-invalid' );
-			}
-
-			if (jQuery( '#mwp_creport_report_type' ).val() == "global") {
-				if (jQuery( '#select_by' ).val() == 'site') {
-					jQuery( "input[name='selected_sites[]']:checked" ).each(function (i) {
-						selected_sites.push( jQuery( this ).val() );
-					});
-					if (selected_sites.length == 0) {
-						errors.push( __( 'Please select websites or groups.' ) );
-						$( '#selected_sites' ).addClass( 'form-invalid' );
-					}
-				} else {
-					jQuery( "input[name='selected_groups[]']:checked" ).each(function (i) {
-						selected_groups.push( jQuery( this ).val() );
-					});
-					if (selected_groups.length == 0) {
-						errors.push( __( 'Please select websites or groups.' ) );
-						$( '#selected_sites' ).addClass( 'form-invalid' );
-					}
-				}
-			} else {
-				jQuery( "#selected_sites input[name='selected_site']:checked" ).each(function (i) {
-					selected_sites.push( jQuery( this ).val() );
-				});
-
-				if (selected_sites.length == 0) {
-					errors.push( __( "Please select a website." ) );
-					$( '#selected_sites' ).addClass( 'form-invalid' );
-				}
-			}
+                            if ($.trim( $( '#mwp_creport_date_to' ).val() ) == '') {
+                                    errors.push( __( 'Date To is required.' ) );
+                                    $( '#mwp_creport_date_to' ).addClass( 'form-invalid' );
+                            }
+                        }
+			
+                        if (jQuery( '#select_by' ).val() == 'site') {
+                                jQuery( "input[name='selected_sites[]']:checked" ).each(function (i) {
+                                        selected_sites.push( jQuery( this ).val() );
+                                });
+                                if (selected_sites.length == 0) {
+                                        errors.push( __( 'Please select websites or groups.' ) );
+                                        $( '#selected_sites' ).addClass( 'form-invalid' );
+                                }
+                        } else {
+                                jQuery( "input[name='selected_groups[]']:checked" ).each(function (i) {
+                                        selected_groups.push( jQuery( this ).val() );
+                                });
+                                if (selected_groups.length == 0) {
+                                        errors.push( __( 'Please select websites or groups.' ) );
+                                        $( '#selected_sites' ).addClass( 'form-invalid' );
+                                }
+                        }
+			
+                        
 		}
-
+                
 		if (action == 'schedule') {
 			if ($.trim( $( '#mainwp_creport_recurring_schedule :selected' ).val() ) == '') {
 				errors.push( __( 'Recurring Schedule is required.' ) );
 				$( '#mainwp_creport_recurring_schedule' ).addClass( 'form-invalid' );
 			}
-
-			if ($.trim( $( '#mainwp_creport_schedule_date' ).val() ) == '') {
-				errors.push( __( 'Start Send Date is required.' ) );
-				$( '#mainwp_creport_schedule_date' ).addClass( 'form-invalid' );
-			}
 		}
 
-		if (action == 'send') {
+		if (action == 'sendreport' || action == 'save') {
+                        if ($.trim( $( '#mwp_creport_femail' ).val() ) == '') {
+                                errors.push( __( 'Send From email is required.' ) );
+                                $( '#mwp_creport_femail' ).addClass( 'form-invalid' );
+                        }
+                
 			if ($.trim( $( '#mwp_creport_email' ).val() ) == '') {
 				errors.push( __( 'Send To email is required.' ) );
 				$( '#mwp_creport_email' ).addClass( 'form-invalid' );
@@ -446,16 +441,26 @@ jQuery( document ).ready(function ($) {
 	}
 
 	$( '#mwp-creport-send-btn' ).on('click', function () {
-		if (mainwp_creport_valid_report_data( 'send' ) === false) {
-			return false; }
+		if (mainwp_creport_valid_report_data( 'sendreport' ) === false) {
+                    return false; 
+                }
 		if ( ! confirm( "Are you sure?" )) {
-			return false; }
-		$( '#mwp_creport_report_submit_action' ).val( 'send' );
+			return false; 
+                }
+		$( '#mwp_creport_report_submit_action' ).val( 'sendreport' );
 	});
-
+        
+        $( '#mwp-creport-schedule-btn' ).live('click', function () {
+		if (mainwp_creport_valid_report_data( 'schedule' ) === false) {
+			return false; 
+                }
+		$( '#mwp_creport_report_submit_action' ).val( 'save' );
+	});
+               
 	$( '#mwp-creport-preview-btn' ).on('click', function () {
 		if (mainwp_creport_valid_report_data() === false) {
-			return false; }
+			return false; 
+                }
 		$( '#mwp_creport_report_submit_action' ).val( 'preview' );
 	});
 
@@ -471,15 +476,11 @@ jQuery( document ).ready(function ($) {
 		$( '#mwp_creport_report_submit_action' ).val( 'save' );
 	});
 
-	$( '#mwp-creport-schedule-btn' ).live('click', function () {
-		if (mainwp_creport_valid_report_data( 'schedule' ) === false) {
-			return false; }
-		$( '#mwp_creport_report_submit_action' ).val( 'schedule' );
-	});
 
 	$( '#mwp-creport-save-pdf-btn' ).live('click', function () {
 		if (mainwp_creport_valid_report_data() === false) {
-			return false; }
+			return false; 
+                }
 		$( '#mwp_creport_report_submit_action' ).val( 'save_pdf' );
 	});
 
@@ -489,10 +490,10 @@ jQuery( document ).ready(function ($) {
 		$( '#mwp_creport_report_submit_action' ).val( 'archive_report' );
 	});
 
-	$( '#mwp-creport-unarchive-report-btn' ).on('click', function () {
-		$( '#mwp_creport_do_un_archive' ).val( 1 );
+        $( '#mwp-creport-unarchive-report-btn' ).on('click', function () {
+                $( '#mwp_creport_report_submit_action' ).val( 'unarchive_report' );		
 	});
-
+        
 	$( '#mwp-creport-preview-btn-close' ).on('click', function () {
 		jQuery( '#mwp-creport-preview-box' ).dialog( 'destroy' );
 	})
@@ -516,9 +517,12 @@ jQuery( document ).ready(function ($) {
 		var site_Id = $( this ).attr( 'siteid' );
 		var data = {
 			action: 'mainwp_creport_load_site_tokens',
-			siteId: site_Id
+			siteId: site_Id,
+                        nonce: mainwp_clientreport_loc.nonce
 		}
+                jQuery( '#mainwp_creport_client_loading i' ).show();
 		$.post(ajaxurl, data, function (response) {
+                        jQuery( '#mainwp_creport_client_loading i' ).hide();
 			if (response && response !== 'EMPTY') {
 				if (response.html_tokens) {
 					$( '.creport_format_group_data_tokens[group="client_tokens"] table tbody' ).html( response.html_tokens );
@@ -551,12 +555,12 @@ jQuery( document ).ready(function ($) {
 			pr.removeClass( 'closed' );
 			linkObj.text( __( "Hide" ) );
 			pr.closest( 'tr' ).next( 'tr.mainwp_creport_format_section' ).show();
-			mainwp_creport_setCookie( 'mainwp_creport_showhide_section_' + section, 'show' );
+			mainwp_setCookie( 'mainwp_creport_showhide_section_' + section, 'show' );
 		} else {
 			pr.addClass( 'closed' );
 			linkObj.text( __( "Show" ) );
 			pr.closest( 'tr' ).next( 'tr.mainwp_creport_format_section' ).hide();
-			mainwp_creport_setCookie( 'mainwp_creport_showhide_section_' + section, '' );
+			mainwp_setCookie( 'mainwp_creport_showhide_section_' + section, '' );
 		}
 	}
 
@@ -565,19 +569,19 @@ jQuery( document ).ready(function ($) {
 		var link_body = $( 'tr .mainwp_creport_format_section_header[section="body"] .handlelnk' );
 		var link_footer = $( 'tr .mainwp_creport_format_section_header[section="footer"] .handlelnk' );
 
-		if (mainwp_creport_getCookie( 'mainwp_creport_showhide_section_header' ) == 'show') {
+		if (mainwp_getCookie( 'mainwp_creport_showhide_section_header' ) == 'show') {
 			mainwp_creport_set_show_format_section( link_header, true );
 		} else {
 			mainwp_creport_set_show_format_section( link_header, false );
 		}
 
-		if (mainwp_creport_getCookie( 'mainwp_creport_showhide_section_body' ) == 'show') {
+		if (mainwp_getCookie( 'mainwp_creport_showhide_section_body' ) == 'show') {
 			mainwp_creport_set_show_format_section( link_body, true );
 		} else {
 			mainwp_creport_set_show_format_section( link_body, false );
 		}
 
-		if (mainwp_creport_getCookie( 'mainwp_creport_showhide_section_footer' ) == 'show') {
+		if (mainwp_getCookie( 'mainwp_creport_showhide_section_footer' ) == 'show') {
 			mainwp_creport_set_show_format_section( link_footer, true );
 		} else {
 			mainwp_creport_set_show_format_section( link_footer, false );
@@ -613,10 +617,11 @@ jQuery( document ).ready(function ($) {
 			action: 'mainwp_creport_save_format',
 			type: $( this ).attr( 'format' ),
 			title: titleEl.val(),
-			content: content
+			content: content,
+                        nonce: mainwp_clientreport_loc.nonce
 		}
 
-		var loader = pr.find( '.loading img' );
+		var loader = pr.find( '.loading i' );
 		loader.show();
 		$.post(ajaxurl, data, function (response) {
 			loader.hide();
@@ -664,10 +669,11 @@ jQuery( document ).ready(function ($) {
 
 		var data = {
 			action: 'mainwp_creport_delete_format',
-			formatId: fid
+			formatId: fid,
+                        nonce: mainwp_clientreport_loc.nonce
 		}
 		var name = $( this ).attr( 'ed-name' );
-		var loader = pr.find( '.loading img' );
+		var loader = pr.find( '.loading i' );
 		loader.show();
 		$.post(ajaxurl, data, function (response) {
 			loader.hide();
@@ -696,10 +702,11 @@ jQuery( document ).ready(function ($) {
 		var content = creport_get_content_format( $( this ).attr( 'ed-name' ) );
 		var data = {
 			action: 'mainwp_creport_get_format',
-			formatId: selectEl.val()
+			formatId: selectEl.val(),
+                        nonce: mainwp_clientreport_loc.nonce
 		}
 		var name = $( this ).attr( 'ed-name' );
-		var loader = pr.find( '.loading img' );
+		var loader = pr.find( '.loading i' );
 		loader.show();
 		$.post(ajaxurl, data, function (response) {
 			loader.hide();
@@ -740,6 +747,7 @@ jQuery( document ).ready(function ($) {
 			action: 'mainwp_creport_upgrade_noti_dismiss',
 			siteId: parent.attr( 'id' ),
 			new_version: parent.attr( 'version' ),
+                        nonce: mainwp_clientreport_loc.nonce
 		}
 		jQuery.post(ajaxurl, data, function (response) {
 
@@ -764,9 +772,16 @@ jQuery( document ).ready(function ($) {
 
 	$( '#creport_stream_doaction_btn' ).on('click', function () {
 		var bulk_act = $( '#creport_stream_action' ).val();
-		mainwp_creport_stream_do_bulk_action( bulk_act );
-
+		mainwp_creport_do_bulk_action( bulk_act );
 	});
+        
+        $( '#creport_global_bulk_ations_btn' ).on('click', function () {
+                if ( ! confirm( "Are you sure?" )) {
+                    return false; 
+                }
+		var bulk_act = $( '#creport_global_bulk_ations' ).val();
+		mainwp_creport_table_do_bulk_action( bulk_act );
+	});        
 });
 
 jQuery( document ).on('change', '#mainwp_creport_select_client', function ()
@@ -788,10 +803,11 @@ jQuery( document ).ready(function ($) {
 				return false; }
 			var data = {
 				action: 'mainwp_creport_delete_client',
-				client_id: clientId
+				client_id: clientId,
+                                nonce: mainwp_clientreport_loc.nonce
 			}
 			var me = jQuery( this );
-			var loadingEl = $( '.wpcr_report_tab_nav_action_working' ).find( 'img' );
+			var loadingEl = $( '.wpcr_report_tab_nav_action_working' ).find( 'i' );
 			var statusEl = $( '.wpcr_report_tab_nav_action_working' ).find( '.status' );
 			loadingEl.show();
 			statusEl.hide();
@@ -816,6 +832,19 @@ jQuery( document ).ready(function ($) {
 	});
 })
 
+mainwp_creport_recurring_select_date_init = function () {
+    var recurring = jQuery('#mainwp_creport_recurring_schedule').val();
+    var selected_month = jQuery('#mainwp_creport_schedule_month').val();        
+    jQuery( '#mainwp_creport_schedule_day_of_month option').show(); // show all days of month
+    if (recurring == 'yearly') {        
+        if (selected_month == 2) { // Feb
+            jQuery( '#mainwp_creport_schedule_day_of_month option').filter(function(){ return (this.value == 31 || this.value == 30 || this.value == 29); }).hide();
+        } else if (selected_month == 4 || selected_month == 6 || selected_month == 9 || selected_month == 11 ) {
+            jQuery( '#mainwp_creport_schedule_day_of_month option').filter(function(){ console.log(this.value); return (this.value == 31 ); }).hide();
+        } 
+    }
+}
+        
 
 jQuery( document ).tooltip({
 	items: ".mwp_creport_token_tooltip",
@@ -832,7 +861,7 @@ var creport_bulkTotalThreads = 0;
 var creport_bulkCurrentThreads = 0;
 var creport_bulkFinishedThreads = 0;
 
-mainwp_creport_stream_do_bulk_action = function (act) {
+mainwp_creport_do_bulk_action = function (act) {
 	var selector = '';
 	switch (act) {
 		case 'activate-selected':
@@ -872,15 +901,17 @@ mainwp_creport_stream_showhide_start_specific = function (pObj, bulk, selector) 
 	var parent = pObj.closest( 'tr' );
 	var loader = parent.find( '.creport-action-working .loading' );
 	var statusEl = parent.find( '.creport-action-working .status' );
-	var showhide = pObj.attr( 'showhide' );
-	var isStream = parent.attr( 'is-stream' );
+	var showhide = pObj.attr( 'showhide' );	
+        
 	if (bulk) {
-		creport_bulkCurrentThreads++; }
+            creport_bulkCurrentThreads++; 
+        }
 
 	var data = {
 		action: 'mainwp_creport_showhide_stream',
 		websiteId: parent.attr( 'website-id' ),
-		showhide: showhide
+		showhide: showhide,
+                nonce: mainwp_clientreport_loc.nonce
 	}
 	statusEl.hide();
 	loader.show();
@@ -891,15 +922,12 @@ mainwp_creport_stream_showhide_start_specific = function (pObj, bulk, selector) 
 			statusEl.css( 'color', 'red' );
 			statusEl.html( response['error'] ).show();
 		} else if (response && response['result'] == 'SUCCESS') {
-			if (isStream == 1) {
-				if (showhide == 'show') {
-					pObj.text( __( "Hide Stream Plugin" ) ); } else {
-					pObj.text( __( "Show Stream Plugin" ) ); }
-			} else {
-				if (showhide == 'show') {
-					pObj.text( __( "Hide MainWP Child Reports Plugin" ) ); } else {
-					pObj.text( __( "Show MainWP Child Reports Plugin" ) ); }
-			}
+                        if (showhide == 'show') {
+                                pObj.text( __( "Hide MainWP Child Reports Plugin" ) ); 
+                        } else {
+                                pObj.text( __( "Show MainWP Child Reports Plugin" ) ); 
+                        }
+			
 
 			if (showhide == 'show') {
 				pObj.attr( 'showhide', 'hide' );
@@ -928,44 +956,41 @@ mainwp_creport_stream_showhide_start_specific = function (pObj, bulk, selector) 
 }
 
 mainwp_creport_stream_upgrade_start_next = function (selector) {
-	while ((objProcess = jQuery( selector + '.queue:first' )) && (objProcess.length > 0) && (objProcess.closest( 'tr' ).prev( 'tr' ).find( '.check-column input[type="checkbox"]:checked' ).length > 0) && (creport_bulkCurrentThreads < creport_bulkMaxThreads)) {
-		objProcess.removeClass( 'queue' );
-		if (objProcess.closest( 'tr' ).prev( 'tr' ).find( '.check-column input[type="checkbox"]:checked' ).length == 0) {
-			continue;
-		}
-		mainwp_creport_stream_upgrade_start_specific( objProcess, true, selector );
-	}
+    while ((objProcess = jQuery( selector + '.queue:first' )) && (objProcess.length > 0) && (objProcess.closest( 'tr' ).prev( 'tr' ).find( '.check-column input[type="checkbox"]:checked' ).length > 0) && (creport_bulkCurrentThreads < creport_bulkMaxThreads)) {
+        objProcess.removeClass( 'queue' );
+        if (objProcess.closest( 'tr' ).prev( 'tr' ).find( '.check-column input[type="checkbox"]:checked' ).length == 0) {
+                continue;
+        }
+        mainwp_creport_stream_upgrade_start_specific( objProcess, true, selector );
+    }
 }
 
 mainwp_creport_stream_upgrade_start_specific = function (pObj, bulk, selector) {
 	var parent = pObj.closest( '.ext-upgrade-noti' );
 	var workingRow = parent.find( '.creport-stream-row-working' );
-	var slug = parent.attr( 'plugin-slug' );
-	var isStream = pObj.closest( 'tr' ).attr( 'is-stream' );
+	var slug = parent.attr( 'plugin-slug' );	
 	var data = {
 		action: 'mainwp_creport_upgrade_plugin',
 		websiteId: parent.attr( 'website-id' ),
 		type: 'plugin',
-		'slugs[]': [slug]
+		'slugs[]': [slug],
+                nonce: mainwp_clientreport_loc.nonce
 	}
 
 	if (bulk) {
 		creport_bulkCurrentThreads++; }
 
-	workingRow.find( 'img' ).show();
+	workingRow.find( 'i' ).show();
 	jQuery.post(ajaxurl, data, function (response) {
-		workingRow.find( 'img' ).hide();
+		workingRow.find( 'i' ).hide();
 		pObj.removeClass( 'queue' );
 		if (response && response['error']) {
 			workingRow.find( '.status' ).html( '<font color="red">' + response['error'] + '</font>' );
 		} else if (response && response['upgrades'][slug]) {
-			if (isStream == 1) {
-				pObj.after( 'Stream plugin has been updated' ); } else {
-				pObj.after( 'MainWP Child Reports plugin has been updated' ); }
-
-				pObj.remove();
+                    pObj.after( 'MainWP Child Reports plugin has been updated' );
+                    pObj.remove();
 		} else {
-			workingRow.find( '.status' ).html( '<font color="red">' + __( "Undefined error" ) + '</font>' );
+                    workingRow.find( '.status' ).html( '<font color="red">' + __( "Undefined error" ) + '</font>' );
 		}
 
 		if (bulk) {
@@ -992,29 +1017,25 @@ mainwp_creport_stream_active_start_next = function (selector) {
 mainwp_creport_stream_active_start_specific = function (pObj, bulk, selector) {
 	var parent = pObj.closest( '.ext-upgrade-noti' );
 	var workingRow = parent.find( '.creport-stream-row-working' );
-	var slug = parent.attr( 'plugin-slug' );
-	var isStream = pObj.closest( 'tr' ).attr( 'is-stream' );
+	var slug = parent.attr( 'plugin-slug' );	
 	var data = {
 		action: 'mainwp_creport_active_plugin',
 		websiteId: parent.attr( 'website-id' ),
-		'plugins[]': [slug]
+		'plugins[]': [slug],
+                nonce: mainwp_clientreport_loc.nonce
 	}
 
 	if (bulk) {
 		creport_bulkCurrentThreads++; }
 
-	workingRow.find( 'img' ).show();
+	workingRow.find( 'i' ).show();
 	jQuery.post(ajaxurl, data, function (response) {
-		workingRow.find( 'img' ).hide();
+		workingRow.find( 'i' ).hide();
 		pObj.removeClass( 'queue' );
 		if (response && response['error']) {
 			workingRow.find( '.status' ).html( '<font color="red">' + response['error'] + '</font>' );
-		} else if (response && response['result']) {
-			if (isStream == 1) {
-				pObj.after( 'Stream plugin has been activated' );
-			} else {
-				pObj.after( 'MainWP Child Reports plugin has been activated' );
-			}
+		} else if (response && response['result']) {			
+                        pObj.after( 'MainWP Child Reports plugin has been activated' );			
 			pObj.remove();
 		}
 		if (bulk) {
@@ -1027,96 +1048,111 @@ mainwp_creport_stream_active_start_specific = function (pObj, bulk, selector) {
 	return false;
 }
 
-showCReportTab = function (report, edit_report, token, tream, edit_global_report) {
+showCReportTab = function (thisObj, report, edit_report, token, tream, edit_global_report, settings) {
+        
+        if (jQuery(thisObj).attr('href') !== '#') {
+            return true;
+        }
+                
 	var report_tab_lnk = jQuery( "#wpcr_report_tab_lnk" );
 	if (report) {
-		report_tab_lnk.addClass( 'mainwp_action_down' ); } else {
-		report_tab_lnk.removeClass( 'mainwp_action_down' ); }
+            report_tab_lnk.addClass( 'mainwp_action_down' ); 
+        } else {
+            report_tab_lnk.removeClass( 'mainwp_action_down' ); 
+        }
+        
+        var edit_report_tab_lnk = jQuery( "#wpcr_edit_tab_lnk" );
+        if (edit_report_tab_lnk.attr( 'report-id' ) > 0) {
+            edit_report_tab_lnk.remove(); 
+        } else {
+            if (edit_report) {
+                edit_report_tab_lnk.addClass( 'mainwp_action_down' ); 
+            } else {
+                edit_report_tab_lnk.removeClass( 'mainwp_action_down' ); 
+            }
+        }
 
-		var edit_report_tab_lnk = jQuery( "#wpcr_edit_tab_lnk" );
-		if (edit_report_tab_lnk.attr( 'report-id' ) > 0) {
-			edit_report_tab_lnk.remove(); } else {
-			if (edit_report) {
-				edit_report_tab_lnk.addClass( 'mainwp_action_down' ); } else {
-				edit_report_tab_lnk.removeClass( 'mainwp_action_down' ); }
-			}
+        var edit_global_report_tab_lnk = jQuery( "#wpcr_edit_global_tab_lnk" );
+        if (edit_global_report_tab_lnk.attr( 'report-id' ) > 0) {
+            edit_global_report_tab_lnk.remove(); 
+        } else {
+            if (edit_global_report) {
+                edit_global_report_tab_lnk.addClass( 'mainwp_action_down' ); 
+            } else {
+                edit_global_report_tab_lnk.removeClass( 'mainwp_action_down' ); 
+            }
+        }
 
-			var edit_global_report_tab_lnk = jQuery( "#wpcr_edit_global_tab_lnk" );
-			if (edit_global_report_tab_lnk.attr( 'report-id' ) > 0) {
-				edit_global_report_tab_lnk.remove(); } else {
-				if (edit_global_report) {
-					edit_global_report_tab_lnk.addClass( 'mainwp_action_down' ); } else {
-					edit_global_report_tab_lnk.removeClass( 'mainwp_action_down' ); }
-				}
+        var token_tab_lnk = jQuery( "#wpcr_token_tab_lnk" );
+        if (token) {
+            token_tab_lnk.addClass( 'mainwp_action_down' ); 
+        } else {
+            token_tab_lnk.removeClass( 'mainwp_action_down' ); 
+        }
 
-				var token_tab_lnk = jQuery( "#wpcr_token_tab_lnk" );
-				if (token) {
-					token_tab_lnk.addClass( 'mainwp_action_down' ); } else {
-					token_tab_lnk.removeClass( 'mainwp_action_down' ); }
-
-					var stream_tab_lnk = jQuery( "#wpcr_stream_tab_lnk" );
-					if (tream) {
-						stream_tab_lnk.addClass( 'mainwp_action_down' ); } else {
-						stream_tab_lnk.removeClass( 'mainwp_action_down' ); }
-
-						var report_tab = jQuery( "#wpcr_report_tab" );
-						var edit_tab = jQuery( "#wpcr_edit_tab" );
-						var token_tab = jQuery( "#wpcr_token_tab" );
-						var tream_tab = jQuery( "#wpcr_stream_tab" );
-						var select_sites_box = jQuery( "#creport_select_sites_box" );
-
-						if (report) {
-							report_tab.show();
-							edit_tab.hide();
-							token_tab.hide();
-							tream_tab.hide();
-							select_sites_box.hide();
-						} else if (edit_report || edit_global_report) {
-							report_tab.hide();
-							edit_tab.show();
-							token_tab.hide();
-							tream_tab.hide();
-							select_sites_box.show();
-						} else if (token) {
-							report_tab.hide();
-							edit_tab.hide();
-							token_tab.show();
-							tream_tab.hide();
-							select_sites_box.hide();
-						} else if (tream) {
-							report_tab.hide();
-							edit_tab.hide();
-							token_tab.hide();
-							tream_tab.show();
-							select_sites_box.hide();
-						}
+        var stream_tab_lnk = jQuery( "#wpcr_stream_tab_lnk" );
+        if (tream) {
+            stream_tab_lnk.addClass( 'mainwp_action_down' ); 
+        } else {
+            stream_tab_lnk.removeClass( 'mainwp_action_down' ); 
+        }
+                
+        var report_tab = jQuery( "#wpcr_report_tab" );
+        var edit_tab = jQuery( "#wpcr_edit_tab" );
+        var token_tab = jQuery( "#wpcr_token_tab" );
+        var tream_tab = jQuery( "#wpcr_stream_tab" );        
+        var select_sites_box = jQuery( "#creport_select_sites_box" );
+        
+        if (report) {
+                report_tab.show();
+                edit_tab.hide();
+                token_tab.hide();
+                tream_tab.hide();                
+                select_sites_box.hide();
+        } else if (edit_report || edit_global_report) {
+                report_tab.hide();
+                edit_tab.show();
+                token_tab.hide();
+                tream_tab.hide();                
+                select_sites_box.show();                   
+        } else if (token) {
+                report_tab.hide();
+                edit_tab.hide();
+                token_tab.show();
+                tream_tab.hide();                
+                select_sites_box.hide();
+        } else if (tream) {
+                report_tab.hide();
+                edit_tab.hide();
+                token_tab.hide();
+                tream_tab.show();                
+                select_sites_box.hide();
+        } 
+        return false;
 };
 
 function mainwp_creport_load_tokens()
 {
-	jQuery( '#creport_list_tokens' ).html( '<img src="' + mainwpParams['image_url'] + 'loader.gif"> ' );
-	jQuery.get(ajaxurl, {
-		'action': 'mainwp_creport_load_tokens'
-		}, function (data) {
-			jQuery( '#creport_list_tokens' ).html( data );
-		});
+	jQuery( '#creport_list_tokens' ).html( '<i class="fa fa-spinner fa-pulse" style=""></i> ' );
+	jQuery.get(
+            ajaxurl, 
+            {
+                action: 'mainwp_creport_load_tokens',
+                nonce: mainwp_clientreport_loc.nonce 
+            }, 
+            function (data) {
+                jQuery( '#creport_list_tokens' ).html( data );
+            }
+        );
 }
 
-mainwp_creport_remove_sites_without_streams = function (str_ids) {
+mainwp_creport_remove_sites_without_creports = function (str_ids) {
 	var ids = str_ids.split( "," );
-	if (jQuery( '#mwp_creport_report_type' ).val() == "global") {
-		jQuery( '#creport_select_sites_box #selected_sites .mainwp_selected_sites_item' ).each(function () {
-			var site_id = jQuery( this ).find( 'input[type="checkbox"]' ).attr( 'siteid' );
-			if (jQuery.inArray( site_id, ids ) == -1) {
-				jQuery( this ).remove(); }
-		})
-	} else {
-		jQuery( '#creport_select_sites_box #selected_sites .mainwp_selected_sites_item' ).each(function () {
-			var site_id = jQuery( this ).find( 'input[type="radio"]' ).attr( 'siteid' );
-			if (jQuery.inArray( site_id, ids ) == -1) {
-				jQuery( this ).remove(); }
-		})
-	}
+        jQuery( '#creport_select_sites_box #selected_sites .mainwp_selected_sites_item' ).each(function () {
+                var site_id = jQuery( this ).find( 'input[type="checkbox"]' ).attr( 'siteid' );
+                if (jQuery.inArray( site_id, ids ) == -1) {
+                        jQuery( this ).remove(); }
+        });
 }
 
 mainwp_creport_preview_report = function () {
@@ -1131,54 +1167,116 @@ mainwp_creport_preview_report = function () {
 		}});
 }
 
-mainwp_creport_client_change = function () {
-	var data = {
-		action: 'mainwp_creport_load_client',
-		client: jQuery( '#mainwp_creport_autocomplete_client' ).val()
+mainwp_client_report_load_sites = function (pWhat, pReportId) {
+    var data = {
+            action:'mainwp_creport_group_load_sites',
+            what: pWhat,  
+            report_id: pReportId,
+            nonce: mainwp_clientreport_loc.nonce                
+    };        
+    
+    jQuery('#mainwp_creport_edit_tab_wrap').html('<h2><i class="fa fa-spinner fa-pulse" style=""></i> Loading sites...<h2>').show();    
+    jQuery.post(ajaxurl, data, function (response) {         
+            if (response) {
+                    jQuery('#mainwp_creport_edit_tab_wrap').html(response);  
+                    creport_bulkTotalThreads = jQuery('.siteItemProcess[status=queue]').length;
+                    if (creport_bulkTotalThreads > 0) {
+                        if (pWhat == 'send_test_email' || pWhat == 'sendreport') {
+                            creport_bulkMaxThreads = 1; // send one email per time
+                        }
+                        mainwp_creport_perform_group_report_start_next(pWhat, pReportId);
+                    }
+            } else {
+                    jQuery('#mainwp_creport_edit_tab_wrap').html('<div class="mainwp_info-box-red">' + __("Undefined error.") + '</div>');
+
+            }
+    })
+}	
+
+mainwp_creport_perform_group_report_start_next = function(pWhat, pReportId) {
+	while ((objProcess = jQuery( '.siteItemProcess[status=queue]:first' )) && (objProcess.length > 0) && (creport_bulkCurrentThreads < creport_bulkMaxThreads)) {
+            objProcess.attr( 'status', 'processed' );            
+            mainwp_creport_generate_group_report_start_specific( objProcess , pWhat, pReportId );             
 	}
-	jQuery( '#mainwp_creport_client_loading' ).find( 'img' ).show();
-        jQuery( 'input[name="mwp_creport_name"]' ).attr('disabled', 'disabled');
-        jQuery( 'input[name="mwp_creport_company"]' ).attr('disabled', 'disabled');
-        jQuery( 'input[name="mwp_creport_email"]' ).attr('disabled', 'disabled');
-	jQuery.post(ajaxurl, data, function (response) {                
-		jQuery( '#mainwp_creport_client_loading' ).find( 'img' ).hide();
-                
-                jQuery( 'input[name="mwp_creport_name"]' ).removeAttr('disabled');
-                jQuery( 'input[name="mwp_creport_company"]' ).removeAttr('disabled');
-                jQuery( 'input[name="mwp_creport_email"]' ).removeAttr('disabled');
-                
-		jQuery( 'input[name="mwp_creport_name"]' ).val( '' );
-		jQuery( 'input[name="mwp_creport_company"]' ).val( '' );
-		jQuery( 'input[name="mwp_creport_email"]' ).val( '' );
-		jQuery( 'input[name="mwp_creport_client_id"]' ).val( 0 );
-		if (response && response.clientid) {
-			jQuery( 'input[name="mwp_creport_client_id"]' ).val( response.clientid );
-			jQuery( 'input[name="mwp_creport_name"]' ).val( response.name );
-			jQuery( 'input[name="mwp_creport_company"]' ).val( response.company );
-			jQuery( 'input[name="mwp_creport_email"]' ).val( response.email );
-		}
-	}, 'json');
+	if (creport_bulkFinishedThreads > 0 && creport_bulkFinishedThreads == creport_bulkTotalThreads) {          
+            jQuery( '#mainwp_creport_edit_tab_wrap' ).append( '<div class="mainwp_info-box">' + __( "Finished." ) + '</div>' + '<p><a class="button-primary" href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=editreport&id=' + pReportId + '">Return the Report</a></p>' );
+            mainwp_creport_generate_group_report_done(pWhat, pReportId);            
+	} 
 }
 
-function mainwp_creport_setCookie(c_name, value, expiredays)
-{
-	var exdate = new Date();
-	exdate.setDate( exdate.getDate() + expiredays );
-	document.cookie = c_name + "=" + escape( value ) + ((expiredays == null) ? "" : ";expires=" + exdate.toUTCString());
+mainwp_creport_generate_group_report_start_specific = function(objProcess, pWhat, pReportId) {
+	var loadingEl = objProcess.find( 'i' );
+	var statusEl = objProcess.find( '.status' );
+        
+	creport_bulkCurrentThreads++;
+	var data = {
+		action: 'mainwp_creport_generate_report',               
+                site_id: objProcess.attr( 'site-id' ),
+                what: pWhat,
+                report_id: pReportId,
+                nonce: mainwp_clientreport_loc.nonce
+	};
+            
+	statusEl.html( '' );
+	loadingEl.show();
+	jQuery.post( ajaxurl, data, function ( response ) {
+			loadingEl.hide();
+                        if ( response) {                               
+                                if (response.error) {
+                                        statusEl.css( 'color', 'red' );
+                                        statusEl.html( '<i class="fa fa-exclamation-circle"></i> ERROR: ' + response.error );
+                                } else if (response.result == 'success') {                                                                                         
+                                        statusEl.html( '<span style="color:#0073aa"><i class="fa fa-check-circle"></i> ' + __( 'Successful.' ) + '</span>' );
+                                } else {
+                                        statusEl.css( 'color', 'red' );
+                                        statusEl.html( '<i class="fa fa-exclamation-circle"></i>  ERROR: ' + 'Undefined error' );
+                                }
+                        } else {
+                                statusEl.css( 'color', 'red' );
+                                statusEl.html( '<i class="fa fa-exclamation-circle"></i>  ERROR: ' + 'Undefined error' );
+                        }
+			creport_bulkCurrentThreads--;
+			creport_bulkFinishedThreads++;
+			mainwp_creport_perform_group_report_start_next( pWhat, pReportId );
+	}, 'json' );
 }
-function mainwp_creport_getCookie(c_name)
-{
-	if (document.cookie.length > 0) {
-		var c_start = document.cookie.indexOf( c_name + "=" );
-		if (c_start != -1) {
-			c_start = c_start + c_name.length + 1;
-			var c_end = document.cookie.indexOf( ";", c_start );
-			if (c_end == -1) {
-				c_end = document.cookie.length; }
-			return unescape( document.cookie.substring( c_start, c_end ) );
-		}
-	}
-	return "";
+
+mainwp_creport_generate_group_report_done = function(pWhat, pReportId) {
+    var loadingEl = jQuery('#mainwp_creport_group_working').find( 'i' );
+    var statusEl = jQuery('#mainwp_creport_group_working').find( '.status' );
+        
+        
+    if (pWhat == 'preview') {
+        location.href = 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=show_preview_group&id=' + pReportId;
+    } else if (pWhat == 'archive_report') {
+            var data = {
+                    action: 'mainwp_creport_archive_report',                                   
+                    report_id: pReportId,
+                    nonce: mainwp_clientreport_loc.nonce
+            };
+            statusEl.html('Archiving report ...').show();
+            loadingEl.show();
+            jQuery.post( ajaxurl, data, function ( response ) {
+                    loadingEl.hide();
+                    if ( response) {                               
+                            if (response.error) {
+                                    statusEl.css( 'color', 'red' );
+                                    statusEl.html( '<i class="fa fa-exclamation-circle"></i> ERROR: ' + response.error );
+                            } else if (response.result == 'success') {                                                                                         
+                                    statusEl.html( '<div class="mainwp_info-box-yellow">' + __( 'Report has been archived.' ) + '</div>' );
+                            } else {
+                                    statusEl.css( 'color', 'red' );
+                                    statusEl.html( '<i class="fa fa-exclamation-circle"></i>  ERROR: ' + 'Undefined error' );
+                            }
+                    } else {
+                            statusEl.css( 'color', 'red' );
+                            statusEl.html( '<i class="fa fa-exclamation-circle"></i>  ERROR: ' + 'Undefined error' );
+                    }
+                           
+            }, 'json' );
+    } else if (pWhat == 'save_pdf') {
+        location.href = 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=download_pdf_group&id=' + pReportId;
+    }  
 }
 
 jQuery( document ).ready(function ($) {
@@ -1258,3 +1356,103 @@ function cr_getCookie(c_name)
 	}
 	return "";
 }
+
+
+mainwp_creport_table_do_bulk_action = function ( act ) {                
+    	var selector = '#creport_global_tbody .row-report-actions';          
+        jQuery( '#creport_global_tbody .working .status' ).hide();   // hide all status 
+        jQuery( selector ).addClass( 'queue' );        
+        mainwp_creport_bulk_start_next( act, selector );        
+}
+
+
+
+mainwp_creport_bulk_start_next = function (pWhat, selector) {       
+    while ( (objProcess = jQuery( selector + '.queue:first' )) && (objProcess.length > 0) && (creport_bulkCurrentThreads < creport_bulkMaxThreads) ) {
+        objProcess.removeClass( 'queue' );
+        if (objProcess.closest( 'tr' ).find( '.check-column input[type="checkbox"]:checked' ).length == 0) {    
+            continue;
+        }
+        mainwp_creport_do_action_start_specific( objProcess, pWhat, true, selector );        
+    }
+}
+
+mainwp_creport_do_action_start_specific = function (pObj, pWhat, pBulk, pSelector ) {
+        
+        var row = jQuery( pObj ).closest( 'tr' );
+        var rowtd = jQuery( pObj ).closest( 'td' );
+        var loaderEl = rowtd.find( '.working i' );
+        var statusEl = rowtd.find( '.working .status' );
+        var reportId = row.attr('id');
+        
+        statusEl.css( 'color', '#21759B' );
+        statusEl.hide();
+        
+        var already = false;
+        switch (pWhat) {                
+		case 'unarchive':
+                        if (pObj.hasClass('noarchived')) {
+                            already = true;
+                            statusEl.html( __( 'Un-archived already' ) ).fadeIn();
+                        }
+			break;
+                case 'cancelschedule':
+                        if (pObj.hasClass('noscheduled')) {
+                            already = true;
+                            statusEl.html( __( 'Schedule cancelled already' ) ).fadeIn();
+                        }
+			break;
+	}
+        
+        if (already) {
+            if (pBulk) {
+               mainwp_creport_bulk_start_next( pWhat, pSelector ); 
+            }
+            return;
+        }
+        
+        if (pBulk) {
+            creport_bulkCurrentThreads++;
+        }
+        
+        var data = {
+                action: 'mainwp_creport_do_action_report',
+                what: pWhat,
+                reportId: reportId,
+                nonce: mainwp_clientreport_loc.nonce
+        };
+        
+        
+        loaderEl.show();
+        jQuery.post(ajaxurl, data, function (response) {
+                if (pBulk) {
+                    creport_bulkCurrentThreads--;
+                }
+                loaderEl.hide();
+                if (response && response['status'] == 'success') {          
+                    if (pWhat == 'delete') {     
+                        row.html( '<td colspan="7">' + __( 'Report has been deleted.' ) + '</td>' );
+                    }  else if (pWhat == 'unarchive') {
+                        jQuery( pObj ).find( 'span.unarchive' ).html( __( 'Report has been un-archived' ) );                                            
+                    }  else if (pWhat == 'cancelschedule') {
+                        jQuery( pObj ).find( 'span.schedule' ).html( __( 'Schedule Cancelled' ) );
+                        row.find( '.creport_sche_column' ).html( __( "No" ) );                        
+                    } 
+                    
+                } else if (response && response['error']) {
+                        statusEl.html( response['error'] ).fadeIn();
+                        statusEl.css( 'color', 'red' );
+                } else {
+                        statusEl.html( __( 'Failed.' ) ).fadeIn();
+                        statusEl.css( 'color', 'red' );
+                }
+                
+                if (pBulk) {                                      
+                    mainwp_creport_bulk_start_next( pWhat, pSelector );
+		}
+                
+        }, 'json');
+
+	return false;
+}
+

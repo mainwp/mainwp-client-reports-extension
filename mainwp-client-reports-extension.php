@@ -23,8 +23,9 @@ class MainWP_CReport_Extension {
 	public $plugin_dir;
 	protected $option;
 	protected $option_handle = 'mainwp_wpcreport_extension';
-
-	static function get_instance() {
+        public $version = '1.1';
+        
+        static function get_instance() {
 		if ( null == MainWP_CReport_Extension::$instance ) {
 			MainWP_CReport_Extension::$instance = new MainWP_CReport_Extension();
 		}
@@ -39,21 +40,31 @@ class MainWP_CReport_Extension {
 		$this->option = get_option( $this->option_handle );
 		add_action( 'init', array( &$this, 'localization' ) );
 		add_action( 'init', array( &$this, 'init' ) );
-		add_filter( 'plugin_row_meta', array( &$this, 'plugin_row_meta' ), 10, 2 );
-		add_action( 'after_plugin_row', array( &$this, 'after_plugin_row' ), 10, 3 );
+		add_filter( 'plugin_row_meta', array( &$this, 'plugin_row_meta' ), 10, 2 );		
 		add_action( 'admin_init', array( &$this, 'admin_init' ) );
+                add_action( 'in_admin_header', array( &$this, 'in_admin_head' ) ); // Adds Help Tab in admin header
 		add_filter( 'mainwp-sync-extensions-options', array( &$this, 'mainwp_sync_extensions_options' ), 10, 1 );		
-		
+                add_filter( 'mainwp-sync-others-data', array( $this, 'sync_others_data' ), 10, 2 );
+		add_action( 'mainwp-site-synced', array( &$this, 'site_synced' ), 10, 2 );
+              
+                if ( isset( $_GET['page'] ) && ('Extensions-Mainwp-Client-Reports-Extension' == $_GET['page'])) {
+                    require_once 'includes/functions.php';
+                    add_action( 'admin_print_footer_scripts', 'mainwp_creport_admin_print_footer_scripts');
+                }
+                
 		MainWP_CReport_DB::get_instance()->install();
-
+                
 		if ( isset( $_GET['page'] ) && ('Extensions-Mainwp-Client-Reports-Extension' == $_GET['page']) &&
 				isset( $_GET['action'] ) && ('savepdf' == $_GET['action']) &&
-				isset( $_GET['id'] ) && $_GET['id'] ) {
+				isset( $_GET['id'] ) && !empty($_GET['id']) ) {
 			require_once $this->plugin_dir . '/includes/save-as-pdf.php';
 			exit();
 		}
+                add_filter( 'cron_schedules', array( $this, 'getCronSchedules' ) );
 	}
 
+       
+        
 	public function localization() {
 		load_plugin_textdomain( 'mainwp-client-reports-extension', false,  dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 	}
@@ -79,42 +90,58 @@ class MainWP_CReport_Extension {
 		$plugin_meta[] = '<a href="?do=checkUpgrade" title="Check for updates.">Check for updates now</a>';
 		return $plugin_meta;
 	}
+        
+        public function sync_others_data( $data, $pWebsite = null ) {
+		if ( ! is_array( $data ) ) {
+                    $data = array();
+                }
+		$data['syncClientReportData'] = 1;
+		return $data;
+	}
 	
-	public function after_plugin_row( $plugin_file, $plugin_data, $status ) {	
-		if ( $this->plugin_slug != $plugin_file ) {
-			return ;
-		}	
-		$slug = basename($plugin_file, ".php");
-		$api_data = get_option( $slug. '_APIManAdder');
-		
-		if (!is_array($api_data) || !isset($api_data['activated_key']) || $api_data['activated_key'] != 'Activated'){
-			if (!isset($api_data['api_key']) || empty($api_data['api_key'])) {
-				?>
-				<style type="text/css">
-					tr#<?php echo $slug;?> td, tr#<?php echo $slug;?> th{
-						box-shadow: none;
-					}
-				</style>
-				<tr class="plugin-update-tr active"><td colspan="3" class="plugin-update colspanchange"><div class="update-message api-deactivate">
-				<?php echo (sprintf(__("API not activated check your %sMainWP account%s for updates. For automatic update notification please activate the API.", "mainwp"), '<a href="https://mainwp.com/my-account" target="_blank">', '</a>')); ?>
-				</div></td></tr>
-				<?php
-			}
-		}		
-	}	
-
+	public function site_synced( $website, $information = array()) {		
+		$website_id = $website->id;
+                if ( is_array( $information ) && isset( $information['syncClientReportData'] ) && is_array( $information['syncClientReportData'] ) ) {
+                    $data = $information['syncClientReportData'];    
+                    if (isset($data['firsttime_activated'])) {
+                        $creportSettings = MainWP_CReport_Stream::get_instance()->get_option( 'settings' );
+                        $creportSettings[$website_id]['first_time'] = $data['firsttime_activated'];
+                        MainWP_CReport_Stream::get_instance()->set_option( 'settings', $creportSettings );
+                    }
+                }
+	}
+        
+	
 	public function admin_init() {
 
-		wp_enqueue_style( 'mainwp-creport-extension', self::$plugin_url . 'css/mainwp-reporting.css' );
-		wp_enqueue_script( 'mainwp-creport-extension', self::$plugin_url . 'js/mainwp-reporting.js' );
-		$translation_array = array( 'dashboard_sitename' => get_bloginfo( 'name' ) );
+		wp_enqueue_style( 'mainwp-creport-extension', self::$plugin_url . 'css/mainwp-reporting.css', array(), $this->version);
+		wp_enqueue_script( 'mainwp-creport-extension', self::$plugin_url . 'js/mainwp-reporting.js', array(), $this->version );
+		wp_localize_script(
+                        'mainwp-creport-extension', 'mainwp_clientreport_loc', array(			
+                            'nonce' => wp_create_nonce( '_wpnonce_creport' ),			
+                        )
+                );
+			
 		MainWP_CReport::init();
 		$mwp_creport = new MainWP_CReport();
 		$mwp_creport->admin_init();
 		$mwp_creport_stream = new MainWP_CReport_Stream();
 		$mwp_creport_stream->admin_init();
 	}
+        
+        public static function getCronSchedules( $schedules ) {
+		$schedules['30minutely'] = array(
+			'interval' => 30 * 60, // 30 minutes in seconds
+			'display'  => __( 'Once every 30 minutes', 'mainwp' ),
+		);
+		$schedules['15minutely']  = array(
+			'interval' => 15 * 60, // 15 minute in seconds
+			'display'  => __( 'Once every 15 minutes', 'mainwp' ),
+		);
 
+		return $schedules;
+	}
+        
 	function mainwp_sync_extensions_options($values = array()) {
 		$values['mainwp-client-reports-extension'] = array(
 			'plugin_name' => 'MainWP Child Reports',
@@ -135,6 +162,69 @@ class MainWP_CReport_Extension {
 		$this->option[ $key ] = $value;
 		return update_option( $this->option_handle, $this->option );
 	}
+        
+        /**
+	 * This function check if current page is Client Reports Extension page.
+	 * @return void
+	 */
+	function in_admin_head() {
+		if ( isset( $_GET['page'] ) && $_GET['page'] == 'Extensions-Mainwp-Client-Reports-Extension' ) {
+			self::addHelpTabs(); // If page is Client Reports Extension then call this 'addHelpTabs' function
+		}
+	}
+
+	/**
+	 * This function add help tabs in header.
+	 * @return void
+	 */
+	public static function addHelpTabs() {
+		$screen = get_current_screen(); //This function returns an object that includes the screen's ID, base, post type, and taxonomy, among other data points.
+		$i      = 1;
+
+		$screen->add_help_tab( array(
+			'id'      => 'mainwp_team_control_helptabs_' . $i ++,
+			'title'   => __( 'First Steps with Extensions', 'mainwp-client-reports-extension' ),
+			'content' => self::getHelpContent( 1 ),
+		) );
+		$screen->add_help_tab( array(
+			'id'      => 'mainwp_team_control_helptabs_' . $i ++,
+			'title'   => __( 'Client Reports Extension', 'mainwp-client-reports-extension' ),
+			'content' => self::getHelpContent( 2 ),
+		) );
+	}
+
+	/**
+	 * Get help tab content.
+	 *
+	 * @param int $tabId
+	 *
+	 * @return string|bool
+	 */
+	public static function getHelpContent( $tabId ) {
+		ob_start();
+		if ( 1 == $tabId ) {
+			?>
+			<h3><?php echo __( 'First Steps with Extensions', 'mainwp-client-reports-extension' ); ?></h3>
+			<p><?php echo __( 'If you are having issues with getting started with the MainWP extensions, please review following help documents', 'mainwp-client-reports-extension' ); ?></p>
+			<a href="https://mainwp.com/help/docs/what-are-mainwp-extensions/" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'What are the MainWP Extensions', 'mainwp-client-reports-extension' ); ?></a><br/>
+			<a href="https://mainwp.com/help/docs/what-are-mainwp-extensions/order-extensions/" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Order Extension(s)', 'mainwp-client-reports-extension' ); ?></a><br/>
+			<a href="https://mainwp.com/help/docs/what-are-mainwp-extensions/my-downloads-and-api-keys/" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'My Downloads and API Keys', 'mainwp-client-reports-extension' ); ?></a><br/>
+			<a href="https://mainwp.com/help/docs/what-are-mainwp-extensions/install-extensions/" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Install Extension(s)', 'mainwp-client-reports-extension' ); ?></a><br/>
+			<a href="https://mainwp.com/help/docs/what-are-mainwp-extensions/activate-extensions-api/" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Activate Extension(s) API', 'mainwp-client-reports-extension' ); ?></a><br/>
+			<a href="https://mainwp.com/help/docs/what-are-mainwp-extensions/updating-extensions/" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Updating Extension(s)', 'mainwp-client-reports-extension' ); ?></a><br/>
+			<a href="https://mainwp.com/help/docs/what-are-mainwp-extensions/remove-extensions/" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Remove Extension(s)', 'mainwp-client-reports-extension' ); ?></a><br/><br/>
+			<a href="https://mainwp.com/help/category/mainwp-extensions/" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Help Documenation for all MainWP Extensions', 'mainwp-client-reports-extension' ); ?></a>
+		<?php } else if ( 2 == $tabId ) { ?>
+			<h3><?php echo __( 'MainWP Client Reports Extension', 'mainwp-client-reports-extension' ); ?></h3>
+			<a href="http://mainwp.com/help/docs/inmotion-hosting-extension/" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'InMotion Hosting Extension', 'mainwp-client-reports-extension' ); ?></a><br/>
+			<a href="http://mainwp.com/help/docs/inmotion-hosting-extension/claim-a-coupon-for-1-year-of-free-hosting/" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Claim a Coupon For 1 Year of Free Hosting', 'mainwp-client-reports-extension' ); ?></a>
+		<?php }
+		$output = ob_get_clean();
+
+		return $output;
+	}
+
+        
 }
 
 function mainwp_wpcreport_extension_autoload( $class_name ) {

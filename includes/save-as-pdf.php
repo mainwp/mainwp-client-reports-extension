@@ -77,8 +77,7 @@ if ( is_array( $content ) ) {
 } else {
 	$html = $content;
 }
-if ( false !== $content ) {
-	//error_log($html);
+if ( false !== $content ) {	
 	$pdf->writeHTMLCell( 0, 0, '', '', $html, 0, 1, 0, true, '', true );
 	$pdf->Output( 'client-report.pdf', 'I' );
 }
