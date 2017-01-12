@@ -1939,10 +1939,6 @@ class MainWP_CReport {
 				$errors[] = __( 'Error report data' );
 				$check_valid = false;
 			} 
-//                        else if ( empty( $report->type ) && empty( $report->selected_site ) ) {
-//				$errors[] = __( 'Please select a website' );
-//				$check_valid = false;
-//			} 
                         else {
 				$sel_sites = unserialize( base64_decode( $report->sites ) );
 				$sel_groups = unserialize( base64_decode( $report->groups ) );
@@ -3629,7 +3625,9 @@ class MainWP_CReport {
                                                 if ( $recurringDate == $x ) {
                                                         $_select = 'selected';                                             
                                                 }
-                                                echo '<option value="' . $x . '" ' . $_select . '>' . $x . (isset($day_suffix[$x]) ? $day_suffix[$x] :'th') . '</option>';
+                                                $remain = $x % 10;                                                
+                                                $day_sf = isset($day_suffix[$remain]) ? $day_suffix[$remain] : 'th';
+                                                echo '<option value="' . $x . '" ' . $_select . '>' . $x . $day_sf . '</option>';
                                         }
                                         ?>
                                 </select>&nbsp; 
