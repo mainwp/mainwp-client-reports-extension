@@ -1213,8 +1213,7 @@ class MainWP_CReport {
 			$current_attach_files = '';
 			if ( isset( $_REQUEST['id'] ) && ! empty( $_REQUEST['id'] ) ) {
 				$report = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $_REQUEST['id'], null, null, ARRAY_A );                                                                                      
-				$current_attach_files = $report['attach_files'];
-				//print_r($report);
+				$current_attach_files = $report['attach_files'];				
 			}
 
 			if ( isset( $_POST['mwp_creport_title'] ) && ($title = trim( $_POST['mwp_creport_title'] )) != '' ) {
@@ -4712,17 +4711,6 @@ class MainWP_CReport {
                             $success = true;                                
                         }                        
                     break;              
-//                case 'sendnow':       
-//                        $report = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $report_id );                
-//                        if ($report && self::send_report_mail( $report )) {	
-//                            $success = true;
-//                        }    
-//                    break;
-//                case 'archive':                        
-//                       if ( MainWP_CReport::archive_report( $report_id ) ) {
-//                           $success = true;     
-//                       }                      
-//                    break;
                 case 'unarchive':         
                         if ( MainWP_CReport::un_archive_report( $report_id ) ) {
                             $success = true;     

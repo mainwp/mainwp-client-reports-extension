@@ -200,6 +200,7 @@ PRIMARY KEY  (`id`)  ';
         
         function check_update($check_version) {
             global $wpdb;
+            
             if ($check_version == '4.2') {                
                 $sql = 'UPDATE ' . $this->table_name( 'client_report' ) .
 				" SET completed = schedule_lastsend " .
@@ -263,26 +264,27 @@ PRIMARY KEY  (`id`)  ';
                     if (is_array($all_reports) && count($all_reports) > 0) {
                         foreach ( $all_reports as $report ) {  
                                 $updates = array(
-                                    'report_id' => $report->id,    
+                                    'id' => $report->id,    
                                 ); 
                                 $recurring_schedule = $report->recurring_schedule;
                                 $updates['recurring_schedule'] = $recurring_schedule;
                                 
                                 if ( $recurring_schedule == 'biweekly') {
                                     $recurring_schedule = 'weekly';
-                                } else if ($recurring_schedule == 'biweekly') {
+                                } else if ($recurring_schedule == 'quarterly') {
                                     $recurring_schedule = 'monthly';
                                 } else if ($recurring_schedule == 'twice_a_year') {
                                     $recurring_schedule = 'yearly';
                                 }       
                                 $updates['recurring_schedule'] = $recurring_schedule;
-                                        
+                                 
+                                // calculate recurring_day for schuduled report
                                 $recurring_day = '';
-                                if ($recurring_day == 'yearly') {
+                                if ($recurring_schedule == 'yearly') {
                                     $recurring_day = date('n', $report->recurring_date ) . '-' . date('j', $report->recurring_date );
-                                } else if ($recurring_day == 'monthly') {
+                                } else if ($recurring_schedule == 'monthly') {
                                     $recurring_day = date('j', $report->recurring_date );
-                                } else if ($recurring_day == 'weekly') {
+                                } else if ($recurring_schedule == 'weekly') {
                                     $recurring_day = date('N', $report->recurring_date );
                                 }
                                 $updates['recurring_day'] = $recurring_day;
@@ -987,6 +989,8 @@ $this->default_formats = array(
 		if ( ! empty( $id ) ) {
 			$wpdb->update( $this->table_name( 'client_report' ), $update_report, array( 'id' => intval( $id ) ) );			
 		} else {
+                        if (!isset($update_report['title']) || empty($update_report['title']))
+                            return false;
 			if ( $wpdb->insert( $this->table_name( 'client_report' ), $update_report ) ) {
 				 $id = $wpdb->insert_id;
 			}
