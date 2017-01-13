@@ -717,7 +717,7 @@ class MainWP_CReport {
 	}
 
 	public function admin_init() {
-		add_action( 'mainwp-extension-sites-edit', array( &$this, 'site_token' ), 9, 1 );
+		//add_action( 'mainwp-extension-sites-edit', array( &$this, 'site_token' ), 9, 1 );
 		add_action( 'wp_ajax_mainwp_creport_load_tokens', array( &$this, 'load_tokens' ) );
 		add_action( 'wp_ajax_mainwp_creport_delete_token', array( &$this, 'delete_token' ) );
 		add_action( 'wp_ajax_mainwp_creport_save_token', array( &$this, 'save_token' ) );
@@ -4133,17 +4133,27 @@ class MainWP_CReport {
         </div> 
 		<?php
 	}
+        
+	public function renderClientReportsSiteTokens( $post, $metabox ) {
+            
+                global $mainWPCReportExtensionActivator;
+		
+		$websiteid = isset($metabox['args']['websiteid']) ? $metabox['args']['websiteid'] : null;				
+		$website = apply_filters( 'mainwp-getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $websiteid );
+		
+		if ( $website && is_array( $website ) ) {
+			$website = current( $website );
+		}
 
-	public function site_token( $website ) {		
+		if ( empty( $website ) )
+			return;
+                
 		$tokens = MainWP_CReport_DB::get_instance()->get_tokens();
 
 		$site_tokens = array();
 		if ( $website ) {
 			$site_tokens = MainWP_CReport_DB::get_instance()->get_site_tokens( $website->url ); }
-
-		$html = '<div class="postbox"> 
-                            <h3 class="mainwp_box_title"><span>Client Report Settings</span></h3>
-                            <div class="inside">';
+		
 		if ( is_array( $tokens ) && count( $tokens ) > 0 ) {
 			$html .= '<table class="form-table" style="width: 100%">';
 			foreach ( $tokens as $token ) {
@@ -4165,8 +4175,7 @@ class MainWP_CReport {
 		} else {
 			$html .= 'Not found tokens.';
 		}
-		$html .= '<div class="mainwp_info-box"><strong><b>Note</b>: <i>Add or Edit Client Report Tokens in the <a target="_blank" href="' . admin_url( 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=token' ) . '">Client Report Extension Settings</a></i>.</strong></div>                                   
-                </div></div>';
+		$html .= '<div class="mainwp_info-box"><strong><b>Note</b>: <i>Add or Edit Client Report Tokens in the <a target="_blank" href="' . admin_url( 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=token' ) . '">Client Report Extension Settings</a></i>.</strong></div>';                
 		echo $html;
 	}
 

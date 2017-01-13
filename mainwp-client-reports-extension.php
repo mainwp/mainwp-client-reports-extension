@@ -321,10 +321,27 @@ class MainWP_CReport_Extension_Activator {
 		if ( function_exists( 'mainwp_current_user_can' ) && ! mainwp_current_user_can( 'extension', 'mainwp-client-reports-extension' ) ) {
 			return;
 		}
+                
+                add_action('mainwp_postboxes_on_load_site_page', array( &$this, 'on_load_site_page_callback'), 10, 1);
 		new MainWP_CReport_Extension();
 	}
-
-	public function get_child_key() {
+        
+        function on_load_site_page_callback($websiteid) {
+		$i = 1;	
+		if (!empty($websiteid)){
+			add_meta_box(
+				'creport-contentbox-' . $i++,
+				'<i class="fa fa-cog"></i> ' . __( 'Client Report Settings', 'mainwp-client-reports-extension' ),
+				array( 'MainWP_CReport', 'renderClientReportsSiteTokens' ),
+				'mainwp_postboxes_managesites_edit',
+				'normal',
+				'core',
+				array( 'websiteid' => $websiteid )
+			);	
+		}
+	}
+        
+        public function get_child_key() {
 
 		return $this->childKey;
 	}
