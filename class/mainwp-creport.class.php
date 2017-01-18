@@ -4134,7 +4134,7 @@ class MainWP_CReport {
 		<?php
 	}
         
-	public function renderClientReportsSiteTokens( $post, $metabox ) {
+	public static function renderClientReportsSiteTokens( $post, $metabox ) {
             
                 global $mainWPCReportExtensionActivator;
 		
