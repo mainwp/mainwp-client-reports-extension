@@ -2255,7 +2255,7 @@ class MainWP_CReport {
 		return false;
 	}
 
-	public function un_archive_report( $report ) {
+	public static function un_archive_report( $report ) {
 		if ( ! empty( $report ) && ! is_object( $report ) ) {
 			$report = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $report );
 		}

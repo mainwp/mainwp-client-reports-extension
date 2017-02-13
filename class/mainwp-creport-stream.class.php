@@ -61,7 +61,7 @@ class MainWP_CReport_Stream {
 		} else if ( isset( $_GET['stream_orderby'] ) && 'url' == $_GET['stream_orderby'] ) {
 			$url_order = ('desc' == $_order) ? 'asc' : 'desc';
 		} else if ( isset( $_GET['stream_orderby'] ) && 'hidden' == $_GET['stream_orderby'] ) {
-			$hidden_order = ('descget_stream_dashboard_table_row' == $_order) ? 'asc' : 'desc';
+			$hidden_order = ('desc' == $_order) ? 'asc' : 'desc';
 		}
 
 		self::$order = $_order;
