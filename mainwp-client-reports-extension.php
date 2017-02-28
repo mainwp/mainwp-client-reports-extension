@@ -182,12 +182,12 @@ class MainWP_CReport_Extension {
 		$i      = 1;
 
 		$screen->add_help_tab( array(
-			'id'      => 'mainwp_team_control_helptabs_' . $i ++,
+			'id'      => 'mainwp_creport_helptabs_' . $i ++,
 			'title'   => __( 'First Steps with Extensions', 'mainwp-client-reports-extension' ),
 			'content' => self::getHelpContent( 1 ),
 		) );
 		$screen->add_help_tab( array(
-			'id'      => 'mainwp_team_control_helptabs_' . $i ++,
+			'id'      => 'mainwp_creport_helptabs_' . $i ++,
 			'title'   => __( 'Client Reports Extension', 'mainwp-client-reports-extension' ),
 			'content' => self::getHelpContent( 2 ),
 		) );
