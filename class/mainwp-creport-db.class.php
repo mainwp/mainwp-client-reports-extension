@@ -2,7 +2,7 @@
 
 class MainWP_CReport_DB {
 
-	private $mainwp_wpcreport_db_version = '5.9';
+	private $mainwp_wpcreport_db_version = '5.11';
 	private $table_prefix;
 	//Singleton
 	private static $instance = null;
@@ -151,7 +151,20 @@ PRIMARY KEY  (`id`)  ';
 		foreach ( $sql as $query ) {
 			dbDelta( $query );
 		}
-	
+	                 
+                // create default client
+                $client_tokens = $this->get_client_by( 'email', '[client.email]' );
+                if (empty($client_tokens )) {
+                    $update_client = array(
+                        'client' => '[client.name]',
+                        'name' => '[client.name]',
+                        'company' => '[client.company]	',
+                        'email' => '[client.email]',
+                    );  
+                    $this->update_client( $update_client ); // create client with tokens                    
+                }
+                
+                // create or update default token
 		foreach ( $this->default_tokens as $token_name => $token_description ) {
 			$token = array(
                                 'type' => 1,
@@ -164,8 +177,14 @@ PRIMARY KEY  (`id`)  ';
 				$this->add_token( $token );
 			}
 		}
-
+                
+                // create or update default reports
 		foreach ( $this->default_reports as $report ) {
+                        // update values                        
+                        $report['client'] = '[client.name]';
+                        $report['name'] = '[client.name]';
+                        $report['company'] = '[client.company]';
+                        $report['email'] = '[client.email]';                                 
 			if ( $current = $this->get_report_by( 'title', $report['title'] ) ) {
 				$current = current( $current );
 				$report['id'] = $current->id;
@@ -176,6 +195,7 @@ PRIMARY KEY  (`id`)  ';
 			}
 		}
 
+                // create or update default format
 		foreach ( $this->default_formats as $format ) {
 			if ( $current = $this->get_format_by( 'title', $format['title'], $format['type'] ) ) {
 				$format['id'] = $current->id;
@@ -184,7 +204,7 @@ PRIMARY KEY  (`id`)  ';
 				$this->update_format( $format );
 			}
 		}
-
+               
 		update_option( 'mainwp_wpcreport_db_version', $this->mainwp_wpcreport_db_version );
                  
                 $this->check_update($currentVersion);
@@ -789,9 +809,12 @@ $this->default_formats = array(
 
 	public function get_site_tokens( $site_url, $index = 'id' ) {
 		global $wpdb;
-		$site_url = trim( $site_url );
-		if ( empty( $site_url ) ) {
-			return false; }
+		
+                $site_url = trim( $site_url );		
+                if ( empty( $site_url ) ) {
+			return false;                         
+                }
+                
 		$qry = ' SELECT st.*, t.token_name FROM ' . $this->table_name( 'client_report_site_token' ) . ' st , ' . $this->table_name( 'client_report_token' ) . ' t ' .
 				" WHERE st.site_url = '" . $site_url . "' AND st.token_id = t.id ";
 		//echo $qry;
@@ -925,23 +948,46 @@ $this->default_formats = array(
 		$id = isset( $report['id'] ) ? $report['id'] : 0;
 		$updatedClient = false;
 		
+                // THIS IS SMART create or update client
                 if ( ! empty( $report['email'] ) ) { // client may be content tokens                    
+                        
                         $update_client = array(
                                 'client' => isset( $report['client'] ) ? $report['client'] : '',
                                 'name' => isset( $report['name'] ) ? $report['name'] : '',
                                 'company' => isset( $report['company'] ) ? $report['company'] : '',
                                 'email' => isset( $report['email'] ) ? $report['email'] : '',
                         );     
-                        $client_id = 0;
-                        $client = $this->get_client_by( 'email', $report['email'] );
                         
-                        if ( ! empty( $client ) ) {                                
-                            $update_client['clientid'] = $client_id = $client->clientid;
-                        }                          
-                        
-                        if ( $updatedClient = $this->update_client( $update_client ) ) {
-                            $client_id = $updatedClient->clientid;
-                        }      
+                        $client_id = (isset($report['client_id']) && !empty($report['client_id'])) ? intval($report['client_id']) : 0;
+                        // update client
+                        if ($client_id) {
+                            $client_tokens = $this->get_client_by( 'email', '[client.email]' );  
+                            // check if trying update default client with tokens in email
+                            if ($client_tokens && $client_tokens->clientid == $client_id ) {                                                                                 
+                                $client_id = 0; // do not override client with email is [client.email], new client will created below if needed
+                            } else {
+                                if ( $update_client['email'] == '[client.email]') {
+                                    if ( $client_tokens ) {
+                                        $client_id = $client_tokens->clientid; // do not override client with email is [client.email]
+                                    } 
+                                } else {                                
+                                    $update_client['clientid'] = $client_id;
+                                    $this->update_client( $update_client ); // update client
+                                }
+                            }
+                        }                         
+                        // create new client
+                        if (empty($client_id)) {                            
+                            // check client with tokens
+                            if ( $update_client['email'] == '[client.email]' ) {
+                                $client_tokens = $this->get_client_by( 'email', '[client.email]' );
+                                if ($client_tokens ) {
+                                    $client_id = $client_tokens->clientid; // do not override client with email is [client.email]
+                                }
+                            } else if ($updatedClient = $this->update_client( $update_client ) ) { // create new client                            
+                                    $client_id = $updatedClient->clientid;                                
+                            }  
+                        }                               
                                                 
                         $report['client_id'] = $client_id;
 		} else {

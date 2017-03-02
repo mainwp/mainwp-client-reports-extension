@@ -721,8 +721,7 @@ class MainWP_CReport {
 		add_action( 'wp_ajax_mainwp_creport_load_tokens', array( &$this, 'load_tokens' ) );
 		add_action( 'wp_ajax_mainwp_creport_delete_token', array( &$this, 'delete_token' ) );
 		add_action( 'wp_ajax_mainwp_creport_save_token', array( &$this, 'save_token' ) );
-		add_action( 'wp_ajax_mainwp_creport_do_action_report', array( &$this, 'ajax_do_action_report' ) );
-		add_action( 'wp_ajax_mainwp_creport_load_client', array( &$this, 'ajax_load_client' ) );
+		add_action( 'wp_ajax_mainwp_creport_do_action_report', array( &$this, 'ajax_do_action_report' ) );		
 		add_action( 'wp_ajax_mainwp_creport_load_site_tokens', array( &$this, 'load_site_tokens' ) );
 		add_action( 'wp_ajax_mainwp_creport_save_format', array( &$this, 'save_format' ) );
 		add_action( 'wp_ajax_mainwp_creport_get_format', array( &$this, 'get_format' ) );
@@ -2094,7 +2093,7 @@ class MainWP_CReport {
                                                         $_select = 'selected';
                                                 }
                                                 ?>
-                                                <option value="<?php echo $client->clientid; ?>" <?php echo $_select; ?>><?php echo (!empty($client->client) ? esc_html( stripslashes( $client->client ) ) : esc_html( stripslashes( $client->email ) )); ?></option>
+                                                <option value="<?php echo $client->clientid; ?>" <?php echo $_select; ?>><?php echo (!empty($client->email) ? esc_html( stripslashes( $client->client ) ) : esc_html( stripslashes( $client->email ) )); ?></option>
                                                 <?php
                                         }
                                         ?>
@@ -2160,7 +2159,6 @@ class MainWP_CReport {
                                             </form>
                                     </div>			
                             <div id="wpcr_token_tab" class="mwp_client_reports_tabs" <?php echo $style_tab_token; ?>>
-                                <div class="mainwp_info-box">Add or Change Client Information in the <a href="admin.php?page=managesites">Edit Site Screen</a></div>
                                 <div id="creport_list_tokens" class="postbox"></div>                                                                       
                             </div> 
                             <div id="wpcr_stream_tab" class="mwp_client_reports_tabs" <?php echo $style_tab_stream; ?>>
@@ -2265,7 +2263,7 @@ class MainWP_CReport {
                 }
                 
 		$update_archive = array(
-		'id' => $report->id,
+                        'id' => $report->id,
 			'is_archived' => 0			
 		);
 		if ( MainWP_CReport_DB::get_instance()->update_report( $update_archive ) ) {
@@ -3185,7 +3183,7 @@ class MainWP_CReport {
                             <input type="checkbox"  id="cb-select-all-1" >
                         </th>                    
                         <th scope="col" class="manage-column sortable <?php echo $title_order; ?>">
-                                <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=title&order=<?php echo (empty( $title_order ) ? 'asc' : $title_order); ?>"><span><?php _e( 'Client Report', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
+                                <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=title&order=<?php echo (empty( $title_order ) ? 'asc' : $title_order); ?>"><span><?php _e( 'Report', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>
                         <th scope="col" class="manage-column sortable <?php echo $client_order; ?>">
                                 <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=client&order=<?php echo (empty( $client_order ) ? 'asc' : $client_order); ?>"><span><?php _e( 'Client', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
@@ -3194,13 +3192,13 @@ class MainWP_CReport {
                                 <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=name&order=<?php echo (empty( $name_order ) ? 'asc' : $name_order); ?>"><span><?php _e( 'Send To', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>                
                         <th scope="col" class="manage-column sortable <?php echo $lastsend_order; ?>">
-                                <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=lastsend&order=<?php echo (empty( $lastsend_order ) ? 'asc' : $lastsend_order); ?>"><span><?php _e( 'Last Report Send', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
+                                <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=lastsend&order=<?php echo (empty( $lastsend_order ) ? 'asc' : $lastsend_order); ?>"><span><?php _e( 'Last Sent', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>
                         <th scope="col" class="manage-column sortable <?php echo $datefrom_order; ?>">
-                                <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=date_from&order=<?php echo (empty( $datefrom_order ) ? 'asc' : $datefrom_order); ?>"><span><?php _e( 'Report For', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
+                                <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=date_from&order=<?php echo (empty( $datefrom_order ) ? 'asc' : $datefrom_order); ?>"><span><?php _e( 'Date Range', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>
                         <th scope="col" class="manage-column sortable <?php echo $schedule_order; ?>">
-                                <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=schedule&order=<?php echo (empty( $schedule_order ) ? 'asc' : $schedule_order); ?>"><span><?php _e( 'Scheduled', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
+                                <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=schedule&order=<?php echo (empty( $schedule_order ) ? 'asc' : $schedule_order); ?>"><span><?php _e( 'Schedule', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>                   
                     </tr>
                 </thead>
@@ -3210,7 +3208,7 @@ class MainWP_CReport {
                             <input type="checkbox"  id="cb-select-all-2" >
                         </th>
                         <th scope="col" class="manage-column sortable <?php echo $title_order; ?>">
-                                    <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=title&order=<?php echo (empty( $title_order ) ? 'asc' : $title_order); ?>"><span><?php _e( 'Client Report', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
+                                    <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=title&order=<?php echo (empty( $title_order ) ? 'asc' : $title_order); ?>"><span><?php _e( 'Report', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>
                         <th scope="col" class="manage-column sortable <?php echo $client_order; ?>">
                                 <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=client&order=<?php echo (empty( $client_order ) ? 'asc' : $client_order); ?>"><span><?php _e( 'Client', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
@@ -3219,13 +3217,13 @@ class MainWP_CReport {
                                 <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=send&order=<?php echo (empty( $name_order ) ? 'asc' : $name_order); ?>"><span><?php _e( 'Send To', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>                
                         <th scope="col" class="manage-column sortable <?php echo $lastsend_order; ?>">
-                                <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=lastsend&order=<?php echo (empty( $lastsend_order ) ? 'asc' : $lastsend_order); ?>"><span><?php _e( 'Last Report Send', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
+                                <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=lastsend&order=<?php echo (empty( $lastsend_order ) ? 'asc' : $lastsend_order); ?>"><span><?php _e( 'Last Sent', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>
                         <th scope="col" class="manage-column sortable <?php echo $datefrom_order; ?>">
-                                <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=date_from&order=<?php echo (empty( $datefrom_order ) ? 'asc' : $datefrom_order); ?>"><span><?php _e( 'Report For', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
+                                <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=date_from&order=<?php echo (empty( $datefrom_order ) ? 'asc' : $datefrom_order); ?>"><span><?php _e( 'Date Range', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>
                         <th scope="col" class="manage-column sortable <?php echo $schedule_order; ?>">
-                                <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=schedule&order=<?php echo (empty( $schedule_order ) ? 'asc' : $schedule_order); ?>"><span><?php _e( 'Scheduled', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
+                                <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=schedule&order=<?php echo (empty( $schedule_order ) ? 'asc' : $schedule_order); ?>"><span><?php _e( 'Schedule', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>                    
                     </tr>
                 </tfoot>
@@ -3260,7 +3258,7 @@ class MainWP_CReport {
 			return;
 		}
 		$recurring_schedule = array(
-                        'daily' => __( 'Daily' ),
+            'daily' => __( 'Daily' ),
 			'weekly' => __( 'Weekly' ),			
 			'monthly' => __( 'Monthly' ),			
 			'yearly' => __( 'Yearly' ),
@@ -3303,11 +3301,11 @@ class MainWP_CReport {
 //				}
 //			}
 
-			$sche_column = _( 'No' );
+			$sche_column = _( 'Manually' );
 			if ( ! empty( $report->recurring_schedule ) && ! empty( $report->scheduled ) ) {
 				$sche_column = $recurring_schedule[ $report->recurring_schedule ];
 				if ( ! empty( $report->schedule_nextsend ) ) {
-					$sche_column .= '<br> Next Send: ' . MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $report->schedule_nextsend ) ); }
+					$sche_column .= '<br><em>Next Run: ' . MainWP_CReport_Utility::format_datestamp( MainWP_CReport_Utility::get_timestamp( $report->schedule_nextsend ) ) . '</em>'; }
 			}
                         
                         $row_action_class = '';
@@ -3369,8 +3367,8 @@ class MainWP_CReport {
                     <?php echo ! empty( $report->lastsend ) ? MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $report->lastsend ) ): ''; ?>
             </td>
             <td> 
-                    <?php echo ! empty( $report->date_from ) ? 'From: ' . MainWP_CReport_Utility::format_timestamp( $report->date_from ) . '<br>' : ''; ?>
-                    <?php echo ! empty( $report->date_to ) ? 'To: ' . MainWP_CReport_Utility::format_timestamp( $report->date_to ) : ''; ?>
+                    <?php echo ! empty( $report->date_from ) ? 'From: ' . MainWP_CReport_Utility::format_datestamp( $report->date_from ) . '<br>' : ''; ?>
+                    <?php echo ! empty( $report->date_to ) ? 'To: ' . MainWP_CReport_Utility::format_datestamp( $report->date_to ) : ''; ?>
             </td>
             <td> 
                     <span class="creport_sche_column"><?php echo $sche_column; ?></span>
@@ -3458,25 +3456,13 @@ class MainWP_CReport {
 
 	public static function new_report_format( $report ) {
 		?>        
-        <table class="wp-list-table widefat" cellspacing="0">
-            <thead>
-                <tr>          
-                    <th scope="col" colspan="2">
-						<?php _e( 'Report Format', 'mainwp-client-reports-extension' ); ?>
-                    </th>
-                </tr>
-            </thead>
-            <tfoot>
-                <tr>
-                    <th style="border:none !important;" colspan="2">&nbsp;</th>
-                </tr>
-            </tfoot>
-            <tbody>
-				<?php
-				self::new_report_format_table_content( $report );
-				?>
-            </tbody>
-        </table>
+		<div class="metabox-holder">
+	        <div class="postbox">
+	        	<button type="button" class="handlediv button-link" aria-expanded="true"><span class="screen-reader-text"><?php _e( 'Toggle Panel: Report Format', 'mainwp-client-reports-extension' ); ?></span><span class="toggle-indicator" aria-hidden="true"></span></button>
+	        	<h2 class="hndle"><span><i class="fa fa-bars" aria-hidden="true"></i> <?php _e( 'Report Format', 'mainwp-client-reports-extension' ); ?></span></h2>
+	        	<?php self::new_report_format_table_content( $report ); ?>
+	        </div>
+        </div>
 		<?php
 	}
 
@@ -3725,12 +3711,12 @@ class MainWP_CReport {
         <tr>
             <th><span><?php _e( 'Bcc' ); ?></span></th>
             <td>
-                <input type="text" name="mwp_creport_bcc_email" id="mwp_creport_bcc_email" placeholder="Email" value="<?php echo esc_attr( stripslashes( $bcc_email ) ); ?>" />
+                <input type="text" name="mwp_creport_bcc_email" id="mwp_creport_bcc_email" placeholder="Email Address" value="<?php echo esc_attr( stripslashes( $bcc_email ) ); ?>" />
                 
             </td>
         </tr> 
         <tr>
-			<th><span><?php _e( 'Email Subject' ); ?></span></th>
+			<th><span><?php _e( 'Subject' ); ?></span></th>
             <td>
 				<input type="text" name="mwp_creport_email_subject" value="<?php echo esc_attr( stripslashes( $email_subject ) ); ?>"
                        id="mwp_creport_email_subject" />                  
@@ -3803,173 +3789,150 @@ class MainWP_CReport {
                 }
     
 		?>  
-        <tr>
-            <th colspan="2">
+        
         <div class="mainwp_creport_format_section_header closed" section="header">
-			<a href="javascript:void(0)" class="handlelnk"><?php _e( 'Show' ); ?></a>
-			<h3><?php _e( 'Report Header' ); ?></h3>
+			<h3 class="mainwp_box_title" style="background: #fafafa;"><?php _e( 'Report Header' ); ?> <a href="javascript:void(0)" class="handlelnk"><?php _e( 'Show' ); ?></a></h3>
         </div>
-        </th>
-        </tr>
-        <tr class="mainwp_creport_format_section hidden-field">
-			<th><span><?php _e( 'Enter Report Header' ); ?></span>
-		<div class="logo"><img src="<?php echo MainWP_CReport_Extension::$plugin_url . 'images/cr-header.png'; ?>"></div>
-        </th>
-        <td>
-        <?php
-            add_filter( 'mce_buttons', 'add_tinymce_toolbar_button' );  
-            add_filter( 'tiny_mce_before_init', 'tinymce_before_init', 10, 2 );  
-            
-            function add_tinymce_toolbar_button( $buttons ) {           
-                array_push( $buttons, 'insertsection', 'insertreporttoken' );
-                return $buttons;
-            }
-            
-            function tinymce_before_init( $settings, $eid ) {                  
-                return $settings;
-            }            
-            
-//            add_filter( 'mce_external_plugins', 'register_tinymce_javascript' );
-//            function register_tinymce_javascript( $plugin_array ) {
-//                $plugin_array['mainwpcreporteditor'] = MainWP_CReport_Extension::$plugin_url . 'js/mainwp-creport-editor-plugin.js';
-//                return $plugin_array;
-//            }
-            
-                        remove_editor_styles(); // stop custom theme styling interfering with the editor
-			wp_editor(stripslashes( $header ), 'mainwp_creport_report_header', array(
-				'textarea_name' => 'mainwp_creport_report_header',
-				'textarea_rows' => 5,
-				'teeny' => false,
-				'media_buttons' => true                                
-                            )
-			);
-			?>
-            <div class="mainwp_creport_format_save_section">
-                <div class="inner">
-                    <?php _e( 'Save Report Header' ); ?>
-                    <input type="text" placeholder="<?php _e( 'Enter Report Header Title' ); ?>" name="mainwp_creport_report_save_header" value=""/>
-                    <input type="button" format="H" ed-name="header" class="button-primary mainwp_creport_report_save_format_btn" value="<?php _e( 'Save' ); ?>"/>
-                    <span class="loading"><span class="status hidden-field"></span><i class="fa fa-spinner fa-pulse" style="display: none"></i></span>                    
-                </div>
-                <div class="inner">
-                    <?php _e( 'Report Header' ); ?>
-                    <select name="mainwp_creport_report_insert_header_sle" class="mainwp-select2">
-                        <option value="0"><?php _e( 'Select a Report Header' ); ?></option>
-                        <?php
-                        foreach ( $header_formats as $format ) {
-                                echo '<option value="' . $format->id . '">' . esc_html( $format->title ) . '</option>';
-                        }
-                        ?>
-                    </select>
-                    <input type="button" ed-name="header" class="button-primary mainwp_creport_report_insert_format_btn" value="<?php _e( 'Insert' ); ?>"/>
-                    <input type="button" ed-name="header" class="button-primary mainwp_creport_report_delete_format_btn" value="<?php _e( 'Delete' ); ?>"/>
-                    <span class="loading"><span class="status hidden-field"></span><i class="fa fa-spinner fa-pulse" style="display: none"></i></span>
-                </div>
-            </div>            
-			<div style="background: #F5F5F5; padding: 5px; border-bottom: 1px Dashed #fff;"><a href="#" style="float: right" class="mainwp_creport_show_insert_tokens_book_lnk"><?php _e( 'Show Available Tokens' ); ?></a><div class="clearfix"></div></div>
-            <div class="clearfix"></div>
-			<?php self::gen_insert_tokens_box( 'header', true, $client_tokens_values, $client_tokens, $website ); ?>
-        </td> 
-        </tr>  
-        <tr>
-            <th colspan="2">
-        <div class="mainwp_creport_format_section_header closed" section="body">
-			<a href="javascript:void(0)" class="handlelnk"><?php _e( 'Show' ); ?></a>
-			<h3><?php _e( 'Report Body' ); ?></h3>
-        </div>
-        </th>
-        </tr>
-        <tr class="mainwp_creport_format_section hidden-field">        
-			<th><span><?php _e( 'Enter Report Body' ); ?></span>
-		<div class="logo"><img src="<?php echo MainWP_CReport_Extension::$plugin_url . 'images/cr-body.png'; ?>"></div>
-        </th>
-        <td>
-			<?php
-			remove_editor_styles(); // stop custom theme styling interfering with the editor
-			wp_editor(stripslashes( $body ), 'mainwp_creport_report_body', array(
-				'textarea_name' => 'mainwp_creport_report_body',
-				'textarea_rows' => 20,
-                                'teeny' => false,
-                                'media_buttons' => true				            
-                            )
-			);
-			?>
-            <div class="mainwp_creport_format_save_section">
-                <div class="inner">
-					<?php _e( 'Save Report Body' ); ?>
-					<input type="text" placeholder="<?php _e( 'Enter Report Body Title' ); ?>" name="mainwp_creport_report_save_header" value=""/>
-					<input type="button" format="B" ed-name="body" class="button-primary mainwp_creport_report_save_format_btn" value="<?php _e( 'Save' ); ?>"/>
-					<span class="loading"><span class="status hidden-field"></span><i class="fa fa-spinner fa-pulse" style="display: none"></i></span>                    
-                </div>
-                <div class="inner">
-					<?php _e( 'Report Body' ); ?>
-                    <select name="mainwp_creport_report_insert_header_sle" class="mainwp-select2">
-						<option value="0"><?php _e( 'Select a Report Body' ); ?></option>
-						<?php
-						foreach ( $body_formats as $format ) {
-							echo '<option value="' . $format->id . '">' . esc_html( $format->title ) . '</option>';
-						}
-						?>
-                    </select>
-					<input type="button" ed-name="body" class="button-primary mainwp_creport_report_insert_format_btn" value="<?php _e( 'Insert' ); ?>"/>
-					<input type="button" ed-name="body" class="button-primary mainwp_creport_report_delete_format_btn" value="<?php _e( 'Delete' ); ?>"/>
-					<span class="loading"><span class="status hidden-field"></span><i class="fa fa-spinner fa-pulse" style="display: none"></i></span>
-                </div>
-            </div>
+        <div class="mainwp_creport_format_section hidden-field"  style="border-bottom: 1px solid #eee;">
+	        <div class="inside">
+	        <?php
+	            add_filter( 'mce_buttons', 'add_tinymce_toolbar_button' );  
+	            add_filter( 'tiny_mce_before_init', 'tinymce_before_init', 10, 2 );  
+	            
+	            function add_tinymce_toolbar_button( $buttons ) {           
+	                array_push( $buttons, 'insertsection', 'insertreporttoken' );
+	                return $buttons;
+	            }
+	            
+	            function tinymce_before_init( $settings, $eid ) {                  
+	                return $settings;
+	            }            
+	            
+	//            add_filter( 'mce_external_plugins', 'register_tinymce_javascript' );
+	//            function register_tinymce_javascript( $plugin_array ) {
+	//                $plugin_array['mainwpcreporteditor'] = MainWP_CReport_Extension::$plugin_url . 'js/mainwp-creport-editor-plugin.js';
+	//                return $plugin_array;
+	//            }
+	            
+	                        remove_editor_styles(); // stop custom theme styling interfering with the editor
+				wp_editor(stripslashes( $header ), 'mainwp_creport_report_header', array(
+					'textarea_name' => 'mainwp_creport_report_header',
+					'textarea_rows' => 5,
+					'teeny' => false,
+					'media_buttons' => true                                
+	                            )
+				);
+				?>
+	            <div class="mainwp_creport_format_save_section">
+	                <div class="inner-left">
+	                    <?php _e( 'Save Report Header' ); ?>
+	                    <input type="text" placeholder="<?php _e( 'Enter Report Header Title' ); ?>" name="mainwp_creport_report_save_header" value=""/>
+	                    <input type="button" format="H" ed-name="header" class="button-primary mainwp_creport_report_save_format_btn" value="<?php _e( 'Save' ); ?>"/>
+	                    <span class="loading"><span class="status hidden-field"></span><i class="fa fa-spinner fa-pulse" style="display: none"></i></span>                    
+	                </div>
+	                <div class="inner-right">
+	                    <?php _e( 'Report Header' ); ?>
+	                    <select name="mainwp_creport_report_insert_header_sle" class="mainwp-select2">
+	                        <option value="0"><?php _e( 'Select a Report Header' ); ?></option>
+	                        <?php
+	                        foreach ( $header_formats as $format ) {
+	                                echo '<option value="' . $format->id . '">' . esc_html( $format->title ) . '</option>';
+	                        }
+	                        ?>
+	                    </select>
+	                    <input type="button" ed-name="header" class="button-primary mainwp_creport_report_insert_format_btn" value="<?php _e( 'Insert' ); ?>"/>
+	                    <input type="button" ed-name="header" class="button-primary mainwp_creport_report_delete_format_btn" value="<?php _e( 'Delete' ); ?>"/>
+	                    <span class="loading"><span class="status hidden-field"></span><i class="fa fa-spinner fa-pulse" style="display: none"></i></span>
+	                </div>
+	            </div>            
+				<div style="background: #F5F5F5; padding: 10px; border-bottom: 1px dashed #fff; text-align: center;"><a href="#" class="mainwp_creport_show_insert_tokens_book_lnk"><?php _e( 'Show Available Tokens' ); ?></a></div>
+				<?php self::gen_insert_tokens_box( 'header', true, $client_tokens_values, $client_tokens, $website ); ?>
+	        </div> 
+        </div>  
 
-			<?php self::gen_insert_tokens_box( 'body', false, $client_tokens_values, $client_tokens, $website ); ?>
-        </td> 
-        </tr>   
-        <tr>
-            <th colspan="2">
-        <div class="mainwp_creport_format_section_header closed" section="footer">
-			<a href="javascript:void(0)" class="handlelnk"><?php _e( 'Show' ); ?></a>
-			<h3><?php _e( 'Report Footer' ); ?></h3>
+        <div class="mainwp_creport_format_section_header closed" section="body">
+			<h3 class="mainwp_box_title" style="background: #fafafa;"><?php _e( 'Report Body' ); ?> <a href="javascript:void(0)" class="handlelnk"><?php _e( 'Show' ); ?></a></h3>
         </div>
-        </th>
-        </tr>
-        <tr class="mainwp_creport_format_section hidden-field">     
-			<th><span><?php _e( 'Enter Report Footer' ); ?></span>
-		<div class="logo"><img src="<?php echo MainWP_CReport_Extension::$plugin_url . 'images/cr-footer.png'; ?>"></div>
-        </th>
-        <td>
-			<?php
-			remove_editor_styles(); // stop custom theme styling interfering with the editor
-			wp_editor(stripslashes( $footer ), 'mainwp_creport_report_footer', array(
-				'textarea_name' => 'mainwp_creport_report_footer',
-				'textarea_rows' => 5,
-				'teeny' => false,
-				'media_buttons' => true,
-                            )
-			);
-			?>
-            <div class="mainwp_creport_format_save_section">
-                <div class="inner">
-					<?php _e( 'Save Report Footer' ); ?>
-					<input type="text" placeholder="<?php _e( 'Enter Report Footer Title' ); ?>" name="mainwp_creport_report_save_header" value=""/>
-					<input type="button" format="F" ed-name="footer" class="button-primary mainwp_creport_report_save_format_btn" value="<?php _e( 'Save' ); ?>"/>
-					<span class="loading"><span class="status hidden-field"></span><i class="fa fa-spinner fa-pulse" style="display: none"></i></span>                    
-                </div>
-                <div class="inner">
-					<?php _e( 'Report Footer' ); ?>
-                    <select name="mainwp_creport_report_insert_header_sle" class="mainwp-select2">
-						<option value="0"><?php _e( 'Select a Report Footer' ); ?></option>
-						<?php
-						foreach ( $footer_formats as $format ) {
-							echo '<option value="' . $format->id . '">' . esc_html( $format->title ) . '</option>';
-						}
-						?>
-                    </select>
-					<input type="button" ed-name="footer" class="button-primary mainwp_creport_report_insert_format_btn" value="<?php _e( 'Insert' ); ?>"/>
-					<input type="button" ed-name="footer" class="button-primary mainwp_creport_report_delete_format_btn" value="<?php _e( 'Delete' ); ?>"/>
-					<span class="loading"><span class="status hidden-field"></span><i class="fa fa-spinner fa-pulse" style="display: none"></i></span>
-                </div>
-            </div>                
-			<div style="background: #F5F5F5; padding: 5px; border-bottom: 1px Dashed #fff;"><a href="#" style="float: right" class="mainwp_creport_show_insert_tokens_book_lnk"><?php _e( 'Show Available Tokens' ); ?></a><div class="clearfix"></div></div>                          
-            <div class="clearfix"></div>
-			<?php self::gen_insert_tokens_box( 'footer', true, $client_tokens_values, $client_tokens, $website ); ?>
-        </td> 
-        </tr> 
+        <div class="mainwp_creport_format_section hidden-field" style="border-bottom: 1px solid #eee;">
+	        <div class="inside">
+				<?php
+				remove_editor_styles(); // stop custom theme styling interfering with the editor
+				wp_editor(stripslashes( $body ), 'mainwp_creport_report_body', array(
+					'textarea_name' => 'mainwp_creport_report_body',
+					'textarea_rows' => 20,
+	                                'teeny' => false,
+	                                'media_buttons' => true				            
+	                            )
+				);
+				?>
+	            <div class="mainwp_creport_format_save_section">
+	                <div class="inner-left">
+						<?php _e( 'Save Report Body' ); ?>
+						<input type="text" placeholder="<?php _e( 'Enter Report Body Title' ); ?>" name="mainwp_creport_report_save_header" value=""/>
+						<input type="button" format="B" ed-name="body" class="button-primary mainwp_creport_report_save_format_btn" value="<?php _e( 'Save' ); ?>"/>
+						<span class="loading"><span class="status hidden-field"></span><i class="fa fa-spinner fa-pulse" style="display: none"></i></span>                    
+	                </div>
+	                <div class="inner-right">
+						<?php _e( 'Report Body' ); ?>
+	                    <select name="mainwp_creport_report_insert_header_sle" class="mainwp-select2">
+							<option value="0"><?php _e( 'Select a Report Body' ); ?></option>
+							<?php
+							foreach ( $body_formats as $format ) {
+								echo '<option value="' . $format->id . '">' . esc_html( $format->title ) . '</option>';
+							}
+							?>
+	                    </select>
+						<input type="button" ed-name="body" class="button-primary mainwp_creport_report_insert_format_btn" value="<?php _e( 'Insert' ); ?>"/>
+						<input type="button" ed-name="body" class="button-primary mainwp_creport_report_delete_format_btn" value="<?php _e( 'Delete' ); ?>"/>
+						<span class="loading"><span class="status hidden-field"></span><i class="fa fa-spinner fa-pulse" style="display: none"></i></span>
+	                </div>
+	            </div>
+				<div style="background: #F5F5F5; padding: 10px; border-bottom: 1px Dashed #fff; text-align: center;"><a href="#" class="mainwp_creport_show_insert_tokens_book_lnk"><?php _e( 'Show Available Tokens' ); ?></a></div>
+				<?php self::gen_insert_tokens_box( 'body', true, $client_tokens_values, $client_tokens, $website ); ?>
+	        </div> 
+        </div>
+
+        <div class="mainwp_creport_format_section_header closed" section="footer">
+			<h3 class="mainwp_box_title" style="background: #fafafa;"><?php _e( 'Report Footer' ); ?> <a href="javascript:void(0)" class="handlelnk"><?php _e( 'Show' ); ?></a></h3>
+        </div>
+        <div class="mainwp_creport_format_section hidden-field">     
+	        <div class="inside">
+				<?php
+				remove_editor_styles(); // stop custom theme styling interfering with the editor
+				wp_editor(stripslashes( $footer ), 'mainwp_creport_report_footer', array(
+					'textarea_name' => 'mainwp_creport_report_footer',
+					'textarea_rows' => 5,
+					'teeny' => false,
+					'media_buttons' => true,
+	                            )
+				);
+				?>
+	            <div class="mainwp_creport_format_save_section">
+	                <div class="inner-left">
+						<?php _e( 'Save Report Footer' ); ?>
+						<input type="text" placeholder="<?php _e( 'Enter Report Footer Title' ); ?>" name="mainwp_creport_report_save_header" value=""/>
+						<input type="button" format="F" ed-name="footer" class="button-primary mainwp_creport_report_save_format_btn" value="<?php _e( 'Save' ); ?>"/>
+						<span class="loading"><span class="status hidden-field"></span><i class="fa fa-spinner fa-pulse" style="display: none"></i></span>                    
+	                </div>
+	                <div class="inner-right">
+						<?php _e( 'Report Footer' ); ?>
+	                    <select name="mainwp_creport_report_insert_header_sle" class="mainwp-select2">
+							<option value="0"><?php _e( 'Select a Report Footer' ); ?></option>
+							<?php
+							foreach ( $footer_formats as $format ) {
+								echo '<option value="' . $format->id . '">' . esc_html( $format->title ) . '</option>';
+							}
+							?>
+	                    </select>
+						<input type="button" ed-name="footer" class="button-primary mainwp_creport_report_insert_format_btn" value="<?php _e( 'Insert' ); ?>"/>
+						<input type="button" ed-name="footer" class="button-primary mainwp_creport_report_delete_format_btn" value="<?php _e( 'Delete' ); ?>"/>
+						<span class="loading"><span class="status hidden-field"></span><i class="fa fa-spinner fa-pulse" style="display: none"></i></span>
+	                </div>
+	            </div>                
+				<div style="background: #F5F5F5; padding: 10px; border-bottom: 1px Dashed #fff; text-align: center;"><a href="#" class="mainwp_creport_show_insert_tokens_book_lnk"><?php _e( 'Show Available Tokens' ); ?></a></div>
+				<?php self::gen_insert_tokens_box( 'footer', true, $client_tokens_values, $client_tokens, $website ); ?>
+	        </div> 
+        </div> 
             <?php
 	}
         
@@ -4150,9 +4113,10 @@ class MainWP_CReport {
                 
 		$tokens = MainWP_CReport_DB::get_instance()->get_tokens();
 
-		$site_tokens = array();
+		$site_tokens = array();                
 		if ( $website ) {
-			$site_tokens = MainWP_CReport_DB::get_instance()->get_site_tokens( $website->url ); }
+			$site_tokens = MainWP_CReport_DB::get_instance()->get_site_tokens( $website['url'] );                         
+                }              
 		
 		if ( is_array( $tokens ) && count( $tokens ) > 0 ) {
 			$html .= '<table class="form-table" style="width: 100%">';
@@ -4610,22 +4574,6 @@ class MainWP_CReport {
                 die(json_encode(array('result' => 'failed')));
         }
 
-        public function ajax_load_client() {
-            self::verify_nonce();
-		if ( isset( $_POST['client'] ) ) {
-			$client = MainWP_CReport_DB::get_instance()->get_client_by( 'client', $_POST['client'] );
-			if ( ! empty( $client ) ) {
-				$result = array(
-				'clientid' => $client->clientid,
-					'name' => $client->name,
-					'company' => $client->company,
-					'email' => $client->email,
-				);
-				die( json_encode( $result ) );
-			}
-		}
-		die( json_encode( 'EMPTY' ) );
-	}
 
 	public function delete_token() {
                 self::verify_nonce();

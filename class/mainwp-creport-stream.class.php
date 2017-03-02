@@ -81,13 +81,13 @@ class MainWP_CReport_Stream {
                             <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=url&stream_order=<?php echo (empty( $url_order ) ? 'asc' : $url_order); ?>"><span><?php _e( 'URL', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>
                     <th scope="col" class="manage-column sortable <?php echo $version_order; ?>">
-                            <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=version&stream_order=<?php echo (empty( $version_order ) ? 'asc' : $version_order); ?>"><span><?php _e( 'Plugin Version', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
+                            <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=version&stream_order=<?php echo (empty( $version_order ) ? 'asc' : $version_order); ?>"><span><?php _e( 'Version', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>
                     <th scope="col" class="manage-column <?php echo $hidden_order; ?>">
-                            <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=hidden&stream_order=<?php echo (empty( $hidden_order ) ? 'asc' : $hidden_order); ?>"><span><?php _e( 'Plugin Hidden', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
+                            <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=hidden&stream_order=<?php echo (empty( $hidden_order ) ? 'asc' : $hidden_order); ?>"><span><?php _e( 'Hidden', 'mainwp-client-reports-extension' ); ?></span></a>
                     </th>
                     <th scope="col" class="manage-column">
-                        <span><?php _e( 'First time activated', 'mainwp-client-reports-extension' ); ?></span>
+                        <span><?php _e( 'First Activation', 'mainwp-client-reports-extension' ); ?></span>
                     </th>
                 </tr>
             </thead>
@@ -103,13 +103,13 @@ class MainWP_CReport_Stream {
                             <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=url&stream_order=<?php echo (empty( $url_order ) ? 'asc' : $url_order); ?>"><span><?php _e( 'URL', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>
                     <th scope="col" class="manage-column sortable <?php echo $version_order; ?>">
-                            <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=version&stream_order=<?php echo (empty( $version_order ) ? 'asc' : $version_order); ?>"><span><?php _e( 'Plugin Version', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
+                            <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=version&stream_order=<?php echo (empty( $version_order ) ? 'asc' : $version_order); ?>"><span><?php _e( 'Version', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>     
                     <th scope="col" class="manage-column <?php echo $hidden_order; ?>">
-                            <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=hidden&stream_order=<?php echo (empty( $hidden_order ) ? 'asc' : $hidden_order); ?>"><span><?php _e( 'Plugin Hidden', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
+                            <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=hidden&stream_order=<?php echo (empty( $hidden_order ) ? 'asc' : $hidden_order); ?>"><span><?php _e( 'Hidden', 'mainwp-client-reports-extension' ); ?></span></a>
                     </th>                    
                     <th scope="col" class="manage-column">
-                        <span><?php _e( 'First time activated', 'mainwp-client-reports-extension' ); ?></span>
+                        <span><?php _e( 'First Activation', 'mainwp-client-reports-extension' ); ?></span>
                     </th>
                 </tr>
             </tfoot>
@@ -118,7 +118,7 @@ class MainWP_CReport_Stream {
 				if ( is_array( $websites ) && count( $websites ) > 0 ) {
 					self::get_stream_dashboard_table_row( $websites );
 				} else {
-					_e( '<tr><td colspan="6">No websites were found with the Stream plugin installed.</td></tr>' );
+					_e( '<tr><td colspan="6">No websites were found with the MainWP Child Reports plugin installed.</td></tr>' );
 				}
 				?>
             </tbody>

@@ -1,18 +1,22 @@
 /* Token list */
-.creport_list_tokens {
-	font-family: sans-serif;
-	margin: 20px 0 0;
-	overflow: hidden;
-	padding: 0;
+.creport_list_tokens table {
+	border-collapse:collapse;
 }
-.creport_list_tokens tr:nth-child(2n+1) {
-	background: none repeat scroll 0 0 #FAFAFA;
+.creport_list_tokens tr:nth-child(even) {
+	background: #FAFAFA;
 }
 .creport_list_tokens > table > tbody > tr > td.token-name {
-	width: 46%;
+	width: 30%;
+}
+.creport_list_tokens > table > tbody > tr > td.token-description {
+	width: 55%;
+}
+.creport_list_tokens > table > tbody > tr > td.token-option {
+	width: 15%;
+	text-align: right;
 }
 .creport_list_tokens > table > tbody > tr > td {
-	padding: 2px 10px;
+	padding: 4px 10px;
 }
 .creport_list_tokens .managetoken-item .text {
 	padding-left: 8px;
@@ -25,12 +29,18 @@
 	line-height: 24px;
 }
 .creport_list_tokens .managetoken-item input[type="text"] {
-	border-radius: 5px !important;
-	height: 35px;
 	width: 93%;
 }
 .creport_list_tokens > table {
 	padding-bottom: 10px;
+}
+
+.creport_managetoken-delete {
+	color: #a00;
+}
+
+.creport_managetoken-delete:hover {
+	color: red;
 }
 
 /* new report */
@@ -67,7 +77,8 @@
 	float: left;
 }
 #wpcr_edit_tab tr th{
-	vertical-align: text-top;
+	vertical-align: middle;
+	width: 80px;
 }
 .creport_format_data_tokens {
 	background: none repeat scroll 0 0 #F5F5F5;
@@ -145,8 +156,7 @@ a.creport_format_add_token:hover {
     height: 30px;
     width: 27px;
 }*/
-.mainwp_creport_format_section_header .handlelnk{
-	margin: 10px 10px 0;
+.mainwp_creport_format_section_header .handlelnk {
 	float: right;
 	text-decoration: none;
 	font-size: 13px;
@@ -181,10 +191,15 @@ a.creport_format_add_token:hover {
 	width: 100%;
 	margin: 3px 0;
 }
-.mainwp_creport_format_save_section .inner{
+.mainwp_creport_format_save_section .inner-left {
 	float: left;
 	width: 50%;
 	text-align: left;
+}
+.mainwp_creport_format_save_section .inner-right {
+	float: left;
+	width: 50%;
+	text-align: right;
 }
 .mainwp_creport_format_save_section {
 	margin: 10px 0 10px;
@@ -243,5 +258,9 @@ table#mwp_creport_settings_tbl th {
     display: inline;
 }
 table.mainwp-cr-table thead th,  table.mainwp-cr-table tfoot th {
-    vertical-align: top;
+    vertical-align: middle;
+}
+
+.hidden-field {
+	display: none;
 }
