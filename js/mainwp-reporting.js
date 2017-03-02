@@ -354,6 +354,11 @@ jQuery( document ).ready(function ($) {
 	$( '.creport_action_row_lnk' ).on('click', function () {
                 var actionObj = jQuery(this).closest('.row-actions');
                 var what = jQuery(this).attr('action');
+                if (what == 'delete') {
+                    if (!confirm( __( 'Are you sure?' ) )) {
+                        return false;
+                    }
+                }
                 mainwp_creport_do_action_start_specific(actionObj, what, false);		
 		return false;
 	});
