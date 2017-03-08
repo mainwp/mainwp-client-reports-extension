@@ -216,8 +216,17 @@ class MainWP_CReport_Extension {
 			<a href="https://mainwp.com/help/category/mainwp-extensions/" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Help Documenation for all MainWP Extensions', 'mainwp-client-reports-extension' ); ?></a>
 		<?php } else if ( 2 == $tabId ) { ?>
 			<h3><?php echo __( 'MainWP Client Reports Extension', 'mainwp-client-reports-extension' ); ?></h3>
-			<a href="http://mainwp.com/help/docs/inmotion-hosting-extension/" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'InMotion Hosting Extension', 'mainwp-client-reports-extension' ); ?></a><br/>
-			<a href="http://mainwp.com/help/docs/inmotion-hosting-extension/claim-a-coupon-for-1-year-of-free-hosting/" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Claim a Coupon For 1 Year of Free Hosting', 'mainwp-client-reports-extension' ); ?></a>
+			<a href="https://mainwp.com/help/docs/client-reports-extension/" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Client Reports Extension', 'mainwp-client-reports-extension' ); ?></a><br/>
+			<a href="https://mainwp.com/help/docs/client-reports-extension/install-and-set-mainwp-client-reports-extension" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Install and Set the MainWP Client Reports Extension', 'mainwp-client-reports-extension' ); ?></a><br/>
+			<a href="https://mainwp.com/help/docs/client-reports-extension/mainwp-child-reports-dashboard" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'MainWP Child Reports Dashboard', 'mainwp-client-reports-extension' ); ?></a><br/>
+			<a href="https://mainwp.com/help/docs/client-reports-extension/mainwp-child-reports-dashboard/mainwp-child-reports" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'MainWP Child Reports', 'mainwp-client-reports-extension' ); ?></a><br/>
+			<a href="https://mainwp.com/help/docs/client-reports-extension/manage-reports" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Manage Reports', 'mainwp-client-reports-extension' ); ?></a><br/>
+			<a href="https://mainwp.com/help/docs/client-reports-extension/manage-reports/create-report" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Create Report', 'mainwp-client-reports-extension' ); ?></a><br/>
+			<a href="https://mainwp.com/help/docs/client-reports-extension/manage-reports/schedule-report" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Schedule Report', 'mainwp-client-reports-extension' ); ?></a><br/>
+			<a href="https://mainwp.com/help/docs/client-reports-extension/manage-reports/edit-report" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Edit Report', 'mainwp-client-reports-extension' ); ?></a><br/>
+			<a href="https://mainwp.com/help/docs/client-reports-extension/manage-reports/delete-report" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Delete Report', 'mainwp-client-reports-extension' ); ?></a><br/>
+			<a href="https://mainwp.com/help/docs/client-reports-extension/client-report-tokens" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Client Report Tokens', 'mainwp-client-reports-extension' ); ?></a><br/>
+			<a href="https://mainwp.com/help/docs/client-reports-extension/client-report-tokens/available-client-report-tokens" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Available Client Report Tokens', 'mainwp-client-reports-extension' ); ?></a><br/>
 		<?php }
 		$output = ob_get_clean();
 

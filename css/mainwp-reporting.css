@@ -1,4 +1,9 @@
 /* Token list */
+
+.mainwp_page_Extensions-Mainwp-Client-Reports-Extension .plugin-update-tr .update-message {
+	padding: 8px 12px !important;;
+}
+
 .creport_list_tokens table {
 	border-collapse:collapse;
 }

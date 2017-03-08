@@ -691,7 +691,7 @@ class MainWP_CReport {
 		);
 
 		self::$tokens_nav_top = array(
-			'client' => 'Client Tokens',
+			'client' => 'Client',
 			'report' => 'Report',
 			'plugins' => 'Plugins',
 			'themes' => 'Themes',
@@ -705,14 +705,14 @@ class MainWP_CReport {
 			'wordpress' => 'WordPress',
 			'backups' => 'Backups',
 			'sucuri' => 'Sucuri',
-			'ga' => 'GA',
+			'ga' => 'Google Analytics',
 			'piwik' => 'Piwik',
 			'aum' => 'AUM',
-			'woocomstatus' => 'WooCommerce Status',
-                        'wordfence' => 'Wordfence scan',
-                        'maintenance' => 'Maintenance process',
-                        'pagespeed' => 'Page speed',
-                        'brokenlinks' => 'Broken Links Checker'
+			'woocomstatus' => 'WooCommerce',
+            'wordfence' => 'Wordfence',
+            'maintenance' => 'Maintenance',
+            'pagespeed' => 'Page Speed',
+            'brokenlinks' => 'Broken Links'
 		);
 	}
 
@@ -2050,7 +2050,7 @@ class MainWP_CReport {
                     <div class="mainwp_error error" id="wpcr_error_box"></div>
                     <div class="clear">
                         <br />
-                        <a id="wpcr_report_tab_lnk" href="<?php echo ($link_with_href ? 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension' : '#'); ?>" class="mainwp_action left <?php echo (empty( $style_tab_report ) ? 'mainwp_action_down' : ''); ?>"><?php _e( 'Client Reports' ); ?></a><?php echo $new_tab_lnk; ?><?php echo $edit_global_tab_lnk; ?><a id="wpcr_token_tab_lnk" href="<?php echo ($link_with_href ? 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension&tab=tab_tokens' : '#'); ?>" class="mainwp_action mid <?php echo (empty( $style_tab_token ) ? 'mainwp_action_down' : ''); ?>"><?php _e( 'Custom Report Tokens' ); ?></a><a id="wpcr_stream_tab_lnk" href="<?php echo ($link_with_href ? 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension&tab=tab_dashboard' : '#'); ?>" class="mainwp_action right <?php echo (empty( $style_tab_stream ) ? 'mainwp_action_down' : ''); ?>"><?php _e( 'Child Reports Information' ); ?></a>
+                        <a id="wpcr_report_tab_lnk" href="<?php echo ($link_with_href ? 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension' : '#'); ?>" class="mainwp_action left <?php echo (empty( $style_tab_report ) ? 'mainwp_action_down' : ''); ?>"><?php _e( 'Client Reports' ); ?></a><?php echo $new_tab_lnk; ?><?php echo $edit_global_tab_lnk; ?><a id="wpcr_token_tab_lnk" href="<?php echo ($link_with_href ? 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension&tab=tab_tokens' : '#'); ?>" class="mainwp_action mid <?php echo (empty( $style_tab_token ) ? 'mainwp_action_down' : ''); ?>"><?php _e( 'Custom Report Tokens' ); ?></a><a id="wpcr_stream_tab_lnk" href="<?php echo ($link_with_href ? 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension&tab=tab_dashboard' : '#'); ?>" class="mainwp_action right <?php echo (empty( $style_tab_stream ) ? 'mainwp_action_down' : ''); ?>"><?php _e( 'Child Reports Dashboard' ); ?></a>
                         <br /><br />                              
                         <div id="wpcr_report_tab" class="mwp_client_reports_tabs" <?php echo $style_tab_report; ?>>
                                 <?php
@@ -2162,7 +2162,6 @@ class MainWP_CReport {
                                 <div id="creport_list_tokens" class="postbox"></div>                                                                       
                             </div> 
                             <div id="wpcr_stream_tab" class="mwp_client_reports_tabs" <?php echo $style_tab_stream; ?>>
-                                    <div class="mainwp_info-box-yellow"><span><a href="#" id="mainwp-cr-dashboard-tips-dismiss" style="float: right; margin-left: 1em;"><?php _e( 'Dismiss', 'mainwp-client-reports-extension' ); ?></a></span><span class="clearfix"></span><?php _e( 'In the MainWP Child Reports Plugin settings page (you can find it in your child sites), it enables you to set the number of days to keep records. We strongly recommend to set it blank, this way you will be able to generate reports for unlimited period of time. By default it is set to 90 days.' ); ?></div>
                                 <div class="tablenav top">
                                         <?php MainWP_CReport_Stream::gen_select_sites( $dbwebsites_stream, $selected_group ); ?>  
                                 </div>                            
@@ -3182,22 +3181,22 @@ class MainWP_CReport {
                         <th class="check-column">
                             <input type="checkbox"  id="cb-select-all-1" >
                         </th>                    
-                        <th scope="col" class="manage-column sortable <?php echo $title_order; ?>">
+                        <th scope="col" class="manage-column sortable <?php echo $title_order; ?>" id="report-column">
                                 <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=title&order=<?php echo (empty( $title_order ) ? 'asc' : $title_order); ?>"><span><?php _e( 'Report', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>
-                        <th scope="col" class="manage-column sortable <?php echo $client_order; ?>">
+                        <th scope="col" class="manage-column sortable <?php echo $client_order; ?>" id="client-column">
                                 <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=client&order=<?php echo (empty( $client_order ) ? 'asc' : $client_order); ?>"><span><?php _e( 'Client', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>                
-                        <th scope="col" class="manage-column sortable <?php echo $name_order; ?>">
+                        <th scope="col" class="manage-column sortable <?php echo $name_order; ?>" id="send-to-column">
                                 <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=name&order=<?php echo (empty( $name_order ) ? 'asc' : $name_order); ?>"><span><?php _e( 'Send To', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>                
-                        <th scope="col" class="manage-column sortable <?php echo $lastsend_order; ?>">
+                        <th scope="col" class="manage-column sortable <?php echo $lastsend_order; ?>" id="last-sent-column">
                                 <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=lastsend&order=<?php echo (empty( $lastsend_order ) ? 'asc' : $lastsend_order); ?>"><span><?php _e( 'Last Sent', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>
-                        <th scope="col" class="manage-column sortable <?php echo $datefrom_order; ?>">
+                        <th scope="col" class="manage-column sortable <?php echo $datefrom_order; ?>" id="date-range-column">
                                 <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=date_from&order=<?php echo (empty( $datefrom_order ) ? 'asc' : $datefrom_order); ?>"><span><?php _e( 'Date Range', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>
-                        <th scope="col" class="manage-column sortable <?php echo $schedule_order; ?>">
+                        <th scope="col" class="manage-column sortable <?php echo $schedule_order; ?>" id="schedule-column">
                                 <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=schedule&order=<?php echo (empty( $schedule_order ) ? 'asc' : $schedule_order); ?>"><span><?php _e( 'Schedule', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>                   
                     </tr>
@@ -3457,7 +3456,7 @@ class MainWP_CReport {
 	public static function new_report_format( $report ) {
 		?>        
 		<div class="metabox-holder">
-	        <div class="postbox">
+	        <div class="postbox" id="report-format">
 	        	<button type="button" class="handlediv button-link" aria-expanded="true"><span class="screen-reader-text"><?php _e( 'Toggle Panel: Report Format', 'mainwp-client-reports-extension' ); ?></span><span class="toggle-indicator" aria-hidden="true"></span></button>
 	        	<h2 class="hndle"><span><i class="fa fa-bars" aria-hidden="true"></i> <?php _e( 'Report Format', 'mainwp-client-reports-extension' ); ?></span></h2>
 	        	<?php self::new_report_format_table_content( $report ); ?>
@@ -3694,22 +3693,22 @@ class MainWP_CReport {
 			<th><span><?php _e( 'Send From' ); ?></span></th>
             <td>
                 <input type="text" name="mwp_creport_femail" id="mwp_creport_femail" placeholder="Email (required)" value="<?php echo esc_attr( stripslashes( $from_email ) ); ?>" />&nbsp;&nbsp;
-                <input type="text" name="mwp_creport_fname" placeholder="Name" value="<?php echo esc_attr( stripslashes( $from_name ) ); ?>" />&nbsp;&nbsp;
-                <input type="text" name="mwp_creport_fcompany" placeholder="Company" value="<?php echo esc_attr( stripslashes( $from_company ) ); ?>" />			
+                <input type="text" name="mwp_creport_fname" id="mwp_creport_fname" placeholder="Name" value="<?php echo esc_attr( stripslashes( $from_name ) ); ?>" />&nbsp;&nbsp;
+                <input type="text" name="mwp_creport_fcompany" id="mwp_creport_fcompany" placeholder="Company" value="<?php echo esc_attr( stripslashes( $from_company ) ); ?>" />			
             </td>
         </tr>     
         <tr>
             <th><span><?php _e( 'Send To' ); ?></span></th>
             <td>
-                <input type="text" name="mwp_creport_email" id="mwp_creport_email" placeholder="Email (required)" value="<?php echo esc_attr( stripslashes( $to_email ) ); ?>" />&nbsp;&nbsp;
-                <input type="text" name="mwp_creport_name" placeholder="Name" value="<?php echo esc_attr( stripslashes( $to_name ) ); ?>" />&nbsp;&nbsp;
-                <input type="text" name="mwp_creport_company" placeholder="Company" value="<?php echo esc_attr( stripslashes( $to_company ) ); ?>" />&nbsp;&nbsp;
-                <input type="text" name="mwp_creport_client" placeholder="Client" value="<?php echo esc_attr( stripslashes( $to_client ) ); ?>" /> 
+                <input type="text" name="mwp_creport_email" placeholder="Email (required)" value="<?php echo esc_attr( stripslashes( $to_email ) ); ?>" id="mwp_creport_email"/>&nbsp;&nbsp;
+                <input type="text" name="mwp_creport_name" placeholder="Name" value="<?php echo esc_attr( stripslashes( $to_name ) ); ?>" id="mwp_creport_name" />&nbsp;&nbsp;
+                <input type="text" name="mwp_creport_company" placeholder="Company" value="<?php echo esc_attr( stripslashes( $to_company ) ); ?>" id="mwp_creport_company" />&nbsp;&nbsp;
+                <input type="text" name="mwp_creport_client" placeholder="Client" value="<?php echo esc_attr( stripslashes( $to_client ) ); ?>" id="mwp_creport_client" /> 
                 <span id="mainwp_creport_client_loading" style="width:20px; display:inline-block"><i class="fa fa-spinner fa-pulse" style="display: none"></i></span>
             </td>
         </tr> 
         <tr>
-            <th><span><?php _e( 'Bcc' ); ?></span></th>
+            <th><span><?php _e( 'BCC' ); ?></span></th>
             <td>
                 <input type="text" name="mwp_creport_bcc_email" id="mwp_creport_bcc_email" placeholder="Email Address" value="<?php echo esc_attr( stripslashes( $bcc_email ) ); ?>" />
                 
@@ -3735,7 +3734,7 @@ class MainWP_CReport {
                                 <?php
                 }
                         ?>
-                <input type="file" name="mainwp_creport_attach_files[]" multiple="true"><br /> 
+                <input type="file" name="mainwp_creport_attach_files[]"  id="mainwp_creport_attach_files[]" multiple="true"><br /> 
 				<span class="description"><?php _e( 'Maximum filesize 5MB.' ) ?></span>
             </td>
         </tr>
@@ -4725,12 +4724,132 @@ class MainWP_CReport {
                 
 		?>
 		<ol id="mainwp-tours-content" style="display: none">
-		  <li data-id="select2-creport_global_bulk_ations-container" data-button="Next">
-		    <p><?php _e( 'Tour1.', 'mainwp-client-reports-extension' ); ?></p>
+		  <!-- Client Reports -->
+		  <li data-id="wpcr_report_tab_lnk" data-button="Next">
+		    <p><?php _e( 'The MainWP Client Reports Extension combines the power of the free MainWP Child Reports plugin with a fully customizable reporting engine to allow you to create the type of report you are proud to send to your clients.', 'mainwp-client-reports-extension' ); ?></p>
+		    <p><?php _e( 'The MainWP Child Reports plugin will track and monitor every change made on your child site and then the Client Reports Extension will gather that information and convert it to a format that you can show your clients.', 'mainwp-client-reports-extension' ); ?></p>
 		  </li>
-		  <li data-id="creport_global_bulk_ations_btn" data-button="Finish">
-		    <p><?php _e( 'Tour2.', 'mainwp-client-reports-extension' ); ?></p>
-		  </li>	                 
+		  <li data-id="wpcr_report_tab_lnk" data-button="Next">
+		    <p><?php _e( 'The Client Reports tab shows you all your reports.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>	      
+		  <li data-id="report-column" data-button="Next">
+		    <p><?php _e( 'The Report column shows you your report title. If you set your mouse cursor over the report title, action row will show up and you will be able to Preview, Edit, Archive, Delete report or download report in PDF format.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>	   
+		  <li data-id="client-column" data-button="Next">
+		    <p><?php _e( 'The Client column shows you client details for the report.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>	 
+		  <li data-id="send-to-column" data-button="Next">
+		    <p><?php _e( 'The Send To column shows you recipient details.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>	   
+		  <li data-id="last-sent-column" data-button="Next">
+		    <p><?php _e( 'The Last Sent column shows you time and date when the report has been sent last time.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>	   
+		  <li data-id="date-range-column" data-button="Next">
+		    <p><?php _e( 'The Date Range column shows you the date range for the report.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>	 
+		  <li data-id="schedule-column" data-button="Next" data-options="tipLocation:left; nubPosition:right">
+		    <p><?php _e( 'The schedule column shows you if the report has been scheduled or you are using this report to send the report manually. If the report is scheduled, you will see how often the report will be sent.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>	 
+		  <!-- New Report -->
+		  <li data-id="wpcr_edit_tab_lnk" data-button="Next">
+		    <p><?php _e( 'On the New Report tab, you can create a new report.', 'mainwp-client-reports-extension' ); ?></p>
+		    <p><strong><?php _e( 'Click the Tab to continue the tour.', 'mainwp-client-reports-extension' ); ?></strong></p>
+		  </li>
+		  <li data-class="mainwp-creport-report-setting-box" data-button="Next">
+		    <p><?php _e( 'The Report settings allows you to set your report settings.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>	      
+		  <li data-id="mwp_creport_title" data-button="Next">
+		    <p><?php _e( 'Enter the report title here.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>	   
+		  <li data-id="mainwp_creport_type" data-button="Next">
+		    <p><?php _e( 'Select if you want to create a report and send it manually when needed or to schedule it to be sent automatically.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>	 
+		  <li data-class="date" data-button="Next">
+		    <p><?php _e( 'Select a date range for the report.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>	   
+		  <li data-id="mwp_creport_femail" data-button="Next">
+		    <p><?php _e( 'Enter your email address here. It will be used as Send From email address. (Required)', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>	   
+		  <li data-id="mwp_creport_fname" data-button="Next">
+		    <p><?php _e( 'Enter your name here. (Optional)', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>	 
+		  <li data-id="mwp_creport_fcompany" data-button="Next">
+		    <p><?php _e( 'Enter your company name here. (Optional)', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>	 
+		  <li data-id="mwp_creport_email" data-button="Next">
+		    <p><?php _e( 'Enter your client email here. The report will be sent to this email address. If you want, you can leave the token in place, but make sure that you have the client email field set in the site edit page. (Required)', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>
+		  <li data-id="mwp_creport_name" data-button="Next">
+		    <p><?php _e( 'Enter your client Contact Name here. If you want, you can leave the token in place, but make sure that you have the client name field set in the site edit page.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>
+		  <li data-id="mwp_creport_company" data-button="Next">
+		    <p><?php _e( 'Enter your Client Company name here. If you want, you can leave the token in place, but make sure that you have the client company name field set in the site edit page. (Optional)', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>
+		  <li data-id="mwp_creport_client" data-button="Next">
+		    <p><?php _e( 'Enter your client Name here. If you want, you can leave the token in place, but make sure that you have the client name field set in the site edit page.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>
+		  <li data-id="mwp_creport_bcc_email" data-button="Next">
+		    <p><?php _e( 'If you want to add BCC email address, you can add it here.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>
+		  <li data-id="mwp_creport_email_subject" data-button="Next">
+		    <p><?php _e( 'Enter the email subject here.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>
+		  <li data-id="mainwp_creport_attach_files[]" data-button="Next">
+		    <p><?php _e( 'If you want, you can attach additional files to the email by uploading here.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>
+		  <li data-id="creport_select_sites_box" data-button="Next">
+		    <p><?php _e( 'Select one or multiple sites for your report.', 'mainwp-client-reports-extension' ); ?></p>
+		    <p><strong><?php _e( 'Please note that large number of sites can cause issues with sending reports. It is recommended to select one or a few sites per reprot.', 'mainwp-client-reports-extension' ); ?></strong></p>
+		  </li>
+		  <li data-id="report-format" data-button="Next">
+		    <p><?php _e( 'In the report format option box, you can set your report content.', 'mainwp-client-reports-extension' ); ?></p>
+		    <p><?php _e( 'You can separately set Report Header, Body and Footer.', 'mainwp-client-reports-extension' ); ?></p>
+		    <p><?php _e( 'Clieck on the Show link to see the section where you can set your content.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>
+		  <li data-id="mwp-creport-preview-btn" data-button="Next">
+		    <p><?php _e( 'Use the Preview button to see how the report looks like before you send it to your clients.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>
+		  <li data-id="mwp-creport-send-test-email-btn" data-button="Next">
+		    <p><?php _e( 'Use the Send Test Email button to email the reoprt to yourself so you can see how it looks like before you send it to your client.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>
+		  <li data-id="mwp-creport-archive-report-btn" data-button="Next">
+		    <p><?php _e( 'If you don not need the report to send it to your client, but you want to keep it, you can archive it by clicking this button.', 'mainwp-client-reports-extension' ); ?></p>
+		    <p><?php _e( 'Once a report is archived, it will not be editable any more.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>
+		  <li data-id="mwp-creport-save-pdf-btn" data-button="Next">
+		    <p><?php _e( 'If you want to download the report as a PDF file, click this button.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>
+		  <li data-id="mwp-creport-save-btn" data-button="Next">
+		    <p><?php _e( 'Use this button to save the report without of sending it to your client.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>
+		  <li data-id="mwp-creport-send-btn" data-button="Next">
+		    <p><?php _e( 'Use this button to send the report to your client.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>
+		  <!-- Tokens -->
+		  <li data-id="wpcr_token_tab_lnk" data-button="Next">
+		    <p><?php _e( 'Custom Tokens tab allows you to create/edit custom created client tokens.', 'mainwp-client-reports-extension' ); ?></p>
+		    <p><strong><?php _e( 'Click the tab to continue the tour.', 'mainwp-client-reports-extension' ); ?></strong></p>
+		  </li>
+		  <li data-id="creport_list_tokens" data-button="Next">
+		    <p><?php _e( 'Here, you can see the list of all awailable tokens for your clients. For each client/site, you can set custom values on the Child Site Edit page.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>
+		  <li data-id="creport_managetoken_btn_add_token" data-button="Next">
+		    <p><?php _e( 'To create a new token, enter the token name, token description and click the Save buton.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>
+		  <!-- MainWP Child Reports -->
+		  <li data-id="wpcr_stream_tab_lnk" data-button="Next">
+		    <p><?php _e( 'Here, you can monitor all of your child sites where you have the MainWP Child Reports plugin installed. In the sites list, you will be notified if the plugin has an update available or if the plugin is deactivated.', 'mainwp-client-reports-extension' ); ?></p>
+		    <p><?php _e( 'When needed, from here, you can activate or update the MainWP Child Reports plugin.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>
+		  <li data-id="creport_stream_action" data-button="Next">
+		    <p><?php _e( 'Use the provided bulk actions to Activate, Update, Hide or Unhide the MainWP Child Reports plugin on your child sites.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>
+		  <li data-id="child-reports-version" data-button="Next">
+		    <p><?php _e( 'Quickly see which MainWP Child Reports plugin version do you have on your child sites.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>
+		  <li data-id="child-reports-visibility" data-button="Finish the Tour">
+		    <p><?php _e( 'Quickly see if the plugin is hidden on your child sites.', 'mainwp-client-reports-extension' ); ?></p>
+		  </li>
 		</ol>
 		<?php self::gen_tour_message('creport_reports');?>
 			<script type="text/javascript">		

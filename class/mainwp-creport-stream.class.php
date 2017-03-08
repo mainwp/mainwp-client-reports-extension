@@ -81,10 +81,10 @@ class MainWP_CReport_Stream {
                             <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=url&stream_order=<?php echo (empty( $url_order ) ? 'asc' : $url_order); ?>"><span><?php _e( 'URL', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>
                     <th scope="col" class="manage-column sortable <?php echo $version_order; ?>">
-                            <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=version&stream_order=<?php echo (empty( $version_order ) ? 'asc' : $version_order); ?>"><span><?php _e( 'Version', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
+                            <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=version&stream_order=<?php echo (empty( $version_order ) ? 'asc' : $version_order); ?>" id="child-reports-version"><span><?php _e( 'Version', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>
                     <th scope="col" class="manage-column <?php echo $hidden_order; ?>">
-                            <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=hidden&stream_order=<?php echo (empty( $hidden_order ) ? 'asc' : $hidden_order); ?>"><span><?php _e( 'Hidden', 'mainwp-client-reports-extension' ); ?></span></a>
+                            <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=hidden&stream_order=<?php echo (empty( $hidden_order ) ? 'asc' : $hidden_order); ?>" id="child-reports-visibility"><span><?php _e( 'Visibility', 'mainwp-client-reports-extension' ); ?></span></a>
                     </th>
                     <th scope="col" class="manage-column">
                         <span><?php _e( 'First Activation', 'mainwp-client-reports-extension' ); ?></span>
@@ -106,7 +106,7 @@ class MainWP_CReport_Stream {
                             <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=version&stream_order=<?php echo (empty( $version_order ) ? 'asc' : $version_order); ?>"><span><?php _e( 'Version', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>     
                     <th scope="col" class="manage-column <?php echo $hidden_order; ?>">
-                            <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=hidden&stream_order=<?php echo (empty( $hidden_order ) ? 'asc' : $hidden_order); ?>"><span><?php _e( 'Hidden', 'mainwp-client-reports-extension' ); ?></span></a>
+                            <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=hidden&stream_order=<?php echo (empty( $hidden_order ) ? 'asc' : $hidden_order); ?>"><span><?php _e( 'Visibility', 'mainwp-client-reports-extension' ); ?></span></a>
                     </th>                    
                     <th scope="col" class="manage-column">
                         <span><?php _e( 'First Activation', 'mainwp-client-reports-extension' ); ?></span>
@@ -177,7 +177,7 @@ class MainWP_CReport_Stream {
                         <td>
                         <span class="stream_hidden_title">
                         <?php
-                            echo (1 == $website['hide_stream']) ? __( 'Yes' ) : __( 'No' );
+                            echo (1 == $website['hide_stream']) ? __( 'Hidden' ) : __( 'Visible' );
                         ?>
                         </span>
                         </td>
@@ -210,16 +210,16 @@ class MainWP_CReport_Stream {
                                     $link_row = rtrim( $link_row, ' | ' );
                                     $link_row = ltrim( $link_row, ' | ' );
                                     ?>
-                                <tr class="plugin-update-tr">
-                                    <td colspan="6" class="plugin-update">
-                                                                    <div class="ext-upgrade-noti update-message" plugin-slug="<?php echo $plugin_slug; ?>" website-id="<?php echo $website_id; ?>" version="<?php echo $version; ?>">
-                                                                            <span style="float:right"><a href="#" class="creport-stream-upgrade-noti-dismiss"><?php _e( 'Dismiss' ); ?></a></span>                    
-                                                                            <?php echo $link_row; ?>
-                                                                            <span class="creport-stream-row-working"><span class="status"></span> <i class="fa fa-spinner fa-pulse" style="display: none"></i></span>
+                                <tr class="plugin-update-tr active">
+                                    <td colspan="6" class="plugin-update colspanchange">
+                                        <div class="ext-upgrade-noti update-message notice inline notice-warning notice-alt" plugin-slug="<?php echo $plugin_slug; ?>" website-id="<?php echo $website_id; ?>" version="<?php echo $version; ?>">
+                                            <span style="float:right"><a href="#" class="creport-stream-upgrade-noti-dismiss"><?php _e( 'Dismiss' ); ?></a></span>                    
+                                                <?php echo $link_row; ?>
+                                            <span class="creport-stream-row-working"><span class="status"></span> <i class="fa fa-spinner fa-pulse" style="display: none"></i></span>
                                         </div>
                                     </td>
                                 </tr>
-                                    <?php
+                            <?php
                             }
                         }
                 }
@@ -409,24 +409,6 @@ class MainWP_CReport_Stream {
             </select>
 			<input type="button" value="<?php _e( 'Apply' ); ?>" class="button action" id="creport_stream_doaction_btn" name="">
         </div>
-
-        <div class="alignleft actions">
-            <form action="" method="GET">
-                <input type="hidden" name="page" value="Extensions-Mainwp-Client-Reports-Extension">
-				<span role="status" aria-live="polite" class="ui-helper-hidden-accessible"><?php _e( 'No search results.', 'mainwp-client-reports-extension' ); ?></span>
-				<input type="text" class="mainwp_autocomplete ui-autocomplete-input" name="s" autocompletelist="sites" value="<?php echo stripslashes( $search ); ?>" autocomplete="off">
-                                <datalist id="sites">
-                                    <?php
-                                    if ( is_array( $websites ) && count( $websites ) > 0 ) {
-                                            foreach ( $websites as $website ) {
-                                                    echo '<option>' . stripslashes( $website['name'] ) . '</option>';
-                                            }
-                                    }
-                                    ?>                
-                                </datalist>
-                <input type="submit" name="" class="button" value="Search Sites">
-            </form>
-        </div>    
         <div class="alignleft actions">
             <form method="post" action="admin.php?page=Extensions-Mainwp-Client-Reports-Extension">
                 <select name="mainwp_creport_stream_groups_select" class="mainwp-select2">
@@ -444,6 +426,23 @@ class MainWP_CReport_Stream {
                 </select>&nbsp;&nbsp;                     
                 <input class="button" type="button" name="creport_stream_btn_display" id="creport_stream_btn_display"value="<?php _e( 'Display', 'mainwp-client-reports-extension' ); ?>">
             </form>  
+        </div>    
+        <div class="alignright actions">
+            <form action="" method="GET">
+                <input type="hidden" name="page" value="Extensions-Mainwp-Client-Reports-Extension">
+                <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"><?php _e( 'No search results.', 'mainwp-client-reports-extension' ); ?></span>
+                <input type="text" class="mainwp_autocomplete ui-autocomplete-input" name="s" autocompletelist="sites" value="<?php echo stripslashes( $search ); ?>" autocomplete="off">
+                                <datalist id="sites">
+                                    <?php
+                                    if ( is_array( $websites ) && count( $websites ) > 0 ) {
+                                            foreach ( $websites as $website ) {
+                                                    echo '<option>' . stripslashes( $website['name'] ) . '</option>';
+                                            }
+                                    }
+                                    ?>                
+                                </datalist>
+                <input type="submit" name="" class="button" value="Search Sites">
+            </form>
         </div>    
 		<?php
 		return;
