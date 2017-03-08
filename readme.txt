@@ -2,7 +2,7 @@
 Plugin Name: MainWP Client Reports Extension
 Plugin URI: https://mainwp.com
 Description: MainWP Client Reports Extension allows you to generate activity reports for your clients sites. Requires MainWP Dashboard.
-Version: 1.1
+Version: 2.0
 Author: MainWP
 Author URI: https://mainwp.com
 Icon URI:
@@ -17,6 +17,43 @@ Icon URI:
 1. Enable or Disable extension on the "Extensions" page in the dashboard
 
 == Changelog ==
+
+= 2.0 = 3-8-2016
+* Fixed: an issue with displaying client tokens
+* Fixed: an issue with updating scheduled reports
+* Fixed: an issue with displaying correct days in reports
+* Fixed: an issue with un-checking the BCC option
+* Fixed: multiple issues with sending email reports
+* Fixed: an issue with updating and creating client tokens
+* Fixed: an issue with moving the Client Tokens option box on the site Edit page
+* Fixed: multiple PHP Warnings and Notices
+* Added: support for the Wordfence tokens
+* Added: support for the Maintenance tokens
+* Added: support for the Page Speed tokens
+* Added: support for the Broken Links tokens
+* Added: the Insert Tokens menu in the content editors
+* Added: the Insert Sections menu in the content editors
+* Added: the BCC option for sending emails
+* Added: new "MainWP Client Report" as default report 
+* Added: "MainWP Client Report" header, body and footer fragments in insert option
+* Added: the "First Installation" column in the MainWP Child Reports Dashboard table
+* Added: 'mainwp_client_reports_tokens_groups' hook to support custom tokens
+* Added: 'mainwp_client_reports_tokens_nav_top' hook to allow custom tokens in token navigation
+* Added: 'client_reports_custom_tokens' hook to support custom token values
+* Added: the Help tab
+* Added: new help documentation links
+* Added: extension help tour
+* Added: all formatting options to the report editor
+* Updated: merged single site and global reports
+* Updated: Select2 library implemented
+* Updated: scheduling system has been refactored and moved to the Report Settings option box
+* Updated: various CSS updates
+* Updated: various Layout improvements
+* Removed: default report HTML formatting
+* Removed: redundant scheduling options
+* Removed: client information prediction mechanism from the Report Settings option box
+* Removed: Stream plugin references 
+* Removed: unnecessary tips
 
 = 1.1 = 4-8-2016
 * Fixed: Bug with saving report header and footer templates
