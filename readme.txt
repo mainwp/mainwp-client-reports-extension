@@ -18,7 +18,7 @@ Icon URI:
 
 == Changelog ==
 
-= 2.0 = 3-8-2016
+= 2.0 = 3-9-2016
 * Fixed: an issue with displaying client tokens
 * Fixed: an issue with updating scheduled reports
 * Fixed: an issue with displaying correct days in reports
