@@ -4472,7 +4472,7 @@ class MainWP_CReport {
                 } 
  
                 else if ( count( $websites ) == 0 ) {   
-                     $error = __( 'The report have not selected sites.', 'mainwp-client-reports-extension' );     
+                     $error = __( 'There are no selected sites for the report. Please select your site(s) first.', 'mainwp-client-reports-extension' );     
                 }
                 
                 $html = '';
