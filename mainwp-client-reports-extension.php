@@ -46,6 +46,7 @@ class MainWP_CReport_Extension {
 		add_filter( 'mainwp-sync-extensions-options', array( &$this, 'mainwp_sync_extensions_options' ), 10, 1 );		
                 add_filter( 'mainwp-sync-others-data', array( $this, 'sync_others_data' ), 10, 2 );
 		add_action( 'mainwp-site-synced', array( &$this, 'site_synced' ), 10, 2 );
+                add_action( 'mainwp_delete_site', array( &$this, 'on_delete_site' ), 10, 1 );
               
                 if ( isset( $_GET['page'] ) && ('Extensions-Mainwp-Client-Reports-Extension' == $_GET['page'])) {
                     require_once 'includes/functions.php';
@@ -111,6 +112,11 @@ class MainWP_CReport_Extension {
                 }
 	}
         
+        public function on_delete_site( $website ) {
+		if ( $website ) {
+			MainWP_CReport_DB::get_instance()->delete_group_report_content( 0, $website->id );
+		}
+	}        
 	
 	public function admin_init() {
 
@@ -340,7 +346,7 @@ class MainWP_CReport_Extension_Activator {
 		if (!empty($websiteid)){
 			add_meta_box(
 				'creport-contentbox-' . $i++,
-				'<i class="fa fa-cog"></i> ' . __( 'Client Report Settings', 'mainwp-client-reports-extension' ),
+				'<i class="fa fa-cog"></i> ' . __( 'Client Settings', 'mainwp-client-reports-extension' ),
 				array( 'MainWP_CReport', 'renderClientReportsSiteTokens' ),
 				'mainwp_postboxes_managesites_edit',
 				'normal',

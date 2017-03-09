@@ -38,7 +38,7 @@ class MainWP_CReport_Stream {
 		return update_option( $this->option_handle, $this->option );
 	}
 
-	public static function gen_client_report_dashboard_tab( $websites ) {
+	public static function gen_dashboard_tab( $websites ) {
 
 		$orderby = 'name';
 		$_order = 'desc';
@@ -49,7 +49,7 @@ class MainWP_CReport_Stream {
 			$_order = $_GET['stream_order'];
 		}
 
-		$name_order = $version_order = $temp_order = $time_order = $url_order = $hidden_order = '';
+		$name_order = $version_order = $temp_order = $time_order = $url_order = $hidden_order = $first_order = $last_order = '';
 		if ( isset( $_GET['stream_orderby'] ) && 'name' == $_GET['stream_orderby'] ) {
 			$name_order = ('desc' == $_order) ? 'asc' : 'desc';
 		} else if ( isset( $_GET['stream_orderby'] ) && 'version' == $_GET['stream_orderby'] ) {
@@ -62,8 +62,12 @@ class MainWP_CReport_Stream {
 			$url_order = ('desc' == $_order) ? 'asc' : 'desc';
 		} else if ( isset( $_GET['stream_orderby'] ) && 'hidden' == $_GET['stream_orderby'] ) {
 			$hidden_order = ('desc' == $_order) ? 'asc' : 'desc';
-		}
-
+		} else if ( isset( $_GET['stream_orderby'] ) && 'first' == $_GET['stream_orderby'] ) {
+			$first_order = ('desc' == $_order) ? 'asc' : 'desc';
+		} else if ( isset( $_GET['stream_orderby'] ) && 'last' == $_GET['stream_orderby'] ) {
+			$last_order = ('desc' == $_order) ? 'asc' : 'desc';
+		} 
+                
 		self::$order = $_order;
 		self::$orderby = $orderby;
 		usort( $websites, array( 'MainWP_CReport_Stream', 'stream_data_sort' ) );                
@@ -80,14 +84,17 @@ class MainWP_CReport_Stream {
                     <th scope="col" class="manage-column sortable <?php echo $url_order; ?>">
                             <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=url&stream_order=<?php echo (empty( $url_order ) ? 'asc' : $url_order); ?>"><span><?php _e( 'URL', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>
+                    <th scope="col" class="manage-column <?php echo $last_order; ?>">
+                            <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=last&stream_order=<?php echo (empty( $last_order ) ? 'asc' : $last_order); ?>"><span><?php _e( 'Last Report', 'mainwp-client-reports-extension' ); ?></span></a>
+                    </th>
                     <th scope="col" class="manage-column sortable <?php echo $version_order; ?>">
                             <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=version&stream_order=<?php echo (empty( $version_order ) ? 'asc' : $version_order); ?>" id="child-reports-version"><span><?php _e( 'Version', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
-                    </th>
+                    </th>                    
                     <th scope="col" class="manage-column <?php echo $hidden_order; ?>">
                             <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=hidden&stream_order=<?php echo (empty( $hidden_order ) ? 'asc' : $hidden_order); ?>" id="child-reports-visibility"><span><?php _e( 'Visibility', 'mainwp-client-reports-extension' ); ?></span></a>
-                    </th>
-                    <th scope="col" class="manage-column">
-                        <span><?php _e( 'First Activation', 'mainwp-client-reports-extension' ); ?></span>
+                    </th>                   
+                    <th scope="col" class="manage-column <?php echo $first_order; ?>">
+                            <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=first&stream_order=<?php echo (empty( $first_order ) ? 'asc' : $first_order); ?>"><span><?php _e( 'First Activation', 'mainwp-client-reports-extension' ); ?></span></a>
                     </th>
                 </tr>
             </thead>
@@ -102,23 +109,26 @@ class MainWP_CReport_Stream {
                     <th scope="col" class="manage-column sortable <?php echo $url_order; ?>">
                             <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=url&stream_order=<?php echo (empty( $url_order ) ? 'asc' : $url_order); ?>"><span><?php _e( 'URL', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                     </th>
+                    <th scope="col" class="manage-column <?php echo $last_order; ?>">
+                            <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=last&stream_order=<?php echo (empty( $last_order ) ? 'asc' : $last_order); ?>"><span><?php _e( 'Last Report', 'mainwp-client-reports-extension' ); ?></span></a>
+                    </th>
                     <th scope="col" class="manage-column sortable <?php echo $version_order; ?>">
                             <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=version&stream_order=<?php echo (empty( $version_order ) ? 'asc' : $version_order); ?>"><span><?php _e( 'Version', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
-                    </th>     
+                    </th>                     
                     <th scope="col" class="manage-column <?php echo $hidden_order; ?>">
                             <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=hidden&stream_order=<?php echo (empty( $hidden_order ) ? 'asc' : $hidden_order); ?>"><span><?php _e( 'Visibility', 'mainwp-client-reports-extension' ); ?></span></a>
                     </th>                    
-                    <th scope="col" class="manage-column">
-                        <span><?php _e( 'First Activation', 'mainwp-client-reports-extension' ); ?></span>
+                    <th scope="col" class="manage-column <?php echo $first_order; ?>">
+                            <a href="?page=Extensions-Mainwp-Client-Reports-Extension&stream_orderby=first&stream_order=<?php echo (empty( $first_order ) ? 'asc' : $first_order); ?>"><span><?php _e( 'First Activation', 'mainwp-client-reports-extension' ); ?></span></a>
                     </th>
                 </tr>
             </tfoot>
             <tbody id="the-wp-stream-list" class="list:sites">
 				<?php
 				if ( is_array( $websites ) && count( $websites ) > 0 ) {
-					self::get_stream_dashboard_table_row( $websites );
+					self::gen_dashboard_table_rows( $websites );
 				} else {
-					_e( '<tr><td colspan="6">No websites were found with the MainWP Child Reports plugin installed.</td></tr>' );
+					_e( '<tr><td colspan="7">No websites were found with the MainWP Child Reports plugin installed.</td></tr>' );
 				}
 				?>
             </tbody>
@@ -126,7 +136,7 @@ class MainWP_CReport_Stream {
 		<?php
 	}
 
-	public static function get_stream_dashboard_table_row( $websites ) {
+	public static function gen_dashboard_table_rows( $websites ) {
 		$dismiss = array();
 		if ( session_id() == '' ) {
 			session_start(); }
@@ -166,6 +176,13 @@ class MainWP_CReport_Stream {
                             <div class="row-actions"><span class="edit"><a target="_blank" href="admin.php?page=SiteOpen&newWindow=yes&websiteid=<?php echo $website_id; ?>"><?php _e( 'Open WP-Admin', 'mainwp-client-reports-extension' ); ?></a></span> | <span class="edit"><a href="admin.php?page=SiteOpen&newWindow=yes&websiteid=<?php echo $website_id; ?>&location=<?php echo base64_encode( $location ); ?>" target="_blank"><?php echo $openlink_title; ?></a></span></div>                    
                         </td>
                         <td>
+                            <?php
+                            if ($website['last_report']) {
+                                echo MainWP_CReport_Utility::format_timestamp( $website['last_report'] );  
+                            }
+                            ?>
+                        </td>
+                        <td>
                         <?php
                         if ( isset( $website['plugin_version'] ) ) {
                             echo $website['plugin_version'];                                                 
@@ -173,7 +190,7 @@ class MainWP_CReport_Stream {
                             echo '&nbsp;'; 
                         }
                         ?>
-                        </td>     
+                        </td>                           
                         <td>
                         <span class="stream_hidden_title">
                         <?php
@@ -211,7 +228,7 @@ class MainWP_CReport_Stream {
                                     $link_row = ltrim( $link_row, ' | ' );
                                     ?>
                                 <tr class="plugin-update-tr active">
-                                    <td colspan="6" class="plugin-update colspanchange">
+                                    <td colspan="7" class="plugin-update colspanchange">
                                         <div class="ext-upgrade-noti update-message notice inline notice-warning notice-alt" plugin-slug="<?php echo $plugin_slug; ?>" website-id="<?php echo $website_id; ?>" version="<?php echo $version; ?>">
                                             <span style="float:right"><a href="#" class="creport-stream-upgrade-noti-dismiss"><?php _e( 'Dismiss' ); ?></a></span>                    
                                                 <?php echo $link_row; ?>
@@ -238,26 +255,38 @@ class MainWP_CReport_Stream {
 			$a = $a['hide_stream'];
 			$b = $b['hide_stream'];
 			$cmp = $a - $b;
+		} else if ( 'first' == self::$orderby ) {
+			$a = $a['first_time'];
+			$b = $b['first_time'];
+			$cmp = $a - $b;
+		} else if ( 'last' == self::$orderby ) {
+			$a = $a['last_report'];
+			$b = $b['last_report'];
+			$cmp = $a - $b;
 		} else {
 			$a = $a['name'];
 			$b = $b['name'];
 			$cmp = strcmp( $a, $b );
 		}
+                
 		if ( 0 == $cmp ) {
-			return 0; }
+			return 0;                         
+                }
 
 		if ( 'desc' == self::$order ) {
-			return ($cmp > 0) ? -1 : 1; } else {
-			return ($cmp > 0) ? 1 : -1; }
+			return ($cmp > 0) ? -1 : 1;                         
+                } else {
+			return ($cmp > 0) ? 1 : -1;                         
+                }
 	}
 
-	public function get_websites_stream( $websites, $selected_group = 0 ) {
+	public function get_websites_stream( $websites, $selected_group = 0, $lastReportsSites = array() ) {
 		$websites_stream = array();
 		$streamHide = $this->get_option( 'hide_stream_plugin' );                
-		if ( ! is_array( $streamHide ) ) {
+                if ( ! is_array( $streamHide ) ) {
 			$streamHide = array();                         
-                }
-                
+                }                
+                              
                 $creportSettings = $this->get_option( 'settings' );
                 if (!is_array($creportSettings)) {
                     $creportSettings = array();
@@ -298,16 +327,15 @@ class MainWP_CReport_Stream {
                                                                                 } 
                                                                         }
 
-                                                                        $site['hide_stream'] = 0;
-
+                                                                        $site['hide_stream'] = 0;                                                                         
                                                                         if ( isset( $streamHide[ $website->id ] ) && $streamHide[ $website->id ] ) {
                                                                                 $site['hide_stream'] = 1;
                                                                         }
                                                                         
                                                                         if ( isset( $creportSiteSettings['first_time'] ) ) {
                                                                                 $site['first_time'] = $creportSiteSettings['first_time'];
-                                                                        }
-                                                                        
+                                                                        }                                                                                                                                                                           
+                                                                        $site['last_report'] = isset($lastReportsSites[$website->id]) ? $lastReportsSites[$website->id] : 0;
                                                                         $websites_stream[] = $site;
                                                                         break;
 								}
@@ -366,6 +394,7 @@ class MainWP_CReport_Stream {
                                                                         if ( isset( $creportSiteSettings['first_time'] ) ) {
                                                                                 $site['first_time'] = $creportSiteSettings['first_time'];
                                                                         }
+                                                                        $site['last_report'] = isset($lastReportsSites[$website->id]) ? $lastReportsSites[$website->id] : 0;
                                                                         $websites_stream[] = $site;
                                                                         break;
 								}
@@ -388,7 +417,7 @@ class MainWP_CReport_Stream {
 			$websites_stream = $search_sites;
 		}
 		unset( $search_sites );
-
+                
 		return $websites_stream;
 	}
 

@@ -2,16 +2,19 @@
 
 class MainWP_CReport_DB {
 
-	private $mainwp_wpcreport_db_version = '5.11';
+	private $mainwp_wpcreport_db_version = '5.12';
 	private $table_prefix;
 	//Singleton
 	private static $instance = null;
-
+        private $wpdb;
+        
 	//Constructor
 	function __construct() {
 		global $wpdb;
 		$this->table_prefix = $wpdb->prefix . 'mainwp_';                
                 $this->init_default_data();
+                /** @var $this ->wpdb wpdb */
+		$this->wpdb         = &$wpdb;
 	}
 
 	function table_name( $suffix ) {
@@ -339,292 +342,24 @@ PRIMARY KEY  (`id`)  ';
 			'client.phone' => 'Displays the Client Phone',
 			'client.email' => 'Displays the Client Email',
 		);
-		$default_report_logo = plugins_url( 'images/default-report-logo.png', dirname( __FILE__ ) );
+		
+                $header_img =  plugins_url( 'images/templateMWP.jpg', dirname( __FILE__ ) );
+$analytics_img =  plugins_url( 'images/Analytics.jpg', dirname( __FILE__ ) );
+$backups_img =  plugins_url( 'images/Backups.jpg', dirname( __FILE__ ) );
+$security_img =  plugins_url( 'images/Security.jpg', dirname( __FILE__ ) );
+$uptime_img =  plugins_url( 'images/UPtime.jpg', dirname( __FILE__ ) );
+$updates_img =  plugins_url( 'images/Updates.jpg', dirname( __FILE__ ) );
+
 		$this->default_reports[] = array(
-			'title' => 'Default Basic Report',
-			'header' => '<img style="float:left" src="' . $default_report_logo . '" alt="default-report-logo" width="300" height="56" /><br/><br/>Hello [client.contact.name],',
-			'body' => '<h3>Activity report for the [client.site.url]:</h3>
-<h3>Plugins</h3>
-<strong>Installed Plugins:</strong> [plugin.installed.count]
-<strong>Activated Plugins:</strong> [plugin.activated.count] 
-<strong>Edited Plugins:</strong> [plugin.edited.count]
-<strong>Deactivated Plugins:</strong> [plugin.deactivated.count]
-<strong>Updated Plugins:</strong> [plugin.updated.count] 
-<strong>Deleted Plugins:</strong> [plugin.deleted.count]
-<h3>Themes</h3>
-<strong>Installed Themes:</strong> [theme.installed.count] 
-<strong>Activated Themes:</strong> [theme.activated.count] 
-<strong>Edited Themes:</strong> [theme.edited.count]
-<strong>Updated Themes:</strong> [theme.updated.count] 
-<strong>Deleted Themes:</strong> [theme.deleted.count] 
-<h3>Posts</h3>
-<strong>Created Posts: </strong> [post.created.count] 
-<strong>Updated Posts: </strong> [post.updated.count] 
-<strong>Trashed Posts: </strong> [post.trashed.count] 
-<strong>Deleted Posts: </strong> [post.deleted.count] 
-<strong>Restored Posts: </strong> [post.restored.count] 
-<h3>Pages</h3>
-<strong>Created Pages:</strong> [page.created.count] 
-<strong>Updated Pages:</strong> [page.updated.count] 
-<strong>Trashed Pages:</strong> [page.trashed.count] 
-<strong>Deleted Pages:</strong> [page.deleted.count] 
-<strong>Restored Pages: </strong> [page.restored.count]
-<h3>Users</h3>
-<strong>Created Users:</strong> [user.created.count]
-<strong>Updated Users:</strong> [user.updated.count]
-<strong>Deleted Users:</strong> [user.deleted.count]
-<h3>Comments</h3>
-<strong>Created Comments:</strong> [commet.created.count]
-<strong>Trashed Comments:</strong> [comment.trashed.count]
-<strong>Deleted Comments:</strong> [comment.deleted.count]
-<strong>Edited Comments:</strong> [comment.edited.count]
-<strong>Restored Comments:</strong> [comment.restored.count]
-<strong>Approved Comments:</strong> [comment.approved.count]
-<strong>Spammed Comments:</strong> [comment.spam.count]
-<strong>Replied Comments:</strong> [comment.replied.count]
-<h3>Media</h3>
-<strong>Uploaded Media:</strong> [media.uploaded.count]
-<strong>Updated Media:</strong> [media.updated.count]
-<strong>Deleted Media:</strong> [media.deleted.count]
-<h3>Widgets</h3>
-<strong>Added Widgets:</strong> [widget.added.count]
-<strong>Updated Widgets:</strong> [widget.updated.count]
-<strong>Deleted Widgets:</strong> [widget.deleted.count]
-<h3>Menus</h3>
-<strong>Created Menus:</strong> [menu.created.count]
-<strong>Updated Menus:</strong> [menu.updated.count]
-<strong>Deleted Menus:</strong> [menu.deleted.count]
-<h3>WordPress</h3>
-<strong>WordPress Updates:</strong> [wordpress.updated.count]'
-				);
-		$this->default_reports[] = array(
-			'title' => 'Default Full Report',
-			'header' => '<img style="float:left" src="' . $default_report_logo . '" alt="default-report-logo" width="300" height="56" /><br/><br/><br/>Hello [client.contact.name],',
-			'body' => '<h3>Activity report for the [client.site.url]:</h3>
-<h3>Plugins</h3>
-<strong>[plugin.installed.count] Plugins Installed</strong>
-[section.plugins.installed]
-([plugin.installed.date]) [plugin.name] by [plugin.installed.author];
-[/section.plugins.installed]
-
-<strong>[plugin.activated.count] Plugins Activated</strong>
-[section.plugins.activated]
-([plugin.activated.date]) [plugin.name] by [plugin.activated.author];
-[/section.plugins.activated]
-
-<strong>[plugin.edited.count] Plugins Edited</strong>
-[section.plugins.edited]
-([plugin.edited.date]) [plugin.name] by [plugin.edited.author];
-[/section.plugins.edited]
-
-<strong>[plugin.deactivated.count] Plugins Deactivated</strong>
-[section.plugins.deactivated]
-([plugin.deactivated.date]) [plugin.name] by [plugin.deactivated.author];
-[/section.plugins.deactivated]
-
-<strong>[plugin.updated.count] Plugins Updated</strong>
-[section.plugins.updated]
-([plugin.updated.date]) [plugin.name] by [plugin.updated.author] - [plugin.old.version] to [plugin.current.version];
-[/section.plugins.updated]
-
-<strong>[plugin.deleted.count] Plugins Deleted</strong>
-[section.plugins.deleted]
-([plugin.deleted.date]) [plugin.name] by [plugin.deleted.author];
-[/section.plugins.deleted]
-<h3>Themes</h3>
-<strong>[theme.installed.count] Themes Installed</strong>
-[section.themes.installed]
-([theme.installed.date]) [theme.name] by [theme.installed.author];
-[/section.themes.installed]
-
-<strong>[theme.activated.count] Themes Activated</strong>
-[section.themes.activated]
-([theme.activated.date]) [theme.name] by [theme.activated.author];
-[/section.themes.activated]
-
-<strong>[theme.edited.count] Themes Edited</strong>
-[section.themes.edited]
-([theme.edited.date]) [theme.name] by [theme.edited.author];
-[/section.themes.edited]
-
-<strong>[theme.updated.count] Themes Updated</strong>
-[section.themes.updated]
-([theme.updated.date]) [theme.name] by [theme.updated.author] - [theme.old.version] to [theme.current.version] ;
-[/section.themes.updated]
-
-<strong>[theme.deleted.count] Themes Deleted</strong>
-[section.themes.deleted]
-([theme.deleted.date]) [theme.name] by [theme.deleted.author];
-[/section.themes.deleted]
-<h3>Posts</h3>
-<strong>[post.created.count] Created Posts</strong>
-[section.posts.created]
-([post.created.date]) [post.title] by [post.created.author];
-[/section.posts.created]
-
-<strong>[post.updated.count] Updated Posts</strong>
-[section.posts.updated]
-([post.updated.date]) [post.title] by [post.updated.author];
-[/section.posts.updated]
-
-<strong>[post.trashed.count] Trashed Posts</strong>
-[section.posts.trashed]
-([post.trashed.date]) [post.title] by [post.trashed.author];
-[/section.posts.trashed]
-
-<strong>[post.deleted.count] Deleted Posts</strong>
-[section.posts.deleted]
-([post.deleted.date]) [post.title] by [post.deleted.author];
-[/section.posts.deleted]
-
-<strong>[post.restored.count] Restored Posts</strong>
-[section.posts.restored]
-([post.restored.date]) [post.title] by [post.restored.author];
-[/section.posts.restored]
-<h3>Pages</h3>
-<strong>[page.created.count] Created Pages</strong>
-[section.pages.created]
-([page.created.date]) [page.title] by [page.created.author];
-[/section.pages.created]
-
-<strong>[page.updated.count] Updated Pages</strong>
-[section.pages.updated]
-([page.updated.date]) [page.title] by [post.page.author];
-[/section.page.updated]
-
-<strong>[page.trashed.count] Trashed Pages</strong>
-[section.pages.trashed]
-([page.trashed.date]) [page.title] by [page.trashed.author];
-[/section.pages.trashed]
-
-<strong>[page.deleted.count] Deleted Pages</strong>
-[section.pages.deleted]
-([page.deleted.date]) [page.title] by [page.deleted.author];
-[/section.pages.deleted]
-
-<strong>[page.restored.count] Restored Pages</strong>
-[section.pages.restored]
-([page.restored.date]) [page.title] by [page.restored.author];
-[/section.pages.restored]
-<h3>Users</h3>
-<strong>[user.created.count] Created Users</strong>
-[section.users.created]
-([user.created.date]) [user.name] ([user.created.role]) by [user.created.author];
-[/section.users.created]
-
-<strong>[user.updated.count] Updated Users</strong>
-[section.users.updated]
-([user.updated.date]) [user.name] ([user.updated.role]) by [user.updated.author];
-[/section.users.updated]
-
-<strong>[user.deleted.count] Deleted Users</strong>
-[section.users.deleted]
-([user.deleted.date]) [user.name] by [user.deleted.author];
-[/section.users.deleted]
-<h3>Comments</h3>
-<strong>[comment.created.count] Created Comments</strong>
-[section.comments.created]
-([comment.created.date]) [comment.title] by [comment.created.author];
-[/section.comments.created]
-
-<strong>[comment.trashed.count] Trashed Comments</strong>
-[section.comments.trashed]
-([comment.trashed.date]) [comment.title] by [comment.trashed.author];
-[/section.comments.trashed]
-
-<strong>[comment.deleted.count] Deleted Comments</strong>
-[section.comments.deleted]
-([comment.deleted.date]) [comment.title] by [comment.deleted.author];
-[/section.comments.deleted]
-
-<strong>[comment.edited.count] Edited Comments</strong>
-[section.comments.edited]
-([comment.edited.date]) [comment.title] by [comment.edited.author];
-[/section.comments.edited]
-
-<strong>[comment.restored.count] Restored Comments</strong>
-[section.comments.restored]
-([comment.restored.date]) [comment.title] by [comment.restored.author];
-[/section.comments.restored]
-
-<strong>[comment.approved.count] Approved Comments</strong>
-[section.comments.approved]
-([comment.approved.date]) [comment.title] by [comment.approved.author];
-[/section.comments.approved]
-
-<strong>[comment.spam.count] Spammed Comments</strong>
-[section.comments.spam]
-([comment.spam.date]) [comment.title] by [comment.spam.author];
-[/section.comments.spam]
-
-<strong>[comment.replied.count] Replied Comments</strong>
-[section.comments.replied]
-([comment.replied.date]) [comment.title] by [comment.replied.author];
-[/section.comments.replied]
-<h3>Media</h3>
-<strong>[media.uploaded.count] Uploaded Media</strong>
-[section.media.uploaded]
-([media.uploaded.date]) [media.name] by [media.uploaded.author];
-[/section.media.uploaded]
-
-<strong>[media.updated.count] Updated Media</strong>
-[section.media.updated]
-([media.updated.date]) [media.name] by [media.updated.author];
-[/section.media.updated]
-
-<strong>[media.deleted.count] Deleted Media</strong>
-[section.media.deleted]
-([media.deleted.date]) [media.name] by [media.deleted.author];
-[/section.media.deleted]
-<h3>Widgets</h3>
-<strong>[widget.added.count] Added Widgets</strong>
-[section.widgets.added]
-([widget.added.date]) [widget.title] added in [widget.added.area] by [widget.added.author];
-[/section.widgets.added]
-
-<strong>[widget.updated.count] Updated Widgets</strong>
-[section.widgets.updated]
-([widget.updated.date]) [widget.title] in [widget.updated.area] by [widget.updated.author];
-[/section.widgets.updated]
-
-<strong>[widget.deleted.count] Deleted Widgets</strong>
-[section.widgets.deleted]
-([widget.deleted.date]) [widget.title] in [widget.deleted.area] by [widget.deleted.author];
-[/section.widgets.deleted]
-<h3>Menus</h3>
-<strong>[menu.created.count] Created Menus</strong>
-[section.menus.created]
-([menu.added.date]) [menu.title] by [menu.added.author];
-[/section.menus.created]
-
-<strong>[menu.updated.count] Updated Menus</strong>
-[section.menus.updated]
-([menu.updated.date]) [menu.title] by [menu.updated.author];
-[/section.menus.updated]
-
-<strong>[menu.deleted.count] Deleted Menus</strong>
-[section.menus.deleted]
-([menu.deleted.date]) [menu.title] by [menu.deleted.author];
-[/section.menus.deleted]
-<h3>WordPress</h3>
-<strong>[wordpress.updated.count] Updates WordPress</strong>
-[section.wordpress.updated]
-([wordpress.updated.date]) Updated by [wordpress.updated.author] - [wordpress.old.version] to [wordpress.current.version]
-[/section.wordpress.updated]'
-				);
-$header3_img1 =  plugins_url( 'images/templateMWP.jpg', dirname( __FILE__ ) );
-$body3_img1 =  plugins_url( 'images/Analytics.jpg', dirname( __FILE__ ) );
-$body3_img2 =  plugins_url( 'images/Backups.jpg', dirname( __FILE__ ) );
-$body3_img3 =  plugins_url( 'images/Security.jpg', dirname( __FILE__ ) );
-$body3_img4 =  plugins_url( 'images/UPtime.jpg', dirname( __FILE__ ) );
-$body3_img5 =  plugins_url( 'images/Updates.jpg', dirname( __FILE__ ) );
-                $this->default_reports[] = array(
-			'title' => 'MainWP Client Report',
-			'header' => '<img class="aligncenter wp-image-24" src="' . $header3_img1 . '" alt="templatemwp" width="600" height="381" />
-<p style="text-align: center; font-weight: 200; font-size: 2em; padding: 0px; margin: 0px;">Website Care Report</p>
-<p style="text-align: center; font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px;"> [client.site.name]</p>
-<p style="text-align: center; font-size: 1em; color: #000; font-weight: 200; padding: 0px; margin: 0px;">[report.daterange]</p>',
-			'body' => '<p style="page-break-before: always; text-align: left; font-weight: 200; font-size: 18px; padding: 0px; margin: 0px;">Dear [client.name]</p>
+			'title' => 'MainWP Report (Basic)',
+			'header' => '<div id="report-header" style="width: 600px; margin-left: auto; margin-right: auto;">
+<img class="aligncenter wp-image-24" src="' . $header_img . '" alt="templatemwp" width="600" height="381" />
+<p style="text-align: center; font-weight: 200; font-size: 2em; padding: 0px; margin: 0px;">Website Care Report</p>
+<p style="text-align: center; font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px;"> [client.site.name]</p>
+<p style="text-align: center; font-size: 1em; color: #000; font-weight: 200; padding: 0px; margin: 0px;">[report.daterange]</p>
+</div>',
+			'body' => '<div id="report-body" style="width: 600px; margin-left: auto; margin-right: auto;">
+<p style="page-break-before: always; text-align: left; font-weight: 200; font-size: 18px; padding: 0px; margin: 0px;">Dear [client.name]</p>
 <p style="text-align: left; font-weight: 200; font-size: 1.2em; padding: 0px; margin: 0px;">Thank you for trusting your website to us.
 We hope you find this report useful.
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum</p>
@@ -633,53 +368,13 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 <p style="font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">Overview</p>
 <p style="padding: 0px; margin: 0px; font-size: 1.5em;"><span style="color: #7fb100; font-size: 1em;">✔</span> Core Updates » <span style="color: #7fb100;">[wordpress.updated.count]</span></p>
 <p style="padding: 0px; margin: 0px; font-size: 1.5em;"><span style="color: #7fb100; font-size: 1em;">✔</span> Backups » <span style="color: #7fb100;">[backup.created.count]</span></p>
-<p style="padding: 0px; margin: 0px; font-size: 1.5em;"><span style="color: #7fb100; font-size: 1em;">✔</span> Uptime » <span style="color: #7fb100;">[aum.uptime30]</span></p>
-<p style="padding: 0px; margin: 0px; font-size: 1.5em;"><span style="color: #7fb100; font-size: 1em;">✔</span> Security Checks » <span style="color: #7fb100;">[sucuri.checks.count]</span></p>
-<p style="page-break-before: always; font-size: 40px; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">
-<img class="aligncenter wp-image-19" src="' . $body3_img1 . '" alt="analytics" width="600" height="212" /></p>
-<p style="font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">Google Analytics Statistics</p>
-<span style="font-weight: 200;"> [ga.visits.chart]</span>
-<span style="font-weight: 200;"> From [ga.startdate] to [ga.enddate]</span>
-<span style="font-weight: 200;"> Visits to website: [ga.visits]</span>
-<span style="font-weight: 200;"> Pageviews: [ga.pageviews]</span>
-
-&nbsp;
-
-&nbsp;
-<p style="page-break-before: always; font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">
-<img class="aligncenter wp-image-17" src="' . $body3_img2 . '" alt="backups" width="600" height="211" /></p>
+<p style="page-break-before: always; font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;"><img class="aligncenter wp-image-17" src="' . $backups_img . '" alt="backups" width="600" height="211" /></p>
 <p style="font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">Backups Completed</p>
 <p style="font-size: 1.2em; color: #000; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">We have created [backup.created.count] backup(s) of your website during the report period and safely stored them away giving you peace of mind!</p>
 [section.backups.created]
 <span style="font-weight: 100; padding: 0px; margin: 0px; text-align: left;"> [backup.created.type] on [backup.created.date]</span>
 [/section.backups.created]
-
-&nbsp;
-
-&nbsp;
-<p style="page-break-before: always; font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">
-<img class="aligncenter wp-image-16" src="' . $body3_img3 . '" alt="security" width="600" height="212" /></p>
-<p style="font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">Security Checks Completed</p>
-<p style="font-size: 1.2em; color: #000; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">We have scanned your website [sucuri.checks.count] time(s) to check for malicious software or malware ensuring your site stays in tip top condition.</p>
-[section.sucuri.checks]
-<span style="font-weight: 200;"> Status: [sucuri.check.status] | Webtrust: [sucuri.check.webtrust] on [sucuri.check.date]</span>
-[/section.sucuri.checks]
-
-&nbsp;
-
-&nbsp;
-<p style="page-break-before: always; font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">
-<img class="aligncenter wp-image-18" src="' . $body3_img4 . '" alt="uptime" width="600" height="211" /></p>
-<p style="font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">Uptime</p>
-<p style="font-size: 1.2em; color: #000; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">We check your website to make sure it is up &amp; running every 5 minutes. It can be offline for a number of reasons such as when we update &amp; test it or sometimes there may be a delay on the server - We are notified of all downtime and investigate to put this right.</p>
-<span style="font-weight: 200;"> Overall uptime - [aum.alltimeuptimeratio]</span>
-<span style="font-weight: 200;"> Last 30 days - [aum.uptime30]</span>
-
-&nbsp;
-
-&nbsp;
-<p style="page-break-before: always; font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">
-<img class="aligncenter wp-image-20" src="' . $body3_img5 . '" alt="updates" width="600" height="212" /></p>
+<p style="page-break-before: always; font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;"><img class="aligncenter wp-image-20" src="' . $updates_img . '" alt="updates" width="600" height="212" /></p>
 <p style="font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">Theme &amp; Plugin Updates</p>
 <p style="font-size: 1.2em; color: #000; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">We have updated [plugin.updated.count] plugin(s) and [theme.updated.count] theme(s) ensuring your website says up to date &amp; secure.</p>
 <p style="font-size: 1.2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">Plugins</p>
@@ -689,45 +384,128 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 <p style="font-size: 1.2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">Themes</p>
 [section.themes.updated]
 <span style="font-weight: 200;">[theme.name] updated from [theme.old.version] to [theme.current.version]</span>
-[/section.themes.updated]',
-                    'footer' => '<p style="page-break-before: always;text-align: left; font-weight: 200; font-size: 1.2em; padding: 0px; margin: 0px;">Thank you for trusting your website to us.
+[/section.themes.updated]
+
+</div>',
+        'footer' => '<p style="page-break-before: always;text-align: left; font-weight: 200; font-size: 1.2em; padding: 0px; margin: 0px;">Thank you for trusting your website to us.
 We hope that this report was useful and we look forward to managing your website for another month.</p>
 <p style="text-align: left; font-weight: 200; font-size: 1.2em; padding: 0px; margin: 0px;">Kind Regards
 #Your Company#</p>'
+				);	
+
+                $this->default_reports[] = array(
+			'title' => 'MainWP Report (Full)',
+			'header' => '<div id="report-header" style="width: 600px; margin-left: auto; margin-right: auto;">
+<img class="aligncenter wp-image-24" src="' . $header_img . '" alt="templatemwp" width="600" height="381" />
+<p style="text-align: center; font-weight: 200; font-size: 2em; padding: 0px; margin: 0px;">Website Care Report</p>
+<p style="text-align: center; font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px;"> [client.site.name]</p>
+<p style="text-align: center; font-size: 1em; color: #000; font-weight: 200; padding: 0px; margin: 0px;">[report.daterange]</p>
+</div>',
+			'body' => '<div id="report-body" style="width: 600px; margin-left: auto; margin-right: auto;">
+<p style="page-break-before: always; text-align: left; font-weight: 200; font-size: 18px; padding: 0px; margin: 0px;">Dear [client.name]</p>
+<p style="text-align: left; font-weight: 200; font-size: 1.2em; padding: 0px; margin: 0px;">Thank you for trusting your website to us.
+We hope you find this report useful.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum</p>
+<p style="text-align: left; font-weight: 200; font-size: 1.2em; padding: 0px; margin: 0px;">Kind Regards
+#Your Company#</p>
+<p style="font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">Overview</p>
+<p style="padding: 0px; margin: 0px; font-size: 1.5em;"><span style="color: #7fb100; font-size: 1em;">✔</span> Core Updates » <span style="color: #7fb100;">[wordpress.updated.count]</span></p>
+<p style="padding: 0px; margin: 0px; font-size: 1.5em;"><span style="color: #7fb100; font-size: 1em;">✔</span> Backups » <span style="color: #7fb100;">[backup.created.count]</span></p>
+<p style="padding: 0px; margin: 0px; font-size: 1.5em;"><span style="color: #7fb100; font-size: 1em;">✔</span> Uptime » <span style="color: #7fb100;">[aum.uptime30]</span></p>
+<p style="padding: 0px; margin: 0px; font-size: 1.5em;"><span style="color: #7fb100; font-size: 1em;">✔</span> Security Checks » <span style="color: #7fb100;">[sucuri.checks.count]</span></p>
+<p style="page-break-before: always; font-size: 40px; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;"><img class="aligncenter wp-image-19" src="' . $analytics_img . '" alt="analytics" width="600" height="212" /></p>
+<p style="font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">Google Analytics Statistics</p>
+<span style="font-weight: 200;"> [ga.visits.chart]</span>
+<span style="font-weight: 200;"> From [ga.startdate] to [ga.enddate]</span>
+<span style="font-weight: 200;"> Visits to website: [ga.visits]</span>
+<span style="font-weight: 200;"> Pageviews: [ga.pageviews]</span>
+
+&nbsp;
+
+&nbsp;
+<p style="page-break-before: always; font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;"><img class="aligncenter wp-image-17" src="' . $backups_img . '" alt="backups" width="600" height="211" /></p>
+<p style="font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">Backups Completed</p>
+<p style="font-size: 1.2em; color: #000; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">We have created [backup.created.count] backup(s) of your website during the report period and safely stored them away giving you peace of mind!</p>
+[section.backups.created]
+<span style="font-weight: 100; padding: 0px; margin: 0px; text-align: left;"> [backup.created.type] on [backup.created.date]</span>
+[/section.backups.created]
+
+&nbsp;
+
+&nbsp;
+<p style="page-break-before: always; font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;"><img class="aligncenter wp-image-16" src="' . $security_img . '" alt="security" width="600" height="212" /></p>
+<p style="font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">Security Checks Completed</p>
+<p style="font-size: 1.2em; color: #000; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">We have scanned your website [sucuri.checks.count] time(s) to check for malicious software or malware ensuring your site stays in tip top condition.</p>
+[section.sucuri.checks]
+<span style="font-weight: 200;"> Status: [sucuri.check.status] | Webtrust: [sucuri.check.webtrust] on [sucuri.check.date]</span>
+[/section.sucuri.checks]
+
+&nbsp;
+
+&nbsp;
+<p style="page-break-before: always; font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;"><img class="aligncenter wp-image-18" src="' . $uptime_img . '" alt="uptime" width="600" height="211" /></p>
+<p style="font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">Uptime</p>
+<p style="font-size: 1.2em; color: #000; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">We check your website to make sure it is up &amp; running every 5 minutes. It can be offline for a number of reasons such as when we update &amp; test it or sometimes there may be a delay on the server - We are notified of all downtime and investigate to put this right.</p>
+<span style="font-weight: 200;"> Overall uptime - [aum.alltimeuptimeratio]</span>
+<span style="font-weight: 200;"> Last 30 days - [aum.uptime30]</span>
+
+&nbsp;
+
+&nbsp;
+<p style="page-break-before: always; font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;"><img class="aligncenter wp-image-20" src="' . $updates_img . '" alt="updates" width="600" height="212" /></p>
+<p style="font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">Theme &amp; Plugin Updates</p>
+<p style="font-size: 1.2em; color: #000; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">We have updated [plugin.updated.count] plugin(s) and [theme.updated.count] theme(s) ensuring your website says up to date &amp; secure.</p>
+<p style="font-size: 1.2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">Plugins</p>
+[section.plugins.updated]
+<span style="font-weight: 200;">[plugin.name] updated from [plugin.old.version] to [plugin.current.version]</span>
+[/section.plugins.updated]
+<p style="font-size: 1.2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px; text-align: left;">Themes</p>
+[section.themes.updated]
+<span style="font-weight: 200;">[theme.name] updated from [theme.old.version] to [theme.current.version]</span>
+[/section.themes.updated]
+
+</div>',
+                    'footer' => '<div id="report-footer" style="width: 600px; margin-left: auto; margin-right: auto;">
+<p style="page-break-before: always; text-align: left; font-weight: 200; font-size: 1.2em; padding: 0px; margin: 0px;">Thank you for trusting your website to us.
+We hope that this report was useful and we look forward to managing your website for another month.</p>
+<p style="text-align: left; font-weight: 200; font-size: 1.2em; padding: 0px; margin: 0px;">Kind Regards
+#Your Company#</p>
+
+</div>'
 				);
                 
                 
 $this->default_formats = array(
 		array(
-				'title' => 'Default Header',
+				'title' => 'MainWP Report (Basic) Header',
 				'type' => 'H',
 				'content' => $this->default_reports[0]['header'],
 			),
 			array(
-				'title' => ' Basic Report',
+				'title' => 'MainWP Report (Basic)',
 				'type' => 'B',
 				'content' => $this->default_reports[0]['body'],
 			),
+                        array(
+				'title' => 'MainWP Report (Basic) Footer',
+				'type' => 'F',
+				'content' => $this->default_reports[0]['footer'],
+			),
+                        array(
+				'title' => 'MainWP Report (Full) Header',
+				'type' => 'H',
+				'content' => $this->default_reports[1]['header'],
+			),
 			array(
-				'title' => 'Full Report',
+				'title' => 'MainWP Report (Full)',
 				'type' => 'B',
 				'content' => $this->default_reports[1]['body'],
 			),
                         array(
-				'title' => 'MainWP Report Header',
-				'type' => 'H',
-				'content' => $this->default_reports[2]['header'],
-			),
-                        array(
-				'title' => 'MainWP Report Body',
-				'type' => 'B',
-				'content' => $this->default_reports[2]['body'],
-			),
-                        array(
-				'title' => 'MainWP Report Footer',
+				'title' => 'MainWP Report (Full) Footer',
 				'type' => 'F',
-				'content' => $this->default_reports[2]['footer'],
-			),
+				'content' => $this->default_reports[1]['footer'],
+			)                        
 		);
                 
         }
@@ -1091,6 +869,23 @@ $this->default_formats = array(
                 
 	}
         
+        public function delete_group_report_content( $report_id = null, $site_id = null) {
+		global $wpdb;                
+                if (!empty($report_id) && !empty($site_id)) {
+                    $sql = $wpdb->prepare('DELETE FROM ' . $this->table_name( 'client_group_report_content' ) 
+                            . ' WHERE `report_id` = %d AND `site_id` = %d ', $report_id, $site_id );
+                    return $wpdb->get_row( $sql );
+                } else if (!empty($report_id)) {
+                    $sql = $wpdb->prepare('DELETE FROM ' . $this->table_name( 'client_group_report_content' ) 
+                            . ' WHERE `report_id` = %d ', $report_id );
+                    return $wpdb->get_results( $sql );
+                } else if (!empty($site_id)) {
+                    $sql = $wpdb->prepare('DELETE FROM ' . $this->table_name( 'client_group_report_content' ) 
+                            . ' WHERE `site_id` = %d ', $site_id );
+                    return $wpdb->get_results( $sql );
+                }
+	}
+        
         
 	public function get_report_by( $by = 'id', $value = null, $orderby = null, $order = null, $output = OBJECT ) {
 		global $wpdb;
@@ -1243,6 +1038,46 @@ $this->default_formats = array(
                 return $found;                     
 	}        
         
+        
+        public function updateWebsiteOption( $website_id, $option, $value ) {
+		$rslt = $this->wpdb->get_results( 'SELECT name FROM ' . $this->table_name( 'wp_options' ) . ' WHERE wpid = ' . $website_id . ' AND name = "' . $this->escape( $option ) . '"' );
+		if ( count( $rslt ) > 0 ) {
+			$this->wpdb->delete( $this->table_name( 'wp_options' ), array(
+				'wpid' => $website_id,
+				'name' => $this->escape( $option ),
+			) );
+			$rslt = $this->wpdb->get_results( 'SELECT name FROM ' . $this->table_name( 'wp_options' ) . ' WHERE wpid = ' . $website_id . ' AND name = "' . $this->escape( $option ) . '"' );
+		}
+
+		if ( count( $rslt ) == 0 ) {
+			$this->wpdb->insert( $this->table_name( 'wp_options' ), array(
+				'wpid'  => $website_id,
+				'name'  => $option,
+				'value' => $value,
+			) );
+		} else {
+			$this->wpdb->update( $this->table_name( 'wp_options' ), array( 'value' => $value ), array(
+				'wpid' => $website_id,
+				'name' => $option,
+			) );
+		}
+	}
+        
+        public function getWebsiteOption( $website, $option ) {
+		if ( property_exists( $website, $option ) ) {
+			return $website->{$option};
+		}
+
+		return $this->wpdb->get_var( 'SELECT value FROM ' . $this->table_name( 'wp_options' ) . ' WHERE wpid = ' . $website->id . ' AND name = "' . $this->escape( $option ) . '"' );
+	}
+        
+        public function getOptionOfWebsites( $websiteIds, $option ) {
+            
+                if (!is_array($websiteIds) || count($websiteIds) == 0)
+                    return array();
+		return $this->wpdb->get_results( 'SELECT wpid, value FROM ' . $this->table_name( 'wp_options' ) . ' WHERE wpid IN (' . implode(',', $websiteIds) . ') AND name = "' . $this->escape( $option ) . '"' );
+	}
+        
 	public function get_available_archive_reports() {
 		global $wpdb;
 		$sql = 'SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
@@ -1319,10 +1154,11 @@ $this->default_formats = array(
             return $wpdb->update( $this->table_name( 'client_report' ), array( 'completed_sites' => json_encode( $completedSites ) ), array( 'id' => $id ) );
 	}
                 
-	public function delete_report_by( $by = 'id', $value = null ) {
+	public function delete_report_by( $by = 'id', $report_id = null ) {
 		global $wpdb;
 		if ( 'id' == $by ) {
-			if ( $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $this->table_name( 'client_report' ) . ' WHERE id=%d ', $value ) ) ) {
+			if ( $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $this->table_name( 'client_report' ) . ' WHERE id=%d ', $report_id ) ) ) {
+                                $this->delete_group_report_content($report_id);
 				return true;
 			}
 		}
@@ -1377,7 +1213,7 @@ $this->default_formats = array(
 		return false;
 	}
 
-	public function delete_clientnt( $by, $value ) {
+	public function delete_client( $by, $value ) {
 		global $wpdb;
 		if ( 'clientid' == $by ) {
 			if ( $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $this->table_name( 'client_report_client' ) . ' WHERE clientid=%d ', $value ) ) ) {
@@ -1442,7 +1278,10 @@ $this->default_formats = array(
 		/** @var $wpdb wpdb */
 		global $wpdb;
 		if ( function_exists( 'esc_sql' ) ) {
-			return esc_sql( $data ); } else { 			return $wpdb->escape( $data ); }
+			return esc_sql( $data );                         
+                } else { 			
+                    return $wpdb->escape( $data );                             
+                }
 	}
 
 	public function query( $sql ) {

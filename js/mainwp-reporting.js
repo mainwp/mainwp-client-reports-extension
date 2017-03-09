@@ -554,25 +554,25 @@ jQuery( document ).ready(function ($) {
 	})
 
 	mainwp_creport_set_show_format_section = function (linkObj, show) {
-		var pr = linkObj.parent().parent();
+		var pr = linkObj;
 		var section = pr.attr( 'section' );
 		if (show) {
 			pr.removeClass( 'closed' );
-			linkObj.text( __( "Hide" ) );
+			linkObj.find( 'span.handlelnk' ).html( '<i class="fa fa-caret-down" aria-hidden="true"></i>' );
 			pr.closest( 'div' ).next( 'div.mainwp_creport_format_section' ).show();
 			mainwp_setCookie( 'mainwp_creport_showhide_section_' + section, 'show' );
 		} else {
 			pr.addClass( 'closed' );
-			linkObj.text( __( "Show" ) );
+			linkObj.find( 'span.handlelnk' ).html( '<i class="fa fa-caret-up" aria-hidden="true"></i>' );;
 			pr.closest( 'div' ).next( 'div.mainwp_creport_format_section' ).hide();
 			mainwp_setCookie( 'mainwp_creport_showhide_section_' + section, '' );
 		}
 	}
 
 	mainwp_creport_check_show_format_section = function () {
-		var link_header = $( 'div .mainwp_creport_format_section_header[section="header"] .handlelnk' );
-		var link_body = $( 'div .mainwp_creport_format_section_header[section="body"] .handlelnk' );
-		var link_footer = $( 'div .mainwp_creport_format_section_header[section="footer"] .handlelnk' );
+		var link_header = $( 'div .mainwp_creport_format_section_header[section="header"]' );
+		var link_body = $( 'div .mainwp_creport_format_section_header[section="body"]' );
+		var link_footer = $( 'div .mainwp_creport_format_section_header[section="footer"]' );
 
 		if (mainwp_getCookie( 'mainwp_creport_showhide_section_header' ) == 'show') {
 			mainwp_creport_set_show_format_section( link_header, true );
@@ -595,8 +595,8 @@ jQuery( document ).ready(function ($) {
 
 	mainwp_creport_check_show_format_section();
 
-	$( '.mainwp_creport_format_section_header .handlelnk' ).live('click', function () {
-		var pr = $( this ).parent().parent();
+	$( '.mainwp_creport_format_section_header' ).live('click', function () {
+		var pr = $( this );
 		if (pr.hasClass( 'closed' )) {
 			mainwp_creport_set_show_format_section( $( this ), true );
 		} else {
@@ -1461,3 +1461,36 @@ mainwp_creport_do_action_start_specific = function (pObj, pWhat, pBulk, pSelecto
 	return false;
 }
 
+jQuery( document ).ready(function ($) {
+	jQuery( '#wpcr_report_tab_lnk' ).on('click', function () {
+			jQuery( '#client-reports-tab-help' ).show();
+			jQuery( '#new-report-tab-help' ).hide();
+			jQuery( '#custom-report-tokens-tab-help' ).hide();
+			jQuery( '#child-report-dashboard-tab-help' ).hide();
+			return false;
+	});
+
+	jQuery( '#wpcr_edit_tab_lnk' ).on('click', function () {
+			jQuery( '#client-reports-tab-help' ).hide();
+			jQuery( '#new-report-tab-help' ).show();
+			jQuery( '#custom-report-tokens-tab-help' ).hide();
+			jQuery( '#child-report-dashboard-tab-help' ).hide();
+			return false;
+	});
+
+	jQuery( '#wpcr_token_tab_lnk' ).on('click', function () {
+			jQuery( '#client-reports-tab-help' ).hide();
+			jQuery( '#new-report-tab-help' ).hide();
+			jQuery( '#custom-report-tokens-tab-help' ).show();
+			jQuery( '#child-report-dashboard-tab-help' ).hide();
+			return false;
+	});
+
+	jQuery( '#wpcr_stream_tab_lnk' ).on('click', function () {
+			jQuery( '#client-reports-tab-help' ).hide();
+			jQuery( '#new-report-tab-help' ).hide();
+			jQuery( '#custom-report-tokens-tab-help' ).hide();
+			jQuery( '#child-report-dashboard-tab-help' ).show();
+			return false;
+	});
+});

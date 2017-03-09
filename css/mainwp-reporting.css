@@ -83,7 +83,7 @@
 }
 #wpcr_edit_tab tr th{
 	vertical-align: middle;
-	width: 80px;
+	width: 90px;
 }
 .creport_format_data_tokens {
 	background: none repeat scroll 0 0 #F5F5F5;
@@ -161,10 +161,14 @@ a.creport_format_add_token:hover {
     height: 30px;
     width: 27px;
 }*/
+
+.mainwp_creport_format_section_header .mainwp_box_title {
+	cursor: pointer;
+}
 .mainwp_creport_format_section_header .handlelnk {
-	float: right;
 	text-decoration: none;
-	font-size: 13px;
+	font-size: 14px;
+	float: right;
 }
 /*
 .mainwp_creport_format_section_header .handlediv:before{
@@ -268,4 +272,21 @@ table.mainwp-cr-table thead th,  table.mainwp-cr-table tfoot th {
 
 .hidden-field {
 	display: none;
+}
+
+.mainwp-ui .ui-widget-header {
+	border: 1px solid #446200;
+    background: #7fb100 !important;
+}
+.mainwp-ui .ui-state-highlight, 
+.mainwp-ui .ui-widget-content 
+.ui-state-highlight, 
+.mainwp-ui .ui-widget-header .ui-state-highlight,
+.mainwp-ui .ui-state-hover, 
+.mainwp-ui .ui-widget-content 
+.ui-state-hover, 
+.mainwp-ui .ui-widget-header .ui-state-hover {
+	border: 1px solid #7fb100;
+    background: rgba(127, 177, 0, 0.3) !important;
+    color: #333;
 }
