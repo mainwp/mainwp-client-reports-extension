@@ -3851,7 +3851,7 @@ class MainWP_CReport {
 	                        remove_editor_styles(); // stop custom theme styling interfering with the editor
 				wp_editor(stripslashes( $header ), 'mainwp_creport_report_header', array(
 					'textarea_name' => 'mainwp_creport_report_header',
-					'textarea_rows' => 5,
+					'textarea_rows' => 20,
 					'teeny' => false,
 					'media_buttons' => true                                
 	                            )
@@ -3893,7 +3893,7 @@ class MainWP_CReport {
 				remove_editor_styles(); // stop custom theme styling interfering with the editor
 				wp_editor(stripslashes( $body ), 'mainwp_creport_report_body', array(
 					'textarea_name' => 'mainwp_creport_report_body',
-					'textarea_rows' => 20,
+					'textarea_rows' => 30,
 	                                'teeny' => false,
 	                                'media_buttons' => true				            
 	                            )
@@ -3935,7 +3935,7 @@ class MainWP_CReport {
 				remove_editor_styles(); // stop custom theme styling interfering with the editor
 				wp_editor(stripslashes( $footer ), 'mainwp_creport_report_footer', array(
 					'textarea_name' => 'mainwp_creport_report_footer',
-					'textarea_rows' => 5,
+					'textarea_rows' => 20,
 					'teeny' => false,
 					'media_buttons' => true,
 	                            )
