@@ -2127,18 +2127,25 @@ class MainWP_CReport {
                                         <div id="creport_select_sites_box" class="mainwp_config_box_right" <?php echo $style_tab_edit; ?>>
                                                 <?php
                                                 $sel_sites = $sel_groups = array();
-                                                
+                                                $disable_act_buttons = true;
                                                 if ( $do_create_new_global ||  ! empty( $report ) ) {                                                       
                                                         if ( ! empty( $report ) ) {
                                                                 $sel_sites = unserialize( base64_decode( $report->sites ) );
                                                                 $sel_groups = unserialize( base64_decode( $report->groups ) );
                                                         }
+                                                        
                                                         if ( ! is_array( $sel_sites ) ) {
-                                                                $sel_sites = array(); }
+                                                                $sel_sites = array();                                                                 
+                                                        }
+                                                        
                                                         if ( ! is_array( $sel_groups ) ) {
-                                                                $sel_groups = array(); }
-                                                        ?>                                
-                                                <?php } 
+                                                                $sel_groups = array();                                                                 
+                                                        }
+                                                        
+                                                        if ( !$do_create_new_global && (count($sel_sites) > 0 || count($sel_groups) > 0)) {                                                           
+                                                            $disable_act_buttons = false;
+                                                        }                                                                
+                                                } 
                                                 
                                                 if ($selected_site) { // $_GET['selected_site]
                                                     $sel_sites[] = $selected_site;
@@ -2154,24 +2161,31 @@ class MainWP_CReport {
                                                 <div id="wpcr_edit_tab" class="mwp_client_reports_tabs" <?php echo $style_tab_edit; ?>> 
                                                         <?php
                                                         self::new_report_tab( $report );
-                                                        $_archive_btn = '<input type="submit" value="' . __( 'Archive Report', 'mainwp-client-reports-extension' ) . '" class="button button-hero" id="mwp-creport-archive-report-btn" name="button_archive">';
+                                                        
+                                                        $disable_style = '';                                                        
+                                                        if ($disable_act_buttons) {
+                                                            $disable_style = 'disabled="disabled"';
+                                                        }
+                                                        
+                                                        $_archive_btn = '<input type="submit" value="' . __( 'Archive Report', 'mainwp-client-reports-extension' ) . '" ' . $disable_style . ' class="button button-hero" id="mwp-creport-archive-report-btn" name="button_archive">';
                                                         $_disabled = '';
                                                         if ( ! empty( $report ) && isset( $report->id ) && isset( $report->is_archived ) && $report->is_archived ) {
                                                                 $_archive_btn = '<input type="submit" value="' . __( 'Un-Archive Report', 'mainwp-client-reports-extension' ) . '" class="button button-hero" id="mwp-creport-unarchive-report-btn" name="button_unarchive">';
                                                                 $_disabled = 'disabled="disabled"';
                                                         }
+                                                                                                                
                                                         ?>  
                                                     <p class="submit">                                    
                                                         <span style="float:left;">
-                                                            <input type="submit" value="<?php _e( 'Preview Report' ); ?>" class="button-primary button button-hero" id="mwp-creport-preview-btn" name="button_preview">                                        
-                                                            <input type="submit" value="<?php _e( 'Send Test Email' ); ?>" class="button button-hero" id="mwp-creport-send-test-email-btn" name="button_send_test_email">                                        
+                                                            <input type="submit" value="<?php _e( 'Preview Report' ); ?>" <?php echo $disable_style; ?> class="button-primary button button-hero" id="mwp-creport-preview-btn" name="button_preview"> <?php if ($disable_act_buttons)  do_action( 'mainwp_renderToolTip', __('The Preview action is not available since there are no sites selected for the report. Please Edit the report and select one ore more sites for the report.') ); ?>                                        
+                                                            <input type="submit" value="<?php _e( 'Send Test Email' ); ?>" <?php echo $disable_style; ?> class="button button-hero" id="mwp-creport-send-test-email-btn" name="button_send_test_email">                                        
                                                         </span>
                                                         <span style="float:right;"> 
                                                             <?php echo $_archive_btn; ?>                                        
-                                                            <input type="submit" value="<?php _e( 'Download PDF' ); ?>" class="button button-hero" id="mwp-creport-save-pdf-btn" name="button_save_pdf">
+                                                            <input type="submit" value="<?php _e( 'Download PDF' ); ?>" <?php echo $disable_style; ?> class="button button-hero" id="mwp-creport-save-pdf-btn" name="button_save_pdf"> <?php if ($disable_act_buttons)  do_action( 'mainwp_renderToolTip', __('The PDF action is not available since there are no sites selected for the report. Please Edit the report and select one ore more sites for the report.') ); ?>
                                                             <input type="submit" <?php echo $_disabled; ?> value="<?php _e( 'Save Report' ); ?>" class="button button-hero" id="mwp-creport-save-btn" name="button_save">                                                            
-                                                            <input type="submit" <?php echo $scheduled_creport ? 'style="display:none"' : ''; ?> value="<?php _e( 'Send Now' ); ?>" class="button-primary button button-hero" id="mwp-creport-send-btn" name="submit">                                                                                                                                
-                                                            <input type="submit" <?php echo $scheduled_creport ? '' : 'style="display:none"'; ?> value="<?php _e( 'Schedule Report' ); ?>" class="button-primary button button-hero" id="mwp-creport-schedule-btn" <?php echo $_disabled; ?> name="button_schedule">
+                                                            <input type="submit" <?php echo $scheduled_creport ? 'style="display:none"' : ''; ?> value="<?php _e( 'Send Now' ); ?>" <?php echo $disable_style; ?>  class="button-primary button button-hero" id="mwp-creport-send-btn" name="submit"> <?php if ($disable_act_buttons && !$scheduled_creport)  do_action( 'mainwp_renderToolTip', __('The Send action is not available since there are no sites selected for the report. Please Edit the report and select one ore more sites for the report.') ); ?>                                                                                                                               
+                                                            <input type="submit" <?php echo $scheduled_creport ? '' : 'style="display:none"'; ?> value="<?php _e( 'Schedule Report' ); ?>" <?php echo $disable_style; ?> class="button-primary button button-hero" id="mwp-creport-schedule-btn" <?php echo $_disabled; ?> name="button_schedule">
                                                         </span>
                                                     </p>
                                                 </div>                                                  
@@ -3552,13 +3566,13 @@ class MainWP_CReport {
        <?php } ?>         
                     
         <tr>
-            <th><span><?php _e( 'Title ' ); MainWP_Utility::renderTooltip( __( 'This field allows you to add or change a report title. Report title is for internal use only and it is not visible to your client.', 'mainwp-client-reports-extension' ) ); ?></span></th>
+            <th><span><?php _e( 'Title ' ); do_action( 'mainwp_renderToolTip', __( 'This field allows you to add or change a report title. Report title is for internal use only and it is not visible to your client.', 'mainwp-client-reports-extension' ) ); ?></span></th>
             <td class="title">
                 <input type="text" name="mwp_creport_title" id="mwp_creport_title" placeholder="(required)" value="<?php echo esc_attr( stripslashes( $title ) ); ?>" />
             </td>
         </tr>
         <tr>
-            <th><span><?php _e( 'Type ' ); MainWP_Utility::renderTooltip( __( 'Select if you want to send this report manually or to schedule it. If you want to schedule this report, set the option to Recurring Report and set additional scheduling options that will appear.', 'mainwp-client-reports-extension' ) ); ?></span></th>
+            <th><span><?php _e( 'Type ' ); do_action( 'mainwp_renderToolTip', __( 'Select if you want to send this report manually or to schedule it. If you want to schedule this report, set the option to Recurring Report and set additional scheduling options that will appear.', 'mainwp-client-reports-extension' ) ); ?></span></th>
             <td>
 		<select name='mainwp_creport_type' id="mainwp_creport_type" class="mainwp-select2">   
                         <option value="0" <?php echo !$scheduled_report ? 'selected="selected"' : ''; ?>><?php _e( 'One Time Report' ); ?></option>
@@ -3645,7 +3659,7 @@ class MainWP_CReport {
         </tr>   
         
         <tr class="hide_if_scheduled">
-            <th><span><?php _e( 'Date Range ' ); MainWP_Utility::renderTooltip( __( 'Select a date range for this report. The extension will generate report only for the slected period of time.', 'mainwp-client-reports-extension' ) ); ?></span></th>
+            <th><span><?php _e( 'Date Range ' ); do_action( 'mainwp_renderToolTip', __( 'Select a date range for this report. The extension will generate report only for the slected period of time.', 'mainwp-client-reports-extension' ) ); ?></span></th>
             <td class="date">
                 <input type="text" name="mwp_creport_date_from" id="mwp_creport_date_from" class="mainwp_creport_datepicker" value="<?php echo $date_from; ?>"/>&nbsp;&nbsp;<?php _e('To', 'mainwp-client-reports-extension') ?>&nbsp;&nbsp;<input type="text" class="mainwp_creport_datepicker" name="mwp_creport_date_to" id="mwp_creport_date_to" value="<?php echo $date_to; ?>" />
             </td>           
@@ -3712,7 +3726,7 @@ class MainWP_CReport {
             ?>
 
         <tr>
-			<th><span><?php _e( 'Send From ' ); MainWP_Utility::renderTooltip( __( 'Set details that will be displayed to your client. Your client will receive email that has been sent from the details that you have set here. Please note that the Email Address field is required.', 'mainwp-client-reports-extension' ) ); ?></span></th>
+			<th><span><?php _e( 'Send From ' ); do_action( 'mainwp_renderToolTip', __( 'Set details that will be displayed to your client. Your client will receive email that has been sent from the details that you have set here. Please note that the Email Address field is required.', 'mainwp-client-reports-extension' ) ); ?></span></th>
             <td>
                 <input type="text" name="mwp_creport_femail" id="mwp_creport_femail" placeholder="Email (required)" value="<?php echo esc_attr( stripslashes( $from_email ) ); ?>" />&nbsp;&nbsp;
                 <input type="text" name="mwp_creport_fname" id="mwp_creport_fname" placeholder="Name" value="<?php echo esc_attr( stripslashes( $from_name ) ); ?>" />&nbsp;&nbsp;
@@ -3720,7 +3734,7 @@ class MainWP_CReport {
             </td>
         </tr>     
         <tr>
-            <th><span><?php _e( 'Send To ' ); MainWP_Utility::renderTooltip( __( 'Set your client details here. By default, client tokens have been set, however, if you want to use custom values, you can update Send To fields. If you decide to keep default tokens, make sure that you have set token values for selected site(s) on the Site(s) Edit page.', 'mainwp-client-reports-extension' ) ); ?></span></th>
+            <th><span><?php _e( 'Send To ' ); do_action( 'mainwp_renderToolTip', __( 'Set your client details here. By default, client tokens have been set, however, if you want to use custom values, you can update Send To fields. If you decide to keep default tokens, make sure that you have set token values for selected site(s) on the Site(s) Edit page.', 'mainwp-client-reports-extension' ) ); ?></span></th>
             <td>
                 <input type="text" name="mwp_creport_email" placeholder="Email (required)" value="<?php echo esc_attr( stripslashes( $to_email ) ); ?>" id="mwp_creport_email"/>&nbsp;&nbsp;
                 <input type="text" name="mwp_creport_name" placeholder="Name" value="<?php echo esc_attr( stripslashes( $to_name ) ); ?>" id="mwp_creport_name" />&nbsp;&nbsp;
@@ -3730,20 +3744,20 @@ class MainWP_CReport {
             </td>
         </tr> 
         <tr>
-            <th><span><?php _e( 'BCC ' ); MainWP_Utility::renderTooltip( __( 'If you want, you can add BCC email address here.', 'mainwp-client-reports-extension' ) ); ?></span></th>
+            <th><span><?php _e( 'BCC ' ); do_action( 'mainwp_renderToolTip', __( 'If you want, you can add BCC email address here.', 'mainwp-client-reports-extension' ) ); ?></span></th>
             <td>
                 <input type="text" name="mwp_creport_bcc_email" id="mwp_creport_bcc_email" placeholder="Email Address" value="<?php echo esc_attr( stripslashes( $bcc_email ) ); ?>" />
                 
             </td>
         </tr> 
         <tr>
-			<th><span><?php _e( 'Subject ' ); MainWP_Utility::renderTooltip( __( 'Add the Email Subject here.', 'mainwp-client-reports-extension' ) ); ?></span></th>
+			<th><span><?php _e( 'Subject ' ); do_action( 'mainwp_renderToolTip', __( 'Add the Email Subject here.', 'mainwp-client-reports-extension' ) ); ?></span></th>
             <td>
 				<input type="text" name="mwp_creport_email_subject" value="<?php echo esc_attr( stripslashes( $email_subject ) ); ?>" id="mwp_creport_email_subject" />                  
             </td>
         </tr>       
         <tr>
-                <th><span><?php _e( 'Attach Files ' ); MainWP_Utility::renderTooltip( __( 'If you want to attach additional files to the report email, you can do it by uploading files here.', 'mainwp-client-reports-extension' ) ); ?></span></th>
+                <th><span><?php _e( 'Attach Files ' ); do_action( 'mainwp_renderToolTip', __( 'If you want to attach additional files to the report email, you can do it by uploading files here.', 'mainwp-client-reports-extension' ) ); ?></span></th>
                 <td><?php
                 if ( ! empty( $attachFiles ) ) {
                         ?>
