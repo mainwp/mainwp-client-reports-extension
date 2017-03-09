@@ -2126,8 +2126,7 @@ class MainWP_CReport {
                                     <form method="post" enctype="multipart/form-data" id="mwp_creport_edit_form" action="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=editreport<?php echo ! empty( $report_id ) ? '&id=' . $report_id : ''; ?>">
                                         <div id="creport_select_sites_box" class="mainwp_config_box_right" <?php echo $style_tab_edit; ?>>
                                                 <?php
-                                                $sel_sites = $sel_groups = array();
-                                                $disable_act_buttons = true;
+                                                $sel_sites = $sel_groups = array();                                                
                                                 if ( $do_create_new_global ||  ! empty( $report ) ) {                                                       
                                                         if ( ! empty( $report ) ) {
                                                                 $sel_sites = unserialize( base64_decode( $report->sites ) );
@@ -2140,11 +2139,7 @@ class MainWP_CReport {
                                                         
                                                         if ( ! is_array( $sel_groups ) ) {
                                                                 $sel_groups = array();                                                                 
-                                                        }
-                                                        
-                                                        if ( !$do_create_new_global && (count($sel_sites) > 0 || count($sel_groups) > 0)) {                                                           
-                                                            $disable_act_buttons = false;
-                                                        }                                                                
+                                                        }                                                        
                                                 } 
                                                 
                                                 if ($selected_site) { // $_GET['selected_site]
@@ -2162,12 +2157,8 @@ class MainWP_CReport {
                                                         <?php
                                                         self::new_report_tab( $report );
                                                         
-                                                        $disable_style = '';                                                        
-                                                        if ($disable_act_buttons) {
-                                                            $disable_style = 'disabled="disabled"';
-                                                        }
                                                         
-                                                        $_archive_btn = '<input type="submit" value="' . __( 'Archive Report', 'mainwp-client-reports-extension' ) . '" ' . $disable_style . ' class="button button-hero" id="mwp-creport-archive-report-btn" name="button_archive">';
+                                                        $_archive_btn = '<input type="submit" value="' . __( 'Archive Report', 'mainwp-client-reports-extension' ) . '" class="button button-hero" id="mwp-creport-archive-report-btn" name="button_archive">';
                                                         $_disabled = '';
                                                         if ( ! empty( $report ) && isset( $report->id ) && isset( $report->is_archived ) && $report->is_archived ) {
                                                                 $_archive_btn = '<input type="submit" value="' . __( 'Un-Archive Report', 'mainwp-client-reports-extension' ) . '" class="button button-hero" id="mwp-creport-unarchive-report-btn" name="button_unarchive">';
@@ -2175,17 +2166,17 @@ class MainWP_CReport {
                                                         }
                                                                                                                 
                                                         ?>  
-                                                    <p class="submit">                                    
+                                                    <p class="submit" id="creport_actions_btn">                                    
                                                         <span style="float:left;">
-                                                            <input type="submit" value="<?php _e( 'Preview Report' ); ?>" <?php echo $disable_style; ?> class="button-primary button button-hero" id="mwp-creport-preview-btn" name="button_preview"> <?php if ($disable_act_buttons)  do_action( 'mainwp_renderToolTip', __('The Preview action is not available since there are no sites selected for the report. Please Edit the report and select one ore more sites for the report.') ); ?>                                        
-                                                            <input type="submit" value="<?php _e( 'Send Test Email' ); ?>" <?php echo $disable_style; ?> class="button button-hero" id="mwp-creport-send-test-email-btn" name="button_send_test_email">                                        
+                                                            <input type="submit" value="<?php _e( 'Preview Report' ); ?>" class="button-primary button button-hero" id="mwp-creport-preview-btn" name="button_preview">
+                                                            <input type="submit" value="<?php _e( 'Send Test Email' ); ?>" class="button button-hero" id="mwp-creport-send-test-email-btn" name="button_send_test_email">                                        
                                                         </span>
                                                         <span style="float:right;"> 
                                                             <?php echo $_archive_btn; ?>                                        
-                                                            <input type="submit" value="<?php _e( 'Download PDF' ); ?>" <?php echo $disable_style; ?> class="button button-hero" id="mwp-creport-save-pdf-btn" name="button_save_pdf"> <?php if ($disable_act_buttons)  do_action( 'mainwp_renderToolTip', __('The PDF action is not available since there are no sites selected for the report. Please Edit the report and select one ore more sites for the report.') ); ?>
+                                                            <input type="submit" value="<?php _e( 'Download PDF' ); ?>" class="button button-hero" id="mwp-creport-save-pdf-btn" name="button_save_pdf">
                                                             <input type="submit" <?php echo $_disabled; ?> value="<?php _e( 'Save Report' ); ?>" class="button button-hero" id="mwp-creport-save-btn" name="button_save">                                                            
-                                                            <input type="submit" <?php echo $scheduled_creport ? 'style="display:none"' : ''; ?> value="<?php _e( 'Send Now' ); ?>" <?php echo $disable_style; ?>  class="button-primary button button-hero" id="mwp-creport-send-btn" name="submit"> <?php if ($disable_act_buttons && !$scheduled_creport)  do_action( 'mainwp_renderToolTip', __('The Send action is not available since there are no sites selected for the report. Please Edit the report and select one ore more sites for the report.') ); ?>                                                                                                                               
-                                                            <input type="submit" <?php echo $scheduled_creport ? '' : 'style="display:none"'; ?> value="<?php _e( 'Schedule Report' ); ?>" <?php echo $disable_style; ?> class="button-primary button button-hero" id="mwp-creport-schedule-btn" <?php echo $_disabled; ?> name="button_schedule">
+                                                            <input type="submit" <?php echo $scheduled_creport ? 'style="display:none"' : ''; ?> value="<?php _e( 'Send Now' ); ?>"  class="button-primary button button-hero" id="mwp-creport-send-btn" name="submit">     
+                                                            <input type="submit" <?php echo $scheduled_creport ? '' : 'style="display:none"'; ?> value="<?php _e( 'Schedule Report' ); ?>" class="button-primary button button-hero" id="mwp-creport-schedule-btn" <?php echo $_disabled; ?> name="button_schedule">
                                                         </span>
                                                     </p>
                                                 </div>                                                  
@@ -3355,6 +3346,26 @@ class MainWP_CReport {
                             $row_action_class .= 'noarchived '; 
                         }
                         
+                        $sel_sites = unserialize( base64_decode( $report->sites ) );
+                        $sel_groups = unserialize( base64_decode( $report->groups ) );
+                                                        
+                        if ( ! is_array( $sel_sites ) ) {
+                                $sel_sites = array();                                                                 
+                        }
+                        if ( ! is_array( $sel_groups ) ) {
+                                $sel_groups = array();                                                                 
+                        }
+                        
+                        $disable_act_buttons = true;
+                        if (count($sel_sites) > 0 || count($sel_groups) > 0) {                                                           
+                            $disable_act_buttons = false;
+                        }    
+                                                        
+                        $disable_style = '';                                                        
+                        if ($disable_act_buttons) {
+                            $disable_style = 'disabled="disabled"';
+                        }
+                                                        
 			?>   
         <tr id="<?php echo $report->id; ?>" >      
             <th class="check-column">
@@ -3363,16 +3374,28 @@ class MainWP_CReport {
             <td>
                 <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=editreport&id=<?php echo $report->id; ?>"><strong><?php echo stripslashes( $report->title ); ?></strong></a>
                 <div class="row-actions row-report-actions <?php echo $row_action_class; ?>" >
-                        <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=preview&id=<?php echo $report->id; ?>"><?php _e( 'Preview' ); ?></a></span> |  
+                        <?php if ($disable_act_buttons) { ?>
+                                <?php _e( 'Preview' ); ?> <?php do_action( 'mainwp_renderToolTip', __('The Preview action is not available since there are no sites selected for the report. Please Edit the report and select one ore more sites for the report.') ); ?>|
+                        <?php } else { ?>
+                        <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=preview&id=<?php echo $report->id; ?>" <?php echo $disable_style; ?>><?php _e( 'Preview' ); ?></a></span> |  
+                        <?php } ?>
                         <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=editreport&id=<?php echo $report->id; ?>"><?php _e( 'Edit' ); ?></a></span> |  
                         <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=replicate&id=<?php echo $report->id; ?>"><?php _e( 'Replicate' ); ?></a></span> |  
                 
                         <?php if (empty($report->scheduled)) { ?>                            
-                            <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=sendreport&id=<?php echo $report->id; ?>"><?php _e( 'Send' ); ?></a> |                             
+                             <?php if ($disable_act_buttons) { ?>
+                                <?php _e( 'Send' ); ?> <?php do_action( 'mainwp_renderToolTip', __('The Send action is not available since there are no sites selected for the report. Please Edit the report and select one ore more sites for the report.') ); ?>|
+                        <?php } else { ?>
+                                <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=sendreport&id=<?php echo $report->id; ?>"  <?php echo $disable_style; ?>><?php _e( 'Send' ); ?></a> |                             
+                                <?php } ?>
                         <?php } ?>
-                        <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=save_pdf&id=<?php echo $report->id; ?>"><?php _e( 'PDF' ); ?></a> | 
+                        <?php if ($disable_act_buttons) { ?>
+                                <?php _e( 'PDF' ); ?> <?php do_action( 'mainwp_renderToolTip', __('The PDF action is not available since there are no sites selected for the report. Please Edit the report and select one ore more sites for the report.') ); ?>|
+                        <?php } else { ?>
+                            <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=save_pdf&id=<?php echo $report->id; ?>"  <?php echo $disable_style; ?>><?php _e( 'PDF' ); ?></a> | 
+                         <?php } ?>
                         <?php if ( ! $report->is_archived ) { ?>                            
-                                <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=archive_report&id=<?php echo $report->id; ?>"><?php _e( 'Archive' ); ?></a> |                            
+                                <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=archive_report&id=<?php echo $report->id; ?>" <?php echo $disable_style; ?>><?php _e( 'Archive' ); ?></a> |                            
                         <?php } else { ?>
                                     <span class="unarchive"><a href="#" action="unarchive" class="creport_action_row_lnk" ><?php _e( 'Un-Archive' ); ?></a> | </span>                       
                         <?php } ?>
@@ -3893,7 +3916,7 @@ class MainWP_CReport {
 				remove_editor_styles(); // stop custom theme styling interfering with the editor
 				wp_editor(stripslashes( $body ), 'mainwp_creport_report_body', array(
 					'textarea_name' => 'mainwp_creport_report_body',
-					'textarea_rows' => 30,
+					'textarea_rows' => 40,
 	                                'teeny' => false,
 	                                'media_buttons' => true				            
 	                            )
