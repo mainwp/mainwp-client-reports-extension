@@ -1166,7 +1166,7 @@ mainwp_creport_preview_report = function () {
 		height: "auto",
 		width: 800,
 		maxWidth: 800,
-		modal: true,
+		modal: true,                
 		close: function (event, ui) {
 			jQuery( '#mwp-creport-preview-box' ).dialog( 'destroy' );
 		}});

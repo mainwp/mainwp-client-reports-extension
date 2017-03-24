@@ -274,18 +274,18 @@ table.mainwp-cr-table thead th,  table.mainwp-cr-table tfoot th {
 	display: none;
 }
 
-.mainwp-ui .ui-widget-header {
-	border: 1px solid #446200;
+.mainwp_page_Extensions-Mainwp-Client-Reports-Extension .ui-dialog[aria-describedby="mwp-creport-preview-box"] .ui-widget-header {
+    border: 1px solid #446200;
     background: #7fb100 !important;
 }
-.mainwp-ui .ui-state-highlight, 
-.mainwp-ui .ui-widget-content 
+.mainwp_page_Extensions-Mainwp-Client-Reports-Extension .ui-dialog[aria-describedby="mwp-creport-preview-box"] .ui-state-highlight, 
+.mainwp_page_Extensions-Mainwp-Client-Reports-Extension .ui-dialog[aria-describedby="mwp-creport-preview-box"] .ui-widget-content 
 .ui-state-highlight, 
-.mainwp-ui .ui-widget-header .ui-state-highlight,
-.mainwp-ui .ui-state-hover, 
-.mainwp-ui .ui-widget-content 
+.mainwp_page_Extensions-Mainwp-Client-Reports-Extension .ui-dialog[aria-describedby="mwp-creport-preview-box"] .ui-widget-header .ui-state-highlight,
+.mainwp_page_Extensions-Mainwp-Client-Reports-Extension .ui-dialog[aria-describedby="mwp-creport-preview-box"] .ui-state-hover, 
+.mainwp_page_Extensions-Mainwp-Client-Reports-Extension .ui-dialog[aria-describedby="mwp-creport-preview-box"] .ui-widget-content 
 .ui-state-hover, 
-.mainwp-ui .ui-widget-header .ui-state-hover {
+.mainwp_page_Extensions-Mainwp-Client-Reports-Extension .ui-dialog[aria-describedby="mwp-creport-preview-box"] .ui-widget-header .ui-state-hover {
 	border: 1px solid #7fb100;
     background: rgba(127, 177, 0, 0.3) !important;
     color: #333;

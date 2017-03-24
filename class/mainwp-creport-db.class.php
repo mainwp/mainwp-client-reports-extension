@@ -2,7 +2,7 @@
 
 class MainWP_CReport_DB {
 
-	private $mainwp_wpcreport_db_version = '5.12';
+	private $mainwp_wpcreport_db_version = '5.13';
 	private $table_prefix;
 	//Singleton
 	private static $instance = null;
@@ -322,8 +322,37 @@ PRIMARY KEY  (`id`)  ';
                         }
                     }
                     $wpdb->query( "ALTER TABLE " . $this->table_name( 'client_report' ) . " DROP `recurring_date`");                        
-                }                
-            }
+                }            
+                
+                if ( version_compare( $check_version, '5.13', '<' ) ) {
+                    // to fix missing table
+                    $rslt = $this->query( "SHOW TABLES LIKE '" . $this->table_name( 'client_group_report_content' ) . "'" );
+                    
+                    error_log('checking'); 
+                    
+                    if ( !$rslt ) {
+                            error_log('not found');    
+                            $charset_collate = $wpdb->get_charset_collate();
+                            
+                            $tbl = 'CREATE TABLE `' . $this->table_name( 'client_group_report_content' ) . '` (
+                            `id` int(11) NOT NULL AUTO_INCREMENT,
+                            `report_id` int(11) NOT NULL,
+                            `site_id` int(11) NOT NULL,
+                            `report_content` longtext NOT NULL,
+                            `report_content_pdf` longtext NOT NULL,
+                            PRIMARY KEY  (`id`)'; 
+                            $tbl .= ') ' . $charset_collate;
+
+                            $sql[] = $tbl;
+                
+                            error_reporting( 0 ); 
+                            require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+                            foreach ( $sql as $query ) {
+                                dbDelta( $query );
+                            }
+                    }
+                }            
+            }            
         }
         
         public function init_default_data() { 
@@ -1292,7 +1321,8 @@ $this->default_formats = array(
 		$result = @self::_query( $sql, $wpdb->dbh );
 
 		if ( ! $result || (@self::num_rows( $result ) == 0) ) {
-			return false; }
+			return false;                         
+                }
 		return $result;
 	}
 

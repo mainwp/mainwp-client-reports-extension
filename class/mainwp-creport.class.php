@@ -2940,8 +2940,8 @@ class MainWP_CReport {
 				$output['ga.visits.maximum'] = $maximum_value . ' (' . $maximum_value_date . ')';
 			}
 
-			$output['ga.startdate'] = date( 'd.m.Y', $start_date );
-			$output['ga.enddate'] = date( 'd.m.Y', $end_date );
+			$output['ga.startdate'] = MainWP_CReport_Utility::format_datestamp( $start_date );
+			$output['ga.enddate'] = MainWP_CReport_Utility::format_datestamp( $end_date );
 			//}
 			//enym end
 			//===============================================================
