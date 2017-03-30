@@ -552,6 +552,7 @@ class MainWP_CReport {
 				'nav_group_tokens' => array( 'report' => 'Report' ),
 				'report' => array(
 					array( 'name' => 'report.daterange', 'desc' => 'Displays the report date range' ),
+                                        array( 'name' => 'report.send.date', 'desc' => 'Displays the report send date' ),
 				),
 			),
 			'sucuri' => array(
@@ -1668,14 +1669,20 @@ class MainWP_CReport {
                             }
                             $send_subject = $email_subject;
                             if ( $subject_has_token ) {
-                                    if ( isset( $sites_token[ $site_id ] ) && is_array( $sites_token[ $site_id ] ) ) {
-                                            $search_token = $replace_value = array();
+                                    $search_token = $replace_value = array();
+                                    //to support report tokens
+                                    $search_token[] = '[report.daterange]';
+                                    $replace_value[] = MainWP_CReport_Utility::format_timestamp( $report->date_from ) . ' - ' . MainWP_CReport_Utility::format_timestamp( $report->date_to );
+                                    $search_token[] = '[report.send.date]';
+                                    $now = time();
+                                    $replace_value[] = MainWP_CReport_Utility::format_timestamp( $now );                                    
+                                    if ( isset( $sites_token[ $site_id ] ) && is_array( $sites_token[ $site_id ] ) ) {                                            
                                             foreach ( $sites_token[ $site_id ] as $token_name => $token ) {
                                                     $search_token[] = '[' . $token_name . ']';
                                                     $replace_value[] = $token->token_value;
-                                            }
-                                            $send_subject = str_replace( $search_token, $replace_value, $send_subject );
+                                            }                                            
                                     }
+                                    $send_subject = str_replace( $search_token, $replace_value, $send_subject );
                             }
 
                             if ( ! empty( $send_content ) && ! empty( $to_email ) ) {
@@ -2533,7 +2540,9 @@ class MainWP_CReport {
 			}
                        
                                 
-			$replace_tokens_values['[report.daterange]'] = MainWP_CReport_Utility::format_timestamp( $report->date_from ) . ' - ' . MainWP_CReport_Utility::format_timestamp( $report->date_to );;
+			$replace_tokens_values['[report.daterange]'] = MainWP_CReport_Utility::format_timestamp( $report->date_from ) . ' - ' . MainWP_CReport_Utility::format_timestamp( $report->date_to );
+                        $now = time();
+                        $replace_tokens_values['[report.send.date]'] = MainWP_CReport_Utility::format_timestamp( $now );
 			$replace_tokens_values = apply_filters('mainwp_client_reports_custom_tokens', $replace_tokens_values, $report);
 			
 			$report_header = $report->header;
@@ -3394,8 +3403,12 @@ class MainWP_CReport {
                         <?php } else { ?>
                             <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=save_pdf&id=<?php echo $report->id; ?>"  <?php echo $disable_style; ?>><?php _e( 'PDF' ); ?></a> | 
                          <?php } ?>
-                        <?php if ( ! $report->is_archived ) { ?>                            
-                                <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=archive_report&id=<?php echo $report->id; ?>" <?php echo $disable_style; ?>><?php _e( 'Archive' ); ?></a> |                            
+                        <?php if ( ! $report->is_archived ) { 
+                                if ($disable_act_buttons) { ?>
+                                     <?php _e( 'Archive' ); ?> <?php do_action( 'mainwp_renderToolTip', __('The Archive action is not available since there are no sites selected for the report. Please Edit the report and select one ore more sites for the report.') ); ?>|    
+                        <?php   } else { ?>                            
+                                    <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=archive_report&id=<?php echo $report->id; ?>" <?php echo $disable_style; ?>><?php _e( 'Archive' ); ?></a> |                            
+                          <?php } ?>
                         <?php } else { ?>
                                     <span class="unarchive"><a href="#" action="unarchive" class="creport_action_row_lnk" ><?php _e( 'Un-Archive' ); ?></a> | </span>                       
                         <?php } ?>
@@ -3807,30 +3820,13 @@ class MainWP_CReport {
 		if ( $report && is_object( $report ) ) {
 			$header = $report->header;
 			$body = $report->body;
-			$footer = $report->footer;
-			//       $file_logo = isset($report->logo_file) ? $report->logo_file : "" ;
+			$footer = $report->footer;			
 		}
 
 		$client_tokens = MainWP_CReport_DB::get_instance()->get_tokens();
 		$client_tokens_values = array();
 		$website = null;
-//		if ( $report && $report->selected_site ) {
-//			global $mainWPCReportExtensionActivator;
-//			$website = apply_filters( 'mainwp-getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $report->selected_site );
-//			if ( $website && is_array( $website ) ) {
-//				$website = current( $website );
-//			}
-//
-//			if ( is_array( $website ) && isset( $website['url'] ) ) {
-//				$site_tokens = MainWP_CReport_DB::get_instance()->get_site_tokens( $website['url'] );
-//				foreach ( $client_tokens as $token ) {
-//					$client_tokens_values[] = array(
-//					'token_name' => $token->token_name,
-//						'token_value' => isset( $site_tokens[ $token->id ] ) ? $site_tokens[ $token->id ]->token_value : '',
-//					);
-//				}
-//			}
-//		}
+//		
 
 		$header_formats = MainWP_CReport_DB::get_instance()->get_formats( 'H' );
 		$body_formats = MainWP_CReport_DB::get_instance()->get_formats( 'B' );

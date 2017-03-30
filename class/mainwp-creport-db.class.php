@@ -2,7 +2,7 @@
 
 class MainWP_CReport_DB {
 
-	private $mainwp_wpcreport_db_version = '5.13';
+	private $mainwp_wpcreport_db_version = '5.14';
 	private $table_prefix;
 	//Singleton
 	private static $instance = null;
@@ -324,14 +324,10 @@ PRIMARY KEY  (`id`)  ';
                     $wpdb->query( "ALTER TABLE " . $this->table_name( 'client_report' ) . " DROP `recurring_date`");                        
                 }            
                 
-                if ( version_compare( $check_version, '5.13', '<' ) ) {
+                if ( version_compare( $check_version, '5.14', '<' ) ) {
                     // to fix missing table
-                    $rslt = $this->query( "SHOW TABLES LIKE '" . $this->table_name( 'client_group_report_content' ) . "'" );
-                    
-                    error_log('checking'); 
-                    
-                    if ( !$rslt ) {
-                            error_log('not found');    
+                    $rslt = $this->query( "SHOW TABLES LIKE '" . $this->table_name( 'client_group_report_content' ) . "'" );                                        
+                    if ( !$rslt ) {                         
                             $charset_collate = $wpdb->get_charset_collate();
                             
                             $tbl = 'CREATE TABLE `' . $this->table_name( 'client_group_report_content' ) . '` (

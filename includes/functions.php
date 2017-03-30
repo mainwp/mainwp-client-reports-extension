@@ -1959,9 +1959,9 @@
 
 
                                             }, {
-                                                text: '[a.avg.time] - Displays the Average Visit Time during the selected date range',
+                                                text: '[ga.avg.time] - Displays the Average Visit Time during the selected date range',
                                                 onclick: function() {
-                                                    editor.insertContent('[a.avg.time]');
+                                                    editor.insertContent('[ga.avg.time]');
                                                 }
 
 
