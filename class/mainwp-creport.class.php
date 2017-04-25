@@ -917,7 +917,7 @@ class MainWP_CReport {
                 
                 if ( ($sched = wp_next_scheduled( 'mainwp_creport_cron_send_reports' )) == false ) {
 			if ( $useWPCron ) {				
-				wp_schedule_event( time(), '30minutely', 'mainwp_creport_cron_send_reports' );
+				wp_schedule_event( time(), '15minutely', 'mainwp_creport_cron_send_reports' );
 			}
                 } else {
                         if ( ! $useWPCron ) {
@@ -928,7 +928,7 @@ class MainWP_CReport {
                 
                 if ( ($sched = wp_next_scheduled( 'mainwp_creport_cron_continue_send_reports' )) == false ) {
 			if ( $useWPCron ) {				
-				wp_schedule_event( time(), '15minutely', 'mainwp_creport_cron_continue_send_reports' );
+				wp_schedule_event( time(), '5minutely', 'mainwp_creport_cron_continue_send_reports' );
 			}
                 } else {
                         if ( ! $useWPCron ) {
@@ -949,7 +949,7 @@ class MainWP_CReport {
 		}                
 	}
         
-        //mainwp_cronbackups_action
+    
         public static function cron_send_reports() {
                 
                 @ignore_user_abort( true );
@@ -989,11 +989,19 @@ class MainWP_CReport {
                         $log_time = date( "Y-m-d H:i:s", $cal_recurring['schedule_nextsend'] );
                         do_action('mainp_log_debug', 'CRON :: Client Report :: report id ' . $report->id . ', next send: ' . $log_time); 
                                                     
+                        // to fix: send current day/month/year... issue                        
                         $values = array(                                
-                                'date_from' => $cal_recurring['date_from'],
-                                'date_to' => $cal_recurring['date_to'],
+                                'date_from_nextsend' => $cal_recurring['date_from'],
+                                'date_to_nextsend' => $cal_recurring['date_to'],
                                 'schedule_nextsend' => $cal_recurring['schedule_nextsend'], // to check if current time > schedule_nextsend then send report                        
                         );
+                        $date_from = $report->date_from_nextsend;
+                        $date_to = $report->date_to_nextsend;
+                        if (!empty($date_from)) {
+                            // using to generate report content to send now
+                            $values['date_from'] = $date_from;
+                            $values['date_to'] = $date_to;
+                        }
                         
                         MainWP_CReport_DB::get_instance()->update_reports_with_values($report->id, $values );                        
                         self::do_send_client_report( $report, $chunkedSend);       
@@ -1029,7 +1037,7 @@ class MainWP_CReport {
 		}
         }
         
-        // executeBackupTask
+        
         public static function do_send_client_report( $report,  $nrOfSites = 0, $updateRun = true ) {  
             
 		if ( $updateRun ) {
@@ -1140,7 +1148,7 @@ class MainWP_CReport {
                             7 => 'sunday',
                         );
                         $date_from = $today;                        
-                        $date_to = $today + 7 * 24 * 3600 - 1;                                   
+                        $date_to = $today + 7 * 24 * 3600 - 1;
                         $schedule_nextsend = strtotime('next ' . $day_of_week[$recurring_day]) + 1;  // day of next week                                                       
                         if ( $schedule_nextsend < $date_to ) { // to fix
                             $schedule_nextsend += 7 * 24 * 3600;
@@ -1356,6 +1364,8 @@ class MainWP_CReport {
                             if (is_array($cal_recurring)) {
                                 $report['date_from'] = $cal_recurring['date_from'];
                                 $report['date_to'] = $cal_recurring['date_to'];
+                                $report['date_from_nextsend'] = 0; // need to be 0, will recalculate when schedule send
+                                $report['date_to_nextsend'] = 0; // need to be 0, will recalculate when schedule send
                                 $report['schedule_nextsend'] = $cal_recurring['schedule_nextsend'];
                             }
                         } 
@@ -1525,8 +1535,8 @@ class MainWP_CReport {
                 }
                 
                 $send_to_email = $subject = $bcc_email = '';
-                $noti_email = @apply_filters( 'mainwp_getnotificationemail' );
-                
+                $noti_email = @apply_filters( 'mainwp_getnotificationemail', false );
+                $send_to_me_review = false;
                 if ($send_test) {
                     if (empty($noti_email))
                         return false;
@@ -1541,7 +1551,8 @@ class MainWP_CReport {
                             }                       
                     } else if ( $report->schedule_send_email == 'email_review' && ! empty( $noti_email ) ) {
                             $send_to_email = $noti_email;
-                            $subject = 'Review report';                        
+                            $subject = 'Review report';        
+                            $send_to_me_review = true;
                     }
                     $send_to_email = empty( $send_to_email ) ? $report->email : $send_to_email;
                 }
@@ -1659,12 +1670,12 @@ class MainWP_CReport {
                 // $content have one site report content only
 		if ( is_array( $content ) && !empty($content) ) {
 
-                    if ( ! $email_has_token ) {
+                    if ( ! $email_has_token || $send_to_me_review) {
                             $to_email = $send_to_email;                                         
                     }
 
                     foreach ( $content as $site_id => $send_content ) {
-                            if ( $email_has_token ) {
+                            if ( $email_has_token && !$send_to_me_review) {
                                     $to_email = isset( $send_to_emails[ $site_id ] ) ? $send_to_emails[ $site_id ] : '';
                             }
                             $send_subject = $email_subject;
@@ -2898,7 +2909,7 @@ class MainWP_CReport {
 						$graph_dates .= $teile[1] . '.' . $teile[0] . '.|';
 					}
 				}
-				//$graph_dates = urlencode($graph_dates);
+				//$graph_dates = urlencode($graph_dates);                
 				$graph_dates = trim( $graph_dates, '|' );
 
 				//SCALE chxr=1,0,HIGHEST*2
