@@ -106,6 +106,8 @@ class MainWP_CReport_Extension {
                     $data = $information['syncClientReportData'];    
                     if (isset($data['firsttime_activated'])) {
                         $creportSettings = MainWP_CReport_Stream::get_instance()->get_option( 'settings' );
+                        if (!is_array($creportSettings))
+                            $creportSettings = array();                        
                         $creportSettings[$website_id]['first_time'] = $data['firsttime_activated'];
                         MainWP_CReport_Stream::get_instance()->set_option( 'settings', $creportSettings );
                     }
