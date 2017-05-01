@@ -1012,61 +1012,61 @@ $this->default_formats = array(
 		return false;
 	}
 
-        public function checked_if_site_have_report( $site_id ) {
+    public function checked_if_site_have_report( $site_id ) {
 		global $wpdb;
 
 		if ( empty( $site_id ) ) {
 			return false;                         
-                }
+        }
       
-                $sql_all = 'SELECT * FROM ' . $this->table_name( 'client_report' ) . ' WHERE 1 = 1 ';
-                $all_reports = $wpdb->get_results( $sql_all );
-                $sql_report_ids = array();
-                
-                $found  = false;
-                if ( is_array($all_reports) && count($all_reports) > 0 ) {
-                    foreach($all_reports as $report) {
-                        if ( $report->sites != '' || $report->groups != '' ) {
+        $sql_all = 'SELECT * FROM ' . $this->table_name( 'client_report' ) . ' WHERE 1 = 1 ';
+        $all_reports = $wpdb->get_results( $sql_all );
+        $sql_report_ids = array();
 
-                            $sites = unserialize( base64_decode( $report->sites ) );
-                            if (!is_array($sites))
-                                $sites = array();
+        $found  = false;
+        if ( is_array($all_reports) && count($all_reports) > 0 ) {
+            foreach($all_reports as $report) {
+                if ( $report->sites != '' || $report->groups != '' ) {
 
-                            if (in_array($value, $sites)) {
-                                if (!in_array( $report->id, $sql_report_ids )) {
-                                    $found = true;
-                                    break;
-                                }
-                            } else if ($report->groups != '') {                                    
-                                $groups = unserialize( base64_decode( $report->groups ) );
-                                if (!is_array($groups))
-                                    $groups = array();
+                    $sites = unserialize( base64_decode( $report->sites ) );
+                    if (!is_array($sites))
+                        $sites = array();
 
-                                global $mainWPCReportExtensionActivator;                                    
-                                $dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array(), $groups );
-
-                                foreach( $dbwebsites as $pSite ) {
-                                    if ( $pSite->id == $value ) {
-                                         $found = true;
-                                         break;
-                                    }
-                                }                                     
-
-                            }
-                            
-                            if ($found) {
-                                break;
-                            }
+                    if (in_array($site_id, $sites)) {
+                        if (!in_array( $report->id, $sql_report_ids )) {
+                            $found = true;
+                            break;
                         }
-                    }			
+                    } else if ($report->groups != '') {                                    
+                        $groups = unserialize( base64_decode( $report->groups ) );
+                        if (!is_array($groups))
+                            $groups = array();
 
+                        global $mainWPCReportExtensionActivator;                                    
+                        $dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array(), $groups );
+
+                        foreach( $dbwebsites as $pSite ) {
+                            if ( $pSite->id == $site_id ) {
+                                 $found = true;
+                                 break;
+                            }
+                        }                                     
+
+                    }
+
+                    if ($found) {
+                        break;
+                    }
                 }
-                
-                return $found;                     
+            }			
+
+        }
+
+        return $found;                     
 	}        
         
         
-        public function updateWebsiteOption( $website_id, $option, $value ) {
+    public function updateWebsiteOption( $website_id, $option, $value ) {
 		$rslt = $this->wpdb->get_results( 'SELECT name FROM ' . $this->table_name( 'wp_options' ) . ' WHERE wpid = ' . $website_id . ' AND name = "' . $this->escape( $option ) . '"' );
 		if ( count( $rslt ) > 0 ) {
 			$this->wpdb->delete( $this->table_name( 'wp_options' ), array(
@@ -1098,10 +1098,9 @@ $this->default_formats = array(
 		return $this->wpdb->get_var( 'SELECT value FROM ' . $this->table_name( 'wp_options' ) . ' WHERE wpid = ' . $website->id . ' AND name = "' . $this->escape( $option ) . '"' );
 	}
         
-        public function getOptionOfWebsites( $websiteIds, $option ) {
-            
-                if (!is_array($websiteIds) || count($websiteIds) == 0)
-                    return array();
+    public function getOptionOfWebsites( $websiteIds, $option ) {            
+        if (!is_array($websiteIds) || count($websiteIds) == 0)
+            return array();
 		return $this->wpdb->get_results( 'SELECT wpid, value FROM ' . $this->table_name( 'wp_options' ) . ' WHERE wpid IN (' . implode(',', $websiteIds) . ') AND name = "' . $this->escape( $option ) . '"' );
 	}
         
@@ -1118,7 +1117,7 @@ $this->default_formats = array(
 	}
         
         
-        public function get_scheduled_reports_to_send() {
+    public function get_scheduled_reports_to_send() {
 		global $wpdb;
 		$sql = 'SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
 				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
@@ -1129,7 +1128,7 @@ $this->default_formats = array(
 	}
         
         
-        public function get_scheduled_reports_to_continue_send() {
+    public function get_scheduled_reports_to_continue_send() {
 		global $wpdb;
 		$sql = 'SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
 				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
@@ -1141,7 +1140,7 @@ $this->default_formats = array(
 	}
         
         
-        public function update_reports_with_values( $id, $values ) {                
+    public function update_reports_with_values( $id, $values ) {                
 		if ( ! is_array( $values ) ) {
 			return false;
 		}
@@ -1151,7 +1150,7 @@ $this->default_formats = array(
 	}
         
         
-        public function update_reports_send( $id ) {	
+    public function update_reports_send( $id ) {	
                 global $wpdb;
                 return $wpdb->update( $this->table_name( 'client_report' ), array(
                         'schedule_lastsend'        => time(),                        
