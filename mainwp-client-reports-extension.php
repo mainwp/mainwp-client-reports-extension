@@ -23,9 +23,9 @@ class MainWP_CReport_Extension {
 	public $plugin_dir;
 	protected $option;
 	protected $option_handle = 'mainwp_wpcreport_extension';
-        public $version = '1.3';
+    public $version = '1.4';
         
-        static function get_instance() {
+    static function get_instance() {
 		if ( null == MainWP_CReport_Extension::$instance ) {
 			MainWP_CReport_Extension::$instance = new MainWP_CReport_Extension();
 		}

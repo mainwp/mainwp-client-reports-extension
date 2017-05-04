@@ -290,3 +290,6 @@ table.mainwp-cr-table thead th,  table.mainwp-cr-table tfoot th {
     background: rgba(127, 177, 0, 0.3) !important;
     color: #333;
 }
+#mainwp_wpcr_option .mainwp-subnav-tabs {
+    float: left;
+}

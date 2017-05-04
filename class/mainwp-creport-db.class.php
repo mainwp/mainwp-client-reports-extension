@@ -593,7 +593,9 @@ $this->default_formats = array(
 			if ( $site_token ) {
 				$token->site_token = $site_token;
 				return $token;
-			} else { 				return null; }
+			} else { 				
+                return null;             
+            }
 		}
 		return null;
 	}
@@ -753,52 +755,52 @@ $this->default_formats = array(
 		$id = isset( $report['id'] ) ? $report['id'] : 0;
 		$updatedClient = false;
 		
-                // THIS IS SMART create or update client
-                if ( ! empty( $report['email'] ) ) { // client may be content tokens                    
-                        
-                        $update_client = array(
-                                'client' => isset( $report['client'] ) ? $report['client'] : '',
-                                'name' => isset( $report['name'] ) ? $report['name'] : '',
-                                'company' => isset( $report['company'] ) ? $report['company'] : '',
-                                'email' => isset( $report['email'] ) ? $report['email'] : '',
-                        );     
-                        
-                        $client_id = (isset($report['client_id']) && !empty($report['client_id'])) ? intval($report['client_id']) : 0;
-                        // update client
-                        if ($client_id) {
-                            $client_tokens = $this->get_client_by( 'email', '[client.email]' );  
-                            // check if trying update default client with tokens in email
-                            if ($client_tokens && $client_tokens->clientid == $client_id ) {                                                                                 
-                                $client_id = 0; // do not override client with email is [client.email], new client will created below if needed
-                            } else {
-                                if ( $update_client['email'] == '[client.email]') {
-                                    if ( $client_tokens ) {
-                                        $client_id = $client_tokens->clientid; // do not override client with email is [client.email]
-                                    } 
-                                } else {                                
-                                    $update_client['clientid'] = $client_id;
-                                    $this->update_client( $update_client ); // update client
-                                }
-                            }
-                        }                         
-                        // create new client
-                        if (empty($client_id)) {                            
-                            // check client with tokens
-                            if ( $update_client['email'] == '[client.email]' ) {
-                                $client_tokens = $this->get_client_by( 'email', '[client.email]' );
-                                if ($client_tokens ) {
-                                    $client_id = $client_tokens->clientid; // do not override client with email is [client.email]
-                                }
-                            } else if ($updatedClient = $this->update_client( $update_client ) ) { // create new client                            
-                                    $client_id = $updatedClient->clientid;                                
-                            }  
-                        }                               
-                                                
-                        $report['client_id'] = $client_id;
+        // THIS IS SMART create or update client
+        if ( ! empty( $report['email'] ) ) { // client may be content tokens                    
+
+                $update_client = array(
+                        'client' => isset( $report['client'] ) ? $report['client'] : '',
+                        'name' => isset( $report['name'] ) ? $report['name'] : '',
+                        'company' => isset( $report['company'] ) ? $report['company'] : '',
+                        'email' => isset( $report['email'] ) ? $report['email'] : '',
+                );     
+
+                $client_id = (isset($report['client_id']) && !empty($report['client_id'])) ? intval($report['client_id']) : 0;
+                // update client
+                if ($client_id) {
+                    $client_tokens = $this->get_client_by( 'email', '[client.email]' );  
+                    // check if trying update default client with tokens in email
+                    if ($client_tokens && $client_tokens->clientid == $client_id ) {                                                                                 
+                        $client_id = 0; // do not override client with email is [client.email], new client will created below if needed
+                    } else {
+                        if ( $update_client['email'] == '[client.email]') {
+                            if ( $client_tokens ) {
+                                $client_id = $client_tokens->clientid; // do not override client with email is [client.email]
+                            } 
+                        } else {                                
+                            $update_client['clientid'] = $client_id;
+                            $this->update_client( $update_client ); // update client
+                        }
+                    }
+                }                         
+                // create new client
+                if (empty($client_id)) {                            
+                    // check client with tokens
+                    if ( $update_client['email'] == '[client.email]' ) {
+                        $client_tokens = $this->get_client_by( 'email', '[client.email]' );
+                        if ($client_tokens ) {
+                            $client_id = $client_tokens->clientid; // do not override client with email is [client.email]
+                        }
+                    } else if ($updatedClient = $this->update_client( $update_client ) ) { // create new client                            
+                            $client_id = $updatedClient->clientid;                                
+                    }  
+                }                               
+
+                $report['client_id'] = $client_id;
 		} else {
 			if ( isset( $report['client_id'] ) ) {
 				$report['client_id'] = 0;                                 
-                        }
+            }
 		}
 
 		$report_fields = array(
@@ -834,23 +836,24 @@ $this->default_formats = array(
 		$update_report = array();
 		foreach ( $report as $key => $value ) {
 			if ( in_array( $key, $report_fields ) ) {
-				$update_report[ $key ] = $value; }
+				$update_report[ $key ] = $value;                 
+            }
 		}
 		
-		if ( ! empty( $id ) ) {
-			$wpdb->update( $this->table_name( 'client_report' ), $update_report, array( 'id' => intval( $id ) ) );			
-		} else {
-                        if (!isset($update_report['title']) || empty($update_report['title']))
-                            return false;
-			if ( $wpdb->insert( $this->table_name( 'client_report' ), $update_report ) ) {
-				 $id = $wpdb->insert_id;
-			}
-		}
-                
-                if ($id)
-                    return $this->get_report_by( 'id', $id );
-                else                    
-                    return false;
+        if ( ! empty( $id ) ) {
+            $wpdb->update( $this->table_name( 'client_report' ), $update_report, array( 'id' => intval( $id ) ) );			
+        } else {
+            if (!isset($update_report['title']) || empty($update_report['title']))
+                return false;
+            if ( $wpdb->insert( $this->table_name( 'client_report' ), $update_report ) ) {
+                 $id = $wpdb->insert_id;
+            }
+        }
+
+        if ($id)
+            return $this->get_report_by( 'id', $id );
+        else                    
+            return false;
                 
 	}
 
@@ -1123,7 +1126,7 @@ $this->default_formats = array(
 				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
 				. ' ON rp.client_id = c.clientid '
 				. " WHERE rp.recurring_schedule != '' AND rp.scheduled = 1 " 
-                                . " AND rp.schedule_nextsend < " . time();   		
+                . " AND rp.schedule_nextsend < " . time();   		
 		return $wpdb->get_results( $sql );
 	}
         
@@ -1134,7 +1137,7 @@ $this->default_formats = array(
 				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
 				. ' ON rp.client_id = c.clientid '
 				. " WHERE rp.recurring_schedule != '' AND rp.scheduled = 1 "
-                                . " AND rp.completed < rp.schedule_lastsend";
+                . " AND rp.completed < rp.schedule_lastsend";
 		//echo $sql;
 		return $wpdb->get_results( $sql );
 	}
