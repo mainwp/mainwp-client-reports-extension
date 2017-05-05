@@ -11,10 +11,10 @@ class MainWP_CReport {
 	public static $enabled_ga = null;
 	public static $enabled_aum = null;
 	public static $enabled_woocomstatus = null;
-        public static $enabled_wordfence = null;
-        public static $enabled_maintenance = null;
-        public static $enabled_pagespeed = null;
-        public static $enabled_brokenlinks = null;
+    public static $enabled_wordfence = null;
+    public static $enabled_maintenance = null;
+    public static $enabled_pagespeed = null;
+    public static $enabled_brokenlinks = null;
 	private static $count_sec_header = 0;
 	private static $count_sec_body = 0;
 	private static $count_sec_footer = 0;
@@ -277,8 +277,8 @@ class MainWP_CReport {
 					array( 'name' => 'section.comments.spam', 'desc' => 'Loops through Comments Spammed during the selected date range' ),
 					array( 'name' => 'section.comments.replied', 'desc' => 'Loops through Comments Replied during the selected date range' ),
 				),
-                                'nav_group_tokens' => array(
-                                        'sections' => 'Sections',
+                'nav_group_tokens' => array(
+                    'sections' => 'Sections',
 					'created' => 'Created',
 					'updated' => 'Updated',
 					'trashed' => 'Trashed',
@@ -293,55 +293,55 @@ class MainWP_CReport {
 				'created' => array(
 					array( 'name' => 'comment.title', 'desc' => 'Displays the Title of the Post or the Page where the Comment is Created' ),
 					array( 'name' => 'comment.created.date', 'desc' => 'Displays the Comment Creating Date' ),
-                                        array( 'name' => 'comment.created.time', 'desc' => 'Displays the Comment Creating Time' ),
+                    array( 'name' => 'comment.created.time', 'desc' => 'Displays the Comment Creating Time' ),
 					array( 'name' => 'comment.created.author', 'desc' => 'Displays the User who Created the Comment' ),
 				),
 				'updated' => array(
 					array( 'name' => 'comment.title', 'desc' => 'Displays the Title of the Post or the Page where the Comment is Updated' ),
 					array( 'name' => 'comment.updated.date', 'desc' => 'Displays the Comment Updating Date' ),
-                                        array( 'name' => 'comment.updated.time', 'desc' => 'Displays the Comment Updating Time' ),
+                    array( 'name' => 'comment.updated.time', 'desc' => 'Displays the Comment Updating Time' ),
 					array( 'name' => 'comment.updated.author', 'desc' => 'Displays the User who Updated the Comment' ),
 				),
 				'trashed' => array(
 					array( 'name' => 'comment.title', 'desc' => 'Displays the Title of the Post or the Page where the Comment is Trashed' ),
 					array( 'name' => 'comment.trashed.date', 'desc' => 'Displays the Comment Trashing Date' ),
-                                        array( 'name' => 'comment.trashed.time', 'desc' => 'Displays the Comment Trashing Time' ),
+                    array( 'name' => 'comment.trashed.time', 'desc' => 'Displays the Comment Trashing Time' ),
 					array( 'name' => 'comment.trashed.author', 'desc' => 'Displays the User who Trashed the Comment' ),
 				),
 				'deleted' => array(
 					array( 'name' => 'comment.title', 'desc' => 'Displays the Title of the Post or the Page where the Comment is Deleted' ),
 					array( 'name' => 'comment.deleted.date', 'desc' => 'Displays the Comment Deleting Date' ),
-                                        array( 'name' => 'comment.deleted.time', 'desc' => 'Displays the Comment Deleting Time' ),
+                    array( 'name' => 'comment.deleted.time', 'desc' => 'Displays the Comment Deleting Time' ),
 					array( 'name' => 'comment.deleted.author', 'desc' => 'Displays the User who Deleted the Comment' ),
 				),
 				'edited' => array(
 					array( 'name' => 'comment.title', 'desc' => 'Displays the Title of the Post or the Page where the Comment is Edited' ),
 					array( 'name' => 'comment.edited.date', 'desc' => 'Displays the Comment Editing Date' ),
-                                        array( 'name' => 'comment.edited.time', 'desc' => 'Displays the Comment Editing Time' ),
+                    array( 'name' => 'comment.edited.time', 'desc' => 'Displays the Comment Editing Time' ),
 					array( 'name' => 'comment.edited.author', 'desc' => 'Displays the User who Edited the Comment' ),
 				),
 				'restored' => array(
 					array( 'name' => 'comment.title', 'desc' => 'Displays the Title of the Post or the Page where the Comment is Restored' ),
 					array( 'name' => 'comment.restored.date', 'desc' => 'Displays the Comment Restoring Date' ),
-                                        array( 'name' => 'comment.restored.time', 'desc' => 'Displays the Comment Restoring Time' ),
+                    array( 'name' => 'comment.restored.time', 'desc' => 'Displays the Comment Restoring Time' ),
 					array( 'name' => 'comment.restored.author', 'desc' => 'Displays the User who Restored the Comment' ),
 				),
 				'approved' => array(
 					array( 'name' => 'comment.title', 'desc' => 'Displays the Title of the Post or the Page where the Comment is Approved' ),
 					array( 'name' => 'comment.approved.date', 'desc' => 'Displays the Comment Approving Date' ),
-                                        array( 'name' => 'comment.approved.time', 'desc' => 'Displays the Comment Approving Time' ),
+                    array( 'name' => 'comment.approved.time', 'desc' => 'Displays the Comment Approving Time' ),
 					array( 'name' => 'comment.approved.author', 'desc' => 'Displays the User who Approved the Comment' ),
 				),
 				'spam' => array(
 					array( 'name' => 'comment.title', 'desc' => 'Displays the Title of the Post or the Page where the Comment is Spammed' ),
 					array( 'name' => 'comment.spam.date', 'desc' => 'Displays the Comment Spamming Date' ),
-                                        array( 'name' => 'comment.spam.time', 'desc' => 'Displays the Comment Spamming Time' ),
+                    array( 'name' => 'comment.spam.time', 'desc' => 'Displays the Comment Spamming Time' ),
 					array( 'name' => 'comment.spam.author', 'desc' => 'Displays the User who Spammed the Comment' ),
 				),
 				'replied' => array(
 					array( 'name' => 'comment.title', 'desc' => 'Displays the Title of the Post or the Page where the Comment is Replied' ),
 					array( 'name' => 'comment.replied.date', 'desc' => 'Displays the Comment Replying Date' ),
-                                        array( 'name' => 'comment.replied.time', 'desc' => 'Displays the Comment Replying Time' ),
+                    array( 'name' => 'comment.replied.time', 'desc' => 'Displays the Comment Replying Time' ),
 					array( 'name' => 'comment.replied.author', 'desc' => 'Displays the User who Replied the Comment' ),
 				),
 				'additional' => array(
@@ -357,13 +357,13 @@ class MainWP_CReport {
 				),
 			),
 			'users' => array(
-			'sections' => array(
+                'sections' => array(
 					array( 'name' => 'section.users.created', 'desc' => 'Loops through Users Created during the selected date range' ),
 					array( 'name' => 'section.users.updated', 'desc' => 'Loops through Users Updated during the selected date range' ),
 					array( 'name' => 'section.users.deleted', 'desc' => 'Loops through Users Deleted during the selected date range' ),
 				),
 				'nav_group_tokens' => array(
-			'sections' => 'Sections',
+                    'sections' => 'Sections',
 					'created' => 'Created',
 					'updated' => 'Updated',
 					'deleted' => 'Deleted',
@@ -372,21 +372,21 @@ class MainWP_CReport {
 				'created' => array(
 					array( 'name' => 'user.name', 'desc' => 'Displays the User Name' ),
 					array( 'name' => 'user.created.date', 'desc' => 'Displays the User Creation Date' ),
-                                        array( 'name' => 'user.created.time', 'desc' => 'Displays the User Creation Time' ),
+                    array( 'name' => 'user.created.time', 'desc' => 'Displays the User Creation Time' ),
 					array( 'name' => 'user.created.author', 'desc' => 'Displays the User who Created the new User' ),
 					array( 'name' => 'user.created.role', 'desc' => 'Displays the Role of the Created User' ),
 				),
 				'updated' => array(
 					array( 'name' => 'user.name', 'desc' => 'Displays the User Name' ),
 					array( 'name' => 'user.updated.date', 'desc' => 'Displays the User Updating Date' ),
-                                        array( 'name' => 'user.updated.time', 'desc' => 'Displays the User Updating Time' ),
+                    array( 'name' => 'user.updated.time', 'desc' => 'Displays the User Updating Time' ),
 					array( 'name' => 'user.updated.author', 'desc' => 'Displays the User who Updated the new User' ),
 					array( 'name' => 'user.updated.role', 'desc' => 'Displays the Role of the Updated User' ),
 				),
 				'deleted' => array(
 					array( 'name' => 'user.name', 'desc' => 'Displays the User Name' ),
 					array( 'name' => 'user.deleted.date', 'desc' => 'Displays the User Deleting Date' ),
-                                        array( 'name' => 'user.deleted.time', 'desc' => 'Displays the User Deleting Time' ),
+                    array( 'name' => 'user.deleted.time', 'desc' => 'Displays the User Deleting Time' ),
 					array( 'name' => 'user.deleted.author', 'desc' => 'Displays the User who Deleted the new User' ),
 				),
 				'additional' => array(
@@ -396,13 +396,13 @@ class MainWP_CReport {
 				),
 			),
 			'media' => array(
-			'sections' => array(
+                'sections' => array(
 					array( 'name' => 'section.media.uploaded', 'desc' => 'Loops through Media Uploaded during the selected date range' ),
 					array( 'name' => 'section.media.updated', 'desc' => 'Loops through Media Updated during the selected date range' ),
 					array( 'name' => 'section.media.deleted', 'desc' => 'Loops through Media Deleted during the selected date range' ),
 				),
 				'nav_group_tokens' => array(
-			'sections' => 'Sections',
+                    'sections' => 'Sections',
 					'uploaded' => 'Uploaded',
 					'updated' => 'Updated',
 					'deleted' => 'Deleted',
@@ -411,19 +411,19 @@ class MainWP_CReport {
 				'uploaded' => array(
 					array( 'name' => 'media.name', 'desc' => 'Displays the Media Name' ),
 					array( 'name' => 'media.uploaded.date', 'desc' => 'Displays the Media Uploading Date' ),
-                                        array( 'name' => 'media.uploaded.time', 'desc' => 'Displays the Media Uploading Time' ),
+                    array( 'name' => 'media.uploaded.time', 'desc' => 'Displays the Media Uploading Time' ),
 					array( 'name' => 'media.uploaded.author', 'desc' => 'Displays the User who Uploaded the Media File' ),
 				),
 				'updated' => array(
 					array( 'name' => 'media.name', 'desc' => 'Displays the Media Name' ),
 					array( 'name' => 'media.updated.date', 'desc' => 'Displays the Media Updating Date' ),
-                                        array( 'name' => 'media.updated.time', 'desc' => 'Displays the Media Updating Time' ),
+                    array( 'name' => 'media.updated.time', 'desc' => 'Displays the Media Updating Time' ),
 					array( 'name' => 'media.updated.author', 'desc' => 'Displays the User who Updted the Media File' ),
 				),
 				'deleted' => array(
 					array( 'name' => 'media.name', 'desc' => 'Displays the Media Name' ),
 					array( 'name' => 'media.deleted.date', 'desc' => 'Displays the Media Deleting Date' ),
-                                        array( 'name' => 'media.deleted.time', 'desc' => 'Displays the Media Deleting Time' ),
+                    array( 'name' => 'media.deleted.time', 'desc' => 'Displays the Media Deleting Time' ),
 					array( 'name' => 'media.deleted.author', 'desc' => 'Displays the User who Deleted the Media File' ),
 				),
 				'additional' => array(
@@ -449,21 +449,21 @@ class MainWP_CReport {
 					array( 'name' => 'widget.title', 'desc' => 'Displays the Widget Title' ),
 					array( 'name' => 'widget.added.area', 'desc' => 'Displays the Widget Adding Area' ),
 					array( 'name' => 'widget.added.date', 'desc' => 'Displays the Widget Adding Date' ),
-                                        array( 'name' => 'widget.added.time', 'desc' => 'Displays the Widget Adding Time' ),
+                    array( 'name' => 'widget.added.time', 'desc' => 'Displays the Widget Adding Time' ),
 					array( 'name' => 'widget.added.author', 'desc' => 'Displays the User who Added the Widget' ),
 				),
 				'updated' => array(
 					array( 'name' => 'widget.title', 'desc' => 'Displays the Widget Name' ),
 					array( 'name' => 'widget.updated.area', 'desc' => 'Displays the Widget Updating Area' ),
 					array( 'name' => 'widget.updated.date', 'desc' => 'Displays the Widget Updating Date' ),
-                                        array( 'name' => 'widget.updated.time', 'desc' => 'Displays the Widget Updating Time' ),
+                    array( 'name' => 'widget.updated.time', 'desc' => 'Displays the Widget Updating Time' ),
 					array( 'name' => 'widget.updated.author', 'desc' => 'Displays the User who Updated the Widget' ),
 				),
 				'deleted' => array(
 					array( 'name' => 'widget.title', 'desc' => 'Displays the Widget Name' ),
 					array( 'name' => 'widget.deleted.area', 'desc' => 'Displays the Widget Deleting Area' ),
 					array( 'name' => 'widget.deleted.date', 'desc' => 'Displays the Widget Deleting Date' ),
-                                        array( 'name' => 'widget.deleted.time', 'desc' => 'Displays the Widget Deleting Time' ),
+                    array( 'name' => 'widget.deleted.time', 'desc' => 'Displays the Widget Deleting Time' ),
 					array( 'name' => 'widget.deleted.author', 'desc' => 'Displays the User who Deleted the Widget' ),
 				),
 				'additional' => array(
@@ -473,13 +473,13 @@ class MainWP_CReport {
 				),
 			),
 			'menus' => array(
-                                'sections' => array(
+                'sections' => array(
 					array( 'name' => 'section.menus.created', 'desc' => 'Loops through Menus Created during the selected date range' ),
 					array( 'name' => 'section.menus.updated', 'desc' => 'Loops through Menus Updated during the selected date range' ),
 					array( 'name' => 'section.menus.deleted', 'desc' => 'Loops through Menus Deleted during the selected date range' ),
 				),
 				'nav_group_tokens' => array(
-                                        'sections' => 'Sections',
+                    'sections' => 'Sections',
 					'created' => 'Created',
 					'updated' => 'Updated',
 					'deleted' => 'Deleted',
@@ -488,19 +488,19 @@ class MainWP_CReport {
 				'created' => array(
 					array( 'name' => 'menu.title', 'desc' => 'Displays the Menu Name' ),
 					array( 'name' => 'menu.created.date', 'desc' => 'Displays the Menu Creation Date' ),
-                                        array( 'name' => 'menu.created.time', 'desc' => 'Displays the Menu Creation Time' ),
+                    array( 'name' => 'menu.created.time', 'desc' => 'Displays the Menu Creation Time' ),
 					array( 'name' => 'menu.created.author', 'desc' => 'Displays the User who Created the Menu' ),
 				),
 				'updated' => array(
 					array( 'name' => 'menu.title', 'desc' => 'Displays the Menu Name' ),
 					array( 'name' => 'menu.updated.date', 'desc' => 'Displays the Menu Updating Date' ),
-                                        array( 'name' => 'menu.updated.time', 'desc' => 'Displays the Menu Updating Time' ),
+                    array( 'name' => 'menu.updated.time', 'desc' => 'Displays the Menu Updating Time' ),
 					array( 'name' => 'menu.updated.author', 'desc' => 'Displays the User who Updated the Menu' ),
 				),
 				'deleted' => array(
 					array( 'name' => 'menu.title', 'desc' => 'Displays the Menu Name' ),
 					array( 'name' => 'menu.deleted.date', 'desc' => 'Displays the Menu Deleting Date' ),
-                                        array( 'name' => 'menu.deleted.time', 'desc' => 'Displays the Menu Deleting Time' ),
+                    array( 'name' => 'menu.deleted.time', 'desc' => 'Displays the Menu Deleting Time' ),
 					array( 'name' => 'menu.deleted.author', 'desc' => 'Displays the User who Deleted the Menu' ),
 				),
 				'additional' => array(
@@ -510,17 +510,17 @@ class MainWP_CReport {
 				),
 			),
 			'wordpress' => array(
-                                'sections' => array(
+                'sections' => array(
 					array( 'name' => 'section.wordpress.updated', 'desc' => 'Loops through WordPress Updates during the selected date range' ),
 				),
 				'nav_group_tokens' => array(
-                                        'sections' => 'Sections',
+                    'sections' => 'Sections',
 					'updated' => 'Updated',
 					'additional' => 'Additional',
 				),
 				'updated' => array(
 					array( 'name' => 'wordpress.updated.date', 'desc' => 'Displays the WordPress Update Date' ),
-                                        array( 'name' => 'wordpress.updated.time', 'desc' => 'Displays the WordPress Update Time' ),
+                    array( 'name' => 'wordpress.updated.time', 'desc' => 'Displays the WordPress Update Time' ),
 					array( 'name' => 'wordpress.updated.author', 'desc' => 'Displays the User who Updated the Site' ),
 				),
 				'additional' => array(
@@ -530,43 +530,43 @@ class MainWP_CReport {
 				),
 			),
 			'backups' => array(                                
-                                'nav_group_tokens' => array(
-                                    'sections' => 'Sections',
-                                    'created' => 'Created',
-                                    'additional' => 'Additional',
-                                ),
-                                'sections' => array(
-                                    array( 'name' => 'section.backups.created', 'desc' => ' Loops through Backups Created during the selected date range' ),
-                                ),
+                'nav_group_tokens' => array(
+                    'sections' => 'Sections',
+                    'created' => 'Created',
+                    'additional' => 'Additional',
+                ),
+                'sections' => array(
+                    array( 'name' => 'section.backups.created', 'desc' => ' Loops through Backups Created during the selected date range' ),
+                ),
 				'created' => array(
-                                    array( 'name' => 'backup.created.type', 'desc' => ' Displays the Created Backup type (Full or Database)' ),
-                                    array( 'name' => 'backup.created.date', 'desc' => 'Displays the Backups Creation Date' ),
-                                    array( 'name' => 'backup.created.time', 'desc' => 'Displays the Backups Creation Time' ),
-                                    //array("name" => "backup.created.destination", "desc" => "Displays the Created Backup destination")
+                    array( 'name' => 'backup.created.type', 'desc' => ' Displays the Created Backup type (Full or Database)' ),
+                    array( 'name' => 'backup.created.date', 'desc' => 'Displays the Backups Creation Date' ),
+                    array( 'name' => 'backup.created.time', 'desc' => 'Displays the Backups Creation Time' ),
+                    //array("name" => "backup.created.destination", "desc" => "Displays the Created Backup destination")
 				),
 				'additional' => array(
-                                    array( 'name' => 'backup.created.count', 'desc' => 'Displays the number of created backups during the selected date range' ),
+                    array( 'name' => 'backup.created.count', 'desc' => 'Displays the number of created backups during the selected date range' ),
 				),
 			),
 			'report' => array(
 				'nav_group_tokens' => array( 'report' => 'Report' ),
 				'report' => array(
 					array( 'name' => 'report.daterange', 'desc' => 'Displays the report date range' ),
-                                        array( 'name' => 'report.send.date', 'desc' => 'Displays the report send date' ),
+                    array( 'name' => 'report.send.date', 'desc' => 'Displays the report send date' ),
 				),
 			),
 			'sucuri' => array(
-                                'sections' => array(
+                'sections' => array(
 					array( 'name' => 'section.sucuri.checks', 'desc' => 'Loops through Security Checks during the selected date range' ),
 				),
 				'nav_group_tokens' => array(
-                                        'sections' => 'Sections',
+                    'sections' => 'Sections',
 					'check' => 'Checks',
 					'additional' => 'Additional',
 				),
 				'check' => array(
 					array( 'name' => 'sucuri.check.date', 'desc' => 'Displays the Security Check date' ),
-                                        array( 'name' => 'sucuri.check.time', 'desc' => 'Displays the Security Check time' ),
+                    array( 'name' => 'sucuri.check.time', 'desc' => 'Displays the Security Check time' ),
 					array( 'name' => 'sucuri.check.status', 'desc' => 'Displays the Status info for the Child Site' ),
 					array( 'name' => 'sucuri.check.webtrust', 'desc' => 'Displays the Webtrust info for the Child Site' ),
 				//array("name" => "sucuri.check.results", "desc" => "Displays the Security Check details from the Security Scan Report"),
@@ -631,62 +631,62 @@ class MainWP_CReport {
 					array( 'name' => 'wcomstatus.outofstock', 'desc' => 'Displays the number of products currently out of stock' ),
 				),
 			),
-                        'wordfence' => array(                            
-                            'nav_group_tokens' => array(
-                                'sections' => 'Sections',
-                                'scan' => 'Scan',
-                                'additional' => 'Additional',
-                            ),
-                            'sections' => array(
-                                array( 'name' => 'section.wordfence.scan', 'desc' => 'Loops through Wordfence scans during the selected date range' ),
-                            ),
-                            'scan' => array(
-                                    array( 'name' => 'wordfence.scan.result', 'desc' => 'Displays the Wordfence scan result' ),                                    
-                                    array( 'name' => 'wordfence.scan.date', 'desc' => 'Displays the Wordfence scan date' ),										
-                                    array( 'name' => 'wordfence.scan.time', 'desc' => 'Displays the Wordfence scan time' ),	
-                                    array( 'name' => 'wordfence.scan.details', 'desc' => 'Displays the Wordfence scan details' ),
-                            ),
-                            'additional' => array(
-                                array( 'name' => 'wordfence.scan.count', 'desc' => 'Displays the number of performed Wordfence scans during the selected date range' ),
-                            ),
+            'wordfence' => array(                            
+                    'nav_group_tokens' => array(
+                        'sections' => 'Sections',
+                        'scan' => 'Scan',
+                        'additional' => 'Additional',
+                    ),
+                    'sections' => array(
+                        array( 'name' => 'section.wordfence.scan', 'desc' => 'Loops through Wordfence scans during the selected date range' ),
+                    ),
+                    'scan' => array(
+                            array( 'name' => 'wordfence.scan.result', 'desc' => 'Displays the Wordfence scan result' ),                                    
+                            array( 'name' => 'wordfence.scan.date', 'desc' => 'Displays the Wordfence scan date' ),										
+                            array( 'name' => 'wordfence.scan.time', 'desc' => 'Displays the Wordfence scan time' ),	
+                            array( 'name' => 'wordfence.scan.details', 'desc' => 'Displays the Wordfence scan details' ),
+                    ),
+                    'additional' => array(
+                        array( 'name' => 'wordfence.scan.count', 'desc' => 'Displays the number of performed Wordfence scans during the selected date range' ),
+                    ),
 			),
-                        'maintenance' => array(                            
-                            'nav_group_tokens' => array(
-                                'sections' => 'Sections',
-                                'process' => 'Process',
-                                'additional' => 'Additional',
-                            ),
-                            'sections' => array(
-                                array( 'name' => 'section.maintenance.process', 'desc' => 'Loops through performed Maintenance actions' ),
-                            ),
-                            'process' => array(
-                                    array( 'name' => 'maintenance.process.result', 'desc' => 'Displays the status of performed Maintenance' ),                                    
-                                    array( 'name' => 'maintenance.process.date', 'desc' => 'Displays the date of performed Maintenance' ),										
-                                    array( 'name' => 'maintenance.process.time', 'desc' => 'Displays the time of performed Maintenance' ),	
-                                    array( 'name' => 'maintenance.process.details', 'desc' => 'Displays performed actions' ),
-                            ),
-                            'additional' => array(
-                                array( 'name' => 'maintenance.process.count', 'desc' => 'Displays the number of performed Maintenance actions during the selected date range' ),
-                            ),
+            'maintenance' => array(                            
+                'nav_group_tokens' => array(
+                    'sections' => 'Sections',
+                    'process' => 'Process',
+                    'additional' => 'Additional',
+                ),
+                'sections' => array(
+                    array( 'name' => 'section.maintenance.process', 'desc' => 'Loops through performed Maintenance actions' ),
+                ),
+                'process' => array(
+                        array( 'name' => 'maintenance.process.result', 'desc' => 'Displays the status of performed Maintenance' ),                                    
+                        array( 'name' => 'maintenance.process.date', 'desc' => 'Displays the date of performed Maintenance' ),										
+                        array( 'name' => 'maintenance.process.time', 'desc' => 'Displays the time of performed Maintenance' ),	
+                        array( 'name' => 'maintenance.process.details', 'desc' => 'Displays performed actions' ),
+                ),
+                'additional' => array(
+                    array( 'name' => 'maintenance.process.count', 'desc' => 'Displays the number of performed Maintenance actions during the selected date range' ),
+                ),
 			),
-                        'pagespeed' => array(
+            'pagespeed' => array(
 				'nav_group_tokens' => array(
 					'pagespeed' => 'Page speed',
 				),
 				'pagespeed' => array(
 					array( 'name' => 'pagespeed.average.desktop', 'desc' => 'Displays the average desktop page-speed score at the moment of report generation' ),
-                                        array( 'name' => 'pagespeed.average.mobile', 'desc' => 'Displays the average mobile page-speed score at the moment of report creation' )
+                    array( 'name' => 'pagespeed.average.mobile', 'desc' => 'Displays the average mobile page-speed score at the moment of report creation' )
 				),
 			), 
-                        'brokenlinks' => array(
+            'brokenlinks' => array(
 				'nav_group_tokens' => array(
 					'brokenlinks' => 'Broken Links Checker',
 				),
 				'brokenlinks' => array(
 					array( 'name' => 'brokenlinks.links.broken', 'desc' => 'Displays the number of broken links at the moment of report creation' ),
-                                        array( 'name' => 'brokenlinks.links.redirect', 'desc' => 'Displays the number of redirected links at the moment of report creation' ),
-                                        array( 'name' => 'brokenlinks.links.dismissed', 'desc' => 'Displays the number of dismissed links at the moment of report creation' ),
-                                        array( 'name' => 'brokenlinks.links.all', 'desc' => 'Displays the number of all links at the moment of report creation' )
+                    array( 'name' => 'brokenlinks.links.redirect', 'desc' => 'Displays the number of redirected links at the moment of report creation' ),
+                    array( 'name' => 'brokenlinks.links.dismissed', 'desc' => 'Displays the number of dismissed links at the moment of report creation' ),
+                    array( 'name' => 'brokenlinks.links.all', 'desc' => 'Displays the number of all links at the moment of report creation' )
 				),
 			), 
 		);
@@ -727,11 +727,11 @@ class MainWP_CReport {
 		add_action( 'wp_ajax_mainwp_creport_save_format', array( &$this, 'save_format' ) );
 		add_action( 'wp_ajax_mainwp_creport_get_format', array( &$this, 'get_format' ) );
 		add_action( 'wp_ajax_mainwp_creport_delete_format', array( &$this, 'delete_format' ) );
-                add_action( 'wp_ajax_mainwp_creport_group_load_sites', array( &$this, 'ajax_load_sites_for_group_report' ) );
-                add_action( 'wp_ajax_mainwp_creport_general_load_sites', array( &$this, 'ajax_general_load_sites' ) );
-                add_action( 'wp_ajax_mainwp_creport_save_settings', array( &$this, 'ajax_save_settings' ) );
-                add_action( 'wp_ajax_mainwp_creport_generate_report', array( &$this, 'ajax_generate_group_report' ) );
-                add_action( 'wp_ajax_mainwp_creport_archive_report', array( &$this, 'ajax_archive_report' ) );
+        add_action( 'wp_ajax_mainwp_creport_group_load_sites', array( &$this, 'ajax_load_sites_for_group_report' ) );
+        add_action( 'wp_ajax_mainwp_creport_general_load_sites', array( &$this, 'ajax_general_load_sites' ) );
+        add_action( 'wp_ajax_mainwp_creport_save_settings', array( &$this, 'ajax_save_settings' ) );
+        add_action( 'wp_ajax_mainwp_creport_generate_report', array( &$this, 'ajax_generate_group_report' ) );
+        add_action( 'wp_ajax_mainwp_creport_archive_report', array( &$this, 'ajax_archive_report' ) );
 
 		add_action( 'mainwp_update_site', array( &$this, 'update_site_update_tokens' ), 8, 1 );
 		add_action( 'mainwp_delete_site', array( &$this, 'delete_site_delete_tokens' ), 8, 1 );
@@ -746,9 +746,9 @@ class MainWP_CReport {
 		self::$enabled_ga = apply_filters( 'mainwp-extension-available-check', 'mainwp-google-analytics-extension' );
 		self::$enabled_aum = apply_filters( 'mainwp-extension-available-check', 'advanced-uptime-monitor-extension' );
 		self::$enabled_woocomstatus = apply_filters( 'mainwp-extension-available-check', 'mainwp-woocommerce-status-extension' );
-                self::$enabled_wordfence = apply_filters( 'mainwp-extension-available-check', 'mainwp-wordfence-extension' );
-                self::$enabled_maintenance = apply_filters( 'mainwp-extension-available-check', 'mainwp-maintenance-extension' );
-                self::$enabled_pagespeed = apply_filters( 'mainwp-extension-available-check', 'mainwp-page-speed-extension' );
+        self::$enabled_wordfence = apply_filters( 'mainwp-extension-available-check', 'mainwp-wordfence-extension' );
+        self::$enabled_maintenance = apply_filters( 'mainwp-extension-available-check', 'mainwp-maintenance-extension' );
+        self::$enabled_pagespeed = apply_filters( 'mainwp-extension-available-check', 'mainwp-page-speed-extension' );
 		self::$enabled_brokenlinks = apply_filters( 'mainwp-extension-available-check', 'mainwp-broken-links-checker-extension' );
 		self::$stream_tokens = apply_filters( 'mainwp_client_reports_tokens_groups', self::$stream_tokens );
 		self::$tokens_nav_top = apply_filters( 'mainwp_client_reports_tokens_nav_top', self::$tokens_nav_top );
@@ -1947,16 +1947,16 @@ class MainWP_CReport {
 			} else if ( 'newreport' == $_REQUEST['action'] ) {
 				if ( isset( $_GET['selected_site'] ) && ! empty( $_GET['selected_site'] ) ) {
 					$selected_site = $_GET['selected_site'];                                         
-                                }				
-                                $do_create_new_global = true;                                                                         
-                                $style_tab_edit = '';
+                }				
+                $do_create_new_global = true;                                                                         
+                $style_tab_edit = '';
 			} else if ($do_send && $report ) {
-                                $style_tab_edit = '';
-                        } else if ( $do_archive_get ) {
-                                $style_tab_edit = '';
-                        } else if ($do_send) {
-                                $style_tab_report = '';
-                        }
+                        $style_tab_edit = '';
+                } else if ( $do_archive_get ) {
+                        $style_tab_edit = '';
+                } else if ($do_send) {
+                        $style_tab_report = '';
+                }
 		} else if ( isset( $_POST['mainwp_creport_stream_groups_select'] ) || isset( $_GET['s'] ) || isset( $_GET['stream_orderby'] ) ) {
 			$style_tab_stream = '';
 		} else if (isset($_GET['tab']) && $_GET['tab'] == 'tab_tokens') {
@@ -1974,7 +1974,7 @@ class MainWP_CReport {
 				$errors[] = __( 'Error report data' );
 				$check_valid = false;
 			} 
-                        else {
+            else {
 				$sel_sites = unserialize( base64_decode( $report->sites ) );
 				$sel_groups = unserialize( base64_decode( $report->groups ) );
 				if ( ( ! is_array( $sel_sites ) || count( $sel_sites ) == 0) && ( ! is_array( $sel_groups ) || count( $sel_groups ) == 0) ) {
@@ -1983,31 +1983,31 @@ class MainWP_CReport {
 				}
 			}
                         
-                        if (!$check_valid) {
-                            $do_preview = $do_send = false;
-                        }
+            if (!$check_valid) {
+                $do_preview = $do_send = false;
+            }
                         
 			if ( $do_send && empty( $report->email ) ) {
 				$errors[] = __( 'Send To Email Address field can not be empty' );
 				$do_send = false;
 			}
                         
-                        if ($do_send && $report->scheduled) {
-                            $errors[] = __( 'Not send schuduled report' );
-                            $do_send = false;
-                            $action_group_report = '';
-                        }
+            if ($do_send && $report->scheduled) {
+                $errors[] = __( 'Not send schuduled report' );
+                $do_send = false;
+                $action_group_report = '';
+            }
 		}
                 
-                // do not load sites
-                if ( ($action_group_report === 'preview' && $current_is_archived ) || ($action_group_report === 'save_pdf' && $current_is_archived)) {
-                     $action_group_report = '';
-                } 
-                
-                $link_with_href = false;
-                if (!empty($action_group_report)) {
-                    $link_with_href = true;
-                }
+        // do not load sites
+        if ( ($action_group_report === 'preview' && $current_is_archived ) || ($action_group_report === 'save_pdf' && $current_is_archived)) {
+             $action_group_report = '';
+        } 
+
+        $link_with_href = false;
+        if (!empty($action_group_report)) {
+            $link_with_href = true;
+        }
  
 
 		$str_error = (count( $errors ) > 0) ? implode( '<br/>', $errors ) : '';
@@ -2049,13 +2049,13 @@ class MainWP_CReport {
 			}
 		}
                 
-                $lastReports = MainWP_CReport_DB::get_instance()->getOptionOfWebsites($sites_with_creport, 'creport_last_report');
-                $lastReportsSites = array(); 
-                if (is_array($lastReports)) {
-                    foreach($lastReports as $last) {
-                        $lastReportsSites[$last->wpid] = $last->value;
-                    }
-                }
+        $lastReports = MainWP_CReport_DB::get_instance()->getOptionOfWebsites($sites_with_creport, 'creport_last_report');
+        $lastReportsSites = array(); 
+        if (is_array($lastReports)) {
+            foreach($lastReports as $last) {
+                $lastReportsSites[$last->wpid] = $last->value;
+            }
+        }
                     
 		$selected_group = 0;
                 
@@ -2069,22 +2069,30 @@ class MainWP_CReport {
 		if ( empty( $report ) && ! $do_create_new_global ) {
 			$new_tab_lnk = '<a id="wpcr_edit_tab_lnk" href="#" report-id="0" class="mainwp_action mid">' . __( 'New Report' ) . '</a>';
 		} else { // button is new report button
-			$new_tab_lnk = '<a id="wpcr_new_tab_lnk" href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=newreport" class="mainwp_action mid">' . __( 'New Report' ) . '</a>'; }
+			$new_tab_lnk = '<a id="wpcr_new_tab_lnk" href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=newreport" class="mainwp_action ' . (empty($style_tab_edit) ? 'mainwp_action_down' : ''). ' mid">' . __( 'New Report' ) . '</a>'; }
 
 		$edit_global_tab_lnk = '';
 		if ( ! empty( $report ) ) {      
-                        $_href = '#';
-                        if ($link_with_href)
-                            $_href = 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=editreport&id=' . $report->id;
+            $_href = '#';
+            if ($link_with_href)
+                $_href = 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=editreport&id=' . $report->id;
 			$edit_global_tab_lnk = '<a id="wpcr_edit_global_tab_lnk" href="' . $_href . '" report-id="' . $report->id . '" class="mainwp_action mid mainwp_action_down">' . __( 'Edit Client Report' ) . '</a>';
 		}
                 
-                $scheduled_creport = false;
-                if (!empty($report) && !empty($report->scheduled) ) {
-                    $scheduled_creport = true;
-                }
+        $scheduled_creport = false;
+        if (!empty($report) && !empty($report->scheduled) ) {
+            $scheduled_creport = true;
+        }
                 
 		?>
+		<div class="mainwp-subnav-tabs">
+        	<a id="wpcr_report_tab_lnk" href="<?php echo ($link_with_href ? 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension' : '#'); ?>" class="mainwp_action left <?php echo (empty( $style_tab_report ) ? 'mainwp_action_down' : ''); ?>"><?php _e( 'Client Reports' ); ?></a>
+        	<?php echo $new_tab_lnk; ?>
+        	<?php echo $edit_global_tab_lnk; ?>
+        	<a id="wpcr_token_tab_lnk" href="<?php echo ($link_with_href ? 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension&tab=tab_tokens' : '#'); ?>" class="mainwp_action mid <?php echo (empty( $style_tab_token ) ? 'mainwp_action_down' : ''); ?>"><?php _e( 'Custom Report Tokens' ); ?></a>
+        	<a id="wpcr_stream_tab_lnk" href="<?php echo ($link_with_href ? 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension&tab=tab_dashboard' : '#'); ?>" class="mainwp_action right <?php echo (empty( $style_tab_stream ) ? 'mainwp_action_down' : ''); ?>"><?php _e( 'Child Reports Dashboard' ); ?></a>
+       <div style="clear: both;"></div>
+        </div> 
         <div class="wrap" id="mainwp-ap-option">
             <div class="clearfix"></div>           
             <div class="inside">                 
@@ -2094,11 +2102,6 @@ class MainWP_CReport {
                 <div id="mainwp_wpcr_option">
                     <div class="mainwp_error error" id="wpcr_error_box"></div>
                     <div class="clear">
-                        <br />
-                        <div class="mainwp-subnav-tabs">
-                        <a id="wpcr_report_tab_lnk" href="<?php echo ($link_with_href ? 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension' : '#'); ?>" class="mainwp_action left <?php echo (empty( $style_tab_report ) ? 'mainwp_action_down' : ''); ?>"><?php _e( 'Client Reports' ); ?></a><?php echo $new_tab_lnk; ?><?php echo $edit_global_tab_lnk; ?><a id="wpcr_token_tab_lnk" href="<?php echo ($link_with_href ? 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension&tab=tab_tokens' : '#'); ?>" class="mainwp_action mid <?php echo (empty( $style_tab_token ) ? 'mainwp_action_down' : ''); ?>"><?php _e( 'Custom Report Tokens' ); ?></a><a id="wpcr_stream_tab_lnk" href="<?php echo ($link_with_href ? 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension&tab=tab_dashboard' : '#'); ?>" class="mainwp_action right <?php echo (empty( $style_tab_stream ) ? 'mainwp_action_down' : ''); ?>"><?php _e( 'Child Reports Dashboard' ); ?></a>
-                        </div> 
-                        <br /><br />
                         <div class="mainwp-notice mainwp-notice-blue" style="margin-top: 15px;">
 							<span id="client-reports-tab-help"><?php _e( 'The Client Reports page provides you overview of you your reports. Here you can see all saved reports and use provied links to Preview, Edit, Send, Archive/Un-archive, Delete or download reports as PDF file.', 'mainwp-client-reports-extension' ); ?></span>
 							<span id="new-report-tab-help" style="display: none;"><?php _e( 'The New Report tab allows you to create a new report for your client(s). Once you are done with Report Settings and Report format, you can use buttons at the bottom of the page to Preview report, Send Test Email, Archive Report, Download Report as PDF file, Save Report or Send/Schedule the report.', 'mainwp-client-reports-extension' ); ?></span>
