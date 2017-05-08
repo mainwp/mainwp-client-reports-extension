@@ -1067,13 +1067,18 @@ showCReportTab = function (thisObj, report, edit_report, token, tream, edit_glob
         }
         
         var edit_report_tab_lnk = jQuery( "#wpcr_edit_tab_lnk" );
+        var new_report_tab_lnk = jQuery( "#wpcr_new_tab_lnk" );        
+        
         if (edit_report_tab_lnk.attr( 'report-id' ) > 0) {
             edit_report_tab_lnk.remove(); 
         } else {
             if (edit_report) {
-                edit_report_tab_lnk.addClass( 'mainwp_action_down' ); 
+                edit_report_tab_lnk.addClass( 'mainwp_action_down' );
+                new_report_tab_lnk.addClass( 'mainwp_action_down' );
+                
             } else {
                 edit_report_tab_lnk.removeClass( 'mainwp_action_down' ); 
+                new_report_tab_lnk.removeClass( 'mainwp_action_down' ); 
             }
         }
 

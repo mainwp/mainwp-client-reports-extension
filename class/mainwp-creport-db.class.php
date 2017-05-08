@@ -185,11 +185,11 @@ PRIMARY KEY  (`id`)  ';
                 
                 // create or update default reports
 		foreach ( $this->default_reports as $report ) {
-                        // update values                        
-                        $report['client'] = '[client.name]';
-                        $report['name'] = '[client.name]';
-                        $report['company'] = '[client.company]';
-                        $report['email'] = '[client.email]';                                 
+            // update values                        
+            $report['client'] = '[client.name]';
+            $report['name'] = '[client.name]';
+            $report['company'] = '[client.company]';
+            $report['email'] = '[client.email]';                                 
 			if ( $current = $this->get_report_by( 'title', $report['title'] ) ) {
 				$current = current( $current );
 				$report['id'] = $current->id;
@@ -802,16 +802,18 @@ $this->default_formats = array(
 				$report['client_id'] = 0;                                 
             }
 		}
-
+    
 		$report_fields = array(
-                        'id',
+            'id',
 			'title',
 			'date_from',
 			'date_to',
+            'date_from_nextsend',
+			'date_to_nextsend',            
 			'fname',
 			'fcompany',
 			'femail',
-                        'bcc_email',
+            'bcc_email',
 			'client_id',
 			'header',
 			'body',
@@ -821,7 +823,7 @@ $this->default_formats = array(
 			'nextsend',
 			'subject',			
 			'recurring_schedule',
-                        'recurring_day',
+            'recurring_day',
 			'schedule_send_email',
 			'schedule_bcc_me',
 			'is_archived',			
@@ -831,6 +833,8 @@ $this->default_formats = array(
 			'schedule_nextsend',			
 			'sites',
 			'groups',
+            'completed',
+            'completed_sites'
 		);
 
 		$update_report = array();

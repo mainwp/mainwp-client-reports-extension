@@ -1371,16 +1371,25 @@ class MainWP_CReport {
                 if (($current_recurring_schedule != $report['recurring_schedule']) || ($current_recurring_day != $report['recurring_day'])) {
                     $update_report_date = true;
                 }
+                
+                if ($update_report_date) {
+                    error_log('====update_report_date=======');
+                } else {
+                    error_log('====not update_report_date=======');
+                }
                 // only update date when create new report 
                 // or change from one-time to scheduled report
+                // or schedule settings changed
                 if ($update_report_date) {
                     $cal_recurring = self::calc_recurring_date( $report['recurring_schedule'], $report['recurring_day'] );                        
-                    if (is_array($cal_recurring)) {                       
+                    if (is_array($cal_recurring)) {    
+                        error_log('====updated=======');
                         $report['date_from'] = $cal_recurring['date_from'];
                         $report['date_to'] = $cal_recurring['date_to'];
                         $report['date_from_nextsend'] = 0; // need to be 0, will recalculate when schedule send
                         $report['date_to_nextsend'] = 0; // need to be 0, will recalculate when schedule send
                         $report['schedule_nextsend'] = $cal_recurring['schedule_nextsend'];
+                        $report['completed'] = $cal_recurring['schedule_nextsend']; // to fix continue sending
                     }
                 }
             } 
@@ -2069,7 +2078,7 @@ class MainWP_CReport {
 		if ( empty( $report ) && ! $do_create_new_global ) {
 			$new_tab_lnk = '<a id="wpcr_edit_tab_lnk" href="#" report-id="0" class="mainwp_action mid">' . __( 'New Report' ) . '</a>';
 		} else { // button is new report button
-			$new_tab_lnk = '<a id="wpcr_new_tab_lnk" href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=newreport" class="mainwp_action ' . (empty($style_tab_edit) ? 'mainwp_action_down' : ''). ' mid">' . __( 'New Report' ) . '</a>'; }
+			$new_tab_lnk = '<a id="wpcr_new_tab_lnk" href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=newreport" class="mainwp_action ' . ($do_create_new_global ? 'mainwp_action_down' : ''). ' mid">' . __( 'New Report' ) . '</a>'; }
 
 		$edit_global_tab_lnk = '';
 		if ( ! empty( $report ) ) {      
