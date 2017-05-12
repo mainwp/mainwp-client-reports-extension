@@ -142,7 +142,7 @@ PRIMARY KEY  (`id`)  ';
 `site_id` int(11) NOT NULL,
 `report_content` longtext NOT NULL,
 `report_content_pdf` longtext NOT NULL';
-		if ( '' == $currentVersion || '4.2' == $currentVersion ) {
+		if ( '' == $currentVersion || '4.2' == $currentVersion || '5.6' == $currentVersion) {
 			$tbl .= ',
 PRIMARY KEY  (`id`)  ';                         
                 }
