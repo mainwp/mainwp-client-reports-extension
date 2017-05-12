@@ -2,7 +2,7 @@
 Plugin Name: MainWP Client Reports Extension
 Plugin URI: https://mainwp.com
 Description: MainWP Client Reports Extension allows you to generate activity reports for your clients sites. Requires MainWP Dashboard.
-Version: 2.0.2
+Version: 2.1
 Author: MainWP
 Author URI: https://mainwp.com
 Icon URI:
@@ -18,18 +18,30 @@ Icon URI:
 
 == Changelog ==
 
-= 2.0.2 = 3-31-2017
+= 2.1 - 5-12-2017 =
+* Fixed: an issue with scheduling reports
+* Fixed: an issue with syncing site on new installations
+* Fixed: an issue with incorrect date range on scheduled reports
+* Fixed: an issue with sending reports to BCC email address
+* Fixed: multiple PHP warnings
+* Fixed: an issue with saving reports
+* Updated: report.daterange token to display only date
+* Updated: various CSS improvements
+* Updated: MainWP Child version requirement to 3.4
+* Updated: MainWP Child Reports version requirement to 1.7
+
+= 2.0.2 - 3-31-2017 =
 * Fixed: an issue with saving reports caused by a database error
 * Fixed: multiple typos
 * Fixed: an issue with using the [report.daterange] token in the email subject field
 * Added: a new [report.send.date] token
 
-= 2.0.1 = 3-24-2017
+= 2.0.1 - 3-24-2017 =
 * Fixed: an issue with saving reports caused by a database error
 * Fixed: CSS conflict issue
 * Updated: date format for Google Analytics data
 
-= 2.0 = 3-9-2017
+= 2.0 - 3-9-2017 =
 * Fixed: an issue with displaying client tokens
 * Fixed: an issue with updating scheduled reports
 * Fixed: an issue with displaying correct days in reports
@@ -66,12 +78,12 @@ Icon URI:
 * Removed: Stream plugin references 
 * Removed: unnecessary tips
 
-= 1.1 = 4-8-2016
+= 1.1 - 4-8-2016 =
 * Fixed: Bug with saving report header and footer templates
 * Fixed: Bug with saving report settings
 * Fixed: Bug with displaying local time for Last Run and Next Run values
 
-= 1.0 = 2-17-2016
+= 1.0 - 2-17-2016 =
 * Fixed: Bug with generating PDF file
 * Fixed: Bug with sending report caused by empty Client field
 * Fixed: Translation issue
@@ -85,7 +97,7 @@ Icon URI:
 * Updated: tcpdf library
 * Updated: Ability to send report to multiple emails
 
-= 0.1.2 = 8-3-2015
+= 0.1.2 - 8-3-2015 =
 * Added: Support for the MainWP Child Reports plugin
 * Added: Additional schedule options (Quarterly, Twice a Year, Yearly)
 
