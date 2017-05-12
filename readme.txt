@@ -5,7 +5,6 @@ Description: MainWP Client Reports Extension allows you to generate activity rep
 Version: 2.1
 Author: MainWP
 Author URI: https://mainwp.com
-Icon URI:
 
 == Installation ==
 
