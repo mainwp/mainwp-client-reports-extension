@@ -137,14 +137,11 @@ class MainWP_CReport_Extension {
 		$mwp_creport_stream->admin_init();
 	}
         
-        public static function getCronSchedules( $schedules ) {
-		$schedules['30minutely'] = array(
-			'interval' => 30 * 60, // 30 minutes in seconds
-			'display'  => __( 'Once every 30 minutes', 'mainwp' ),
-		);
-		$schedules['15minutely']  = array(
-			'interval' => 15 * 60, // 15 minute in seconds
-			'display'  => __( 'Once every 15 minutes', 'mainwp' ),
+    public static function getCronSchedules( $schedules ) {
+		
+		$schedules['5minutely']  = array(
+			'interval' => 5 * 60, // 5 minute in seconds
+			'display'  => __( 'Once every 5 minutes', 'mainwp' ),
 		);
 
 		return $schedules;

@@ -18,10 +18,12 @@ class MainWP_CReport {
 	private static $count_sec_header = 0;
 	private static $count_sec_body = 0;
 	private static $count_sec_footer = 0;
+    public $update_version = '1.0';
 
-        
-	public function __construct() {            
+
+    public function __construct() {            
             $this->handle_save_settings();
+            $this->check_update();
 	}
          
 	public static function init() {
@@ -755,6 +757,25 @@ class MainWP_CReport {
                 
 	}
 
+    public function check_update() {
+        
+        $update_version = get_option('mainwp_creport_update_version', false);
+        
+        if (version_compare($update_version, $this->update_version, '<>')) {
+            update_option('mainwp_creport_update_version', $this->update_version);            
+        }
+        
+        if (empty($update_version)) {
+            if ( $sched = wp_next_scheduled( 'mainwp_creport_cron_send_reports' ) ) {               
+                wp_unschedule_event( $sched, 'mainwp_creport_cron_send_reports' ); // reset
+            }
+            if ( $sched = wp_next_scheduled( 'mainwp_creport_cron_continue_send_reports' ) ) {
+                wp_unschedule_event( $sched, 'mainwp_creport_cron_continue_send_reports' ); // reset
+            }    
+        }
+        
+    }
+    
 	function managesite_backup( $website, $args, $information ) {
 		if ( empty( $website ) ) {
 			return; }
@@ -900,35 +921,33 @@ class MainWP_CReport {
 
 	public function init_cron() {
 		add_action( 'mainwp_creport_cron_archive_reports', array( 'MainWP_CReport', 'cron_archive_reports' ) );
-                add_action( 'mainwp_creport_cron_send_reports', array( 'MainWP_CReport', 'cron_send_reports' ) );
-                add_action( 'mainwp_creport_cron_continue_send_reports', array( 'MainWP_CReport', 'cron_continue_send_reports' ) );
+        add_action( 'mainwp_creport_cron_send_reports', array( 'MainWP_CReport', 'cron_send_reports' ) );
+        add_action( 'mainwp_creport_cron_continue_send_reports', array( 'MainWP_CReport', 'cron_continue_send_reports' ) );
 		$useWPCron = (false === get_option( 'mainwp_wp_cron' )) || (1 == get_option( 'mainwp_wp_cron' ));
         if ( ($sched = wp_next_scheduled( 'mainwp_creport_cron_archive_reports' )) == false ) {
             if ( $useWPCron ) {
-                $time = strtotime( date( 'Y-m-d' ) . ' 23:59:59' );
-                // minutely
+                $time = strtotime( date( 'Y-m-d' ) . ' 23:59:59' );                
                 wp_schedule_event( $time, 'daily', 'mainwp_creport_cron_archive_reports' );
             }
         } else {
             if ( ! $useWPCron ) {
-                    wp_unschedule_event( $sched, 'mainwp_creport_cron_archive_reports' ); 
+                wp_unschedule_event( $sched, 'mainwp_creport_cron_archive_reports' ); 
             }
         }
 
         if ( ($sched = wp_next_scheduled( 'mainwp_creport_cron_send_reports' )) == false ) {
             if ( $useWPCron ) {				
-                wp_schedule_event( time(), '15minutely', 'mainwp_creport_cron_send_reports' );
+                wp_schedule_event( time(), '5minutely', 'mainwp_creport_cron_send_reports' );
             }
         } else {
             if ( ! $useWPCron ) {
-                    wp_unschedule_event( $sched, 'mainwp_creport_cron_send_reports' ); 
-
+                wp_unschedule_event( $sched, 'mainwp_creport_cron_send_reports' ); 
             }
         }
 
         if ( ($sched = wp_next_scheduled( 'mainwp_creport_cron_continue_send_reports' )) == false ) {
             if ( $useWPCron ) {				
-                wp_schedule_event( time(), '5minutely', 'mainwp_creport_cron_continue_send_reports' );
+                wp_schedule_event( time(), 'minutely', 'mainwp_creport_cron_continue_send_reports' );
             }
         } else {
             if ( ! $useWPCron ) {
@@ -1010,7 +1029,7 @@ class MainWP_CReport {
 	}
         
     public static function cron_continue_send_reports() {
-        do_action('mainp_log_debug', 'CRON :: Client Report :: continue send group reports'); 
+        do_action('mainp_log_debug', 'CRON :: Client Report :: continue send reports'); 
 
 		@ignore_user_abort( true );
 		@set_time_limit( 0 );
@@ -1076,7 +1095,7 @@ class MainWP_CReport {
                     continue;
                 }
 
-                $website =  $site = MainWP_CReport_Utility::map_site( $dbsite, array( 'id', 'name', 'url' ) );  
+                $website =  MainWP_CReport_Utility::map_site( $dbsite, array( 'id', 'name', 'url' ) );  
 
                 if ( $errorOutput == null ) {
                         $errorOutput = '';
@@ -1091,14 +1110,14 @@ class MainWP_CReport {
 
                 $report = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $report->id );
 
-                $completed_sites = $report->completed_sites;
-
-                if ( $completed_sites != '' ) {
-                    $completed_sites = json_decode( $completed_sites, true );
-                }
-                if ( ! is_array( $completed_sites ) ) {
-                    $completed_sites = array();
-                }
+//                $completed_sites = $report->completed_sites;
+//
+//                if ( $completed_sites != '' ) {
+//                    $completed_sites = json_decode( $completed_sites, true );
+//                }
+//                if ( ! is_array( $completed_sites ) ) {
+//                    $completed_sites = array();
+//                }
 
                 $completed_sites[ $siteid ] = true;
                 MainWP_CReport_DB::get_instance()->update_reports_completed_sites( $report->id, $completed_sites );
@@ -1119,9 +1138,12 @@ class MainWP_CReport {
 
 		return ( $errorOutput == '' );
 	}
-        
-        
-	public static function calc_recurring_date( $schedule, $recurring_day) {                
+    
+    public static function cal_days_in_month( $month, $year ) {        
+        return date('t', mktime(0, 0, 0, $month, 1, $year));
+    }
+
+    public static function calc_recurring_date( $schedule, $recurring_day) {                
 		if ( empty( $schedule ) ) {
 			return false;                         
         }                
@@ -1130,50 +1152,69 @@ class MainWP_CReport {
 		$end_today = strtotime( date( 'Y-m-d' ) . ' 23:59:59' );
 
 		$date_from = $date_to = $schedule_nextsend = 0;
-		
-                if ( 'daily' == $schedule ) {
-                        $date_from = $today;
-                        $date_to = $end_today;
-                        $schedule_nextsend = $end_today + 2;                                 
-                } 
-                else if ( 'weekly' == $schedule ) {
-                        // for strtotime()
-                        $day_of_week = array(
-                            1 => 'monday',
-                            2 => 'tuesday',			
-                            3 => 'wednesday',			
-                            4 => 'thursday',
-                            5 => 'friday',
-                            6 => 'saturday',
-                            7 => 'sunday',
-                        );
-                        $date_from = $today;                        
-                        $date_to = $today + 7 * 24 * 3600 - 1;
-                        $schedule_nextsend = strtotime('next ' . $day_of_week[$recurring_day]) + 1;  // day of next week                                                       
-                        if ( $schedule_nextsend < $date_to ) { // to fix
-                            $schedule_nextsend += 7 * 24 * 3600;
-                        }
-                } 
-                else if ( 'monthly' == $schedule ) {
-                        $first_date = date('Y-m-01', time()); // first day of month
-                        $last_date = date("Y-m-t", time()); // Date t parameter return days number in current month.                                
-                        $date_from = strtotime($first_date . ' 00:00:00'); 
-                        $date_to = strtotime($last_date . ' 23:59:59'); 
-                        $max_d = cal_days_in_month(CAL_GREGORIAN, date('m') + 1, date('Y'));
-                        if ($recurring_day > $max_d)                                    
-                            $recurring_day = $max_d;
-                        $schedule_nextsend = mktime(0, 0, 1, date('m') + 1, $recurring_day, date('Y'));
-                } 
-                else if ( 'yearly' == $schedule ) {                                                                                       
-                        $date_from = strtotime(date('Y-01-01')); // first day of year
-                        $last_date = date('Y-m-d', strtotime('Dec 31')); // last day of year
-                        $date_to = strtotime($last_date . ' 23:59:59'); 
-                        list($m, $d) = explode( '-', $recurring_day);
-                        $max_d = cal_days_in_month(CAL_GREGORIAN, $m, date('Y') + 1);
-                        if ($d > $max_d)                                    
-                            $d = $max_d;
-                        $schedule_nextsend = mktime(0, 0, 1, $m, $d, date('Y') + 1);                                
-                }                        			
+                        
+        if ( 'daily' == $schedule ) {
+                $date_from = $today;
+                $date_to = $end_today;
+                $schedule_nextsend = $end_today + 2;                                 
+        } 
+        else if ( 'weekly' == $schedule ) {
+                // for strtotime()
+                $day_of_week = array(
+                    1 => 'monday',
+                    2 => 'tuesday',			
+                    3 => 'wednesday',			
+                    4 => 'thursday',
+                    5 => 'friday',
+                    6 => 'saturday',
+                    7 => 'sunday',
+                );
+                $date_from = $today;                        
+                $date_to = $today + 7 * 24 * 3600 - 1;
+                $schedule_nextsend = strtotime('next ' . $day_of_week[$recurring_day]) + 1;  // day of next week                                                       
+                if ( $schedule_nextsend < $date_to ) { // to fix
+                    $schedule_nextsend += 7 * 24 * 3600;
+                }
+        } 
+        else if ( 'monthly' == $schedule ) {
+                $first_date = date('Y-m-01', time()); // first day of month
+                $last_date = date("Y-m-t", time()); // Date t parameter return days number in current month.                                
+                $date_from = strtotime($first_date . ' 00:00:00'); 
+                $date_to = strtotime($last_date . ' 23:59:59');
+                
+                $cal_month = date('m') + 1;
+                $cal_year = date('Y') + 1;
+                if ($cal_month > 12) {
+                    $cal_month = 12 - $cal_month;
+                    $cal_year += 1;
+                }
+        
+                if (function_exists('cal_days_in_month')) {
+                    $max_d = cal_days_in_month(CAL_GREGORIAN, $cal_month, $cal_year);
+                } else {
+                    $max_d = self::cal_days_in_month($cal_month, $cal_year);
+                }
+
+                if ($recurring_day > $max_d)                                    
+                    $recurring_day = $max_d;
+                $schedule_nextsend = mktime(0, 0, 1, date('m') + 1, $recurring_day, date('Y'));
+        } 
+        else if ( 'yearly' == $schedule ) {                                                                                       
+                $date_from = strtotime(date('Y-01-01')); // first day of year
+                $last_date = date('Y-m-d', strtotime('Dec 31')); // last day of year
+                $date_to = strtotime($last_date . ' 23:59:59'); 
+                list($m, $d) = explode( '-', $recurring_day);
+
+                if (function_exists('cal_days_in_month')) {
+                    $max_d = cal_days_in_month(CAL_GREGORIAN, $m, date('Y') + 1);
+                } else {
+                    $max_d = self::cal_days_in_month($m, date('Y') + 1);
+                }
+
+                if ($d > $max_d)                                    
+                    $d = $max_d;
+                $schedule_nextsend = mktime(0, 0, 1, $m, $d, date('Y') + 1);                                
+        }                        			
                 
 		return array(
                     'date_from' => $date_from,
@@ -1372,18 +1413,13 @@ class MainWP_CReport {
                     $update_report_date = true;
                 }
                 
-                if ($update_report_date) {
-                    error_log('====update_report_date=======');
-                } else {
-                    error_log('====not update_report_date=======');
-                }
                 // only update date when create new report 
                 // or change from one-time to scheduled report
                 // or schedule settings changed
                 if ($update_report_date) {
                     $cal_recurring = self::calc_recurring_date( $report['recurring_schedule'], $report['recurring_day'] );                        
                     if (is_array($cal_recurring)) {    
-                        error_log('====updated=======');
+                        
                         $report['date_from'] = $cal_recurring['date_from'];
                         $report['date_to'] = $cal_recurring['date_to'];
                         $report['date_from_nextsend'] = 0; // need to be 0, will recalculate when schedule send
@@ -1608,24 +1644,15 @@ class MainWP_CReport {
 		if ( $email_has_token || $subject_has_token ) {
 			$sites = $groups = array();
 			
-                        if ( !empty($site) ) { // send global report
-                            if (isset($site['id'])) {
-				$sites = array( $site['id'] );
-                            }
-				
+            if ( !empty($site) ) { // send global report
+                if (isset($site['id'])) {
+                    $sites = array( $site['id'] );
+                }				
 			} 
-                        
-			if ( ! is_array( $sites ) ) {
-				$sites = array();                                 
-                        }
-                        
-			if ( ! is_array( $groups ) ) {
-				$groups = array();                                 
-                        }
+                                         			
+            $dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sites, $groups );
 			
-                        $dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sites, $groups );
-			
-                        foreach ( $dbwebsites as $dbsite ) {
+            foreach ( $dbwebsites as $dbsite ) {
 				if ( $email_has_token ) {
 					$token = MainWP_CReport_DB::get_instance()->get_tokens_by( 'token_name', $send_to_email, $dbsite->url );
 					if ( $token ) {
@@ -1633,7 +1660,8 @@ class MainWP_CReport {
 					}
 				}
 				if ( $subject_has_token ) {
-					$sites_token[ $dbsite->id ] = MainWP_CReport_DB::get_instance()->get_site_tokens( $dbsite->url, 'token_name' ); }
+					$sites_token[ $dbsite->id ] = MainWP_CReport_DB::get_instance()->get_site_tokens( $dbsite->url, 'token_name' );                     
+                }
 			}
 		}
 
@@ -1726,7 +1754,7 @@ class MainWP_CReport {
                                         if (!$send_test) {
                                             $lastsend = time();
                                             $values = array(
-                                                'lastsend' => $lastsend                            
+                                                'lastsend' => $lastsend  // to display last send time                          
                                             );                        
                                             MainWP_CReport_DB::get_instance()->update_reports_with_values($report->id, $values );                                               
                                             MainWP_CReport_DB::get_instance()->updateWebsiteOption($site_id, 'creport_last_report', $lastsend );                                                
@@ -1848,20 +1876,20 @@ class MainWP_CReport {
              
 		if ( isset( $_POST['mwp_creport_report_submit_action'] ) ) {                    
 			if ( 'sendreport' === (string) $_POST['mwp_creport_report_submit_action'] ) {
-				$do_send = true;                                 
-                        } else if ( 'send_test_email' === (string) $_POST['mwp_creport_report_submit_action'] ) {
-				$do_send_test_email = true;                                 
-                        } else if ( 'save_pdf' === (string) $_POST['mwp_creport_report_submit_action'] ) {
-                                $do_save_pdf = true;                                         
-                        } else if ( 'preview' === (string) $_POST['mwp_creport_report_submit_action'] ) {
-                                $do_preview = true;                                         
-                        } else if ( 'archive_report' === (string) $_POST['mwp_creport_report_submit_action'] ) {
-                                $do_archive = true;                                                 
-                        } else if ( 'unarchive_report' == $_POST['mwp_creport_report_submit_action'] ) {
-                                $do_un_archive = true;                                                 
-                        } 
-                        if (in_array( $_POST['mwp_creport_report_submit_action'], $filter_group_report_actions ))
-                            $action_group_report = $_POST['mwp_creport_report_submit_action'];    
+                $do_send = true;                                 
+            } else if ( 'send_test_email' === (string) $_POST['mwp_creport_report_submit_action'] ) {
+                $do_send_test_email = true;                                 
+            } else if ( 'save_pdf' === (string) $_POST['mwp_creport_report_submit_action'] ) {
+                $do_save_pdf = true;                                         
+            } else if ( 'preview' === (string) $_POST['mwp_creport_report_submit_action'] ) {
+                $do_preview = true;                                         
+            } else if ( 'archive_report' === (string) $_POST['mwp_creport_report_submit_action'] ) {
+                $do_archive = true;                                                 
+            } else if ( 'unarchive_report' == $_POST['mwp_creport_report_submit_action'] ) {
+                $do_un_archive = true;                                                 
+            } 
+            if (in_array( $_POST['mwp_creport_report_submit_action'], $filter_group_report_actions ))
+                $action_group_report = $_POST['mwp_creport_report_submit_action'];    
 		}
 
 		if ( isset( $_REQUEST['id'] ) ) {
@@ -1960,12 +1988,12 @@ class MainWP_CReport {
                 $do_create_new_global = true;                                                                         
                 $style_tab_edit = '';
 			} else if ($do_send && $report ) {
-                        $style_tab_edit = '';
-                } else if ( $do_archive_get ) {
-                        $style_tab_edit = '';
-                } else if ($do_send) {
-                        $style_tab_report = '';
-                }
+                    $style_tab_edit = '';
+            } else if ( $do_archive_get ) {
+                    $style_tab_edit = '';
+            } else if ($do_send) {
+                    $style_tab_report = '';
+            }
 		} else if ( isset( $_POST['mainwp_creport_stream_groups_select'] ) || isset( $_GET['s'] ) || isset( $_GET['stream_orderby'] ) ) {
 			$style_tab_stream = '';
 		} else if (isset($_GET['tab']) && $_GET['tab'] == 'tab_tokens') {
@@ -1976,9 +2004,9 @@ class MainWP_CReport {
 			$style_tab_report = '';                         
                 }
                         
-                $sel_sites = $sel_groups = array();      
-		if ( $do_preview || $do_send || $do_send_test_email) {
-                        $check_valid = true;
+            $sel_sites = $sel_groups = array();      
+            if ( $do_preview || $do_send || $do_send_test_email) {
+                $check_valid = true;
 			if ( empty( $report ) || ! is_object( $report ) ) {
 				$errors[] = __( 'Error report data' );
 				$check_valid = false;
@@ -3367,54 +3395,46 @@ class MainWP_CReport {
 				$subject_tooltip = preg_replace_callback( '/\[.+\]/is', array( 'MainWP_CReport', 'tooltip_mark_token' ), $subject_tooltip );
 			}
 
-//			if ( empty( $report->type ) ) {
-//				$website = ($report->selected_site && isset( $websites[ $report->selected_site ] )) ? $websites[ $report->selected_site ] : null;
-//				$site_column = '';
-//				if ( ! empty( $website ) ) {
-//					$site_column = '<a href="admin.php?page=managesites&dashboard=' . $website['id'] . '">' . esc_html( stripslashes($website['name']) ) . '</a><br>' .
-//                                        '<div class="row-actions"><span class="dashboard"><a href="admin.php?page=managesites&dashboard=' . $website['id'] . '">' . __( 'Overview', 'mainwp-client-reports-extension' ) . '</a></span> | ' .
-//                                        '<span class="edit"><a href="admin.php?page=managesites&id=' . $website['id'] . '">' . __( 'Edit' ) . '</a></span></div>';
-//				}
-//			}
-
 			$sche_column = _( 'Manually' );
 			if ( ! empty( $report->recurring_schedule ) && ! empty( $report->scheduled ) ) {
 				$sche_column = $recurring_schedule[ $report->recurring_schedule ];
 				if ( ! empty( $report->schedule_nextsend ) ) {
-					$sche_column .= '<br><em>Next Run: ' . MainWP_CReport_Utility::format_datestamp( MainWP_CReport_Utility::get_timestamp( $report->schedule_nextsend ) ) . '</em>'; }
+					$sche_column .= '<br><em>Next Run: ' . MainWP_CReport_Utility::format_datestamp( $report->schedule_nextsend ) . '</em>';                     
+                }
 			}
                         
-                        $row_action_class = '';
-                        if ($report->scheduled) {
-                            $row_action_class .= 'scheduled '; 
-                        } else {
-                            $row_action_class .= 'noscheduled '; 
-                        }
-                        if ($report->is_archived) {
-                            $row_action_class .= 'archived '; 
-                        } else {
-                            $row_action_class .= 'noarchived '; 
-                        }
-                        
-                        $sel_sites = unserialize( base64_decode( $report->sites ) );
-                        $sel_groups = unserialize( base64_decode( $report->groups ) );
-                                                        
-                        if ( ! is_array( $sel_sites ) ) {
-                                $sel_sites = array();                                                                 
-                        }
-                        if ( ! is_array( $sel_groups ) ) {
-                                $sel_groups = array();                                                                 
-                        }
-                        
-                        $disable_act_buttons = true;
-                        if (count($sel_sites) > 0 || count($sel_groups) > 0) {                                                           
-                            $disable_act_buttons = false;
-                        }    
-                                                        
-                        $disable_style = '';                                                        
-                        if ($disable_act_buttons) {
-                            $disable_style = 'disabled="disabled"';
-                        }
+            $row_action_class = '';
+            if ($report->scheduled) {
+                $row_action_class .= 'scheduled '; 
+            } else {
+                $row_action_class .= 'noscheduled '; 
+            }
+            if ($report->is_archived) {
+                $row_action_class .= 'archived '; 
+            } else {
+                $row_action_class .= 'noarchived '; 
+            }
+
+            $sel_sites = unserialize( base64_decode( $report->sites ) );
+            $sel_groups = unserialize( base64_decode( $report->groups ) );
+
+            if ( ! is_array( $sel_sites ) ) {
+                $sel_sites = array();                                                                 
+            }
+            
+            if ( ! is_array( $sel_groups ) ) {
+                $sel_groups = array();                                                                 
+            }
+
+            $disable_act_buttons = true;
+            if (count($sel_sites) > 0 || count($sel_groups) > 0) {                                                           
+                $disable_act_buttons = false;
+            }    
+
+            $disable_style = '';                                                        
+            if ($disable_act_buttons) {
+                $disable_style = 'disabled="disabled"';
+            }
                                                         
 			?>   
         <tr id="<?php echo $report->id; ?>" >      
@@ -3476,7 +3496,7 @@ class MainWP_CReport {
                     ?>
             </td> 
             <td> 
-                    <?php echo ! empty( $report->lastsend ) ? MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $report->lastsend ) ): ''; ?>
+                    <?php echo ! empty( $report->lastsend ) ? MainWP_CReport_Utility::format_timestamp( $report->lastsend ): ''; ?>
             </td>
             <td> 
                     <?php echo ! empty( $report->date_from ) ? 'From: ' . MainWP_CReport_Utility::format_datestamp( $report->date_from ) . '<br>' : ''; ?>

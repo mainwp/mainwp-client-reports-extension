@@ -1160,8 +1160,8 @@ $this->default_formats = array(
     public function update_reports_send( $id ) {	
                 global $wpdb;
                 return $wpdb->update( $this->table_name( 'client_report' ), array(
-                        'schedule_lastsend'        => time(),                        
-                        'completed_sites' => json_encode( array() ),
+                        'schedule_lastsend'     => time(),                        
+                        'completed_sites'       => json_encode( array() ),
                 ), array( 'id' => $id ) );
 		return false;
 	}
