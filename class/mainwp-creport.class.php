@@ -2612,7 +2612,7 @@ class MainWP_CReport {
             $replace_tokens_values['[report.daterange]'] = MainWP_CReport_Utility::format_date( $report->date_from ) . ' - ' . MainWP_CReport_Utility::format_date( $report->date_to );            
             $now = time();
             $replace_tokens_values['[report.send.date]'] = MainWP_CReport_Utility::format_timestamp( $now );
-			$replace_tokens_values = apply_filters('mainwp_client_reports_custom_tokens', $replace_tokens_values, $report);
+			$replace_tokens_values = apply_filters('mainwp_client_reports_custom_tokens', $replace_tokens_values, $report, $website);
 			
 			$report_header = $report->header;
 			$report_body = $report->body;
