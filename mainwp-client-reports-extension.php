@@ -41,16 +41,16 @@ class MainWP_CReport_Extension {
 		add_action( 'init', array( &$this, 'init' ) );
 		add_filter( 'plugin_row_meta', array( &$this, 'plugin_row_meta' ), 10, 2 );		
 		add_action( 'admin_init', array( &$this, 'admin_init' ) );
-                add_action( 'in_admin_header', array( &$this, 'in_admin_head' ) ); // Adds Help Tab in admin header
+        add_action( 'in_admin_header', array( &$this, 'in_admin_head' ) ); // Adds Help Tab in admin header
 		add_filter( 'mainwp-sync-extensions-options', array( &$this, 'mainwp_sync_extensions_options' ), 10, 1 );		
-                add_filter( 'mainwp-sync-others-data', array( $this, 'sync_others_data' ), 10, 2 );
+        add_filter( 'mainwp-sync-others-data', array( $this, 'sync_others_data' ), 10, 2 );
 		add_action( 'mainwp-site-synced', array( &$this, 'site_synced' ), 10, 2 );
-                add_action( 'mainwp_delete_site', array( &$this, 'on_delete_site' ), 10, 1 );
+        add_action( 'mainwp_delete_site', array( &$this, 'on_delete_site' ), 10, 1 );
               
-                if ( isset( $_GET['page'] ) && ('Extensions-Mainwp-Client-Reports-Extension' == $_GET['page'])) {
-                    require_once 'includes/functions.php';
-                    add_action( 'admin_print_footer_scripts', 'mainwp_creport_admin_print_footer_scripts');
-                }
+        if ( isset( $_GET['page'] ) && ('Extensions-Mainwp-Client-Reports-Extension' == $_GET['page'])) {
+            require_once 'includes/functions.php';
+            add_action( 'admin_print_footer_scripts', 'mainwp_creport_admin_print_footer_scripts');
+        }
                 
 		MainWP_CReport_DB::get_instance()->install();
                 

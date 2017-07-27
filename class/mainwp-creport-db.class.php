@@ -338,7 +338,7 @@ PRIMARY KEY  (`id`)  ';
                             `site_id` int(11) NOT NULL,
                             `report_content` longtext NOT NULL,
                             `report_content_pdf` longtext NOT NULL,
-                            PRIMARY KEY  (`id`)'; 
+                            PRIMARY KEY (`id`)'; 
                             $tbl .= ') ' . $charset_collate;
 
                             $sql[] = $tbl;
@@ -883,27 +883,26 @@ $this->default_formats = array(
 		return false;
 	}
         
-        public function get_group_report_content( $report_id, $site_id = null) {
+    public function get_group_report_content( $report_id, $site_id = null) {
 		global $wpdb;
 
 		if ( empty( $report_id ) ) {
-                    return false;                         
-                }                
-                
-                if (!empty($site_id)) {
-                    $sql = $wpdb->prepare('SELECT * FROM ' . $this->table_name( 'client_group_report_content' ) 
-                            . ' WHERE `report_id` = %d AND `site_id` = %d ', $report_id, $site_id );
-                    return $wpdb->get_row( $sql );
-                } else {
-                    $sql = $wpdb->prepare('SELECT * FROM ' . $this->table_name( 'client_group_report_content' ) 
-                            . ' WHERE `report_id` = %d ', $report_id );
-                    return $wpdb->get_results( $sql );
-                }
-                
+            return false;                         
+        }                
+
+        if (!empty($site_id)) {
+            $sql = $wpdb->prepare('SELECT * FROM ' . $this->table_name( 'client_group_report_content' ) 
+                    . ' WHERE `report_id` = %d AND `site_id` = %d ', $report_id, $site_id );
+            return $wpdb->get_row( $sql );
+        } else {
+            $sql = $wpdb->prepare('SELECT * FROM ' . $this->table_name( 'client_group_report_content' ) 
+                    . ' WHERE `report_id` = %d ', $report_id );
+            return $wpdb->get_results( $sql );
+        }                
                 
 	}
         
-        public function delete_group_report_content( $report_id = null, $site_id = null) {
+    public function delete_group_report_content( $report_id = null, $site_id = null) {
 		global $wpdb;                
                 if (!empty($report_id) && !empty($site_id)) {
                     $sql = $wpdb->prepare('DELETE FROM ' . $this->table_name( 'client_group_report_content' ) 
@@ -1126,11 +1125,14 @@ $this->default_formats = array(
         
     public function get_scheduled_reports_to_send() {
 		global $wpdb;
+        // to fixed to send in local time
+        $gmtOffset = get_option( 'gmt_offset' );
+        $offset = $gmtOffset ? ($gmtOffset * HOUR_IN_SECONDS) : 0;        
 		$sql = 'SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
 				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
 				. ' ON rp.client_id = c.clientid '
 				. " WHERE rp.recurring_schedule != '' AND rp.scheduled = 1 " 
-                . " AND rp.schedule_nextsend < " . time();   		
+                . " AND rp.schedule_nextsend < " . time();
 		return $wpdb->get_results( $sql );
 	}
         
@@ -1152,7 +1154,7 @@ $this->default_formats = array(
 			return false;
 		}
                 
-                global $wpdb;
+        global $wpdb;
 		return $wpdb->update( $this->table_name( 'client_report' ), $values, array( 'id' => $id ) );
 	}
         
