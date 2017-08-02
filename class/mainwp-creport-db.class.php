@@ -172,7 +172,7 @@ PRIMARY KEY  (`id`)  ';
                 // create or update default token
 		foreach ( $this->default_tokens as $token_name => $token_description ) {
 			$token = array(
-                                'type' => 1,
+                'type' => 1,
 				'token_name' => $token_name,
 				'token_description' => $token_description,
 			);
@@ -1125,10 +1125,7 @@ $this->default_formats = array(
         
     public function get_scheduled_reports_to_send() {
 		global $wpdb;
-        // to fixed to send in local time
-        $gmtOffset = get_option( 'gmt_offset' );
-        $offset = $gmtOffset ? ($gmtOffset * HOUR_IN_SECONDS) : 0;        
-		$sql = 'SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
+        $sql = 'SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
 				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
 				. ' ON rp.client_id = c.clientid '
 				. " WHERE rp.recurring_schedule != '' AND rp.scheduled = 1 " 

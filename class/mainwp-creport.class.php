@@ -976,6 +976,9 @@ class MainWP_CReport {
         $allReportsToSend   = array();
 		$allGroupReports = MainWP_CReport_DB::get_instance()->get_scheduled_reports_to_send();
 		foreach ( $allGroupReports as $report ) {   
+            if ( time() < $report->schedule_nextsend ) {
+                continue;
+			}
             $allReportsToSend[] = $report;
 		}
         unset($allGroupReports);
@@ -1115,9 +1118,6 @@ class MainWP_CReport {
 		if ( empty( $schedule ) ) {
 			return false;                         
         }                
-                
-        $gmtOffset = get_option( 'gmt_offset' );
-        $offset = $gmtOffset ? ($gmtOffset * HOUR_IN_SECONDS) : 0;   
         
 		$today = strtotime( date( 'Y-m-d' ) . ' 00:00:00' );
 		$end_today = strtotime( date( 'Y-m-d' ) . ' 23:59:59' );
@@ -1127,7 +1127,7 @@ class MainWP_CReport {
         if ( 'daily' == $schedule ) {
                 $date_from = $today;
                 $date_to = $end_today;
-                $schedule_nextsend = $end_today + 2; // to fix send multi time of daily scheduled report                 
+                $schedule_nextsend = $end_today + 2; 
         } 
         else if ( 'weekly' == $schedule ) {
                 // for strtotime()
@@ -1452,20 +1452,20 @@ class MainWP_CReport {
 			//$selected_site = 0;
 			$selected_sites = $selected_groups = array();
 
-                        if ( isset( $_POST['select_by'] ) ) {
-                                if ( isset( $_POST['selected_sites'] ) && is_array( $_POST['selected_sites'] ) ) {
-                                        foreach ( $_POST['selected_sites'] as $selected ) {
-                                                $selected_sites[] = intval( $selected );
-                                        }
-                                }
+            if ( isset( $_POST['select_by'] ) ) {
+                    if ( isset( $_POST['selected_sites'] ) && is_array( $_POST['selected_sites'] ) ) {
+                            foreach ( $_POST['selected_sites'] as $selected ) {
+                                    $selected_sites[] = intval( $selected );
+                            }
+                    }
 
-                                if ( isset( $_POST['selected_groups'] ) && is_array( $_POST['selected_groups'] ) ) {
-                                        foreach ( $_POST['selected_groups'] as $selected ) {
-                                                $selected_groups[] = intval( $selected );
-                                        }
-                                }
-                        }
-                        $report['type'] = 1;
+                    if ( isset( $_POST['selected_groups'] ) && is_array( $_POST['selected_groups'] ) ) {
+                            foreach ( $_POST['selected_groups'] as $selected ) {
+                                    $selected_groups[] = intval( $selected );
+                            }
+                    }
+            }
+            $report['type'] = 1;
 
 			$report['sites'] = !empty($selected_sites) ? base64_encode( serialize( $selected_sites ) ) : '';
 			$report['groups'] = !empty($selected_groups) ? base64_encode( serialize( $selected_groups ) ) : '';
@@ -4599,7 +4599,7 @@ class MainWP_CReport {
                 die($html);                       
 	}
                         
-        public static function ajax_generate_group_report() {
+    public static function ajax_generate_group_report() {
             self::verify_nonce();
             $report_id = $_POST['report_id']; 
             $site_id = $_POST['site_id'];
