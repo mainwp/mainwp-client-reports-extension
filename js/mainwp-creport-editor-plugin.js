@@ -2050,8 +2050,11 @@
                                                 onclick: function() {
                                                     editor.insertContent('[aum.uptime60]');
                                                 }
-
-
+                                            }, {
+                                                text: '[aum.stats] - Displays the Uptime Statistics',
+                                                onclick: function() {
+                                                    editor.insertContent('[aum.stats]');
+                                                }
                                             }]
                                     },
                                     {

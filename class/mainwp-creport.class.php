@@ -618,6 +618,7 @@ class MainWP_CReport {
 					array( 'name' => 'aum.uptime30', 'desc' => 'Displays the Uptime ration for last 30 days' ),
 					array( 'name' => 'aum.uptime45', 'desc' => 'Displays the Uptime ration for last 45 days' ),
 					array( 'name' => 'aum.uptime60', 'desc' => 'Displays the Uptime ration for last 60 days' ),
+                    array( 'name' => 'aum.stats', 'desc' => 'Displays the Uptime Statistics' ),
 				),
 			),
 			'woocomstatus' => array(
@@ -1575,7 +1576,7 @@ class MainWP_CReport {
                 $subject = 'Send Test Email';
             }
         } else {    
-            if ($report->scheduled) {            
+            if (!empty($report->scheduled)) {            
                 if ( $report->schedule_send_email == 'email_auto' ) {
                         if ( $report->schedule_bcc_me ) {
                             $bcc_email = $noti_email;                                                         
@@ -2404,35 +2405,33 @@ class MainWP_CReport {
 			$reports = array( $reports );
 		}		
 		
-                if ( $return_array || $global_report ) {
+        if ( $return_array || $global_report ) {
 			ob_start();                         
-                }
-                
+        }
+        
 		foreach ( $reports as $site_id => $report ) {
 			if ( ! $return_array ) {
 				ob_start();                                 
-                        }
-
+            }
 			if ( is_array( $report ) && isset( $report['error'] ) ) {
-                                echo $report['error'];
+                echo $report['error'];
 			} else if ( is_object( $report ) ) {
-                                echo stripslashes( nl2br( $report->filtered_header ) ); 
-                                echo stripslashes( nl2br( $report->filtered_body ) );
-                                echo stripslashes( nl2br( $report->filtered_footer ) );				
+                echo stripslashes( nl2br( $report->filtered_header ) ); 
+                echo stripslashes( nl2br( $report->filtered_body ) );
+                echo stripslashes( nl2br( $report->filtered_footer ) );
 			}
-
 			if ( ! $return_array ) {
 				$html = ob_get_clean();
 				$output[ $site_id ] = $html;
 			}
 		}
                 
-                if ($global_report) {
-                    $output = ob_get_clean();
-                } else if ( $return_array ) {
-                    $html = ob_get_clean();
-                    $output[] = $html;
-                }                
+        if ($global_report) {
+            $output = ob_get_clean();
+        } else if ( $return_array ) {
+            $html = ob_get_clean();
+            $output[] = $html;
+        }                
 		return $output;
 	}
 
@@ -2519,7 +2518,7 @@ class MainWP_CReport {
 		$get_ga_chart = $get_ga_chart || (((strpos( $report->header, '[ga.visits.maximum]' ) !== false) || (strpos( $report->body, '[ga.visits.maximum]' ) !== false) || (strpos( $report->footer, '[ga.visits.maximum]' ) !== false)) ? true : false);
 
 		$get_piwik_tokens = ((strpos( $report->header, '[piwik.' ) !== false) || (strpos( $report->body, '[piwik.' ) !== false) || (strpos( $report->footer, '[piwik.' ) !== false)) ? true : false;
-		$get_aum_tokens = ((strpos( $report->header, '[aum.' ) !== false) || (strpos( $report->body, '[aum.' ) !== false) || (strpos( $report->footer, '[aum.' ) !== false)) ? true : false;                
+		$get_aum_tokens = ((strpos( $report->header, '[aum.' ) !== false) || (strpos( $report->body, '[aum.' ) !== false) || (strpos( $report->footer, '[aum.' ) !== false)) ? true : false;                        
 		$get_woocom_tokens = ((strpos( $report->header, '[wcomstatus.' ) !== false) || (strpos( $report->body, '[wcomstatus.' ) !== false) || (strpos( $report->footer, '[wcomstatus.' ) !== false)) ? true : false;
         $get_pagespeed_tokens = ((strpos( $report->header, '[pagespeed.' ) !== false) || (strpos( $report->body, '[pagespeed.' ) !== false) || (strpos( $report->footer, '[pagespeed.' ) !== false)) ? true : false;
         $get_brokenlinks_tokens = ((strpos( $report->header, '[brokenlinks.' ) !== false) || (strpos( $report->body, '[brokenlinks.' ) !== false) || (strpos( $report->footer, '[brokenlinks.' ) !== false)) ? true : false;
@@ -2662,7 +2661,7 @@ class MainWP_CReport {
 						$replace[] = $value;
 					}
 				}
-				$filtered_body = self::replace_content( $filtered_body, $search, $replace );
+				$filtered_body = self::replace_content( $filtered_body, $search, $replace );               
 			}
 
 			if ( isset( $other_tokens_data['footer'] ) && is_array( $other_tokens_data['footer'] ) && count( $other_tokens_data['footer'] ) > 0 ) {
@@ -2675,7 +2674,7 @@ class MainWP_CReport {
 				}
 				$filtered_footer = self::replace_content( $filtered_footer, $search, $replace );
 			}
-
+   
 			$output->filtered_header = $filtered_header;
 			$output->filtered_body = $filtered_body;
 			$output->filtered_footer = $filtered_footer;
@@ -2799,7 +2798,7 @@ class MainWP_CReport {
 
 	public static function parse_report_content( $content, $replaceTokensValues ) {
 		$client_tokens = array_keys($replaceTokensValues);
-		$replace_values = array_values($replaceTokensValues);		
+		$replace_values = array_values($replaceTokensValues);
 		$filtered_content = $content = str_replace( $client_tokens, $replace_values, $content );
 		$sections = array();
 		if ( preg_match_all( '/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is', $content, $matches ) ) {
@@ -3055,6 +3054,7 @@ class MainWP_CReport {
 		$output['aum.uptime30'] = (is_array( $values ) && isset( $values['aum.uptime30'] )) ? $values['aum.uptime30'] . '%' : 'N/A';
 		$output['aum.uptime45'] = (is_array( $values ) && isset( $values['aum.uptime45'] )) ? $values['aum.uptime45'] . '%' : 'N/A';
 		$output['aum.uptime60'] = (is_array( $values ) && isset( $values['aum.uptime60'] )) ? $values['aum.uptime60'] . '%' : 'N/A';
+        $output['aum.stats'] = (is_array( $values ) && isset( $values['aum.stats'] )) ? $values['aum.stats'] : 'N/A';
 
 		self::$buffer[ $uniq ] = $output;
 
