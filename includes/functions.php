@@ -1930,6 +1930,11 @@
                                     
                                     {
                                         text: 'Google Analytics',
+                                        <?php if (!MainWP_CReport::$enabled_ga) { ?>
+                                          menu: [{
+                                              text: 'Requires MainWP Google Analytics Extension',
+                                          }]
+                                      <?php } else { ?>                                            
                                         menu: [{
                                                 text: '[ga.visits] - Displays the Number Visits during the selected date range',
                                                 onclick: function() {
@@ -1980,6 +1985,7 @@
 
 
                                             }]
+                                        <?php }  ?>
                                     },
                                     {
                                         text: 'Piwik',
@@ -2035,9 +2041,9 @@
                                     },
                                     {
                                         text: 'AUM',
-                                        <?php if (!MainWP_CReport::$enabled_ga) { ?>
+                                        <?php if (!MainWP_CReport::$enabled_aum) { ?>
                                             menu: [{
-                                                text: 'Requires MainWP Google Analytics Extension',
+                                                text: 'Advanced Uptime Monitor Extension',
                                             }]
                                         <?php } else { ?>
                                         menu: [{
