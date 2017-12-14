@@ -1,0 +1,377 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2017-10-31 18:34+0100\n"
+"PO-Revision-Date: 2017-10-31 18:55+0100\n"
+"Last-Translator: FreePixel <contact@freepixel.net>\n"
+"Language-Team: \n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.12\n"
+"X-Poedit-Basepath: mainwp-vulnerability-checker-extension\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-KeywordsList: __;_e\n"
+"X-Poedit-SearchPath-0: mainwp-vulnerability-checker-extension.php\n"
+"X-Poedit-SearchPath-1: class/class-mainwp-vulnerability-checker.php\n"
+"X-Poedit-SearchPath-2: class/class-mainwp-vulnerability-db.php\n"
+"X-Poedit-SearchPath-3: class/class-mainwp-vulnerability-list.php\n"
+"X-Poedit-SearchPath-4: cron/vulnercheck.php\n"
+
+#: class/class-mainwp-vulnerability-checker.php:27
+msgid "Vulnerabilities"
+msgstr "Vulnérabilités"
+
+#: class/class-mainwp-vulnerability-checker.php:82
+#, php-format
+msgid ""
+"%sCongratulations!%s There are no Vulnerability Issues detected on your "
+"child sites."
+msgstr ""
+"%sCongratulations!%s Aucun problème de vulnérabilité n'a été détecté sur vos "
+"sites clients."
+
+#: class/class-mainwp-vulnerability-checker.php:91
+msgid "Check Vulnerability Issues"
+msgstr "Vérifier les problèmes de vulnérabilité"
+
+#: class/class-mainwp-vulnerability-checker.php:110
+#: class/class-mainwp-vulnerability-checker.php:672
+msgid "Settings"
+msgstr "Paramètres "
+
+#: class/class-mainwp-vulnerability-checker.php:152
+#: class/class-mainwp-vulnerability-checker.php:468
+msgid "Wordpress"
+msgstr "WordPress"
+
+#: class/class-mainwp-vulnerability-checker.php:166
+#: class/class-mainwp-vulnerability-list.php:62
+#: class/class-mainwp-vulnerability-list.php:87
+msgid "Plugins"
+msgstr "Extensions"
+
+#: class/class-mainwp-vulnerability-checker.php:180
+#: class/class-mainwp-vulnerability-list.php:65
+#: class/class-mainwp-vulnerability-list.php:90
+msgid "Themes"
+msgstr "Thèmes"
+
+#: class/class-mainwp-vulnerability-checker.php:364
+msgid "No websites were found."
+msgstr "Autre site web n'a été trouvé."
+
+#: class/class-mainwp-vulnerability-checker.php:371
+msgid "Saving settings to child sites ..."
+msgstr "Enregistrement des paramètres sur des sites enfants ..."
+
+#: class/class-mainwp-vulnerability-checker.php:373
+msgid "Checking all Child Sites"
+msgstr "Vérification de tous les sites clients"
+
+#: class/class-mainwp-vulnerability-checker.php:442
+#: class/class-mainwp-vulnerability-list.php:129
+#: class/class-mainwp-vulnerability-list.php:284
+msgid "Recheck"
+msgstr "Revérifier"
+
+#: class/class-mainwp-vulnerability-checker.php:446
+#, php-format
+msgid "Vulnerability information provided by %shttps://wpvulndb.com/%s"
+msgstr ""
+"Informations sur la vulnérabilité fournies par %shttps://wpvulndb.com/%s"
+
+#: class/class-mainwp-vulnerability-checker.php:459
+msgid "There are no Wordpress Vulnerability Issues."
+msgstr "Il n'y a pas de problèmes de vulnérabilité Wordpress."
+
+#: class/class-mainwp-vulnerability-checker.php:486
+msgid "There are no plugin Vulnerability Issues."
+msgstr "Il n’y a pas de problèmes de vulnérabilité d'extension."
+
+#: class/class-mainwp-vulnerability-checker.php:505
+#: class/class-mainwp-vulnerability-checker.php:507
+#: class/class-mainwp-vulnerability-checker.php:566
+#: class/class-mainwp-vulnerability-checker.php:568
+msgid "Name"
+msgstr "Nom "
+
+#: class/class-mainwp-vulnerability-checker.php:505
+#: class/class-mainwp-vulnerability-checker.php:507
+#: class/class-mainwp-vulnerability-checker.php:566
+#: class/class-mainwp-vulnerability-checker.php:568
+msgid "Latest version"
+msgstr "Dernière version"
+
+#: class/class-mainwp-vulnerability-checker.php:505
+#: class/class-mainwp-vulnerability-checker.php:566
+msgid "Detected version"
+msgstr "Version détectée"
+
+#: class/class-mainwp-vulnerability-checker.php:507
+#: class/class-mainwp-vulnerability-checker.php:568
+msgid "Latest update"
+msgstr "Dernière mise à jour"
+
+#: class/class-mainwp-vulnerability-checker.php:520
+#: class/class-mainwp-vulnerability-checker.php:582
+msgid "Update"
+msgstr "Mettre à jour"
+
+#: class/class-mainwp-vulnerability-checker.php:521
+#: class/class-mainwp-vulnerability-checker.php:583
+msgid "Delete"
+msgstr "Supprimer"
+
+#: class/class-mainwp-vulnerability-checker.php:544
+msgid "There are no theme Vulnerability Issues."
+msgstr "Il n'y a pas de problèmes de vulnérabilité de thème."
+
+#: class/class-mainwp-vulnerability-checker.php:671
+#: class/class-mainwp-vulnerability-list.php:175
+msgid "Overview"
+msgstr "Vue d'ensemble"
+
+#: class/class-mainwp-vulnerability-checker.php:679
+msgid "Check all sites"
+msgstr "Vérifier tous les sites"
+
+#: class/class-mainwp-vulnerability-checker.php:690
+msgid "Saved settings"
+msgstr "Paramètres sauvegardés."
+
+#: class/class-mainwp-vulnerability-checker.php:733
+msgid "Never"
+msgstr "Jamais"
+
+#: class/class-mainwp-vulnerability-checker.php:734
+msgid "Today"
+msgstr "Aujourd’hui"
+
+#: class/class-mainwp-vulnerability-checker.php:751
+msgid "Schedule Scans"
+msgstr "Planifier les analyses"
+
+#: class/class-mainwp-vulnerability-checker.php:751
+msgid ""
+"Schedule automatic scans. If you want to make sure that WP Cron jobs are "
+"regulary triggered on your MainWP Dashboard, you can Authorize the Uptime "
+"Robot service and add your dashboard site as monitor. The Uptime Robot will "
+"ping your dashboard site regularly and make sure that all scheduled events "
+"are occurring."
+msgstr ""
+"Planifiez des analyses automatiques. Si vous voulez vous assurer que les "
+"tâches WP Cron sont régulièrement déclenchées sur votre tableau de bord "
+"MainWP, vous pouvez autoriser le service Uptime Robot et ajouter votre site "
+"de tableau de bord en tant que moniteur. Uptime Robot pingera régulièrement "
+"votre site de tableau de bord et s'assurera que tous les événements "
+"planifiés se produisent."
+
+#: class/class-mainwp-vulnerability-checker.php:755
+msgid "Daily"
+msgstr "Quotidiennement"
+
+#: class/class-mainwp-vulnerability-checker.php:756
+msgid "Weekly"
+msgstr "Hebdomadaire"
+
+#: class/class-mainwp-vulnerability-checker.php:757
+msgid "Monthly"
+msgstr "Mensuellement"
+
+#: class/class-mainwp-vulnerability-checker.php:760
+msgid "Last run: "
+msgstr "Dernière exécution : "
+
+#: class/class-mainwp-vulnerability-checker.php:762
+msgid "Next run: "
+msgstr "Prochaine exécution : "
+
+#: class/class-mainwp-vulnerability-checker.php:768
+msgid "Send email notifications"
+msgstr "Envoyer des notifications par courriel"
+
+#: class/class-mainwp-vulnerability-checker.php:768
+msgid ""
+"If you want to receive email notification after scans, enable this option. "
+"The email notification will be sent to the email address set in the MainWP "
+"Settings page."
+msgstr ""
+"Si vous souhaitez recevoir une notification par courriel après les analyses, "
+"activez cette option. La notification par courriel sera envoyée à l'adresse "
+"définie dans la page Paramètres de MainWP."
+
+#: class/class-mainwp-vulnerability-checker.php:779
+msgid "Scan sites when syncing"
+msgstr "Analyser les sites lors de la synchronisation"
+
+#: class/class-mainwp-vulnerability-checker.php:779
+msgid ""
+"If you want to include the scan process in the Sync action, enable this "
+"option. However, please note that this can cause unexpected timeouts due the "
+"transfer of the higher amout of data."
+msgstr ""
+"Si vous souhaitez inclure le processus d'analyse dans l'action Synchroniser, "
+"activez cette option. Cependant, veuillez noter que cela peut entraîner des "
+"délais d'attente inattendus en raison du transfert de la plus grande "
+"quantité de données."
+
+#: class/class-mainwp-vulnerability-checker.php:791
+msgid "Save Settings"
+msgstr "Sauvegarder les paramètres"
+
+#: class/class-mainwp-vulnerability-checker.php:845
+msgid "Need help getting started?"
+msgstr "Besoin d'aide pour démarrer ? "
+
+#: class/class-mainwp-vulnerability-checker.php:845
+msgid "Start the Tour!"
+msgstr "Commencez la présentation !"
+
+#: class/class-mainwp-vulnerability-checker.php:860
+msgid "Tour1."
+msgstr "Tour 1."
+
+#: class/class-mainwp-vulnerability-checker.php:863
+msgid "Tour2."
+msgstr "Tour 2."
+
+#: class/class-mainwp-vulnerability-list.php:53
+#: class/class-mainwp-vulnerability-list.php:78
+msgid "Site"
+msgstr "Site"
+
+#: class/class-mainwp-vulnerability-list.php:56
+#: class/class-mainwp-vulnerability-list.php:81
+msgid "URL"
+msgstr "URL "
+
+#: class/class-mainwp-vulnerability-list.php:59
+#: class/class-mainwp-vulnerability-list.php:84
+msgid "WP Core"
+msgstr "Core WP"
+
+#: class/class-mainwp-vulnerability-list.php:68
+#: class/class-mainwp-vulnerability-list.php:93
+msgid "Last check date"
+msgstr "Dernière date de vérification"
+
+#: class/class-mainwp-vulnerability-list.php:102
+msgid ""
+"<tr><td colspan=\"7\">No websites were found with the Vulnerability checker "
+"result.</td></tr>"
+msgstr ""
+"<tr><td colspan=\"7\">Aucun site Web n'a été trouvé avec le résultat du "
+"vérificateur de vulnérabilité.</td></tr>"
+
+#: class/class-mainwp-vulnerability-list.php:140
+#: class/class-mainwp-vulnerability-list.php:151
+#: class/class-mainwp-vulnerability-list.php:162
+msgid "View detail"
+msgstr "Voir les détails"
+
+#: class/class-mainwp-vulnerability-list.php:175
+msgid "Edit"
+msgstr "Éditer"
+
+#: class/class-mainwp-vulnerability-list.php:283
+msgid "Bulk Actions"
+msgstr "Actions groupées"
+
+#: class/class-mainwp-vulnerability-list.php:285
+msgid "Force recheck"
+msgstr "Forcer à revérifier"
+
+#: class/class-mainwp-vulnerability-list.php:287
+msgid "Apply"
+msgstr "Appliquer"
+
+#: class/class-mainwp-vulnerability-list.php:293
+msgid "No search results."
+msgstr "Aucun résultat trouvé."
+
+#: class/class-mainwp-vulnerability-list.php:304
+msgid "Search Sites"
+msgstr "Rechercher des sites"
+
+#: class/class-mainwp-vulnerability-list.php:310
+msgid "Select a group"
+msgstr "Sélectionnez un groupe"
+
+#: class/class-mainwp-vulnerability-list.php:322
+msgid "Display"
+msgstr "Afficher"
+
+#: mainwp-vulnerability-checker-extension.php:91
+msgid "Vulnerability checker"
+msgstr "Vérificateur de vulnérabilité"
+
+#: mainwp-vulnerability-checker-extension.php:223
+#: mainwp-vulnerability-checker-extension.php:244
+msgid "First Steps with Extensions"
+msgstr "Premières étapes avec les extensions"
+
+#: mainwp-vulnerability-checker-extension.php:228
+msgid "MainWP Vulnerability Checker Extension"
+msgstr "Analyse de vulnérabilités MainWP"
+
+#: mainwp-vulnerability-checker-extension.php:245
+msgid ""
+"If you are having issues with getting started with the MainWP extensions, "
+"please review following help documents"
+msgstr ""
+"Si vous rencontrez des problèmes avec les extensions MainWP, veuillez "
+"consulter les documents d'aide suivants"
+
+#: mainwp-vulnerability-checker-extension.php:246
+msgid "What are the MainWP Extensions"
+msgstr "Quelles sont les extensions MainWP"
+
+#: mainwp-vulnerability-checker-extension.php:247
+msgid "Order Extension(s)"
+msgstr "Commande extension(s)"
+
+#: mainwp-vulnerability-checker-extension.php:248
+msgid "My Downloads and API Keys"
+msgstr "Mes téléchargements et clés API"
+
+#: mainwp-vulnerability-checker-extension.php:249
+msgid "Install Extension(s)"
+msgstr "Installer extension(s)"
+
+#: mainwp-vulnerability-checker-extension.php:250
+msgid "Activate Extension(s) API"
+msgstr "Activer API extension(s)"
+
+#: mainwp-vulnerability-checker-extension.php:251
+msgid "Updating Extension(s)"
+msgstr "Mise à jour extension(s)"
+
+#: mainwp-vulnerability-checker-extension.php:252
+msgid "Remove Extension(s)"
+msgstr "Supprimer extension(s)"
+
+#: mainwp-vulnerability-checker-extension.php:253
+msgid "Help Documenation for all MainWP Extensions"
+msgstr "Documentation d'aide pour toutes les extensions MainWP"
+
+#: mainwp-vulnerability-checker-extension.php:256
+msgid "Vulnerability Checker Extension"
+msgstr "Extension d'analyse de vulnérabilités"
+
+#: mainwp-vulnerability-checker-extension.php:257
+msgid "Check Your Sites for Vulnerabilities"
+msgstr "Vérifiez vos sites pour les vulnérabilités"
+
+#: mainwp-vulnerability-checker-extension.php:388
+msgid ""
+"requires <a href=\"https://mainwp.com/\" target=\"_blank\">MainWP Dashboard "
+"Plugin</a> to be activated in order to work. Please install and activate <a "
+"href=\"https://mainwp.com/\" target=\"_blank\">MainWP Dashboard Plugin</a> "
+"first."
+msgstr ""
+"requier <a href=\"http://mainwp.com/\" target=\"_blank\">l'extension de "
+"tableau de bord MainWP</a> être activé pour travailler. Veuillez installer "
+"et activer <a href=\"http://mainwp.com/\" target=\"_blank\">l'extension de "
+"tableau de bord MainWP</a> en premier."

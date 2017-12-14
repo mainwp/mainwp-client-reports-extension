@@ -861,26 +861,26 @@ $this->default_formats = array(
                 
 	}
 
-        public function update_group_report_content( $report ) {
-		/** @var $wpdb wpdb */
-		global $wpdb;
+    public function update_group_report_content( $report ) {
+        /** @var $wpdb wpdb */
+        global $wpdb;
 
-                $report_id = isset( $report['report_id'] ) ? $report['report_id'] : 0;
-                $site_id = isset( $report['site_id'] ) ? $report['site_id'] : 0;
-                
-		if (empty($report_id) && empty($site_id)) {
-                    return false;
-                }
-                
-                $current = $this->get_group_report_content( $report_id, $site_id );
-                if ($current) {
-                    $wpdb->update( $this->table_name( 'client_group_report_content' ), $report, array( 'id' => intval( $current->id ) ) );
-                    return $this->get_group_report_content( $report_id, $site_id );
-                } else { 
-                    return $wpdb->insert( $this->table_name( 'client_group_report_content' ), $report ) ;                        
-		}                
-                
-		return false;
+        $report_id = isset( $report['report_id'] ) ? $report['report_id'] : 0;
+        $site_id = isset( $report['site_id'] ) ? $report['site_id'] : 0;
+
+        if (empty($report_id) && empty($site_id)) {
+            return false;
+        }
+        
+        $current = $this->get_group_report_content( $report_id, $site_id );
+        if ($current) {
+            $wpdb->update( $this->table_name( 'client_group_report_content' ), $report, array( 'id' => intval( $current->id ) ) );
+            return $this->get_group_report_content( $report_id, $site_id );
+        } else { 
+            return $wpdb->insert( $this->table_name( 'client_group_report_content' ), $report ) ;                        
+        }                
+
+        return false;
 	}
         
     public function get_group_report_content( $report_id, $site_id = null) {
@@ -1136,11 +1136,13 @@ $this->default_formats = array(
         
     public function get_scheduled_reports_to_continue_send() {
 		global $wpdb;
+        //$gmtOffset = get_option( 'gmt_offset' );
 		$sql = 'SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
 				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
 				. ' ON rp.client_id = c.clientid '
 				. " WHERE rp.recurring_schedule != '' AND rp.scheduled = 1 "
-                . " AND rp.completed < rp.schedule_lastsend";
+                . " AND rp.completed < rp.schedule_lastsend ";
+                //. " AND rp.nextsend < " . (time() + $gmtOffset * HOUR_IN_SECONDS); // to send at local time
 		//echo $sql;
 		return $wpdb->get_results( $sql );
 	}

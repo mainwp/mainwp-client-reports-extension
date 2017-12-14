@@ -1004,7 +1004,8 @@ class MainWP_CReport {
                 $values = array(                                
                         'date_from_nextsend' => $cal_recurring['date_from'],
                         'date_to_nextsend' => $cal_recurring['date_to'],
-                        'schedule_nextsend' => $cal_recurring['schedule_nextsend'], // to check if current time > schedule_nextsend then send report                        
+                        'schedule_nextsend' => $cal_recurring['schedule_nextsend'], // to check if current time > schedule_nextsend then prepare report to send
+                        //'nextsend' => $report->schedule_nextsend, // to save the next send value to check local time
                 );
                 $date_from = $report->date_from_nextsend;
                 $date_to = $report->date_to_nextsend;
@@ -2388,7 +2389,7 @@ class MainWP_CReport {
 				} else {
 					$content = unserialize( $report->archive_report );
 					if ( is_array( $content ) ) {
-                                            return $content;         
+                        return $content;         
 					}
 					return false;
 				}
@@ -2421,38 +2422,38 @@ class MainWP_CReport {
                 echo stripslashes( nl2br( $report->filtered_footer ) );
 			}
 			if ( ! $return_array ) {
-				$html = ob_get_clean();
+				$html = ob_get_clean();                
 				$output[ $site_id ] = $html;
 			}
 		}
                 
         if ($global_report) {
-            $output = ob_get_clean();
+            $output = ob_get_clean();            
         } else if ( $return_array ) {
-            $html = ob_get_clean();
+            $html = ob_get_clean();            
             $output[] = $html;
         }                
 		return $output;
 	}
 
-        public static function gen_email_content_pdf( $report ) {                
+    public static function gen_email_content_pdf( $report ) {                
 		// to fix bug from mainwp
 		if ( ! function_exists( 'wp_verify_nonce' ) ) {
 			include_once( ABSPATH . WPINC . '/pluggable.php' );                         
-                }
+        }
                 
-                self::set_init_params();
+        self::set_init_params();
                 
 		if ( ! empty( $report ) && is_object( $report ) ) { 
-                        // return non-array content for pdf
-                        $group_contents = MainWP_CReport_DB::get_instance()->get_group_report_content($report->id);                                                       
-                        $content_pdf = '';
-                        if (is_array($group_contents)) {
-                            foreach ($group_contents as $content) {
-                                $content_pdf .= json_decode($content->report_content_pdf);
-                            }
-                        }
-                        return $content_pdf;
+            // return non-array content for pdf
+            $group_contents = MainWP_CReport_DB::get_instance()->get_group_report_content($report->id);                                                       
+            $content_pdf = '';
+            if (is_array($group_contents)) {
+                foreach ($group_contents as $content) {
+                    $content_pdf .= json_decode($content->report_content_pdf);
+                }
+            }
+            return $content_pdf;
 		}
 		return '';
 	}
@@ -2460,20 +2461,20 @@ class MainWP_CReport {
 	public static function gen_report_content_pdf( $filtered_reports ) {				
 		
 		$output = array();
-                ob_start();
+        ob_start();
 
 		foreach ( $filtered_reports as $site_id => $report ) {			
 			if ( is_array( $report ) && isset( $report['error'] ) ) {
 				echo $report['error'];
 			} else if ( is_object( $report ) ) {
-                            echo stripslashes( nl2br( $report->filtered_header ) );					
-                            echo stripslashes( nl2br( $report->filtered_body ) );				
-                            echo stripslashes( nl2br( $report->filtered_footer ) );				
+                echo stripslashes( nl2br( $report->filtered_header ) );					
+                echo stripslashes( nl2br( $report->filtered_body ) );				
+                echo stripslashes( nl2br( $report->filtered_footer ) );				
 			}
 
 		}                
                 
-                $output = ob_get_clean();                 
+        $output = ob_get_clean();                         
 		return $output;
 	}
 
@@ -2753,8 +2754,7 @@ class MainWP_CReport {
 		if ( is_array( $data ) ) {
 			$blacklisted = isset( $data['BLACKLIST']['WARN'] ) ? true : false;
 			$malware_exists = isset( $data['MALWARE']['WARN'] ) ? true : false;
-			$system_error = isset( $data['SYSTEM']['ERROR'] ) ? true : false;
-
+			
 			$status = array();
 			if ( $blacklisted ) {
 				$status[] = __( 'Site Blacklisted', 'mainwp-client-reports-extension' ); }
@@ -2763,12 +2763,19 @@ class MainWP_CReport {
 
 			$scan_result['status'] = count( $status ) > 0 ? implode( ', ', $status ) : __( 'Verified Clear', 'mainwp-client-reports-extension' );
 			$scan_result['webtrust'] = $blacklisted ? __( 'Site Blacklisted', 'mainwp-client-reports-extension' ) : __( 'Trusted', 'mainwp-client-reports-extension' );
-		}
+		}    
+        
+        $scan_data = array(
+            'blacklisted' => $blacklisted,
+            'malware_exists' => $malware_exists
+        );
+        
 		// save results to child site stream
 		$post_data = array(
-		'mwp_action' => 'save_sucuri_stream',
+            'mwp_action' => 'save_sucuri_stream',
 			'result' => base64_encode( serialize( $scan_result ) ),
 			'scan_status' => $scan_status,
+            'scan_data' => base64_encode( serialize( $scan_data ) )
 		);
 		global $mainWPCReportExtensionActivator;
 		apply_filters( 'mainwp_fetchurlauthed', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $website_id, 'client_report', $post_data );
@@ -2867,6 +2874,7 @@ class MainWP_CReport {
 			'ga.visits.maximum' => 'N/A',//enym new
 		);
 		if ( ! empty( $result ) && is_array( $result ) ) {
+            $custom_date_format = apply_filters('mainwp-ga-chart-custom-date', false);            
 			if ( isset( $result['stats_int'] ) ) {
 				$values = $result['stats_int'];
 				$output['ga.visits'] = (isset( $values['aggregates'] ) && isset( $values['aggregates']['ga:sessions'] )) ? $values['aggregates']['ga:sessions'] : 'N/A';
@@ -2939,8 +2947,13 @@ class MainWP_CReport {
 						if ( 'Nov' == $teile[0] ) {
 							$teile[0] = '11'; }
 						if ( 'Dec' == $teile[0] ) {
-							$teile[0] = '12'; }
-						$graph_dates .= $teile[1] . '.' . $teile[0] . '.|';
+							$teile[0] = '12'; }     
+                        
+                        if (!$custom_date_format) {
+                            $graph_dates .= $teile[1] . '.' . $teile[0] . '.|';  // default mainwp GA chart date format                              
+                        } else {
+                            $graph_dates .= $teile[0] . '/' .$teile[1] . '.|';
+                        }
 					}
 				}
 				//$graph_dates = urlencode($graph_dates);                
@@ -4168,10 +4181,10 @@ class MainWP_CReport {
 							( ! self::$enabled_piwik && 'piwik' == $group) ||
 							( ! self::$enabled_aum && 'aum' == $group) ||
 							( ! self::$enabled_woocomstatus && 'woocomstatus' == $group) ||
-                                                        ( ! self::$enabled_wordfence && ('wordfence' == $group)) ||
-                                                        ( ! self::$enabled_maintenance && ('maintenance' == $group)) ||
-                                                        ( ! self::$enabled_pagespeed && ('pagespeed' == $group)) || 
-                                                        ( ! self::$enabled_brokenlinks && ('brokenlinks' == $group))
+                            ( ! self::$enabled_wordfence && ('wordfence' == $group)) ||
+                            ( ! self::$enabled_maintenance && ('maintenance' == $group)) ||
+                            ( ! self::$enabled_pagespeed && ('pagespeed' == $group)) || 
+                            ( ! self::$enabled_brokenlinks && ('brokenlinks' == $group))
 					) {
 						echo '<div class="creport_format_group_nav bottom" group="' . $group . '">&nbsp</div>';
 						continue;
