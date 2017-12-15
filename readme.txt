@@ -2,13 +2,13 @@
 Plugin Name: MainWP Client Reports Extension
 Plugin URI: https://mainwp.com
 Description: MainWP Client Reports Extension allows you to generate activity reports for your clients sites. Requires MainWP Dashboard.
-Version: 2.1.1
+Version: 2.1.2
 Author: MainWP
 Author URI: https://mainwp.com
 
 == Installation ==
 
-1. Please install plugin "MainWP Dashboard" and active it before install MainWP Client Reports Extension plugin (get the MainWP Dashboard plugin from url:http://mainwp.com/)
+1. Please install plugin "MainWP Dashboard" and active it before install MainWP Client Reports Extension plugin (get the MainWP Dashboard plugin from url:https://mainwp.com/)
 2. Upload the `mainwp-client-reports-extension` folder to the `/wp-content/plugins/` directory
 3. Activate the Mainwp Client Reports Extension plugin through the 'Plugins' menu in WordPress
 
@@ -16,6 +16,15 @@ Author URI: https://mainwp.com
 1. Enable or Disable extension on the "Extensions" page in the dashboard
 
 == Changelog ==
+
+= 2.1.2 - 12-15-2017 =
+* Fixed: an issue with reviewing reports 
+* Fixed: an issue with sending the same report twice
+* Fixed: an issue with displaying report date range
+* Added: support for the new aum.stats token (Advanced Uptime Monitor 4.2 required)
+* Updated: translation support for the Sucuri scan results
+
+Updated: date range for preview scheduled report
 
 = 2.1.1 - 6-23-2017 =
 * Fixed: missing class error
