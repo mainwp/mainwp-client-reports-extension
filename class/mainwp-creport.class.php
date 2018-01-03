@@ -997,15 +997,14 @@ class MainWP_CReport {
                 if (empty($cal_recurring))
                     continue;
 
-                $log_time = date( "Y-m-d H:i:s", $cal_recurring['schedule_nextsend'] );
+                $log_time = date( "Y-m-d H:i:s", $cal_recurring['date_send'] );
                 do_action('mainp_log_debug', 'CRON :: Client Report :: report id ' . $report->id . ', next send: ' . $log_time); 
 
                 // to fix: send current day/month/year... issue                        
                 $values = array(                                
                         'date_from_nextsend' => $cal_recurring['date_from'],
                         'date_to_nextsend' => $cal_recurring['date_to'],
-                        'schedule_nextsend' => $cal_recurring['schedule_nextsend'], // to check if current time > schedule_nextsend then prepare report to send
-                        //'nextsend' => $report->schedule_nextsend, // to save the next send value to check local time
+                        'schedule_nextsend' => $cal_recurring['date_send'], // to check if current time > schedule nextsend then prepare report to send                        
                 );
                 $date_from = $report->date_from_nextsend;
                 $date_to = $report->date_to_nextsend;
@@ -1129,12 +1128,12 @@ class MainWP_CReport {
 		$today = strtotime( date( 'Y-m-d' ) . ' 00:00:00' );
 		$end_today = strtotime( date( 'Y-m-d' ) . ' 23:59:59' );
 
-		$date_from = $date_to = $schedule_nextsend = 0;
+		$date_from = $date_to = $date_send = 0;
                         
         if ( 'daily' == $schedule ) {
                 $date_from = $today;
                 $date_to = $end_today;
-                $schedule_nextsend = $end_today + 2; 
+                $date_send = $end_today + 2; 
         } 
         else if ( 'weekly' == $schedule ) {
                 // for strtotime()
@@ -1149,9 +1148,9 @@ class MainWP_CReport {
                 );
                 $date_from = $today;                        
                 $date_to = $today + 7 * 24 * 3600 - 1;
-                $schedule_nextsend = strtotime('next ' . $day_of_week[$recurring_day]) + 1;  // day of next week                                                       
-                if ( $schedule_nextsend < $date_to ) { // to fix
-                    $schedule_nextsend += 7 * 24 * 3600;
+                $date_send = strtotime('next ' . $day_of_week[$recurring_day]) + 1;  // day of next week                                                       
+                if ( $date_send < $date_to ) { // to fix
+                    $date_send += 7 * 24 * 3600;
                 }
         } 
         else if ( 'monthly' == $schedule ) {    
@@ -1175,7 +1174,7 @@ class MainWP_CReport {
                 if ($recurring_day > $max_d)                                    
                     $recurring_day = $max_d;      
                 
-                $schedule_nextsend = mktime(0, 0, 1, $cal_month, $recurring_day, $cal_year);
+                $date_send = mktime(0, 0, 1, $cal_month, $recurring_day, $cal_year);
         } 
         else if ( 'yearly' == $schedule ) {                                                                                       
                 $date_from = strtotime(date('Y-01-01')); // first day of year
@@ -1186,13 +1185,15 @@ class MainWP_CReport {
                 $max_d = self::cal_days_in_month($m, date('Y') + 1);                
                 if ($d > $max_d)                                    
                     $d = $max_d;
-                $schedule_nextsend = mktime(0, 0, 1, $m, $d, date('Y') + 1);                                
+                $date_send = mktime(0, 0, 1, $m, $d, date('Y') + 1);                                
         }                        			
         
+        $gmtOffset = get_option( 'gmt_offset' );
+        $date_offset = $gmtOffset * HOUR_IN_SECONDS;        
 		return array(
                     'date_from' => $date_from,
                     'date_to' => $date_to,
-                    'schedule_nextsend' => $schedule_nextsend
+                    'date_send' => $date_send - $date_offset // minus gmt offset so it will send in local time
                 );
 	}
                  
@@ -1396,8 +1397,8 @@ class MainWP_CReport {
                         $report['date_to'] = $cal_recurring['date_to'];
                         $report['date_from_nextsend'] = 0; // need to be 0, will recalculate when schedule send
                         $report['date_to_nextsend'] = 0; // need to be 0, will recalculate when schedule send
-                        $report['schedule_nextsend'] = $cal_recurring['schedule_nextsend'];
-                        $report['completed'] = $cal_recurring['schedule_nextsend']; // to fix continue sending
+                        $report['schedule_nextsend'] = $cal_recurring['date_send'];
+                        $report['completed'] = $cal_recurring['date_send']; // to fix continue sending
                     }
                 }
             } 
@@ -1711,7 +1712,7 @@ class MainWP_CReport {
                                     $replace_value[] = MainWP_CReport_Utility::format_timestamp( $report->date_from ) . ' - ' . MainWP_CReport_Utility::format_timestamp( $report->date_to );
                                     $search_token[] = '[report.send.date]';
                                     $now = time();
-                                    $replace_value[] = MainWP_CReport_Utility::format_timestamp( $now );                                    
+                                    $replace_value[] = MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $now ) );                                    
                                     if ( isset( $sites_token[ $site_id ] ) && is_array( $sites_token[ $site_id ] ) ) {                                            
                                             foreach ( $sites_token[ $site_id ] as $token_name => $token ) {
                                                     $search_token[] = '[' . $token_name . ']';
@@ -2588,7 +2589,7 @@ class MainWP_CReport {
             
             $replace_tokens_values['[report.daterange]'] = MainWP_CReport_Utility::format_date( $date_from ) . ' - ' . MainWP_CReport_Utility::format_date( $date_to );            
             $now = time();
-            $replace_tokens_values['[report.send.date]'] = MainWP_CReport_Utility::format_timestamp( $now );
+            $replace_tokens_values['[report.send.date]'] = MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $now ) );
 			$replace_tokens_values = apply_filters('mainwp_client_reports_custom_tokens', $replace_tokens_values, $report, $website);
 			
 			$report_header = $report->header;
@@ -3488,7 +3489,7 @@ class MainWP_CReport {
                     ?>
             </td> 
             <td> 
-                    <?php echo ! empty( $report->lastsend ) ? MainWP_CReport_Utility::format_timestamp( $report->lastsend ): ''; ?>
+                    <?php echo ! empty( $report->lastsend ) ? MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $report->lastsend ) ): ''; ?>
             </td>
             <td> 
                 <?php 

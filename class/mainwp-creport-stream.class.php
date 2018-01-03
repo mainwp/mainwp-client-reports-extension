@@ -178,7 +178,7 @@ class MainWP_CReport_Stream {
                         <td>
                             <?php
                             if ($website['last_report']) {
-                                echo MainWP_CReport_Utility::format_timestamp( $website['last_report'] );  
+                                echo MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $website['last_report'] ) );  
                             }
                             ?>
                         </td>
@@ -201,7 +201,7 @@ class MainWP_CReport_Stream {
                          <td>
                         <?php
                             if (isset($website['first_time']) && !empty($website['first_time'])) {
-                                echo MainWP_CReport_Utility::format_timestamp( $website['first_time'] );  
+                                echo MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $website['first_time'] ) );  
                             }                            
                         ?>                       
                         </td>

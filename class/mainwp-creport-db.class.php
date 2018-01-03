@@ -2,7 +2,7 @@
 
 class MainWP_CReport_DB {
 
-	private $mainwp_wpcreport_db_version = '5.20';
+	private $mainwp_wpcreport_db_version = '5.21';
 	private $table_prefix;
 	//Singleton
 	private static $instance = null;
@@ -86,7 +86,6 @@ PRIMARY KEY  (`id`)  ';
 `footer` longtext NOT NULL,
 `attach_files` text NOT NULL,
 `lastsend` int(11) NOT NULL,
-`nextsend` int(11) NOT NULL,
 `subject` text NOT NULL,
 `recurring_schedule` VARCHAR(32) NOT NULL DEFAULT "",
 `recurring_day` VARCHAR(10) DEFAULT NULL,
@@ -318,7 +317,7 @@ PRIMARY KEY  (`id`)  ';
                                 if (is_array($cal_recurring)) {  
                                         $updates['date_from'] = $cal_recurring['date_from'];
                                         $updates['date_to'] = $cal_recurring['date_to'];
-                                        $updates['schedule_nextsend'] = $cal_recurring['schedule_nextsend'];
+                                        $updates['schedule_nextsend'] = $cal_recurring['date_send'];
                                 };
                                 MainWP_CReport_DB::get_instance()->update_report( $updates );
                         }
@@ -374,13 +373,18 @@ PRIMARY KEY  (`id`)  ';
                                 if (is_array($cal_recurring)) {  
                                         $updates['date_from_nextsend'] = $cal_recurring['date_from'];
                                         $updates['date_to_nextsend'] = $cal_recurring['date_to'];
-                                        $updates['schedule_nextsend'] = $cal_recurring['schedule_nextsend'];                                                                           
+                                        $updates['schedule_nextsend'] = $cal_recurring['date_send'];                                                                           
                                 }
                                 
                                 MainWP_CReport_DB::get_instance()->update_report( $updates );
                         }
                     }
                     
+                }
+                
+                
+                if ( version_compare( $check_version, '5.21', '<' ) ) {
+                    $wpdb->query( "ALTER TABLE " . $this->table_name( 'client_report' ) . " DROP `nextsend`");                        
                 }
             }            
         }
@@ -851,8 +855,7 @@ $this->default_formats = array(
 			'body',
 			'footer',
 			'logo_file',
-			'lastsend',
-			'nextsend',
+			'lastsend',			
 			'subject',			
 			'recurring_schedule',
             'recurring_day',
@@ -1161,7 +1164,7 @@ $this->default_formats = array(
 				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
 				. ' ON rp.client_id = c.clientid '
 				. " WHERE rp.recurring_schedule != '' AND rp.scheduled = 1 " 
-                . " AND rp.schedule_nextsend < " . time();
+                . " AND rp.schedule_nextsend < " . time(); // this conditional to check time to send scheduled reports 
 		return $wpdb->get_results( $sql );
 	}
         
@@ -1173,8 +1176,7 @@ $this->default_formats = array(
 				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
 				. ' ON rp.client_id = c.clientid '
 				. " WHERE rp.recurring_schedule != '' AND rp.scheduled = 1 "
-                . " AND rp.completed < rp.schedule_lastsend ";
-                //. " AND rp.nextsend < " . (time() + $gmtOffset * HOUR_IN_SECONDS); // to send at local time
+                . " AND rp.completed < rp.schedule_lastsend ";                
 		//echo $sql;
 		return $wpdb->get_results( $sql );
 	}
