@@ -2,7 +2,7 @@
 
 class MainWP_CReport_DB {
 
-	private $mainwp_wpcreport_db_version = '5.15';
+	private $mainwp_wpcreport_db_version = '5.20';
 	private $table_prefix;
 	//Singleton
 	private static $instance = null;
@@ -35,7 +35,7 @@ class MainWP_CReport_DB {
 	function install() {
 		global $wpdb;
 		$currentVersion = get_site_option( 'mainwp_wpcreport_db_version' );
-                 
+          
 		if ( $currentVersion == $this->mainwp_wpcreport_db_version ) {
 			return;                         
                 }
@@ -212,7 +212,7 @@ PRIMARY KEY  (`id`)  ';
                
 		update_option( 'mainwp_wpcreport_db_version', $this->mainwp_wpcreport_db_version );
                  
-                $this->check_update($currentVersion);
+        $this->check_update($currentVersion);        
                
 	}
 
@@ -222,8 +222,8 @@ PRIMARY KEY  (`id`)  ';
 		}
 		return MainWP_CReport_DB::$instance;
 	}
-        
-        function check_update($check_version) {
+       
+    function check_update($check_version) {
             global $wpdb;
             
             if ($check_version == '4.2') {                
@@ -349,7 +349,39 @@ PRIMARY KEY  (`id`)  ';
                                 dbDelta( $query );
                             }
                     }
-                }            
+                }      
+                
+                if ( version_compare( $check_version, '5.16', '<=' ) ) {                
+                    $sql = 'SELECT * FROM ' . $this->table_name( 'client_report' ) . " WHERE recurring_schedule = 'monthly' ";                                   
+                    $all_reports = $wpdb->get_results( $sql );
+                    if (is_array($all_reports) && count($all_reports) > 0) {
+                        foreach ( $all_reports as $report ) {  
+                                $recurring_day = intval($report->recurring_day);
+                                
+                                $updates = array(
+                                    'id' => $report->id,    
+                                );                                 
+                                $this_date = date('j');  
+                                
+                                if ($recurring_day > $this_date ) {
+                                    $date_to_fix = strtotime("last month");  // scheduled for this month
+                                } else {
+                                    $date_to_fix = strtotime("next month");  // scheduled for next month
+                                }
+                                
+                                $cal_recurring =  MainWP_CReport::calc_recurring_date('monthly', $recurring_day, $date_to_fix);
+                                // update to fix dates
+                                if (is_array($cal_recurring)) {  
+                                        $updates['date_from_nextsend'] = $cal_recurring['date_from'];
+                                        $updates['date_to_nextsend'] = $cal_recurring['date_to'];
+                                        $updates['schedule_nextsend'] = $cal_recurring['schedule_nextsend'];                                                                           
+                                }
+                                
+                                MainWP_CReport_DB::get_instance()->update_report( $updates );
+                        }
+                    }
+                    
+                }
             }            
         }
         

@@ -1113,14 +1113,19 @@ class MainWP_CReport {
 	}
     
     public static function cal_days_in_month( $month, $year ) {        
-        return date('t', mktime(0, 0, 0, $month, 1, $year));
+        if (function_exists('cal_days_in_month')) {
+            $max_d = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+        } else {
+            $max_d = date('t', mktime(0, 0, 0, $month, 1, $year));
+        }
+        return $max_d;
     }
 
-    public static function calc_recurring_date( $schedule, $recurring_day) {                
+    public static function calc_recurring_date( $schedule, $recurring_day, $cal_date = false) {                
 		if ( empty( $schedule ) ) {
 			return false;                         
-        }                
-        
+        }      
+         
 		$today = strtotime( date( 'Y-m-d' ) . ' 00:00:00' );
 		$end_today = strtotime( date( 'Y-m-d' ) . ' 23:59:59' );
 
@@ -1149,28 +1154,28 @@ class MainWP_CReport {
                     $schedule_nextsend += 7 * 24 * 3600;
                 }
         } 
-        else if ( 'monthly' == $schedule ) {
-                $first_date = date('Y-m-01', time()); // first day of month
-                $last_date = date("Y-m-t", time()); // Date t parameter return days number in current month.                                
+        else if ( 'monthly' == $schedule ) {    
+                if ($cal_date === false)
+                    $cal_date = time(); // today
+                
+                $first_date = date('Y-m-01', $cal_date); // first day of the month                
+                $last_date = date("Y-m-t", $cal_date); // Date t parameter return days number in current month.    
+                                
                 $date_from = strtotime($first_date . ' 00:00:00'); 
                 $date_to = strtotime($last_date . ' 23:59:59');
                 
-                $cal_month = date('m') + 1;
-                $cal_year = date('Y') + 1;
+                $cal_month = date('m', $cal_date) + 1;
+                $cal_year = date('Y', $cal_date);
+                
                 if ($cal_month > 12) {
-                    $cal_month = 12 - $cal_month;
+                    $cal_month = $cal_month - 12;
                     $cal_year += 1;
-                }
-        
-                if (function_exists('cal_days_in_month')) {
-                    $max_d = cal_days_in_month(CAL_GREGORIAN, $cal_month, $cal_year);
-                } else {
-                    $max_d = self::cal_days_in_month($cal_month, $cal_year);
-                }
-
+                }                
+                $max_d = self::cal_days_in_month($cal_month, $cal_year);
                 if ($recurring_day > $max_d)                                    
-                    $recurring_day = $max_d;
-                $schedule_nextsend = mktime(0, 0, 1, date('m') + 1, $recurring_day, date('Y'));
+                    $recurring_day = $max_d;      
+                
+                $schedule_nextsend = mktime(0, 0, 1, $cal_month, $recurring_day, $cal_year);
         } 
         else if ( 'yearly' == $schedule ) {                                                                                       
                 $date_from = strtotime(date('Y-01-01')); // first day of year
@@ -1178,12 +1183,7 @@ class MainWP_CReport {
                 $date_to = strtotime($last_date . ' 23:59:59'); 
                 list($m, $d) = explode( '-', $recurring_day);
 
-                if (function_exists('cal_days_in_month')) {
-                    $max_d = cal_days_in_month(CAL_GREGORIAN, $m, date('Y') + 1);
-                } else {
-                    $max_d = self::cal_days_in_month($m, date('Y') + 1);
-                }
-
+                $max_d = self::cal_days_in_month($m, date('Y') + 1);                
                 if ($d > $max_d)                                    
                     $d = $max_d;
                 $schedule_nextsend = mktime(0, 0, 1, $m, $d, date('Y') + 1);                                
@@ -1195,7 +1195,7 @@ class MainWP_CReport {
                     'schedule_nextsend' => $schedule_nextsend
                 );
 	}
-
+                 
 	public function shortcuts_widget( $website ) {
 		if ( ! empty( $website ) ) {
 			$found = MainWP_CReport_DB::get_instance()->checked_if_site_have_report( $website->id );
