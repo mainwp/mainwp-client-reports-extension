@@ -2,7 +2,7 @@
 Plugin Name: MainWP Client Reports Extension
 Plugin URI: https://mainwp.com
 Description: MainWP Client Reports Extension allows you to generate activity reports for your clients sites. Requires MainWP Dashboard.
-Version: 2.2-RC1
+Version: 2.2
 Author: MainWP
 Author URI: https://mainwp.com
 
@@ -17,8 +17,9 @@ Author URI: https://mainwp.com
 
 == Changelog ==
 
-= 2.2 =
+= 2.2 - 1-12-2018 =
 * Fixed: an issue with sending multiple reports at once
+* Fixed: typo
 * Updated: scheduling process to send reports at local time
 
 = 2.1.2 - 12-15-2017 =
