@@ -23,7 +23,7 @@ class MainWP_CReport_Extension {
 	protected $option;
 	protected $option_handle = 'mainwp_wpcreport_extension';
     public $version = '1.4';
-        
+
     static function get_instance() {
 		if ( null == MainWP_CReport_Extension::$instance ) {
 			MainWP_CReport_Extension::$instance = new MainWP_CReport_Extension();
@@ -39,32 +39,32 @@ class MainWP_CReport_Extension {
 		$this->option = get_option( $this->option_handle );
 		add_action( 'init', array( &$this, 'localization' ) );
 		add_action( 'init', array( &$this, 'init' ) );
-		add_filter( 'plugin_row_meta', array( &$this, 'plugin_row_meta' ), 10, 2 );		
+		add_filter( 'plugin_row_meta', array( &$this, 'plugin_row_meta' ), 10, 2 );
 		add_action( 'admin_init', array( &$this, 'admin_init' ) );
         add_action( 'in_admin_header', array( &$this, 'in_admin_head' ) ); // Adds Help Tab in admin header
-		add_filter( 'mainwp-sync-extensions-options', array( &$this, 'mainwp_sync_extensions_options' ), 10, 1 );		
+		add_filter( 'mainwp-sync-extensions-options', array( &$this, 'mainwp_sync_extensions_options' ), 10, 1 );
         add_filter( 'mainwp-sync-others-data', array( $this, 'sync_others_data' ), 10, 2 );
 		add_action( 'mainwp-site-synced', array( &$this, 'site_synced' ), 10, 2 );
         add_action( 'mainwp_delete_site', array( &$this, 'on_delete_site' ), 10, 1 );
-              
+
+        /**
+		 * This hook allows you to generate report content via the 'mainwp_client_report_generate' filter.
+		 *
+         * @see \MainWP_CReport::hook_generate_report();
+		 */
+        add_filter( 'mainwp_client_report_generate', array( 'MainWP_CReport', 'hook_generate_report' ), 10, 4 );
+
         if ( isset( $_GET['page'] ) && ('Extensions-Mainwp-Client-Reports-Extension' == $_GET['page'])) {
             require_once 'includes/functions.php';
             add_action( 'admin_print_footer_scripts', 'mainwp_creport_admin_print_footer_scripts');
         }
-                
+
 		MainWP_CReport_DB::get_instance()->install();
-                
-		if ( isset( $_GET['page'] ) && ('Extensions-Mainwp-Client-Reports-Extension' == $_GET['page']) &&
-				isset( $_GET['action'] ) && ('savepdf' == $_GET['action']) &&
-				isset( $_GET['id'] ) && !empty($_GET['id']) ) {
-			require_once $this->plugin_dir . '/includes/save-as-pdf.php';
-			exit();
-		}
-                add_filter( 'cron_schedules', array( $this, 'getCronSchedules' ) );
+		add_filter( 'cron_schedules', array( $this, 'getCronSchedules' ) );
 	}
 
-       
-        
+
+
 	public function localization() {
 		load_plugin_textdomain( 'mainwp-client-reports-extension', false,  dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 	}
@@ -80,64 +80,72 @@ class MainWP_CReport_Extension {
 		if ( $this->plugin_slug != $plugin_file ) {
 			return $plugin_meta;
 		}
-		
+
 		$slug = basename($plugin_file, ".php");
-		$api_data = get_option( $slug. '_APIManAdder');		
+		$api_data = get_option( $slug. '_APIManAdder');
 		if (!is_array($api_data) || !isset($api_data['activated_key']) || $api_data['activated_key'] != 'Activated' || !isset($api_data['api_key']) || empty($api_data['api_key']) ) {
 			return $plugin_meta;
 		}
-		
+
 		$plugin_meta[] = '<a href="?do=checkUpgrade" title="Check for updates.">Check for updates now</a>';
 		return $plugin_meta;
 	}
-        
-        public function sync_others_data( $data, $pWebsite = null ) {
+
+    public function sync_others_data( $data, $pWebsite = null ) {
 		if ( ! is_array( $data ) ) {
                     $data = array();
                 }
 		$data['syncClientReportData'] = 1;
 		return $data;
 	}
-	
-	public function site_synced( $website, $information = array()) {		
+
+	public function site_synced( $website, $information = array()) {
 		$website_id = $website->id;
                 if ( is_array( $information ) && isset( $information['syncClientReportData'] ) && is_array( $information['syncClientReportData'] ) ) {
-                    $data = $information['syncClientReportData'];    
+                    $data = $information['syncClientReportData'];
                     if (isset($data['firsttime_activated'])) {
                         $creportSettings = MainWP_CReport_Stream::get_instance()->get_option( 'settings' );
                         if (!is_array($creportSettings))
-                            $creportSettings = array();                        
+                            $creportSettings = array();
                         $creportSettings[$website_id]['first_time'] = $data['firsttime_activated'];
                         MainWP_CReport_Stream::get_instance()->set_option( 'settings', $creportSettings );
                     }
                 }
 	}
-        
+
         public function on_delete_site( $website ) {
 		if ( $website ) {
 			MainWP_CReport_DB::get_instance()->delete_group_report_content( 0, $website->id );
 		}
-	}        
-	
+	}
+
 	public function admin_init() {
+
+        if ( isset( $_GET['page'] ) && ('Extensions-Mainwp-Client-Reports-Extension' == $_GET['page']) &&
+				isset( $_GET['action'] ) && ('savepdf' == $_GET['action'])
+                && isset($_GET['_noncesave']) && wp_verify_nonce( $_REQUEST['_noncesave'], '_noncesave' )
+				&& isset( $_GET['id'] ) && !empty($_GET['id']) ) {
+			require_once $this->plugin_dir . '/libs/save-as-pdf.php';
+			exit();
+		}
 
 		wp_enqueue_style( 'mainwp-creport-extension', self::$plugin_url . 'css/mainwp-reporting.css', array(), $this->version);
 		wp_enqueue_script( 'mainwp-creport-extension', self::$plugin_url . 'js/mainwp-reporting.js', array(), $this->version );
 		wp_localize_script(
-                        'mainwp-creport-extension', 'mainwp_clientreport_loc', array(			
-                            'nonce' => wp_create_nonce( '_wpnonce_creport' ),			
+                        'mainwp-creport-extension', 'mainwp_clientreport_loc', array(
+                            'nonce' => wp_create_nonce( '_wpnonce_creport' ),
                         )
                 );
-			
+
 		MainWP_CReport::init();
 		$mwp_creport = new MainWP_CReport();
 		$mwp_creport->admin_init();
 		$mwp_creport_stream = new MainWP_CReport_Stream();
 		$mwp_creport_stream->admin_init();
 	}
-        
+
     public static function getCronSchedules( $schedules ) {
-		
+
 		$schedules['5minutely']  = array(
 			'interval' => 5 * 60, // 5 minute in seconds
 			'display'  => __( 'Once every 5 minutes', 'mainwp' ),
@@ -145,7 +153,7 @@ class MainWP_CReport_Extension {
 
 		return $schedules;
 	}
-        
+
 	function mainwp_sync_extensions_options($values = array()) {
 		$values['mainwp-client-reports-extension'] = array(
 			'plugin_name' => 'MainWP Child Reports',
@@ -153,8 +161,8 @@ class MainWP_CReport_Extension {
 			'no_setting' => true
 		);
 		return $values;
-	}	
-	
+	}
+
 	public function get_option( $key, $default = '' ) {
 		if ( isset( $this->option[ $key ] ) ) {
 			return $this->option[ $key ];
@@ -166,7 +174,7 @@ class MainWP_CReport_Extension {
 		$this->option[ $key ] = $value;
 		return update_option( $this->option_handle, $this->option );
 	}
-        
+
         /**
 	 * This function check if current page is Client Reports Extension page.
 	 * @return void
@@ -237,7 +245,7 @@ class MainWP_CReport_Extension {
 		return $output;
 	}
 
-        
+
 }
 
 function mainwp_wpcreport_extension_autoload( $class_name ) {
@@ -251,15 +259,7 @@ function mainwp_wpcreport_extension_autoload( $class_name ) {
 	}
 }
 
-if ( function_exists( 'spl_autoload_register' ) ) {
-	spl_autoload_register( 'mainwp_wpcreport_extension_autoload' );
-} else {
-
-	function __autoload( $class_name ) {
-
-		mainwp_wpcreport_extension_autoload( $class_name );
-	}
-}
+spl_autoload_register( 'mainwp_wpcreport_extension_autoload' );
 
 register_activation_hook( __FILE__, 'wpcreport_extension_activate' );
 register_deactivation_hook( __FILE__, 'wpcreport_extension_deactivate' );
@@ -267,7 +267,7 @@ register_deactivation_hook( __FILE__, 'wpcreport_extension_deactivate' );
 function wpcreport_extension_activate() {
 	update_option( 'mainwp_client_reports_activated', 'yes' );
 	$extensionActivator = new MainWP_CReport_Extension_Activator();
-	$extensionActivator->activate();	
+	$extensionActivator->activate();
 }
 
 function wpcreport_extension_deactivate() {
@@ -321,26 +321,26 @@ class MainWP_CReport_Extension_Activator {
 	}
 
 	function settings() {
-		do_action( 'mainwp-pageheader-extensions', __FILE__ );		
-		MainWP_CReport::render();		
+		do_action( 'mainwp-pageheader-extensions', __FILE__ );
+		MainWP_CReport::render();
 		do_action( 'mainwp-pagefooter-extensions', __FILE__ );
 	}
 
 	function activate_this_plugin() {
 
 		$this->mainwpMainActivated = apply_filters( 'mainwp-activated-check', $this->mainwpMainActivated );
-		$this->childEnabled = apply_filters( 'mainwp-extension-enabled-check', __FILE__ );		
+		$this->childEnabled = apply_filters( 'mainwp-extension-enabled-check', __FILE__ );
 		$this->childKey = $this->childEnabled['key'];
 		if ( function_exists( 'mainwp_current_user_can' ) && ! mainwp_current_user_can( 'extension', 'mainwp-client-reports-extension' ) ) {
 			return;
 		}
-                
+
                 add_action('mainwp_postboxes_on_load_site_page', array( &$this, 'on_load_site_page_callback'), 10, 1);
 		new MainWP_CReport_Extension();
 	}
-        
+
         function on_load_site_page_callback($websiteid) {
-		$i = 1;	
+		$i = 1;
 		if (!empty($websiteid)){
 			add_meta_box(
 				'creport-contentbox-' . $i++,
@@ -350,10 +350,10 @@ class MainWP_CReport_Extension_Activator {
 				'normal',
 				'core',
 				array( 'websiteid' => $websiteid )
-			);	
+			);
 		}
 	}
-        
+
         public function get_child_key() {
 
 		return $this->childKey;

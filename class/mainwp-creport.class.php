@@ -1,7 +1,7 @@
 <?php
 
 class MainWP_CReport {
-             
+
 	private static $stream_tokens = array();
 	private static $tokens_nav_top = array();
 	private static $buffer = array();
@@ -21,21 +21,21 @@ class MainWP_CReport {
     public $update_version = '1.0';
 
 
-    public function __construct() {            
-            $this->handle_save_settings();
+    public function __construct() {
+
             $this->check_update();
 	}
-         
+
 	public static function init() {
 		self::$stream_tokens = array(
-			'client' => array(				
+			'client' => array(
 				'nav_group_tokens' => array(
 					'tokens' => 'Tokens',
 				),
 				'tokens' => array(),
 			),
 			'plugins' => array(
-                                'sections' => array(
+                'sections' => array(
 					array( 'name' => 'section.plugins.installed', 'desc' => 'Loops through Plugins Installed during the selected date range' ),
 					array( 'name' => 'section.plugins.activated', 'desc' => 'Loops through Plugins Activated during the selected date range' ),
 					array( 'name' => 'section.plugins.edited', 'desc' => 'Loops through Plugins Edited during the selected date range' ),
@@ -56,7 +56,7 @@ class MainWP_CReport {
 				'installed' => array(
 					array( 'name' => 'plugin.name', 'desc' => 'Displays the Plugin Name' ),
 					array( 'name' => 'plugin.installed.date', 'desc' => 'Displays the Plugin Installation Date' ),
-                                        array( 'name' => 'plugin.installed.time', 'desc' => 'Displays the Plugin Installation Time' ),
+                    array( 'name' => 'plugin.installed.time', 'desc' => 'Displays the Plugin Installation Time' ),
 					array( 'name' => 'plugin.installed.author', 'desc' => 'Displays the User who Installed the Plugin' ),
 				),
 				'activated' => array(
@@ -531,7 +531,7 @@ class MainWP_CReport {
 					array( 'name' => 'wordpress.updated.count', 'desc' => 'Displays the Number of WordPress Updates' ),
 				),
 			),
-			'backups' => array(                                
+			'backups' => array(
                 'nav_group_tokens' => array(
                     'sections' => 'Sections',
                     'created' => 'Created',
@@ -634,7 +634,7 @@ class MainWP_CReport {
 					array( 'name' => 'wcomstatus.outofstock', 'desc' => 'Displays the number of products currently out of stock' ),
 				),
 			),
-            'wordfence' => array(                            
+            'wordfence' => array(
                     'nav_group_tokens' => array(
                         'sections' => 'Sections',
                         'scan' => 'Scan',
@@ -644,16 +644,16 @@ class MainWP_CReport {
                         array( 'name' => 'section.wordfence.scan', 'desc' => 'Loops through Wordfence scans during the selected date range' ),
                     ),
                     'scan' => array(
-                            array( 'name' => 'wordfence.scan.result', 'desc' => 'Displays the Wordfence scan result' ),                                    
-                            array( 'name' => 'wordfence.scan.date', 'desc' => 'Displays the Wordfence scan date' ),										
-                            array( 'name' => 'wordfence.scan.time', 'desc' => 'Displays the Wordfence scan time' ),	
+                            array( 'name' => 'wordfence.scan.result', 'desc' => 'Displays the Wordfence scan result' ),
+                            array( 'name' => 'wordfence.scan.date', 'desc' => 'Displays the Wordfence scan date' ),
+                            array( 'name' => 'wordfence.scan.time', 'desc' => 'Displays the Wordfence scan time' ),
                             array( 'name' => 'wordfence.scan.details', 'desc' => 'Displays the Wordfence scan details' ),
                     ),
                     'additional' => array(
                         array( 'name' => 'wordfence.scan.count', 'desc' => 'Displays the number of performed Wordfence scans during the selected date range' ),
                     ),
 			),
-            'maintenance' => array(                            
+            'maintenance' => array(
                 'nav_group_tokens' => array(
                     'sections' => 'Sections',
                     'process' => 'Process',
@@ -663,9 +663,9 @@ class MainWP_CReport {
                     array( 'name' => 'section.maintenance.process', 'desc' => 'Loops through performed Maintenance actions' ),
                 ),
                 'process' => array(
-                        array( 'name' => 'maintenance.process.result', 'desc' => 'Displays the status of performed Maintenance' ),                                    
-                        array( 'name' => 'maintenance.process.date', 'desc' => 'Displays the date of performed Maintenance' ),										
-                        array( 'name' => 'maintenance.process.time', 'desc' => 'Displays the time of performed Maintenance' ),	
+                        array( 'name' => 'maintenance.process.result', 'desc' => 'Displays the status of performed Maintenance' ),
+                        array( 'name' => 'maintenance.process.date', 'desc' => 'Displays the date of performed Maintenance' ),
+                        array( 'name' => 'maintenance.process.time', 'desc' => 'Displays the time of performed Maintenance' ),
                         array( 'name' => 'maintenance.process.details', 'desc' => 'Displays performed actions' ),
                 ),
                 'additional' => array(
@@ -680,7 +680,7 @@ class MainWP_CReport {
 					array( 'name' => 'pagespeed.average.desktop', 'desc' => 'Displays the average desktop page-speed score at the moment of report generation' ),
                     array( 'name' => 'pagespeed.average.mobile', 'desc' => 'Displays the average mobile page-speed score at the moment of report creation' )
 				),
-			), 
+			),
             'brokenlinks' => array(
 				'nav_group_tokens' => array(
 					'brokenlinks' => 'Broken Links Checker',
@@ -691,7 +691,7 @@ class MainWP_CReport {
                     array( 'name' => 'brokenlinks.links.dismissed', 'desc' => 'Displays the number of dismissed links at the moment of report creation' ),
                     array( 'name' => 'brokenlinks.links.all', 'desc' => 'Displays the number of all links at the moment of report creation' )
 				),
-			), 
+			),
 		);
 
 		self::$tokens_nav_top = array(
@@ -725,7 +725,7 @@ class MainWP_CReport {
 		add_action( 'wp_ajax_mainwp_creport_load_tokens', array( &$this, 'load_tokens' ) );
 		add_action( 'wp_ajax_mainwp_creport_delete_token', array( &$this, 'delete_token' ) );
 		add_action( 'wp_ajax_mainwp_creport_save_token', array( &$this, 'save_token' ) );
-		add_action( 'wp_ajax_mainwp_creport_do_action_report', array( &$this, 'ajax_do_action_report' ) );		
+		add_action( 'wp_ajax_mainwp_creport_do_action_report', array( &$this, 'ajax_do_action_report' ) );
 		add_action( 'wp_ajax_mainwp_creport_load_site_tokens', array( &$this, 'load_site_tokens' ) );
 		add_action( 'wp_ajax_mainwp_creport_save_format', array( &$this, 'save_format' ) );
 		add_action( 'wp_ajax_mainwp_creport_get_format', array( &$this, 'get_format' ) );
@@ -755,35 +755,35 @@ class MainWP_CReport {
 		self::$enabled_brokenlinks = apply_filters( 'mainwp-extension-available-check', 'mainwp-broken-links-checker-extension' );
 		self::$stream_tokens = apply_filters( 'mainwp_client_reports_tokens_groups', self::$stream_tokens );
 		self::$tokens_nav_top = apply_filters( 'mainwp_client_reports_tokens_nav_top', self::$tokens_nav_top );
-                
+
 	}
 
     public function check_update() {
-        
+
         $update_version = get_option('mainwp_creport_update_version', false);
-        
+
         if (version_compare($update_version, $this->update_version, '<>')) {
-            update_option('mainwp_creport_update_version', $this->update_version);            
+            update_option('mainwp_creport_update_version', $this->update_version);
         }
-        
+
         if (empty($update_version)) {
-            if ( $sched = wp_next_scheduled( 'mainwp_creport_cron_send_reports' ) ) {               
+            if ( $sched = wp_next_scheduled( 'mainwp_creport_cron_send_reports' ) ) {
                 wp_unschedule_event( $sched, 'mainwp_creport_cron_send_reports' ); // reset
             }
             if ( $sched = wp_next_scheduled( 'mainwp_creport_cron_continue_send_reports' ) ) {
                 wp_unschedule_event( $sched, 'mainwp_creport_cron_continue_send_reports' ); // reset
-            }    
+            }
         }
-        
+
     }
-    
+
 	function managesite_backup( $website, $args, $information ) {
 		if ( empty( $website ) ) {
 			return; }
 		$type = isset( $args['type'] ) ? $args['type'] : '';
 		if ( empty( $type ) ) {
 			return; }
-		
+
 		global $mainWPCReportExtensionActivator;
 
 		$backup_type = ('full' == $type) ? 'Full' : ('db' == $type ? 'Database' : '');
@@ -927,35 +927,35 @@ class MainWP_CReport {
 		$useWPCron = (false === get_option( 'mainwp_wp_cron' )) || (1 == get_option( 'mainwp_wp_cron' ));
         if ( ($sched = wp_next_scheduled( 'mainwp_creport_cron_archive_reports' )) == false ) {
             if ( $useWPCron ) {
-                $time = strtotime( date( 'Y-m-d' ) . ' 23:59:59' );                
+                $time = strtotime( date( 'Y-m-d' ) . ' 23:59:59' );
                 wp_schedule_event( $time, 'daily', 'mainwp_creport_cron_archive_reports' );
             }
         } else {
             if ( ! $useWPCron ) {
-                wp_unschedule_event( $sched, 'mainwp_creport_cron_archive_reports' ); 
+                wp_unschedule_event( $sched, 'mainwp_creport_cron_archive_reports' );
             }
         }
 
         if ( ($sched = wp_next_scheduled( 'mainwp_creport_cron_send_reports' )) == false ) {
-            if ( $useWPCron ) {				
+            if ( $useWPCron ) {
                 wp_schedule_event( time(), '5minutely', 'mainwp_creport_cron_send_reports' );
             }
         } else {
             if ( ! $useWPCron ) {
-                wp_unschedule_event( $sched, 'mainwp_creport_cron_send_reports' ); 
+                wp_unschedule_event( $sched, 'mainwp_creport_cron_send_reports' );
             }
         }
 
         if ( ($sched = wp_next_scheduled( 'mainwp_creport_cron_continue_send_reports' )) == false ) {
-            if ( $useWPCron ) {				
+            if ( $useWPCron ) {
                 wp_schedule_event( time(), 'minutely', 'mainwp_creport_cron_continue_send_reports' );
             }
         } else {
             if ( ! $useWPCron ) {
-                    wp_unschedule_event( $sched, 'mainwp_creport_cron_continue_send_reports' ); 
+                    wp_unschedule_event( $sched, 'mainwp_creport_cron_continue_send_reports' );
 
             }
-        }                
+        }
 	}
 
 	public static function cron_archive_reports() {
@@ -965,46 +965,56 @@ class MainWP_CReport {
                     foreach ( $reports as $report ) {
                             self::archive_report( $report->id );
                     }
-		}                
+		}
 	}
-        
-    
-    public static function cron_send_reports() {        
-        do_action('mainp_log_debug', 'CRON :: Client Report :: sending');                     
-		//Do cronjobs!		
+
+
+    public static function cron_send_reports() {
+        do_action('mainp_log_debug', 'CRON :: Client Report :: sending');
+		//Do cronjobs!
 		//this will execute once every day to check to send the group reports
-	
+
         $allReportsToSend   = array();
 		$allGroupReports = MainWP_CReport_DB::get_instance()->get_scheduled_reports_to_send();
-		foreach ( $allGroupReports as $report ) {   
+		foreach ( $allGroupReports as $report ) {
             if ( time() < $report->schedule_nextsend ) {
                 continue;
 			}
+            // IMPORTANCE CHECK: to prevent INCORRECT schedule_nextsend or auto send to quick (at least after about 12 hours)
+            if (($report->schedule_nextsend < $report->schedule_lastsend) || (time() - $report->schedule_lastsend < 60 * 60 * 12)) {
+//                if ($report->sending_errors != '') {
+//                    $last_send = date('Y-m-d H:i:s', $report->schedule_lastsend);
+//                    $send_time = date('Y-m-d H:i:s');
+//                    $send_error = 'Error: Send time ' . $send_time. ' (last send: ' . $last_send. '). Please check the report.';
+//                    MainWP_CReport_DB::get_instance()->update_reports_errors( $report->id, $send_error );
+//                }
+                continue;
+            } else if ($report->sending_errors != '') {
+                continue;
+            }
+
             $allReportsToSend[] = $report;
 		}
         unset($allGroupReports);
 
-        do_action('mainp_log_debug', 'CRON :: Client Report :: Found ' . count($allReportsToSend) . ' group reports to send.'); 
+        do_action('mainp_log_debug', 'CRON :: Client Report :: Found ' . count($allReportsToSend) . ' group reports to send.');
 
-        foreach ( $allReportsToSend as $report ) {                
+        foreach ( $allReportsToSend as $report ) {
                 // update report to start sending
-                MainWP_CReport_DB::get_instance()->update_reports_send( $report->id );                
-                $schedule = $report->recurring_schedule;                        
-                $recurring_day = $report->recurring_day;
-
-                $cal_recurring = self::calc_recurring_date( $schedule, $recurring_day );
+                MainWP_CReport_DB::get_instance()->update_reports_send( $report->id );
+                $cal_recurring = self::calc_recurring_date( $report->recurring_schedule, $report->recurring_day );
 
                 if (empty($cal_recurring))
                     continue;
 
                 $log_time = date( "Y-m-d H:i:s", $cal_recurring['date_send'] );
-                do_action('mainp_log_debug', 'CRON :: Client Report :: report id ' . $report->id . ', next send: ' . $log_time); 
+                do_action('mainp_log_debug', 'CRON :: Client Report :: report id ' . $report->id . ', next send: ' . $log_time);
 
-                // to fix: send current day/month/year... issue                        
-                $values = array(                                
+                // to fix: send current day/month/year... issue
+                $values = array(
                         'date_from_nextsend' => $cal_recurring['date_from'],
                         'date_to_nextsend' => $cal_recurring['date_to'],
-                        'schedule_nextsend' => $cal_recurring['date_send'], // to check if current time > schedule nextsend then prepare report to send                        
+                        'schedule_nextsend' => $cal_recurring['date_send'], // to check if current time > schedule nextsend then prepare report to send
                 );
                 $date_from = $report->date_from_nextsend;
                 $date_to = $report->date_to_nextsend;
@@ -1013,12 +1023,12 @@ class MainWP_CReport {
                     $values['date_from'] = $date_from;
                     $values['date_to'] = $date_to;
                 }
-                MainWP_CReport_DB::get_instance()->update_reports_with_values($report->id, $values );                                        
+                MainWP_CReport_DB::get_instance()->update_reports_with_values($report->id, $values );
         }
 	}
-        
+
     public static function cron_continue_send_reports() {
-        do_action('mainp_log_debug', 'CRON :: Client Report :: continue send reports'); 
+        do_action('mainp_log_debug', 'CRON :: Client Report :: continue send reports');
 
 		@ignore_user_abort( true );
 		@set_time_limit( 0 );
@@ -1029,23 +1039,23 @@ class MainWP_CReport {
 		//Fetch all tasks where complete < last & last checkup is more then 1 minute ago! & last is more then 1 minute ago!
 		$reports = MainWP_CReport_DB::get_instance()->get_scheduled_reports_to_continue_send();
 
-        do_action('mainp_log_debug', 'CRON :: Client Report :: continue send :: Found ' . count( $reports ) . ' to continue.' ); 
-                
+        do_action('mainp_log_debug', 'CRON :: Client Report :: continue send :: Found ' . count( $reports ) . ' to continue.' );
+
 		if ( empty( $reports ) ) {
 			return;
 		}
-        $chunkedSend = 3;  
+        $chunkedSend = 3;
 		foreach ( $reports as $report ) {
-            do_action('mainp_log_debug', 'CRON :: Client Report :: continue send :: Report: ' . $report->title ); 			
-            $report = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $report->id );			
+            do_action('mainp_log_debug', 'CRON :: Client Report :: continue send :: Report: ' . $report->title );
+            $report = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $report->id );
             self::do_send_client_report( $report, $chunkedSend);
             break;
 		}
     }
-        
-        
-    public static function do_send_client_report( $report,  $nrOfSites = 0 ) {  
-            
+
+
+    public static function do_send_client_report( $report,  $nrOfSites = 0 ) {
+
 		$report = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $report->id );
 
 		$completed_sites = $report->completed_sites;
@@ -1056,24 +1066,23 @@ class MainWP_CReport {
 		if ( ! is_array( $completed_sites ) ) {
 			$completed_sites = array();
 		}
-                
+
         $sites = unserialize( base64_decode( $report->sites ) );
-        $groups = unserialize( base64_decode( $report->groups ) );                
+        $groups = unserialize( base64_decode( $report->groups ) );
 
         if ( ! is_array( $sites ) ) {
-                $sites = array();                                 
+                $sites = array();
         }
         if ( ! is_array( $groups ) ) {
-                $groups = array();                                 
+                $groups = array();
         }
         global $mainWPCReportExtensionActivator;
         $dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sites, $groups );
-		$errorOutput = null;
 
 		$currentCount = 0;
         foreach ( $dbwebsites as $dbsite ) {
                 $siteid = $dbsite->id;
-                        
+
                 if ( isset( $completed_sites[ $siteid ] ) && ( $completed_sites[ $siteid ] == true ) ) {
                     continue;
                 }
@@ -1081,16 +1090,12 @@ class MainWP_CReport {
                 $completed_sites[ $siteid ] = true;
                 MainWP_CReport_DB::get_instance()->update_reports_completed_sites( $report->id, $completed_sites );
 
-                $website =  MainWP_CReport_Utility::map_site( $dbsite, array( 'id', 'name', 'url' ) );  
-
-                if ( $errorOutput == null ) {
-                        $errorOutput = '';
-                }
+                $website =  MainWP_CReport_Utility::map_site( $dbsite, array( 'id', 'name', 'url' ) );
 
                 if (!self::send_report_mail( $report, false, $website )) {
-                    $errorOutput = 'Send report of site: ' . $website['url'] . ' failed.';
-                    do_action('mainp_log_debug', 'CRON :: Client Report :: ' . $errorOutput); 
-                } 
+
+                    do_action('mainp_log_debug', 'CRON :: Client Report :: Send report of site: ' . $website['url'] . ' failed.');
+                }
 
                 $currentCount ++;
 
@@ -1099,19 +1104,15 @@ class MainWP_CReport {
                 }
 		}
 
-		if ( $errorOutput != null ) {
-			MainWP_CReport_DB::get_instance()->update_reports_errors( $report->id, $errorOutput );
-		}
-                
         //update completed sites
 		if ( count( $completed_sites ) == count( $dbwebsites ) ) {
 			MainWP_CReport_DB::get_instance()->update_reports_completed( $report->id );
 		}
 
-		return ( $errorOutput == '' );
+		return true;
 	}
-    
-    public static function cal_days_in_month( $month, $year ) {        
+
+    public static function cal_days_in_month( $month, $year ) {
         if (function_exists('cal_days_in_month')) {
             $max_d = cal_days_in_month(CAL_GREGORIAN, $month, $year);
         } else {
@@ -1120,83 +1121,85 @@ class MainWP_CReport {
         return $max_d;
     }
 
-    public static function calc_recurring_date( $schedule, $recurring_day, $cal_date = false) {                
+    public static function calc_recurring_date( $schedule, $recurring_day, $cal_date = false) {
 		if ( empty( $schedule ) ) {
-			return false;                         
-        }      
-         
-		$today = strtotime( date( 'Y-m-d' ) . ' 00:00:00' );
-		$end_today = strtotime( date( 'Y-m-d' ) . ' 23:59:59' );
+			return false;
+        }
 
+        $gmtOffset = get_option( 'gmt_offset' );
+        $date_offset = $gmtOffset * HOUR_IN_SECONDS;
+
+        $the_time = time() + $date_offset;  // to fix gmt offset issue
 		$date_from = $date_to = $date_send = 0;
-                        
+
         if ( 'daily' == $schedule ) {
-                $date_from = $today;
-                $date_to = $end_today;
-                $date_send = $end_today + 2; 
-        } 
+                $date_from = strtotime( date( 'Y-m-d', $the_time ) . ' 00:00:00' );
+                $date_to = strtotime( date( 'Y-m-d', $the_time ) . ' 23:59:59' );
+                $date_send = $date_to + 2;
+        }
         else if ( 'weekly' == $schedule ) {
                 // for strtotime()
                 $day_of_week = array(
                     1 => 'monday',
-                    2 => 'tuesday',			
-                    3 => 'wednesday',			
+                    2 => 'tuesday',
+                    3 => 'wednesday',
                     4 => 'thursday',
                     5 => 'friday',
                     6 => 'saturday',
                     7 => 'sunday',
                 );
-                $date_from = $today;                        
-                $date_to = $today + 7 * 24 * 3600 - 1;
-                $date_send = strtotime('next ' . $day_of_week[$recurring_day]) + 1;  // day of next week                                                       
+
+                $date_from = strtotime( date( 'Y-m-d', $the_time ) . ' 00:00:00' );
+                $date_to = $date_from + 7 * 24 * 3600 - 1;
+
+                $date_send = strtotime('next ' . $day_of_week[$recurring_day]) + 1;  // day of next week
                 if ( $date_send < $date_to ) { // to fix
                     $date_send += 7 * 24 * 3600;
                 }
-        } 
-        else if ( 'monthly' == $schedule ) {    
-                if ($cal_date === false)
-                    $cal_date = time(); // today
-                
-                $first_date = date('Y-m-01', $cal_date); // first day of the month                
-                $last_date = date("Y-m-t", $cal_date); // Date t parameter return days number in current month.    
-                                
-                $date_from = strtotime($first_date . ' 00:00:00'); 
+        }
+        else if ( 'monthly' == $schedule ) {
+                // to fix monthly schedule time
+                if ( !empty($cal_date) ) {
+                    $the_time = $cal_date;
+                }
+
+                $first_date = date('Y-m-01', $the_time); // first day of the month
+                $last_date = date("Y-m-t", $the_time); // Date t parameter return days number in current month.
+
+                $date_from = strtotime($first_date . ' 00:00:00');
                 $date_to = strtotime($last_date . ' 23:59:59');
-                
-                $cal_month = date('m', $cal_date) + 1;
-                $cal_year = date('Y', $cal_date);
-                
+
+                $cal_month = date('m', $the_time) + 1;
+                $cal_year = date('Y', $the_time);
+
                 if ($cal_month > 12) {
                     $cal_month = $cal_month - 12;
                     $cal_year += 1;
-                }                
+                }
                 $max_d = self::cal_days_in_month($cal_month, $cal_year);
-                if ($recurring_day > $max_d)                                    
-                    $recurring_day = $max_d;      
-                
+                if ($recurring_day > $max_d)
+                    $recurring_day = $max_d;
                 $date_send = mktime(0, 0, 1, $cal_month, $recurring_day, $cal_year);
-        } 
-        else if ( 'yearly' == $schedule ) {                                                                                       
-                $date_from = strtotime(date('Y-01-01')); // first day of year
-                $last_date = date('Y-m-d', strtotime('Dec 31')); // last day of year
-                $date_to = strtotime($last_date . ' 23:59:59'); 
+        }
+        else if ( 'yearly' == $schedule ) {
+                $date_from = strtotime(date('Y-01-01', $the_time) . ' 00:00:00'); // first day of the year
+                $last_date = date('Y-m-d', strtotime('Dec 31')); // last day of the year
+                $date_to = strtotime($last_date . ' 23:59:59');
                 list($m, $d) = explode( '-', $recurring_day);
 
-                $max_d = self::cal_days_in_month($m, date('Y') + 1);                
-                if ($d > $max_d)                                    
+                $max_d = self::cal_days_in_month($m, date('Y') + 1);
+                if ($d > $max_d)
                     $d = $max_d;
-                $date_send = mktime(0, 0, 1, $m, $d, date('Y') + 1);                                
-        }                        			
-        
-        $gmtOffset = get_option( 'gmt_offset' );
-        $date_offset = $gmtOffset * HOUR_IN_SECONDS;        
+                $date_send = mktime(0, 0, 1, $m, $d, date('Y') + 1);
+        }
+
 		return array(
-                    'date_from' => $date_from,
-                    'date_to' => $date_to,
-                    'date_send' => $date_send - $date_offset // minus gmt offset so it will send in local time
-                );
+            'date_from' => $date_from - $date_offset, //  local time
+            'date_to' => $date_to - $date_offset, // local time
+            'date_send' => $date_send - $date_offset // minus gmt offset so it will send in local time
+        );
 	}
-                 
+
 	public function shortcuts_widget( $website ) {
 		if ( ! empty( $website ) ) {
 			$found = MainWP_CReport_DB::get_instance()->checked_if_site_have_report( $website->id );
@@ -1228,20 +1231,59 @@ class MainWP_CReport {
 		}
 		return $actions;
 	}
-        
-        public static function save_report() {
+
+    /**
+	 * @param int $report_id The id of the report
+	 * @param int $site_id The id of the site
+	 * @param string|0 $from_date String of from date, date format 'Y-m-d H:i:s'
+	 * @param string|0 $to_date String of to date, date format 'Y-m-d H:i:s'
+	 *
+	 * @return html content of generated report. False when something goes wrong.
+	 */
+
+    public static function hook_generate_report( $report_id, $site_id, $from_date = 0, $to_date = 0 ) {
+        if ( empty($report_id) || empty($site_id) )
+            return false;
+
+        $report = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $report_id);
+
+        if (empty($report))
+            return false;
+
+        global $mainWPCReportExtensionActivator;
+        $website = apply_filters( 'mainwp-getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $site_id );
+		if ( $website && is_array( $website ) ) {
+			$website = current( $website );
+		}
+        if (empty($website))
+            return false;
+
+        if (!empty($from_date ) && !empty($to_date) ) {
+            $from_date = strtotime( $from_date );
+            $to_date = strtotime( $to_date  );
+        } else {
+            $from_date = $to_date = 0;
+        }
+
+        $filtered_reports = self::filter_report_website( $report, $website, $from_date, $to_date);
+        $content = self::gen_report_content( $filtered_reports );
+        return $content;
+    }
+
+
+    public static function save_report() {
 		if ( isset( $_REQUEST['action'] ) && 'editreport' == $_REQUEST['action'] && isset( $_REQUEST['nonce'] ) && wp_verify_nonce( $_REQUEST['nonce'], 'mwp_creport_nonce' ) ) {
 			$messages = $errors = array();
 			$report = array();
 			$current_attach_files = '';
-            
+
             $update_report_date = false;
             $current_recurring_schedule = '';
             $current_recurring_day = '';
 			if ( isset( $_REQUEST['id'] ) && ! empty( $_REQUEST['id'] ) ) {
-				$report = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $_REQUEST['id'], null, null, ARRAY_A );                                                                                      
-				$current_attach_files = $report['attach_files'];                
-                // if current isn't scheduled report then update 
+				$report = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $_REQUEST['id'], null, null, ARRAY_A );
+				$current_attach_files = $report['attach_files'];
+                // if current isn't scheduled report then update
                 if (!$report['scheduled']) {
                     $update_report_date = true;
                 } else {
@@ -1253,20 +1295,20 @@ class MainWP_CReport {
             }
 
 			if ( isset( $_POST['mwp_creport_title'] ) && ($title = trim( $_POST['mwp_creport_title'] )) != '' ) {
-				$report['title'] = $title;                                 
+				$report['title'] = $title;
                         }
-                        
+
             $scheduled_report = false;
 			if ( isset( $_POST['mainwp_creport_type'] ) && !empty($_POST['mainwp_creport_type'])) {
                 $report['scheduled'] = 1;
                 $scheduled_report = true;
 			} else {
                 $report['scheduled'] = 0;
-            } 
-            
+            }
+
             if (!$scheduled_report) {
-                
-                $start_time = $end_time = 0;                            
+
+                $start_time = $end_time = 0;
                 if ( isset( $_POST['mwp_creport_date_from'] ) && ($start_date = trim( $_POST['mwp_creport_date_from'] )) != '' ) {
                         $start_time = strtotime( $start_date . ' ' . date( 'H:i:s' ) );
 
@@ -1287,12 +1329,12 @@ class MainWP_CReport {
                 }
 
                 $report['date_from'] = $start_time;
-                $report['date_to'] = $end_time; 
-            } 
-                        
+                $report['date_to'] = $end_time;
+            }
+
 			if ( isset( $_POST['mwp_creport_client'] ) ) {
-				$report['client'] = trim( $_POST['mwp_creport_client'] );                                                                
-			} 
+				$report['client'] = trim( $_POST['mwp_creport_client'] );
+			}
 
 			if ( isset( $_POST['mwp_creport_client_id'] ) ) {
 				$report['client_id'] = intval( $_POST['mwp_creport_client_id'] );
@@ -1315,11 +1357,11 @@ class MainWP_CReport {
 				}
 			}
 			$report['femail'] = $from_email;
-                        
-			if ( isset( $_POST['mwp_creport_name'] ) ) {                                
+
+			if ( isset( $_POST['mwp_creport_name'] ) ) {
 				$report['name'] = trim( $_POST['mwp_creport_name'] );
 			}
-                        
+
 			if ( isset( $_POST['mwp_creport_company'] ) ) {
 				$report['company'] = trim( $_POST['mwp_creport_company'] );
 			}
@@ -1353,46 +1395,46 @@ class MainWP_CReport {
 			if ( ! empty( $_POST['mwp_creport_bcc_email'] ) ) {
 				$bcc_email = trim( $_POST['mwp_creport_bcc_email'] );
 				if ( ! preg_match( '/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/is', $bcc_email ) ) {
-					$bcc_email = '';					
+					$bcc_email = '';
 				}
 			}
 			$report['bcc_email'] = $bcc_email;
-                        
+
 			if ( isset( $_POST['mwp_creport_email_subject'] ) ) {
 				$report['subject'] = trim( $_POST['mwp_creport_email_subject'] );
 			}
-                                                   
-                        
+
+
             $report['recurring_schedule'] = '';
 			if ( isset( $_POST['mainwp_creport_recurring_schedule'] ) ) {
-				$report['recurring_schedule'] = trim( $_POST['mainwp_creport_recurring_schedule'] );                                
+				$report['recurring_schedule'] = trim( $_POST['mainwp_creport_recurring_schedule'] );
 			}
-                        
+
             $report['recurring_day'] = '';
 
-            if ($scheduled_report) {                            
+            if ($scheduled_report) {
                 if ( $report['recurring_schedule'] == 'yearly' ) {
-                    $report['recurring_day'] = intval( $_POST['mainwp_creport_schedule_month'] ) . '-' . intval( $_POST['mainwp_creport_schedule_day_of_month'] );                                                                    
-                } else if ( $report['recurring_schedule'] == 'monthly' ) {                                
-                    $report['recurring_day'] = intval( $_POST['mainwp_creport_schedule_day_of_month'] );                                                                    
-                } else if ( $report['recurring_schedule'] == 'weekly' ) {                                
-                    $report['recurring_day'] = trim( $_POST['mainwp_creport_schedule_day'] );                                                                    
+                    $report['recurring_day'] = intval( $_POST['mainwp_creport_schedule_month'] ) . '-' . intval( $_POST['mainwp_creport_schedule_day_of_month'] );
+                } else if ( $report['recurring_schedule'] == 'monthly' ) {
+                    $report['recurring_day'] = intval( $_POST['mainwp_creport_schedule_day_of_month'] );
+                } else if ( $report['recurring_schedule'] == 'weekly' ) {
+                    $report['recurring_day'] = trim( $_POST['mainwp_creport_schedule_day'] );
                 } else if ( $report['recurring_schedule'] == 'daily' ) {
                     // nothing, send everyday
                 } else {
                     $report['recurring_schedule'] = ''; // will not schedule send
                 }
-                
+
                 if (($current_recurring_schedule != $report['recurring_schedule']) || ($current_recurring_day != $report['recurring_day'])) {
                     $update_report_date = true;
                 }
-                
-                // only update date when create new report 
+
+                // only update date when create new report
                 // or change from one-time to scheduled report
                 // or schedule settings changed
                 if ($update_report_date) {
-                    $cal_recurring = self::calc_recurring_date( $report['recurring_schedule'], $report['recurring_day'] );                        
-                    if (is_array($cal_recurring)) { 
+                    $cal_recurring = self::calc_recurring_date( $report['recurring_schedule'], $report['recurring_day'] );   // ok
+                    if (is_array($cal_recurring)) {
                         $report['date_from'] = $cal_recurring['date_from'];
                         $report['date_to'] = $cal_recurring['date_to'];
                         $report['date_from_nextsend'] = 0; // need to be 0, will recalculate when schedule send
@@ -1401,16 +1443,16 @@ class MainWP_CReport {
                         $report['completed'] = $cal_recurring['date_send']; // to fix continue sending
                     }
                 }
-            } 
-                        
+            }
+
 			if ( isset( $_POST['mainwp_creport_schedule_send_email'] ) ) {
 				$report['schedule_send_email'] = trim( $_POST['mainwp_creport_schedule_send_email'] );
-			}			
-			$report['schedule_bcc_me'] = isset( $_POST['mainwp_creport_schedule_bbc_me_email'] ) ? 1 : 0;			
+			}
+			$report['schedule_bcc_me'] = isset( $_POST['mainwp_creport_schedule_bbc_me_email'] ) ? 1 : 0;
 			if ( isset( $_POST['mainwp_creport_report_header'] ) ) {
 				$report['header'] = trim( $_POST['mainwp_creport_report_header'] );
 			}
-                        
+
 			if ( isset( $_POST['mainwp_creport_report_body'] ) ) {
 				$report['body'] = trim( $_POST['mainwp_creport_report_body'] );
 			}
@@ -1418,7 +1460,7 @@ class MainWP_CReport {
 			if ( isset( $_POST['mainwp_creport_report_footer'] ) ) {
 				$report['footer'] = trim( $_POST['mainwp_creport_report_footer'] );
 			}
-                                                
+
 			$creport_dir = apply_filters( 'mainwp_getspecificdir', 'client_report/' );
 			if ( ! file_exists( $creport_dir ) ) {
 				@mkdir( $creport_dir, 0777, true );
@@ -1472,20 +1514,20 @@ class MainWP_CReport {
 
 			$report['sites'] = !empty($selected_sites) ? base64_encode( serialize( $selected_sites ) ) : '';
 			$report['groups'] = !empty($selected_groups) ? base64_encode( serialize( $selected_groups ) ) : '';
-                       
+
 			if ( 'schedule' === $_POST['mwp_creport_report_submit_action'] ) {
 				$report['scheduled'] = 1;
 			}
-                        
+
 			if (    'save' === $_POST['mwp_creport_report_submit_action'] ||
                                 'sendreport' === $_POST['mwp_creport_report_submit_action'] ||
                                 'save_pdf' === $_POST['mwp_creport_report_submit_action'] ||
-                                'schedule' === $_POST['mwp_creport_report_submit_action'] ||                                        
+                                'schedule' === $_POST['mwp_creport_report_submit_action'] ||
                                 'archive_report' === $_POST['mwp_creport_report_submit_action'] ||
                                 'preview' === (string) $_POST['mwp_creport_report_submit_action'] ||
-                                'send_test_email' === (string) $_POST['mwp_creport_report_submit_action']                                
-                            ) {				
-                                
+                                'send_test_email' === (string) $_POST['mwp_creport_report_submit_action']
+                            ) {
+
 				if ( $result = MainWP_CReport_DB::get_instance()->update_report( $report ) ) {
 					$return['id'] = $result->id;
 					$messages[] = 'Report has been saved.';
@@ -1500,11 +1542,17 @@ class MainWP_CReport {
 				$return['id'] = $report['id'];
 			}
 
+            if ( isset($_POST['mwp_creport_report_submit_action']) && ('save' === $_POST['mwp_creport_report_submit_action'] ) && isset($return['saved']) && isset($return['id']) && empty($errors) ) {
+                //MainWP_CReport_DB::get_instance()->update_reports_errors( $return['id'], '' );	// clear errors
+            }
+
 			if ( count( $errors ) > 0 ) {
-				$return['error'] = $errors; }
+				$return['error'] = $errors;
+            }
 
 			if ( count( $messages ) > 0 ) {
-				$return['message'] = $messages; }
+				$return['message'] = $messages;
+            }
 
 			return $return;
 		}
@@ -1523,11 +1571,6 @@ class MainWP_CReport {
 			}
 		}
 	}
-        
-        public function handle_save_settings() {
-            
-        }
-        
         public static function handle_upload_files( $file_input, $dest_dir ) {
 		$output = array();
 		$attachFiles = array();
@@ -1562,11 +1605,11 @@ class MainWP_CReport {
 	}
 
 	public static function send_report_mail( $report, $send_test = false, $site = null) {
-            
+
 		if ( ! is_object( $report ) ) {
-			return false;                         
+			return false;
         }
-                
+
         $send_to_email = $subject = $bcc_email = '';
         $noti_email = @apply_filters( 'mainwp_getnotificationemail', false );
         $send_to_me_review = false;
@@ -1574,18 +1617,18 @@ class MainWP_CReport {
             if (empty($noti_email))
                 return false;
             else {
-                $send_to_email = $noti_email; 
+                $send_to_email = $noti_email;
                 $subject = 'Send Test Email';
             }
-        } else {    
-            if (!empty($report->scheduled)) {            
+        } else {
+            if (!empty($report->scheduled)) {
                 if ( $report->schedule_send_email == 'email_auto' ) {
                         if ( $report->schedule_bcc_me ) {
-                            $bcc_email = $noti_email;                                                         
-                        }                       
+                            $bcc_email = $noti_email;
+                        }
                 } else if ( $report->schedule_send_email == 'email_review' && ! empty( $noti_email ) ) {
                         $send_to_email = $noti_email;
-                        $subject = 'Review report';        
+                        $subject = 'Review report';
                         $send_to_me_review = true;
                 }
             }
@@ -1595,18 +1638,18 @@ class MainWP_CReport {
 		if ( empty( $send_to_email ) ) {
             return false;
         }
-               
+
 		$email_subject = '';
 		if ( ! empty( $subject ) ) {
 			$email_subject = $subject;
         }
-                
+
 		$email_subject = isset( $report->subject ) && ! empty( $report->subject ) ? $email_subject . ' - ' . $report->subject : $email_subject . ' - ' . 'Website Report';
 		$email_subject = ltrim( $email_subject, ' - ' );
 
 		global $mainWPCReportExtensionActivator;
 		$email_has_token = $subject_has_token = false;
-		$send_to_emails = $sites_token = array();
+		$emails_token = $sites_token = array();
 
 		if ( preg_match( '/^\[.+\]/is', $send_to_email ) ) {
 			$email_has_token = true;
@@ -1618,54 +1661,60 @@ class MainWP_CReport {
 
 		if ( $email_has_token || $subject_has_token ) {
 			$sites = $groups = array();
-			
+
             if ( !empty($site) ) { // send global report
                 if (isset($site['id'])) {
                     $sites = array( $site['id'] );
-                }				
-			} 
-                                         			
+                }
+			}
+
             $dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sites, $groups );
-			
+
             foreach ( $dbwebsites as $dbsite ) {
 				if ( $email_has_token ) {
 					$token = MainWP_CReport_DB::get_instance()->get_tokens_by( 'token_name', $send_to_email, $dbsite->url );
 					if ( $token ) {
-						$send_to_emails[ $dbsite->id ] = $token->site_token->token_value;
+						$emails_token[ $dbsite->id ] = $token->site_token->token_value;
 					}
 				}
 				if ( $subject_has_token ) {
-					$sites_token[ $dbsite->id ] = MainWP_CReport_DB::get_instance()->get_site_tokens( $dbsite->url, 'token_name' );                     
+					$sites_token[ $dbsite->id ] = MainWP_CReport_DB::get_instance()->get_site_tokens( $dbsite->url, 'token_name' );
                 }
 			}
 		}
 
+        $from_name = '';
 		$from = '';
 		if ( ! empty( $report->fname ) ) {
-			$from = 'From: ' . $report->fname;
+			$from_name = $report->fname;
+
 			if ( ! empty( $report->fcompany ) ) {
-				$from .= ' ' . $report->fcompany; }
+				$from_name .= ' ' . $report->fcompany;
+            }
+
 			if ( ! empty( $report->femail ) ) {
-				$from .= ' <' . $report->femail . '>'; }
+				$from .= ' <' . $report->femail . '>';
+            }
+
 		} else if ( ! empty( $report->femail ) ) {
-			$from = 'From: ';
 			if ( ! empty( $report->fcompany ) ) {
-				$from .= $report->fcompany . ' '; }
+				$from_name .= $report->fcompany . ' ';
+            }
 			$from .= ' <' . $report->femail . '>';
 		}
 
 		$header = array( 'content-type: text/html' );
-		
-		if ( !empty( $from ) ) {			
-			$header[] = $from;
+
+		if ( !empty( $from ) ) {
+			$header[] = 'From: ' . $from_name . ' ' . $from;
 		}
-                
+
 		if ( ! empty( $bcc_email ) ) {
 			$header[] = 'Bcc: ' . $bcc_email;
 		}
-                
+
         if (!empty($report->bcc_email)) {
-            $header[] = 'Bcc: ' . $report->bcc_email;                   
+            $header[] = 'Bcc: ' . $report->bcc_email;
         }
 
 		$files = $report->attach_files;
@@ -1678,32 +1727,32 @@ class MainWP_CReport {
 				$attachments[] = $creport_dir . $file;
 			}
 		}
-                
+
 		$success = 0;
-      
-        if (!empty($site)) {                       
-            if (!$report->is_archived) { 
-                MainWP_CReport::update_group_report_site($report, $site);                    
+
+        if (!empty($site)) {
+            if (!$report->is_archived) {
+                MainWP_CReport::update_group_report_site($report, $site);
             }
             $site_id = $site['id'];
-            $result = MainWP_CReport_DB::get_instance()->get_group_report_content($report->id, $site_id );                                                                   
+            $result = MainWP_CReport_DB::get_instance()->get_group_report_content($report->id, $site_id );
             if ($result) {
                 $content[$site_id] = json_decode($result->report_content);
             }
         } else {
             return false;
-        }                    
-          
+        }
+
                 // $content have one site report content only
 		if ( is_array( $content ) && !empty($content) ) {
 
                     if ( ! $email_has_token || $send_to_me_review) {
-                            $to_email = $send_to_email;                                         
-                    }                    
+                            $to_email = $send_to_email;
+                    }
                     foreach ( $content as $site_id => $send_content ) {
                             if ( $email_has_token && !$send_to_me_review) {
-                                    $to_email = isset( $send_to_emails[ $site_id ] ) ? $send_to_emails[ $site_id ] : '';
-                            }                           
+                                    $to_email = isset( $emails_token[ $site_id ] ) ? $emails_token[ $site_id ] : '';
+                            }
                             $send_subject = $email_subject;
                             if ( $subject_has_token ) {
                                     $search_token = $replace_value = array();
@@ -1712,34 +1761,34 @@ class MainWP_CReport {
                                     $replace_value[] = MainWP_CReport_Utility::format_timestamp( $report->date_from ) . ' - ' . MainWP_CReport_Utility::format_timestamp( $report->date_to );
                                     $search_token[] = '[report.send.date]';
                                     $now = time();
-                                    $replace_value[] = MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $now ) );                                    
-                                    if ( isset( $sites_token[ $site_id ] ) && is_array( $sites_token[ $site_id ] ) ) {                                            
+                                    $replace_value[] = MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $now ) );
+                                    if ( isset( $sites_token[ $site_id ] ) && is_array( $sites_token[ $site_id ] ) ) {
                                             foreach ( $sites_token[ $site_id ] as $token_name => $token ) {
                                                     $search_token[] = '[' . $token_name . ']';
                                                     $replace_value[] = $token->token_value;
-                                            }                                            
+                                            }
                                     }
                                     $send_subject = str_replace( $search_token, $replace_value, $send_subject );
                             }
 
                             if ( ! empty( $send_content ) && ! empty( $to_email ) ) {
-                                    $errorOutput = 'Sending report to : ' . $to_email;
-                                    do_action('mainp_log_debug', 'Client Report :: ' . $errorOutput);                     
-                                    if ( wp_mail( $to_email, stripslashes( $send_subject ), $send_content, $header, $attachments ) ) {							                                                        
+                                    do_action('mainp_log_debug', 'Client Report :: Sending report to : ' . $to_email . ' :: From: ' . $from_name . ' ' . $from);
+                                    if ( wp_mail( $to_email, stripslashes( $send_subject ), $send_content, $header, $attachments ) ) {
                                         if (!$send_test) {
                                             $lastsend = time();
                                             $values = array(
-                                                'lastsend' => $lastsend  // to display last send time                          
-                                            );                        
-                                            MainWP_CReport_DB::get_instance()->update_reports_with_values($report->id, $values );                                               
-                                            MainWP_CReport_DB::get_instance()->updateWebsiteOption($site_id, 'creport_last_report', $lastsend );                                                
+                                                'lastsend' => $lastsend  // to display last send time
+                                            );
+                                            MainWP_CReport_DB::get_instance()->update_reports_with_values($report->id, $values );
+                                            MainWP_CReport_DB::get_instance()->updateWebsiteOption($site_id, 'creport_last_report', $lastsend );
                                         }
+                                        do_action('mainp_log_debug', 'Client Report :: Send report success :: Subject :: ' . $send_subject );
                                         $success++;
                                     } else {
-                                        do_action('mainp_log_debug', 'Client Report :: Send report failed :: ' . $send_subject . ' :: ' . $send_content);                     
+                                        do_action('mainp_log_debug', 'Client Report :: Send report failed :: Subject :: ' . $send_subject );
                                     }
                             }
-                    }			
+                    }
 		}
 		return $success;
 	}
@@ -1814,78 +1863,78 @@ class MainWP_CReport {
 		}
 		return $output;
 	}
-        
+
 	public static function render() {
-                self::renderExtensionTour();                
+        self::renderExtensionTour();
 		self::render_tabs();
 	}
 
-	public static function render_tabs() {	
-            
+	public static function render_tabs() {
+
 		$messages = $errors = $reporttab_messages = array();
 		$do_preview = $do_group_preview = $do_send = $do_send_test_email = false;
-                $do_save_pdf = $do_download_pdf_group = $do_replicate = $do_archive = false;                
+                $do_save_pdf = $do_download_pdf_group = $do_replicate = $do_archive = false;
 		$do_save_pdf_get = $do_un_archive = $do_archive_get = false;
 		$report_id = 0;
-                
-		$report = false;                
-                $filter_group_report_actions = array('preview', 'send_test_email', 'save_pdf', 'archive_report', 'sendreport'); // do not unarchive_report 
+
+		$report = false;
+                $filter_group_report_actions = array('preview', 'send_test_email', 'save_pdf', 'archive_report', 'sendreport'); // do not unarchive_report
                 $action_group_report =  '';
 		if ( isset( $_GET['action'] ) ) {
 			if ( 'sendreport' === (string) $_GET['action'] ) {
-				$do_send = true;                                 
+				$do_send = true;
                         } else if ( 'preview' === (string) $_GET['action'] ) {
-				$do_preview = true;                                 
+				$do_preview = true;
                         } else if ( 'show_preview_group' === (string) $_GET['action'] ) {
-				$do_group_preview = true;                                 
+				$do_group_preview = true;
                         } else if ( 'replicate' === (string) $_REQUEST['action'] ) {
-                                $do_replicate = true;                                        
+                                $do_replicate = true;
                         } else if ( 'save_pdf' === (string) $_REQUEST['action'] ) {
-                                $do_save_pdf_get = true;                                         
+                                $do_save_pdf_get = true;
                         } else if ( 'archive_report' === (string) $_REQUEST['action'] ) {
-                                $do_archive_get = true;                                                 
+                                $do_archive_get = true;
                         } else if ( 'download_pdf_group' === $_GET['action']  ) {
                                 $do_download_pdf_group = true;
                         }
                         if (in_array( $_GET['action'], $filter_group_report_actions ))
-                            $action_group_report = $_GET['action'];                       
+                            $action_group_report = $_GET['action'];
 		}
-             
-		if ( isset( $_POST['mwp_creport_report_submit_action'] ) ) {                    
+
+		if ( isset( $_POST['mwp_creport_report_submit_action'] ) ) {
 			if ( 'sendreport' === (string) $_POST['mwp_creport_report_submit_action'] ) {
-                $do_send = true;                                 
+                $do_send = true;
             } else if ( 'send_test_email' === (string) $_POST['mwp_creport_report_submit_action'] ) {
-                $do_send_test_email = true;                                 
+                $do_send_test_email = true;
             } else if ( 'save_pdf' === (string) $_POST['mwp_creport_report_submit_action'] ) {
-                $do_save_pdf = true;                                         
+                $do_save_pdf = true;
             } else if ( 'preview' === (string) $_POST['mwp_creport_report_submit_action'] ) {
-                $do_preview = true;                                         
+                $do_preview = true;
             } else if ( 'archive_report' === (string) $_POST['mwp_creport_report_submit_action'] ) {
-                $do_archive = true;                                                 
+                $do_archive = true;
             } else if ( 'unarchive_report' == $_POST['mwp_creport_report_submit_action'] ) {
-                $do_un_archive = true;                                                 
-            } 
+                $do_un_archive = true;
+            }
             if (in_array( $_POST['mwp_creport_report_submit_action'], $filter_group_report_actions ))
-                $action_group_report = $_POST['mwp_creport_report_submit_action'];    
+                $action_group_report = $_POST['mwp_creport_report_submit_action'];
 		}
 
 		if ( isset( $_REQUEST['id'] ) ) {
 			$report_id = $_REQUEST['id'];
 		}
-                
+
                 // for normal report and group report
 		if ( $do_un_archive ) {
-			if ( self::un_archive_report( $report_id ) ) {				
+			if ( self::un_archive_report( $report_id ) ) {
                                 $messages[] = __( 'Report has been un-archived.' );
 			} else {
-				$errors[] = __( 'Un-Archive Report has been failed.' );                                 
+				$errors[] = __( 'Un-Archive Report has been failed.' );
                         }
 		}
 
 		$current_is_archived = false;
-                
+
 		if ( $report_id ) {
-			$current_report = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $report_id );                                           
+			$current_report = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $report_id );
 			$current_is_archived = ! empty( $current_report ) && $current_report->is_archived ? true : false;
 			unset( $current_report );
 		}
@@ -1912,20 +1961,21 @@ class MainWP_CReport {
 					$save_successful = true;
 				}
 		}
-               
+
 		if ( $report_id && ($do_save_pdf || $do_save_pdf_get || $do_download_pdf_group)) {
                     if ( $current_is_archived || $do_download_pdf_group) {
                             //!=== 1 - pdf report ===!//
-                            $report_pdf = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $report_id );                        
-                            if ($report_pdf) {                                                               
-                                    $content = MainWP_CReport::gen_email_content_pdf( $report_pdf );
-                                    MainWP_CReport_Utility::update_option( 'mwp_creport_pdf_content_' . $report_id, serialize( $content ) );
-                                    unset( $report_pdf );
+                            $report_pdf = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $report_id );
+                            if ($report_pdf) {
+                                $time = date('His');
+                                $content = MainWP_CReport::gen_content_pdf( $report_pdf );
+                                MainWP_CReport_Utility::update_option( 'mwp_creport_pdf_' . $time . '_' . $report_id , serialize( $content ) );
+                                unset( $report_pdf );
                                 ?>
                                 <script>
                                     jQuery(document).ready(function ($) {
                                         window.open(
-                                                '<?php echo get_site_url(); ?>/wp-admin/admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=savepdf&id=<?php echo esc_attr( $report_id ); ?>',
+                                                '<?php echo get_site_url(); ?>/wp-admin/admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=savepdf&id=<?php echo esc_attr( $report_id ); ?>&time=<?php echo esc_attr($time); ?>&_noncesave=<?php echo wp_create_nonce('_noncesave'); ?>',
                                                     '_blank'
                                                 );
                                         });
@@ -1934,7 +1984,7 @@ class MainWP_CReport {
                                 $messages[] = __( 'PDF downloading...' );
                             }
                     }
-		} 
+		}
 
 		if ( $report_id ) {
 			if ( ! $do_archive_get && (null == $report) ) {
@@ -1960,9 +2010,9 @@ class MainWP_CReport {
 				$style_tab_edit = '';
 			} else if ( 'newreport' == $_REQUEST['action'] ) {
 				if ( isset( $_GET['selected_site'] ) && ! empty( $_GET['selected_site'] ) ) {
-					$selected_site = $_GET['selected_site'];                                         
-                }				
-                $do_create_new_global = true;                                                                         
+					$selected_site = $_GET['selected_site'];
+                }
+                $do_create_new_global = true;
                 $style_tab_edit = '';
 			} else if ($do_send && $report ) {
                     $style_tab_edit = '';
@@ -1974,20 +2024,20 @@ class MainWP_CReport {
 		} else if ( isset( $_POST['mainwp_creport_stream_groups_select'] ) || isset( $_GET['s'] ) || isset( $_GET['stream_orderby'] ) ) {
 			$style_tab_stream = '';
 		} else if (isset($_GET['tab']) && $_GET['tab'] == 'tab_tokens') {
-                        $style_tab_token = '';  
+                        $style_tab_token = '';
                 } else if (isset($_GET['tab']) && $_GET['tab'] == 'tab_dashboard') {
-                        $style_tab_stream = '';  
+                        $style_tab_stream = '';
                 } else {
-			$style_tab_report = '';                         
+			$style_tab_report = '';
                 }
-                        
-            $sel_sites = $sel_groups = array();      
+
+            $sel_sites = $sel_groups = array();
             if ( $do_preview || $do_send || $do_send_test_email) {
                 $check_valid = true;
 			if ( empty( $report ) || ! is_object( $report ) ) {
 				$errors[] = __( 'Error report data' );
 				$check_valid = false;
-			} 
+			}
             else {
 				$sel_sites = unserialize( base64_decode( $report->sites ) );
 				$sel_groups = unserialize( base64_decode( $report->groups ) );
@@ -1996,33 +2046,33 @@ class MainWP_CReport {
 					$check_valid = false;
 				}
 			}
-                        
+
             if (!$check_valid) {
                 $do_preview = $do_send = false;
             }
-                        
+
 			if ( $do_send && empty( $report->email ) ) {
 				$errors[] = __( 'Send To Email Address field can not be empty' );
 				$do_send = false;
 			}
-                        
+
             if ($do_send && $report->scheduled) {
                 $errors[] = __( 'Not send schuduled report' );
                 $do_send = false;
                 $action_group_report = '';
             }
 		}
-                
+
         // do not load sites
         if ( ($action_group_report === 'preview' && $current_is_archived ) || ($action_group_report === 'save_pdf' && $current_is_archived)) {
              $action_group_report = '';
-        } 
+        }
 
         $link_with_href = false;
         if (!empty($action_group_report)) {
             $link_with_href = true;
         }
- 
+
 
 		$str_error = (count( $errors ) > 0) ? implode( '<br/>', $errors ) : '';
 		$str_message = (count( $messages ) > 0) ? implode( '<br/>', $messages ) : '';
@@ -2062,42 +2112,42 @@ class MainWP_CReport {
 				}
 			}
 		}
-                
+
         $lastReports = MainWP_CReport_DB::get_instance()->getOptionOfWebsites($sites_with_creport, 'creport_last_report');
-        $lastReportsSites = array(); 
+        $lastReportsSites = array();
         if (is_array($lastReports)) {
             foreach($lastReports as $last) {
                 $lastReportsSites[$last->wpid] = $last->value;
             }
         }
-                    
+
 		$selected_group = 0;
-                
+
 		if ( isset( $_POST['mainwp_creport_stream_groups_select'] ) ) {
 			$selected_group = intval( $_POST['mainwp_creport_stream_groups_select'] );
 		}
 		$dbwebsites_stream = MainWP_CReport_Stream::get_instance()->get_websites_stream( $dbwebsites, $selected_group, $lastReportsSites );
 
 		unset( $dbwebsites );
-               
+
 		if ( empty( $report ) && ! $do_create_new_global ) {
 			$new_tab_lnk = '<a id="wpcr_edit_tab_lnk" href="#" report-id="0" class="mainwp_action mid">' . __( 'New Report' ) . '</a>';
 		} else { // button is new report button
 			$new_tab_lnk = '<a id="wpcr_new_tab_lnk" href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=newreport" class="mainwp_action ' . ($do_create_new_global ? 'mainwp_action_down' : ''). ' mid">' . __( 'New Report' ) . '</a>'; }
 
 		$edit_global_tab_lnk = '';
-		if ( ! empty( $report ) ) {      
+		if ( ! empty( $report ) ) {
             $_href = '#';
             if ($link_with_href)
                 $_href = 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=editreport&id=' . $report->id;
 			$edit_global_tab_lnk = '<a id="wpcr_edit_global_tab_lnk" href="' . $_href . '" report-id="' . $report->id . '" class="mainwp_action mid mainwp_action_down">' . __( 'Edit Client Report' ) . '</a>';
 		}
-                
+
         $scheduled_creport = false;
         if (!empty($report) && !empty($report->scheduled) ) {
             $scheduled_creport = true;
         }
-                
+
 		?>
 		<div class="mainwp-subnav-tabs">
         	<a id="wpcr_report_tab_lnk" href="<?php echo ($link_with_href ? 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension' : '#'); ?>" class="mainwp_action left <?php echo (empty( $style_tab_report ) ? 'mainwp_action_down' : ''); ?>"><?php _e( 'Client Reports' ); ?></a>
@@ -2106,13 +2156,13 @@ class MainWP_CReport {
         	<a id="wpcr_token_tab_lnk" href="<?php echo ($link_with_href ? 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension&tab=tab_tokens' : '#'); ?>" class="mainwp_action mid <?php echo (empty( $style_tab_token ) ? 'mainwp_action_down' : ''); ?>"><?php _e( 'Custom Report Tokens' ); ?></a>
         	<a id="wpcr_stream_tab_lnk" href="<?php echo ($link_with_href ? 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension&tab=tab_dashboard' : '#'); ?>" class="mainwp_action right <?php echo (empty( $style_tab_stream ) ? 'mainwp_action_down' : ''); ?>"><?php _e( 'Child Reports Dashboard' ); ?></a>
        <div style="clear: both;"></div>
-        </div> 
+        </div>
         <div class="wrap" id="mainwp-ap-option">
-            <div class="clearfix"></div>           
-            <div class="inside">                 
+            <div class="clearfix"></div>
+            <div class="inside">
                 <div  class="mainwp_error error" id="mwp-creport-error-box" <?php echo ! empty( $str_error ) ? 'style="display:block;"' : ''; ?>><?php echo ! empty( $str_error ) ? '<p>' . $str_error . '</p>' : ''; ?></div>
-                <div  class="mainwp_info-box-yellow" id="mwp-creport-info-box"  <?php echo (empty( $str_message ) ? ' style="display: none" ' : ''); ?>><?php echo $str_message ?></div>               
-                
+                <div  class="mainwp_info-box-yellow" id="mwp-creport-info-box"  <?php echo (empty( $str_message ) ? ' style="display: none" ' : ''); ?>><?php echo $str_message ?></div>
+
                 <div id="mainwp_wpcr_option">
                     <div class="mainwp_error error" id="wpcr_error_box"></div>
                     <div class="clear">
@@ -2121,7 +2171,7 @@ class MainWP_CReport {
 							<span id="new-report-tab-help" style="display: none;"><?php _e( 'The New Report tab allows you to create a new report for your client(s). Once you are done with Report Settings and Report format, you can use buttons at the bottom of the page to Preview report, Send Test Email, Archive Report, Download Report as PDF file, Save Report or Send/Schedule the report.', 'mainwp-client-reports-extension' ); ?></span>
 							<span id="custom-report-tokens-tab-help" style="display: none;"><?php _e( 'The Custom Report Tokens tab alows you to manage and create custom tokens. Tokens are virtual representations of actual values that can be set for each child site individualy. In other words, tokens can be considered as variables.', 'mainwp-client-reports-extension' ); ?><br/><br/><?php _e( 'To set actual values for these tokens, you need to visit the Edit page for each child site. On the page, you will be able to find Client Tokens option box where you will be able to add custom values.', 'mainwp-client-reports-extension' ); ?></span>
 							<span id="child-report-dashboard-tab-help" style="display: none;"><?php _e( 'From the Child Reports Dashboard tab you can monitor all of your child sites where you have the MainWP Child Reports plugin installed. In the sites list, you will be notified if the plugin has an update available or if the plugin is deactivated.', 'mainwp-client-reports-extension' ); ?></span>
-						</div>   
+						</div>
 
                         <div id="wpcr_report_tab" class="mwp_client_reports_tabs" <?php echo $style_tab_report; ?>>
                                 <?php
@@ -2139,7 +2189,7 @@ class MainWP_CReport {
                                     </select>
                                     <input type="button" value="<?php _e( 'Apply' ); ?>" class="button action" id="creport_global_bulk_ations_btn" name="">
                                 </div>
-                               
+
                                 <select name="mainwp_creport_select_site" id="mainwp_creport_select_site" class="mainwp-select2">
                                         <option value="0"><?php _e( 'Select a Site' ); ?></option>
                                         <?php
@@ -2172,101 +2222,101 @@ class MainWP_CReport {
                                 <input type="button" id="mainwp_creport_select_client_btn_display" class="button" value="<?php _e( 'Display' ); ?>" />
                                 &nbsp;&nbsp;<a href="#" id="mainwp_cr_remove_client"><?php _e( 'Remove Client', 'mainwp-client-reports-extension' ); ?></a>
                                 &nbsp;<span class="wpcr_report_tab_nav_action_working"><i class="fa fa-spinner fa-pulse" style="display:none"></i> <span class="status hidden"></span></span>
-                            </div>                            
-                            <?php self::report_tab( $websites ); ?>                                                                                  
-                        </div>      
+                            </div>
+                            <?php self::report_tab( $websites ); ?>
+                        </div>
                         <div id="mainwp_creport_edit_tab_wrap" >
                                     <form method="post" enctype="multipart/form-data" id="mwp_creport_edit_form" action="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=editreport<?php echo ! empty( $report_id ) ? '&id=' . $report_id : ''; ?>">
                                         <div id="creport_select_sites_box" class="mainwp_config_box_right" <?php echo $style_tab_edit; ?>>
                                                 <?php
-                                                $sel_sites = $sel_groups = array();                                                
-                                                if ( $do_create_new_global ||  ! empty( $report ) ) {                                                       
+                                                $sel_sites = $sel_groups = array();
+                                                if ( $do_create_new_global ||  ! empty( $report ) ) {
                                                         if ( ! empty( $report ) ) {
                                                                 $sel_sites = unserialize( base64_decode( $report->sites ) );
                                                                 $sel_groups = unserialize( base64_decode( $report->groups ) );
                                                         }
-                                                        
+
                                                         if ( ! is_array( $sel_sites ) ) {
-                                                                $sel_sites = array();                                                                 
+                                                                $sel_sites = array();
                                                         }
-                                                        
+
                                                         if ( ! is_array( $sel_groups ) ) {
-                                                                $sel_groups = array();                                                                 
-                                                        }                                                        
-                                                } 
-                                                
+                                                                $sel_groups = array();
+                                                        }
+                                                }
+
                                                 if ($selected_site) { // $_GET['selected_site]
                                                     $sel_sites[] = $selected_site;
-                                                }                                                
-                                                do_action( 'mainwp_select_sites_box', __( 'Select Sites', 'mainwp-client-reports-extension' ), 'checkbox', true, true, 'mainwp_select_sites_box_right', '', $sel_sites, $sel_groups ); 
-                                                
+                                                }
+                                                do_action( 'mainwp_select_sites_box', __( 'Select Sites', 'mainwp-client-reports-extension' ), 'checkbox', true, true, 'mainwp_select_sites_box_right', '', $sel_sites, $sel_groups );
+
                                                 ?>
                                                 <div class="mainwp-notice mainwp-notice-blue" style="clear:both;">
                                                 	<p><?php esc_html_e('Only sites with the MainWP Child Reports Plugin installed will be displayed in the list.', 'mainwp-client-reports-extension');?></p>
                                                 	<p><?php esc_html_e('After installing the MainWP Child Reports plugin, you need to sync your sites.', 'mainwp-client-reports-extension');?></p>
                                                   </div>
-                                                </div>                             
-                                                <div id="wpcr_edit_tab" class="mwp_client_reports_tabs" <?php echo $style_tab_edit; ?>> 
+                                                </div>
+                                                <div id="wpcr_edit_tab" class="mwp_client_reports_tabs" <?php echo $style_tab_edit; ?>>
                                                         <?php
                                                         self::new_report_tab( $report );
-                                                        
-                                                        
+
+
                                                         $_archive_btn = '<input type="submit" value="' . __( 'Archive Report', 'mainwp-client-reports-extension' ) . '" class="button button-hero" id="mwp-creport-archive-report-btn" name="button_archive">';
                                                         $_disabled = '';
                                                         if ( ! empty( $report ) && isset( $report->id ) && isset( $report->is_archived ) && $report->is_archived ) {
                                                                 $_archive_btn = '<input type="submit" value="' . __( 'Un-Archive Report', 'mainwp-client-reports-extension' ) . '" class="button button-hero" id="mwp-creport-unarchive-report-btn" name="button_unarchive">';
                                                                 $_disabled = 'disabled="disabled"';
                                                         }
-                                                                                                                
-                                                        ?>  
-                                                    <p class="submit" id="creport_actions_btn">                                    
+
+                                                        ?>
+                                                    <p class="submit" id="creport_actions_btn">
                                                         <span style="float:left;">
                                                             <input type="submit" value="<?php _e( 'Preview Report' ); ?>" class="button-primary button button-hero" id="mwp-creport-preview-btn" name="button_preview">
-                                                            <input type="submit" value="<?php _e( 'Send Test Email' ); ?>" class="button button-hero" id="mwp-creport-send-test-email-btn" name="button_send_test_email">                                        
+                                                            <input type="submit" value="<?php _e( 'Send Test Email' ); ?>" class="button button-hero" id="mwp-creport-send-test-email-btn" name="button_send_test_email">
                                                         </span>
-                                                        <span style="float:right;"> 
-                                                            <?php echo $_archive_btn; ?>                                        
+                                                        <span style="float:right;">
+                                                            <?php echo $_archive_btn; ?>
                                                             <input type="submit" value="<?php _e( 'Download PDF' ); ?>" class="button button-hero" id="mwp-creport-save-pdf-btn" name="button_save_pdf">
-                                                            <input type="submit" <?php echo $_disabled; ?> value="<?php _e( 'Save Report' ); ?>" class="button button-hero" id="mwp-creport-save-btn" name="button_save">                                                            
-                                                            <input type="submit" <?php echo $scheduled_creport ? 'style="display:none"' : ''; ?> value="<?php _e( 'Send Now' ); ?>"  class="button-primary button button-hero" id="mwp-creport-send-btn" name="submit">     
+                                                            <input type="submit" <?php echo $_disabled; ?> value="<?php _e( 'Save Report' ); ?>" class="button button-hero" id="mwp-creport-save-btn" name="button_save">
+                                                            <input type="submit" <?php echo $scheduled_creport ? 'style="display:none"' : ''; ?> value="<?php _e( 'Send Now' ); ?>"  class="button-primary button button-hero" id="mwp-creport-send-btn" name="submit">
                                                             <input type="submit" <?php echo $scheduled_creport ? '' : 'style="display:none"'; ?> value="<?php _e( 'Schedule Report' ); ?>" class="button-primary button button-hero" id="mwp-creport-schedule-btn" <?php echo $_disabled; ?> name="button_schedule">
                                                         </span>
                                                     </p>
-                                                </div>                                                  
-                                                <input type="hidden" name="mwp_creport_report_submit_action" id="mwp_creport_report_submit_action" value="">                                                        
+                                                </div>
+                                                <input type="hidden" name="mwp_creport_report_submit_action" id="mwp_creport_report_submit_action" value="">
                                                 <input type="hidden" name="id" value="<?php echo (is_object( $report ) && isset( $report->id )) ? $report->id : '0'; ?>">
                                                 <input type="hidden" name="nonce" value="<?php echo wp_create_nonce( 'mwp_creport_nonce' ) ?>">
                                             </form>
-                                    </div>			
+                                    </div>
                             <div id="wpcr_token_tab" class="mwp_client_reports_tabs" <?php echo $style_tab_token; ?>>
-                                <div id="creport_list_tokens" class="postbox"></div>                                                                       
-                            </div> 
+                                <div id="creport_list_tokens" class="postbox"></div>
+                            </div>
                             <div id="wpcr_stream_tab" class="mwp_client_reports_tabs" <?php echo $style_tab_stream; ?>>
                                 <div class="tablenav top">
-                                        <?php MainWP_CReport_Stream::gen_select_sites( $dbwebsites_stream, $selected_group ); ?>  
-                                </div>                            
-                                        <?php MainWP_CReport_Stream::gen_dashboard_tab( $dbwebsites_stream ); ?>                            
-                            </div>                                  
+                                        <?php MainWP_CReport_Stream::gen_select_sites( $dbwebsites_stream, $selected_group ); ?>
+                                </div>
+                                        <?php MainWP_CReport_Stream::gen_dashboard_tab( $dbwebsites_stream ); ?>
+                            </div>
                             <div class="clear"></div>
                         </div>
                     </div>
-                </div>        
+                </div>
 		<div id="mwp-creport-preview-box" title="<?php _e( 'Preview Report' ); ?>" style="display: none; text-align: center">
                         <div style="height: 500px; overflow: auto; margin-top: 20px; margin-bottom: 10px; margin-left: 10px; margin-right: 10px; text-align: left" id="mwp-creport-preview-content">
-                                <?php                                                                
+                                <?php
                                 if ( is_object( $report )) {
-                                    if (($do_preview && $current_is_archived)  || $do_group_preview) {                                
-                                        echo self::gen_preview_report( $report );      
+                                    if (($do_preview && $current_is_archived)  || $do_group_preview) {
+                                        echo self::gen_preview_report( $report );
                                         ?>
-                                        <script>            
+                                        <script>
                                             jQuery(document).ready(function ($) {
-                                                mainwp_creport_preview_report();          
+                                                mainwp_creport_preview_report();
                                             })
                                         </script>
                                         <?php
                                     }
                                 }
-                                ?>  
+                                ?>
                         </div>
 			<input type="button" value="<?php _e( 'Close' ); ?>" class="button-primary" id="mwp-creport-preview-btn-close"/>
 			<input type="button" <?php echo $scheduled_creport ? 'style="display:none"' : ''; ?> value="<?php _e( 'Send Now' ); ?>" class="button-primary" id="mwp-creport-preview-btn-send"/>
@@ -2276,56 +2326,56 @@ class MainWP_CReport {
                         mainwp_creport_load_tokens();
 		        mainwp_creport_remove_sites_without_creports('<?php echo implode( ',', $sites_with_creport ) ?>');
                     <?php
-                    if ( $action_group_report != '') {      
-                        //array( 'preview', 'send_test_email', 'save_pdf', 'archive_report', 'sendreport');                        
-                        ?>                    
+                    if ( $action_group_report != '') {
+                        //array( 'preview', 'send_test_email', 'save_pdf', 'archive_report', 'sendreport');
+                        ?>
                             mainwp_client_report_load_sites('<?php echo esc_html($action_group_report) ?>', <?php echo intval($report_id); ?>);
-                        <?php                       
-                    } 
+                        <?php
+                    }
                     ?>
 		<?php if ( $do_create_new_global && $selected_site ) { ?>
                             $('#selected_sites_<?php echo $selected_site; ?>').trigger('click');
 		<?php } ?>
             });
-        </script>        
+        </script>
 		<?php
 	}
 
-	public static function archive_report( $report_id, $generated_content = false ) {		
+	public static function archive_report( $report_id, $generated_content = false ) {
                 $report = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $report_id );
-                
+
 		if (empty($report))
                     return false;
-                
+
 		if ( $report->is_archived ) {
-                    return true;                         
-                }                
-                              
+                    return true;
+                }
+
                 if (!$generated_content) {
                     $sites = unserialize( base64_decode( $report->sites ) );
-                    $groups = unserialize( base64_decode( $report->groups ) );                
+                    $groups = unserialize( base64_decode( $report->groups ) );
 
                     if ( ! is_array( $sites ) ) {
-                            $sites = array();                                 
+                            $sites = array();
                     }
                     if ( ! is_array( $groups ) ) {
-                            $groups = array();                                 
+                            $groups = array();
                     }
                     global $mainWPCReportExtensionActivator;
-                    $dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sites, $groups );                   
+                    $dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sites, $groups );
                     foreach ( $dbwebsites as $dbsite ) {
-                        $website = MainWP_CReport_Utility::map_site( $dbsite, array( 'id', 'name', 'url' ) );                          
+                        $website = MainWP_CReport_Utility::map_site( $dbsite, array( 'id', 'name', 'url' ) );
                         self::update_group_report_site($report, $website);
                     }
                 }
-                
+
                 $update_archive = array(
                     'id' => $report->id,
-                    'is_archived' => 1                   
-                );                
-                
-		$ret = MainWP_CReport_DB::get_instance()->update_report( $update_archive );  
-                
+                    'is_archived' => 1
+                );
+
+		$ret = MainWP_CReport_DB::get_instance()->update_report( $update_archive );
+
                 if (is_object($ret) && $ret->is_archived) {
                     return true;
                 }
@@ -2338,116 +2388,80 @@ class MainWP_CReport {
 		}
 
 		if ( ! $report->is_archived ) {
-			return true;                         
+			return true;
                 }
-                
+
 		$update_archive = array(
                         'id' => $report->id,
-			'is_archived' => 0			
+			'is_archived' => 0
 		);
 		if ( MainWP_CReport_DB::get_instance()->update_report( $update_archive ) ) {
-			return true;                         
+			return true;
                 }
 		return false;
 	}
-        
+
         public static function set_init_params() {
             @ignore_user_abort(true);
-            $timeout = 10 * 60 * 60; 
+            $timeout = 10 * 60 * 60;
             @set_time_limit($timeout);
             $mem =  '1024M';
             @ini_set('memory_limit', $mem);
-            @ini_set('max_execution_time', 0);  
-                
+            @ini_set('max_execution_time', 0);
+
         }
-        
-	public static function gen_preview_report( $report ) {                
-        self::set_init_params();                                
+
+	public static function gen_preview_report( $report ) {
+        self::set_init_params();
         ob_start();
-		if ( ! empty( $report ) ) {      
-            $group_contents = MainWP_CReport_DB::get_instance()->get_group_report_content($report->id);                           
+		if ( ! empty( $report ) ) {
+            $group_contents = MainWP_CReport_DB::get_instance()->get_group_report_content($report->id);
             if (is_array($group_contents)) {
                 foreach ($group_contents as $content) {
                     echo json_decode($content->report_content);
                 }
             }
-                     
+
 		} else {
 			?>
-			<div class="mainwp_info-box-yellow"><?php _e( 'Report Error' ); ?></div>                    
+			<div class="mainwp_info-box-yellow"><?php _e( 'Report Error' ); ?></div>
 			<?php
 		}
 		$output = ob_get_clean();
 		return $output;
 	}
-     
-	public static function gen_email_content( $report ) {
-                self::set_init_params();
-		if ( is_object( $report ) ) {
-			if ( $report->is_archived ) {
-				if ( ! is_serialized( $report->archive_report ) ) {
-					return array( $report->archive_report );
-				} else {
-					$content = unserialize( $report->archive_report );
-					if ( is_array( $content ) ) {
-                        return $content;         
-					}
-					return false;
-				}
-			} else {
-				$filtered_reports = self::filter_report( $report );
-				return self::gen_report_content( $filtered_reports, true );
-			}
-		}
-		return false;
-	}
 
-	public static function gen_report_content( $reports, $return_array = false , $global_report = false) {
-		if ( ! is_array( $reports ) ) {
-			$reports = array( $reports );
-		}		
-		
-        if ( $return_array || $global_report ) {
-			ob_start();                         
-        }
-        
-		foreach ( $reports as $site_id => $report ) {
-			if ( ! $return_array ) {
-				ob_start();                                 
-            }
-			if ( is_array( $report ) && isset( $report['error'] ) ) {
-                echo $report['error'];
-			} else if ( is_object( $report ) ) {
-                echo stripslashes( nl2br( $report->filtered_header ) ); 
+	public static function gen_report_content( $report ) {
+        ob_start();
+        $convert_nl2br = apply_filters('mainwp_client_reports_newline_break', true);
+        if ( is_array( $report ) && isset( $report['error'] ) ) {
+            echo $report['error'];
+        } else if ( is_object( $report ) ) {
+            if ($convert_nl2br) {
+                echo stripslashes( nl2br( $report->filtered_header ) );
                 echo stripslashes( nl2br( $report->filtered_body ) );
                 echo stripslashes( nl2br( $report->filtered_footer ) );
-			}
-			if ( ! $return_array ) {
-				$html = ob_get_clean();                
-				$output[ $site_id ] = $html;
-			}
-		}
-                
-        if ($global_report) {
-            $output = ob_get_clean();            
-        } else if ( $return_array ) {
-            $html = ob_get_clean();            
-            $output[] = $html;
-        }                
+            } else {
+                echo stripslashes( $report->filtered_header );
+                echo stripslashes( $report->filtered_body );
+                echo stripslashes( $report->filtered_footer );
+            }
+        }
+        $output = ob_get_clean();
 		return $output;
 	}
 
-    public static function gen_email_content_pdf( $report ) {                
+    public static function gen_content_pdf( $report ) {
 		// to fix bug from mainwp
 		if ( ! function_exists( 'wp_verify_nonce' ) ) {
-			include_once( ABSPATH . WPINC . '/pluggable.php' );                         
+			include_once( ABSPATH . WPINC . '/pluggable.php' );
         }
-                
+
         self::set_init_params();
-                
-		if ( ! empty( $report ) && is_object( $report ) ) { 
+
+		if ( ! empty( $report ) && is_object( $report ) ) {
             // return non-array content for pdf
-            $group_contents = MainWP_CReport_DB::get_instance()->get_group_report_content($report->id);                                                       
+            $group_contents = MainWP_CReport_DB::get_instance()->get_group_report_content($report->id);
             $content_pdf = '';
             if (is_array($group_contents)) {
                 foreach ($group_contents as $content) {
@@ -2459,47 +2473,55 @@ class MainWP_CReport {
 		return '';
 	}
 
-	public static function gen_report_content_pdf( $filtered_reports ) {				
-		
+	public static function gen_report_content_pdf( $filtered_reports ) {
+
+		$convert_nl2br = apply_filters('mainwp_client_reports_newline_break', true);
 		$output = array();
         ob_start();
 
-		foreach ( $filtered_reports as $site_id => $report ) {			
+		foreach ( $filtered_reports as $site_id => $report ) {
 			if ( is_array( $report ) && isset( $report['error'] ) ) {
 				echo $report['error'];
 			} else if ( is_object( $report ) ) {
-                echo stripslashes( nl2br( $report->filtered_header ) );					
-                echo stripslashes( nl2br( $report->filtered_body ) );				
-                echo stripslashes( nl2br( $report->filtered_footer ) );				
+                if ($convert_nl2br) {
+                    echo stripslashes( nl2br( $report->filtered_header ) );
+                    echo stripslashes( nl2br( $report->filtered_body ) );
+                    echo stripslashes( nl2br( $report->filtered_footer ) );
+                } else {
+                    echo stripslashes( $report->filtered_header );
+                    echo stripslashes( $report->filtered_body );
+                    echo stripslashes( $report->filtered_footer );
+                }
+
 			}
 
-		}                
-                
-        $output = ob_get_clean();                         
+		}
+
+        $output = ob_get_clean();
 		return $output;
 	}
 
 	public static function filter_report( $report ) {
 		global $mainWPCReportExtensionActivator;
 		$websites = array();
-                $sel_sites = unserialize( base64_decode( $report->sites ) );
-                $sel_groups = unserialize( base64_decode( $report->groups ) );
-                if ( ! is_array( $sel_sites ) ) {
-                        $sel_sites = array(); }
-                if ( ! is_array( $sel_groups ) ) {
-                        $sel_groups = array(); }
-                $dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sel_sites, $sel_groups );
+        $sel_sites = unserialize( base64_decode( $report->sites ) );
+        $sel_groups = unserialize( base64_decode( $report->groups ) );
+        if ( ! is_array( $sel_sites ) ) {
+                $sel_sites = array(); }
+        if ( ! is_array( $sel_groups ) ) {
+                $sel_groups = array(); }
+        $dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sel_sites, $sel_groups );
 
-                if ( is_array( $dbwebsites ) ) {
-                        foreach ( $dbwebsites as $site ) {
-                                $websites[] = MainWP_CReport_Utility::map_site( $site, array( 'id', 'name', 'url' ) );
-                        }
+        if ( is_array( $dbwebsites ) ) {
+                foreach ( $dbwebsites as $site ) {
+                        $websites[] = MainWP_CReport_Utility::map_site( $site, array( 'id', 'name', 'url' ) );
                 }
-                $filtered_reports = array();
+        }
+        $filtered_reports = array();
 		if ( count( $websites ) == 0 ) {
-			return $filtered_reports;                         
-                }
-		
+			return $filtered_reports;
+        }
+
 		foreach ( $websites as $site ) {
 			$filtered_reports[ $site['id'] ] = self::filter_report_website( $report, $site );
 		}
@@ -2509,7 +2531,7 @@ class MainWP_CReport {
 	public static function filter_report_website( $report, $website, $cust_from_date = 0, $cust_to_date = 0 ) {
         $date_from = $cust_from_date ? $cust_from_date : $report->date_from;
         $date_to = $cust_to_date ? $cust_to_date : $report->date_to;
-        
+
 		$output = new stdClass();
 		$output->filtered_header = $report->header;
 		$output->filtered_body = $report->body;
@@ -2520,7 +2542,7 @@ class MainWP_CReport {
 		$get_ga_chart = $get_ga_chart || (((strpos( $report->header, '[ga.visits.maximum]' ) !== false) || (strpos( $report->body, '[ga.visits.maximum]' ) !== false) || (strpos( $report->footer, '[ga.visits.maximum]' ) !== false)) ? true : false);
 
 		$get_piwik_tokens = ((strpos( $report->header, '[piwik.' ) !== false) || (strpos( $report->body, '[piwik.' ) !== false) || (strpos( $report->footer, '[piwik.' ) !== false)) ? true : false;
-		$get_aum_tokens = ((strpos( $report->header, '[aum.' ) !== false) || (strpos( $report->body, '[aum.' ) !== false) || (strpos( $report->footer, '[aum.' ) !== false)) ? true : false;                        
+		$get_aum_tokens = ((strpos( $report->header, '[aum.' ) !== false) || (strpos( $report->body, '[aum.' ) !== false) || (strpos( $report->footer, '[aum.' ) !== false)) ? true : false;
 		$get_woocom_tokens = ((strpos( $report->header, '[wcomstatus.' ) !== false) || (strpos( $report->body, '[wcomstatus.' ) !== false) || (strpos( $report->footer, '[wcomstatus.' ) !== false)) ? true : false;
         $get_pagespeed_tokens = ((strpos( $report->header, '[pagespeed.' ) !== false) || (strpos( $report->body, '[pagespeed.' ) !== false) || (strpos( $report->footer, '[pagespeed.' ) !== false)) ? true : false;
         $get_brokenlinks_tokens = ((strpos( $report->header, '[brokenlinks.' ) !== false) || (strpos( $report->body, '[brokenlinks.' ) !== false) || (strpos( $report->footer, '[brokenlinks.' ) !== false)) ? true : false;
@@ -2528,15 +2550,15 @@ class MainWP_CReport {
 			$tokens = MainWP_CReport_DB::get_instance()->get_tokens();
 			$site_tokens = MainWP_CReport_DB::get_instance()->get_site_tokens( $website['url'] );
 			$replace_tokens_values = array();
-			foreach ( $tokens as $token ) {				
-				$replace_tokens_values['[' . $token->token_name . ']'] = isset( $site_tokens[ $token->id ] ) ? $site_tokens[ $token->id ]->token_value : '';				
+			foreach ( $tokens as $token ) {
+				$replace_tokens_values['[' . $token->token_name . ']'] = isset( $site_tokens[ $token->id ] ) ? $site_tokens[ $token->id ]->token_value : '';
 			}
 
 			if ( $get_piwik_tokens ) {
 				$piwik_tokens = self::piwik_data( $website['id'], $date_from, $date_to );
 				if ( is_array( $piwik_tokens ) ) {
-					foreach ( $piwik_tokens as $token => $value ) {									
-						$replace_tokens_values['[' . $token . ']'] = $value;												
+					foreach ( $piwik_tokens as $token => $value ) {
+						$replace_tokens_values['[' . $token . ']'] = $value;
 					}
 				}
 			}
@@ -2544,7 +2566,7 @@ class MainWP_CReport {
 			if ( $get_ga_tokens ) {
 				$ga_tokens = self::ga_data( $website['id'], $date_from, $date_to, $get_ga_chart );
 				if ( is_array( $ga_tokens ) ) {
-					foreach ( $ga_tokens as $token => $value ) {					
+					foreach ( $ga_tokens as $token => $value ) {
 						$replace_tokens_values['[' . $token . ']'] = $value;
 					}
 				}
@@ -2553,7 +2575,7 @@ class MainWP_CReport {
 			if ( $get_aum_tokens ) {
 				$aum_tokens = self::aum_data( $website['id'], $date_from, $date_to );
 				if ( is_array( $aum_tokens ) ) {
-					foreach ( $aum_tokens as $token => $value ) {						
+					foreach ( $aum_tokens as $token => $value ) {
 						$replace_tokens_values['[' . $token . ']'] = $value;
 					}
 				}
@@ -2562,36 +2584,36 @@ class MainWP_CReport {
 			if ( $get_woocom_tokens ) {
 				$wcomstatus_tokens = self::woocomstatus_data( $website['id'], $date_from, $date_to );
 				if ( is_array( $wcomstatus_tokens ) ) {
-					foreach ( $wcomstatus_tokens as $token => $value ) {						
+					foreach ( $wcomstatus_tokens as $token => $value ) {
 						$replace_tokens_values['[' . $token . ']'] = $value;
 					}
 				}
 			}
-                        
+
             if ( $get_pagespeed_tokens ) {
 				$pagespeed_tokens = self::pagespeed_tokens( $website['id'], $date_from, $date_to );
 				if ( is_array( $pagespeed_tokens ) ) {
-					foreach ( $pagespeed_tokens as $token => $value ) {						
+					foreach ( $pagespeed_tokens as $token => $value ) {
 						$replace_tokens_values['[' . $token . ']'] = $value;
 					}
 				}
 			}
-                        
+
             if ( $get_brokenlinks_tokens ) {
 				$brokenlinks_tokens = self::brokenlinks_tokens( $website['id'], $date_from, $date_to );
 				if ( is_array( $brokenlinks_tokens ) ) {
-					foreach ( $brokenlinks_tokens as $token => $value ) {						
+					foreach ( $brokenlinks_tokens as $token => $value ) {
 						$replace_tokens_values['[' . $token . ']'] = $value;
 					}
 				}
-			}                       
-            
-            
-            $replace_tokens_values['[report.daterange]'] = MainWP_CReport_Utility::format_date( $date_from ) . ' - ' . MainWP_CReport_Utility::format_date( $date_to );            
+			}
+
+
+            $replace_tokens_values['[report.daterange]'] = MainWP_CReport_Utility::format_date( $date_from ) . ' - ' . MainWP_CReport_Utility::format_date( $date_to );
             $now = time();
             $replace_tokens_values['[report.send.date]'] = MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $now ) );
 			$replace_tokens_values = apply_filters('mainwp_client_reports_custom_tokens', $replace_tokens_values, $report, $website);
-			
+
 			$report_header = $report->header;
 			$report_body = $report->body;
 			$report_footer = $report->footer;
@@ -2663,7 +2685,7 @@ class MainWP_CReport {
 						$replace[] = $value;
 					}
 				}
-				$filtered_body = self::replace_content( $filtered_body, $search, $replace );               
+				$filtered_body = self::replace_content( $filtered_body, $search, $replace );
 			}
 
 			if ( isset( $other_tokens_data['footer'] ) && is_array( $other_tokens_data['footer'] ) && count( $other_tokens_data['footer'] ) > 0 ) {
@@ -2676,7 +2698,7 @@ class MainWP_CReport {
 				}
 				$filtered_footer = self::replace_content( $filtered_footer, $search, $replace );
 			}
-   
+
 			$output->filtered_header = $filtered_header;
 			$output->filtered_body = $filtered_body;
 			$output->filtered_footer = $filtered_footer;
@@ -2755,7 +2777,7 @@ class MainWP_CReport {
 		if ( is_array( $data ) ) {
 			$blacklisted = isset( $data['BLACKLIST']['WARN'] ) ? true : false;
 			$malware_exists = isset( $data['MALWARE']['WARN'] ) ? true : false;
-			
+
 			$status = array();
 			if ( $blacklisted ) {
 				$status[] = __( 'Site Blacklisted', 'mainwp-client-reports-extension' ); }
@@ -2764,13 +2786,13 @@ class MainWP_CReport {
 
 			$scan_result['status'] = count( $status ) > 0 ? implode( ', ', $status ) : __( 'Verified Clear', 'mainwp-client-reports-extension' );
 			$scan_result['webtrust'] = $blacklisted ? __( 'Site Blacklisted', 'mainwp-client-reports-extension' ) : __( 'Trusted', 'mainwp-client-reports-extension' );
-		}    
-        
+		}
+
         $scan_data = array(
             'blacklisted' => $blacklisted,
             'malware_exists' => $malware_exists
         );
-        
+
 		// save results to child site stream
 		$post_data = array(
             'mwp_action' => 'save_sucuri_stream',
@@ -2875,7 +2897,7 @@ class MainWP_CReport {
 			'ga.visits.maximum' => 'N/A',//enym new
 		);
 		if ( ! empty( $result ) && is_array( $result ) ) {
-            $custom_date_format = apply_filters('mainwp-ga-chart-custom-date', false);            
+            $custom_date_format = apply_filters('mainwp-ga-chart-custom-date', false);
 			if ( isset( $result['stats_int'] ) ) {
 				$values = $result['stats_int'];
 				$output['ga.visits'] = (isset( $values['aggregates'] ) && isset( $values['aggregates']['ga:sessions'] )) ? $values['aggregates']['ga:sessions'] : 'N/A';
@@ -2948,16 +2970,20 @@ class MainWP_CReport {
 						if ( 'Nov' == $teile[0] ) {
 							$teile[0] = '11'; }
 						if ( 'Dec' == $teile[0] ) {
-							$teile[0] = '12'; }     
-                        
+							$teile[0] = '12'; }
+
                         if (!$custom_date_format) {
-                            $graph_dates .= $teile[1] . '.' . $teile[0] . '.|';  // default mainwp GA chart date format                              
+                            if (isset($arr[2])) { // formated date by hook (filter)
+                                $graph_dates .= $arr[2] . '|';  // default mainwp GA chart date format
+                            } else {
+                                $graph_dates .= $teile[1] . '.' . $teile[0] . '.|';  // default mainwp GA chart date format
+                            }
                         } else {
                             $graph_dates .= $teile[0] . '/' .$teile[1] . '.|';
                         }
 					}
 				}
-				//$graph_dates = urlencode($graph_dates);                
+				//$graph_dates = urlencode($graph_dates);
 				$graph_dates = trim( $graph_dates, '|' );
 
 				//SCALE chxr=1,0,HIGHEST*2
@@ -3032,7 +3058,7 @@ class MainWP_CReport {
 			return self::$buffer[ $uniq ]; }
 
 		$values = apply_filters( 'mainwp_piwik_get_data', $site_id, $start_date, $end_date );
-		
+
 		$output = array();
 		$output['piwik.visits'] = (is_array( $values ) && isset( $values['aggregates'] ) && isset( $values['aggregates']['nb_visits'] )) ? $values['aggregates']['nb_visits'] : 'N/A';
 		$output['piwik.pageviews'] = (is_array( $values ) && isset( $values['aggregates'] ) && isset( $values['aggregates']['nb_actions'] )) ? $values['aggregates']['nb_actions'] : 'N/A';
@@ -3110,7 +3136,7 @@ class MainWP_CReport {
 		self::$buffer[ $uniq ] = $output;
 		return $output;
 	}
-        
+
         static function pagespeed_tokens( $site_id, $start_date, $end_date ) {
 
 		// fix bug cron job
@@ -3118,23 +3144,23 @@ class MainWP_CReport {
 			self::$enabled_pagespeed = apply_filters( 'mainwp-extension-available-check', 'mainwp-page-speed-extension' ); }
 
 		if ( ! self::$enabled_pagespeed ) {
-			return false;                         
+			return false;
                 }
 
 		if ( ! $site_id || ! $start_date || ! $end_date ) {
-			return false;                         
+			return false;
                 }
-                
+
 		$uniq = 'pagespeed_' . $site_id . '_' . $start_date . '_' . $end_date;
 		if ( isset( self::$buffer[ $uniq ] ) ) {
-                    return self::$buffer[ $uniq ];                         
+                    return self::$buffer[ $uniq ];
                 }
 
 		$data = apply_filters( 'mainwp_pagespeed_get_data', array(), $site_id, $start_date, $end_date );
 		self::$buffer[ $uniq ] = $data;
 		return $data;
 	}
-        
+
         static function brokenlinks_tokens( $site_id, $start_date, $end_date ) {
 
 		// fix bug cron job
@@ -3142,16 +3168,16 @@ class MainWP_CReport {
 			self::$enabled_brokenlinks = apply_filters( 'mainwp-extension-available-check', 'mainwp-broken-links-checker-extension' ); }
 
 		if ( ! self::$enabled_brokenlinks ) {
-			return false;                         
+			return false;
                 }
 
 		if ( ! $site_id || ! $start_date || ! $end_date ) {
-			return false;                         
+			return false;
                 }
-                
+
 		$uniq = 'brokenlinks_' . $site_id . '_' . $start_date . '_' . $end_date;
 		if ( isset( self::$buffer[ $uniq ] ) ) {
-                    return self::$buffer[ $uniq ];                         
+                    return self::$buffer[ $uniq ];
                 }
 
 		$data = apply_filters( 'mainwp_brokenlinks_get_data', array(), $site_id, $start_date, $end_date );
@@ -3184,7 +3210,7 @@ class MainWP_CReport {
 		);
 
 		$information = apply_filters( 'mainwp_fetchurlauthed', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $website['id'], 'client_report', $post_data );
-		
+
 		if ( is_array( $information ) && ! isset( $information['error'] ) ) {
 			return $information;
 		} else {
@@ -3243,9 +3269,9 @@ class MainWP_CReport {
 		}
 
 		$reports = MainWP_CReport_DB::get_instance()->get_report_by( $get_by, $value, $orderby, $order );
-                if (!is_array($reports))
-                    $reports = array();
-                
+        if (!is_array($reports))
+            $reports = array();
+
 		$all_sites = array();
 		if ( is_array( $websites ) ) {
 			foreach ( $websites as $website ) {
@@ -3256,7 +3282,7 @@ class MainWP_CReport {
 //		$temp_reports = array();
 //		if ( ! empty( $site_order ) ) {
 //			foreach ( $reports as $report ) {
-//				$report->site_name = ! empty( $report->selected_site ) && isset( $all_sites[ $report->selected_site ] ) ? ($all_sites[ $report->selected_site ]['name']) : '';                                
+//				$report->site_name = ! empty( $report->selected_site ) && isset( $all_sites[ $report->selected_site ] ) ? ($all_sites[ $report->selected_site ]['name']) : '';
 //				$temp_reports[] = $report;
 //			}
 //			self::$order = $order;
@@ -3264,28 +3290,28 @@ class MainWP_CReport {
 //			$reports = $temp_reports;
 //		}
 		$client_reports = array();
-                
-		foreach ( $reports as $rp ) {			
-                    $client_reports[] = $rp; 
+
+		foreach ( $reports as $rp ) {
+                    $client_reports[] = $rp;
 		}
 		?>
-         
-                      
+
+
             <table class="wp-list-table widefat mainwp-cr-table" cellspacing="0">
                 <thead>
-                    <tr> 
+                    <tr>
                         <th class="check-column">
                             <input type="checkbox"  id="cb-select-all-1" >
-                        </th>                    
+                        </th>
                         <th scope="col" class="manage-column sortable <?php echo $title_order; ?>" id="report-column">
                                 <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=title&order=<?php echo (empty( $title_order ) ? 'asc' : $title_order); ?>"><span><?php _e( 'Report', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>
                         <th scope="col" class="manage-column sortable <?php echo $client_order; ?>" id="client-column">
                                 <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=client&order=<?php echo (empty( $client_order ) ? 'asc' : $client_order); ?>"><span><?php _e( 'Client', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
-                        </th>                
+                        </th>
                         <th scope="col" class="manage-column sortable <?php echo $name_order; ?>" id="send-to-column">
                                 <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=name&order=<?php echo (empty( $name_order ) ? 'asc' : $name_order); ?>"><span><?php _e( 'Send To', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
-                        </th>                
+                        </th>
                         <th scope="col" class="manage-column sortable <?php echo $lastsend_order; ?>" id="last-sent-column">
                                 <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=lastsend&order=<?php echo (empty( $lastsend_order ) ? 'asc' : $lastsend_order); ?>"><span><?php _e( 'Last Sent', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>
@@ -3294,11 +3320,11 @@ class MainWP_CReport {
                         </th>
                         <th scope="col" class="manage-column sortable <?php echo $schedule_order; ?>" id="schedule-column">
                                 <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=schedule&order=<?php echo (empty( $schedule_order ) ? 'asc' : $schedule_order); ?>"><span><?php _e( 'Schedule', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
-                        </th>                   
+                        </th>
                     </tr>
                 </thead>
                 <tfoot>
-                    <tr> 
+                    <tr>
                         <th class="check-column">
                             <input type="checkbox"  id="cb-select-all-2" >
                         </th>
@@ -3307,10 +3333,10 @@ class MainWP_CReport {
                         </th>
                         <th scope="col" class="manage-column sortable <?php echo $client_order; ?>">
                                 <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=client&order=<?php echo (empty( $client_order ) ? 'asc' : $client_order); ?>"><span><?php _e( 'Client', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
-                        </th>   
+                        </th>
                         <th scope="col" class="manage-column sortable <?php echo $name_order; ?>">
                                 <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=send&order=<?php echo (empty( $name_order ) ? 'asc' : $name_order); ?>"><span><?php _e( 'Send To', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
-                        </th>                
+                        </th>
                         <th scope="col" class="manage-column sortable <?php echo $lastsend_order; ?>">
                                 <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=lastsend&order=<?php echo (empty( $lastsend_order ) ? 'asc' : $lastsend_order); ?>"><span><?php _e( 'Last Sent', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
                         </th>
@@ -3319,7 +3345,7 @@ class MainWP_CReport {
                         </th>
                         <th scope="col" class="manage-column sortable <?php echo $schedule_order; ?>">
                                 <a href="?page=Extensions-Mainwp-Client-Reports-Extension&orderby=schedule&order=<?php echo (empty( $schedule_order ) ? 'asc' : $schedule_order); ?>"><span><?php _e( 'Schedule', 'mainwp-client-reports-extension' ); ?></span><span class="sorting-indicator"></span></a>
-                        </th>                    
+                        </th>
                     </tr>
                 </tfoot>
                 <tbody id="creport_global_tbody">
@@ -3327,8 +3353,8 @@ class MainWP_CReport {
                     self::report_table_content( $client_reports, $all_sites );
                     ?>
                 </tbody>
-            </table>  
-		
+            </table>
+
 		<?php
 	}
 
@@ -3354,11 +3380,11 @@ class MainWP_CReport {
 		}
 		$recurring_schedule = array(
             'daily' => __( 'Daily' ),
-			'weekly' => __( 'Weekly' ),			
-			'monthly' => __( 'Monthly' ),			
+			'weekly' => __( 'Weekly' ),
+			'monthly' => __( 'Monthly' ),
 			'yearly' => __( 'Yearly' ),
 		);
-		
+
 		foreach ( $reports as $report ) {
 
 			$client_tooltip = $report->client;
@@ -3384,53 +3410,53 @@ class MainWP_CReport {
 			}
 			if ( preg_match( '/\[.+\]/is', $subject_tooltip ) ) {
 				$subject_tooltip = preg_replace_callback( '/\[.+\]/is', array( 'MainWP_CReport', 'tooltip_mark_token' ), $subject_tooltip );
-			}            
-            
+			}
+
             $is_scheduled = $report->scheduled ? true : false;
-            
+
 			$sche_column = _( 'Manually' );
 			if ( ! empty( $report->recurring_schedule ) && $is_scheduled ) {
 				$sche_column = $recurring_schedule[ $report->recurring_schedule ];
 				if ( ! empty( $report->schedule_nextsend ) ) {
-					$sche_column .= '<br><em>Next Run: ' . MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $report->schedule_nextsend ) ) . '</em>';                     
+					$sche_column .= '<br><em>Next Run: ' . MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $report->schedule_nextsend ) ) . '</em>';
                 }
 			}
-                        
+
             $row_action_class = '';
             if ($is_scheduled) {
-                $row_action_class .= 'scheduled '; 
+                $row_action_class .= 'scheduled ';
             } else {
-                $row_action_class .= 'noscheduled '; 
+                $row_action_class .= 'noscheduled ';
             }
             if ($report->is_archived) {
-                $row_action_class .= 'archived '; 
+                $row_action_class .= 'archived ';
             } else {
-                $row_action_class .= 'noarchived '; 
+                $row_action_class .= 'noarchived ';
             }
 
             $sel_sites = unserialize( base64_decode( $report->sites ) );
             $sel_groups = unserialize( base64_decode( $report->groups ) );
 
             if ( ! is_array( $sel_sites ) ) {
-                $sel_sites = array();                                                                 
+                $sel_sites = array();
             }
-            
+
             if ( ! is_array( $sel_groups ) ) {
-                $sel_groups = array();                                                                 
+                $sel_groups = array();
             }
 
             $disable_act_buttons = true;
-            if (count($sel_sites) > 0 || count($sel_groups) > 0) {                                                           
+            if (count($sel_sites) > 0 || count($sel_groups) > 0) {
                 $disable_act_buttons = false;
-            }    
+            }
 
-            $disable_style = '';                                                        
+            $disable_style = '';
             if ($disable_act_buttons) {
                 $disable_style = 'disabled="disabled"';
             }
-                                                        
-			?>   
-        <tr id="<?php echo $report->id; ?>" >      
+
+			?>
+        <tr id="<?php echo $report->id; ?>" >
             <th class="check-column">
                     <input type="checkbox"  name="checked[]">
             </th>
@@ -3440,44 +3466,51 @@ class MainWP_CReport {
                         <?php if ($disable_act_buttons) { ?>
                                 <?php _e( 'Preview' ); ?> <?php do_action( 'mainwp_renderToolTip', __('The Preview action is not available since there are no sites selected for the report. Please Edit the report and select one ore more sites for the report.') ); ?>|
                         <?php } else { ?>
-                        <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=preview&id=<?php echo $report->id; ?>" <?php echo $disable_style; ?>><?php _e( 'Preview' ); ?></a></span> |  
+                        <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=preview&id=<?php echo $report->id; ?>" <?php echo $disable_style; ?>><?php _e( 'Preview' ); ?></a></span> |
                         <?php } ?>
-                        <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=editreport&id=<?php echo $report->id; ?>"><?php _e( 'Edit' ); ?></a></span> |  
-                        <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=replicate&id=<?php echo $report->id; ?>"><?php _e( 'Replicate' ); ?></a></span> |  
-                
-                        <?php if (!$is_scheduled) { ?>                            
+                        <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=editreport&id=<?php echo $report->id; ?>"><?php _e( 'Edit' ); ?></a></span> |
+                        <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=replicate&id=<?php echo $report->id; ?>"><?php _e( 'Replicate' ); ?></a></span> |
+
+                        <?php if (!$is_scheduled) { ?>
                              <?php if ($disable_act_buttons) { ?>
                                 <?php _e( 'Send' ); ?> <?php do_action( 'mainwp_renderToolTip', __('The Send action is not available since there are no sites selected for the report. Please Edit the report and select one ore more sites for the report.') ); ?>|
                         <?php } else { ?>
-                                <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=sendreport&id=<?php echo $report->id; ?>"  <?php echo $disable_style; ?>><?php _e( 'Send' ); ?></a> |                             
+                                <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=sendreport&id=<?php echo $report->id; ?>"  <?php echo $disable_style; ?>><?php _e( 'Send' ); ?></a> |
                                 <?php } ?>
                         <?php } ?>
                         <?php if ($disable_act_buttons) { ?>
                                 <?php _e( 'PDF' ); ?> <?php do_action( 'mainwp_renderToolTip', __('The PDF action is not available since there are no sites selected for the report. Please Edit the report and select one ore more sites for the report.') ); ?>|
                         <?php } else { ?>
-                            <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=save_pdf&id=<?php echo $report->id; ?>"  <?php echo $disable_style; ?>><?php _e( 'PDF' ); ?></a> | 
+                            <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=save_pdf&id=<?php echo $report->id; ?>"  <?php echo $disable_style; ?>><?php _e( 'PDF' ); ?></a> |
                          <?php } ?>
-                        <?php if ( ! $report->is_archived ) { 
+                        <?php if ( ! $report->is_archived ) {
                                 if ($disable_act_buttons) { ?>
-                                     <?php _e( 'Archive' ); ?> <?php do_action( 'mainwp_renderToolTip', __('The Archive action is not available since there are no sites selected for the report. Please Edit the report and select one ore more sites for the report.') ); ?>|    
-                        <?php   } else { ?>                            
-                                    <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=archive_report&id=<?php echo $report->id; ?>" <?php echo $disable_style; ?>><?php _e( 'Archive' ); ?></a> |                            
+                                     <?php _e( 'Archive' ); ?> <?php do_action( 'mainwp_renderToolTip', __('The Archive action is not available since there are no sites selected for the report. Please Edit the report and select one ore more sites for the report.') ); ?>|
+                        <?php   } else { ?>
+                                    <a href="admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=archive_report&id=<?php echo $report->id; ?>" <?php echo $disable_style; ?>><?php _e( 'Archive' ); ?></a> |
                           <?php } ?>
                         <?php } else { ?>
-                                    <span class="unarchive"><a href="#" action="unarchive" class="creport_action_row_lnk" ><?php _e( 'Un-Archive' ); ?></a> | </span>                       
-                        <?php } ?>
-                                
-                        <?php if ( $is_scheduled ) { ?>
-                                <span class="schedule"><a href="#" action="cancelschedule" class="creport_action_row_lnk"><?php _e( 'Cancel Schedule' ); ?></a> | </span>   
+                                    <span class="unarchive"><a href="#" action="unarchive" class="creport_action_row_lnk" ><?php _e( 'Un-Archive' ); ?></a> | </span>
                         <?php } ?>
 
-                        <span class="delete"><a href="#" action="delete" class="creport_action_row_lnk"><?php _e( 'Delete' ); ?></a></span> 
-                </div>                     
+                        <?php if ( $is_scheduled ) { ?>
+                                <span class="schedule"><a href="#" action="cancelschedule" class="creport_action_row_lnk"><?php _e( 'Cancel Schedule' ); ?></a> | </span>
+                        <?php } ?>
+
+                        <span class="delete"><a href="#" action="delete" class="creport_action_row_lnk"><?php _e( 'Delete' ); ?></a></span>
+                </div>
+                <?php
+                if ($report->sending_errors) {
+                ?>
+                <div class="mainwp-notice mainwp-notice-red"><?php echo $report->sending_errors; ?></div>
+                <?php
+                }
+                ?>
                 <span class="working"><span class="status hidden-field"></span><i class="fa fa-spinner fa-pulse" style="display:none"></i></span>
-            </td> 
+            </td>
             <td>
                     <?php echo stripslashes( $client_tooltip ); ?>
-            </td> 
+            </td>
             <td>
                     <?php
                     echo $client_name_tooltip . ' - ' . $company_tooltip . '<br>';
@@ -3487,13 +3520,13 @@ class MainWP_CReport {
                             echo ! empty( $report->email ) ? '<a href="mailto:' . $report->email . '">' . $report->email . '</a>' : '';
                     }
                     ?>
-            </td> 
-            <td> 
+            </td>
+            <td>
                     <?php echo ! empty( $report->lastsend ) ? MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $report->lastsend ) ): ''; ?>
             </td>
-            <td> 
-                <?php 
-                    if ($is_scheduled) { 
+            <td>
+                <?php
+                    if ($is_scheduled) {
                         $date_from = $report->date_from_nextsend;
                         $date_to = $report->date_to_nextsend;
                         if (empty($date_from) && $report->date_from) $date_from = $report->date_from;
@@ -3501,12 +3534,12 @@ class MainWP_CReport {
                     } else {
                         $date_from = $report->date_from;
                         $date_to = $report->date_to;
-                    }                
+                    }
                     ?>
                     <?php echo ! empty( $date_from ) ? 'From: ' . MainWP_CReport_Utility::format_datestamp( $date_from ) . '<br>' : ''; ?>
-                    <?php echo ! empty( $date_to ) ? 'To: ' . MainWP_CReport_Utility::format_datestamp( $date_to ) : ''; ?>                
+                    <?php echo ! empty( $date_to ) ? 'To: ' . MainWP_CReport_Utility::format_datestamp( $date_to ) : ''; ?>
             </td>
-            <td> 
+            <td>
                     <span class="creport_sche_column"><?php echo $sche_column; ?></span>
             </td>
             </tr>
@@ -3540,58 +3573,69 @@ class MainWP_CReport {
 
 	public static function new_report_tab( $report = null ) {
 		self::new_report_setting( $report );
-		self::new_report_format( $report );		
+		self::new_report_format( $report );
 	}
 
-	public static function new_report_setting( $report = null ) {	            
+	public static function new_report_setting( $report = null ) {
             $scheduled_report = false;
             $recurringSchedule = '';
-            
+
+            $report_error = '';
             if ( !empty( $report ) ) {
-                if (!empty($report->scheduled)) {           
+                if (!empty($report->scheduled)) {
                     $scheduled_report = true;
                 }
                 $recurringSchedule = $report->recurring_schedule;
-            }            
-                
+                if (!empty($report->sending_errors)) {
+                    $report_error = $report->sending_errors;
+                }
+            }
+
 	   ?>
-        <fieldset class="mainwp-creport-report-setting-box">   
+        <fieldset class="mainwp-creport-report-setting-box">
+            <?php
+                if (!empty($report_error)) {
+                ?>
+                <div class="mainwp-notice mainwp-notice-red"><?php echo $report_error; ?></div>
+                <?php
+           }
+           ?>
             <table class="wp-list-table widefat <?php echo $scheduled_report ? 'scheduled_creport' : ''; ?> <?php echo $recurringSchedule; ?>" id="mwp_creport_settings_tbl" cellspacing="0" style="border-bottom: 0px">
                 <thead>
-                    <tr>          
+                    <tr>
                         <th scope="col" colspan="2">
                             <?php _e( 'Report Settings', 'mainwp-client-reports-extension' ); ?>
                         </th>
                     </tr>
-                </thead>               
+                </thead>
                 <tbody>
                 <?php
                 self::new_report_setting_table_content( $report );
                 ?>
                 </tbody>
-            </table>    
+            </table>
             <table class="wp-list-table widefat" cellspacing="0">
                 <thead>
-                    <tr>          
+                    <tr>
                         <th scope="col" colspan="2">
                         <?php _e( 'Email Settings', 'mainwp-client-reports-extension' ); ?>
                         </th>
                     </tr>
-                </thead>               
+                </thead>
                 <tbody>
                 <?php
                 self::new_report_email_setting_table_content( $report );
                 ?>
                 </tbody>
-            </table>    
-                                
+            </table>
+
         </fieldset>
-        <br/>     
+        <br/>
         <?php
 	}
 
 	public static function new_report_format( $report ) {
-		?>        
+		?>
 		<div class="metabox-holder">
 	        <div class="postbox" id="report-format">
 	        	<button type="button" class="handlediv button-link" aria-expanded="true"><span class="screen-reader-text"><?php _e( 'Toggle Panel: Report Format', 'mainwp-client-reports-extension' ); ?></span><span class="toggle-indicator" aria-hidden="true"></span></button>
@@ -3604,25 +3648,25 @@ class MainWP_CReport {
 
 	public static function new_report_setting_table_content( $report = null ) {
 		$title = $date_from = $date_to = '';
-		
+
                 $recurring_schedule = array(
                     'daily' => __( 'Daily' ),
-					'weekly' => __( 'Weekly' ),			
-					'monthly' => __( 'Monthly' ),			
+					'weekly' => __( 'Weekly' ),
+					'monthly' => __( 'Monthly' ),
 					'yearly' => __( 'Yearly' ),
 				);
-                
+
                 $day_of_week = array(
                     1 => __( 'Monday' ),
-                    2 => __( 'Tuesday' ),			
-                    3 => __( 'Wednesday' ),			
+                    2 => __( 'Tuesday' ),
+                    3 => __( 'Wednesday' ),
                     4 => __( 'Thursday' ),
                     5 => __( 'Friday' ),
                     6 => __( 'Saturday' ),
                     7 => __( 'Sunday' ),
                 );
-                                                        
-		$recurringSchedule = $recurringDate = $recurringMonth = $recurringDay = '';                
+
+		$recurringSchedule = $recurringDate = $recurringMonth = $recurringDay = '';
 		$scheduleSendEmail = 'email_auto';
 		$scheduleBCCme = 0;
         $scheduled_report = false;
@@ -3632,13 +3676,13 @@ class MainWP_CReport {
 			$date_from = ! empty( $report->date_from ) ? date( 'Y-m-d', $report->date_from ) : '';
 			$date_to = ! empty( $report->date_to ) ? date( 'Y-m-d', $report->date_to ) : '';
             $recurringSchedule = $report->recurring_schedule;
-            $recurringDay = $report->recurring_day;			
+            $recurringDay = $report->recurring_day;
 			$scheduleSendEmail = $report->schedule_send_email;
 			$scheduleBCCme = isset( $report->schedule_bcc_me ) ? $report->schedule_bcc_me : 0;
-            $scheduled_report = isset($report->scheduled) && !empty($report->scheduled) ? true : false; 
+            $scheduled_report = isset($report->scheduled) && !empty($report->scheduled) ? true : false;
 
             if ( $scheduled_report && ($recurringSchedule == 'weekly' || $recurringSchedule == 'monthly' || $recurringSchedule == 'yearly') ) {
-                $send_on_style = '';     
+                $send_on_style = '';
                 if ($recurringSchedule == 'weekly') {
                     $send_on_day_of_week_style = '';
                 } else if ($recurringSchedule == 'monthly') {
@@ -3649,23 +3693,23 @@ class MainWP_CReport {
                     $send_on_day_of_mon_style = $send_on_month_style = '';
                 }
             }
-                        
+
 		}
-                
+
         $messages = array();
-        if ( $scheduled_report && !empty($recurringSchedule)) { 
+        if ( $scheduled_report && !empty($recurringSchedule)) {
             $messages[] = esc_html__( 'This report has been scheduled', 'mainwp-client-reports-extension' );
         }
         if ( ! empty( $report ) && isset( $report->id ) && isset( $report->is_archived ) && $report->is_archived ) {
             $messages[] = esc_html__( 'This is an archived report' , 'mainwp-client-reports-extension' );
         }
-            
+
         ?>
 
         <?php if ( !empty($messages)) { ?>
                <tr><td colspan="2"><div class="mainwp_info-box-yellow"><?php echo implode( '<br/>', $messages ); ?></div></td></tr>
-       <?php } ?>         
-                    
+       <?php } ?>
+
         <tr>
             <th><span><?php _e( 'Title ' ); do_action( 'mainwp_renderToolTip', __( 'This field allows you to add or change a report title. Report title is for internal use only and it is not visible to your client.', 'mainwp-client-reports-extension' ) ); ?></span></th>
             <td class="title">
@@ -3675,12 +3719,12 @@ class MainWP_CReport {
         <tr>
             <th><span><?php _e( 'Type ' ); do_action( 'mainwp_renderToolTip', __( 'Select if you want to send this report manually or to schedule it. If you want to schedule this report, set the option to Recurring Report and set additional scheduling options that will appear.', 'mainwp-client-reports-extension' ) ); ?></span></th>
             <td>
-		<select name='mainwp_creport_type' id="mainwp_creport_type" class="mainwp-select2">   
+		<select name='mainwp_creport_type' id="mainwp_creport_type" class="mainwp-select2">
                         <option value="0" <?php echo !$scheduled_report ? 'selected="selected"' : ''; ?>><?php _e( 'One Time Report' ); ?></option>
                         <option value="1" <?php echo $scheduled_report ? 'selected="selected"' : ''; ?>><?php _e( 'Recurring Report' ); ?></option>
                 </select>&nbsp;&nbsp;
-                <span class="show_if_scheduled">                
-                    <select name='mainwp_creport_recurring_schedule' id="mainwp_creport_recurring_schedule" class="mainwp-select2-mini">                           
+                <span class="show_if_scheduled">
+                    <select name='mainwp_creport_recurring_schedule' id="mainwp_creport_recurring_schedule" class="mainwp-select2-mini">
                             <option value=""><?php _e( 'Off' ); ?></option>
                             <?php
                             foreach ( $recurring_schedule as $value => $title ) {
@@ -3690,24 +3734,24 @@ class MainWP_CReport {
                                     echo '<option value="' . $value . '" ' . $_select . '>' . $title . '</option>';
                             }
                             ?>
-                    </select> 
+                    </select>
                     <span  id="mainwp_creport_send_on_wrap" <?php echo $send_on_style; ?>>
                         <?php _e('Send report on', 'mainwp-client-reports-extension'); ?>&nbsp;
                             <span id="scheduled_send_on_day_of_week_wrap" <?php echo $send_on_day_of_week_style; ?>>
-                                <select name='mainwp_creport_schedule_day' id="mainwp_creport_schedule_day" class="mainwp-select2" >                                                                                               
+                                <select name='mainwp_creport_schedule_day' id="mainwp_creport_schedule_day" class="mainwp-select2" >
                                         <?php
                                         foreach ( $day_of_week as $value => $title ) {
                                                 $_select = '';
                                                 if ( $recurringDay == $value ) {
-                                                        $_select = 'selected';                                             
+                                                        $_select = 'selected';
                                                 }
                                                 echo '<option value="' . $value . '" ' . $_select . '>' . $title . '</option>';
                                         }
                                         ?>
-                                </select> 
-                            </span> 
-                            <span id="scheduled_send_on_month_wrap" <?php echo $send_on_month_style; ?>>                                                 
-                                  <select name='mainwp_creport_schedule_month' id="mainwp_creport_schedule_month" class="mainwp-select2-mini2" >                                      
+                                </select>
+                            </span>
+                            <span id="scheduled_send_on_month_wrap" <?php echo $send_on_month_style; ?>>
+                                  <select name='mainwp_creport_schedule_month' id="mainwp_creport_schedule_month" class="mainwp-select2-mini2" >
                                        <?php
                                        $months_name = array(
                                            1 => __('January'),
@@ -3726,15 +3770,15 @@ class MainWP_CReport {
                                        for ( $x = 1; $x <= 12; $x++ ) {
                                                $_select = '';
                                                if ( $recurringMonth == $x ) {
-                                                       $_select = 'selected';                                             
+                                                       $_select = 'selected';
                                                }
                                                echo '<option value="' . $x . '" ' . $_select . '>' . $months_name[$x] . '</option>';
                                        }
                                        ?>
-                               </select> 
-                           </span>                                                
-                           <span id="scheduled_send_on_day_of_month_wrap" <?php echo $send_on_day_of_mon_style; ?>>                                                               
-                                   <select name='mainwp_creport_schedule_day_of_month' id="mainwp_creport_schedule_day_of_month" class="mainwp-select2-mini2" >                                       
+                               </select>
+                           </span>
+                           <span id="scheduled_send_on_day_of_month_wrap" <?php echo $send_on_day_of_mon_style; ?>>
+                                   <select name='mainwp_creport_schedule_day_of_month' id="mainwp_creport_schedule_day_of_month" class="mainwp-select2-mini2" >
                                         <?php
                                         $day_suffix = array(
                                             1 => 'st',
@@ -3744,47 +3788,47 @@ class MainWP_CReport {
                                         for ( $x = 1; $x <= 31; $x++ ) {
                                                 $_select = '';
                                                 if ( $recurringDate == $x ) {
-                                                        $_select = 'selected';                                             
+                                                        $_select = 'selected';
                                                 }
-                                                $remain = $x % 10;                                                
+                                                $remain = $x % 10;
                                                 $day_sf = isset($day_suffix[$remain]) ? $day_suffix[$remain] : 'th';
                                                 echo '<option value="' . $x . '" ' . $_select . '>' . $x . $day_sf . '</option>';
                                         }
                                         ?>
-                                </select>&nbsp; 
+                                </select>&nbsp;
                                 <span class="show_if_monthly" <?php echo $monthly_style; ?>><?php _e('of the Month', 'mainwp-client-reports-extension' ); ?></span>
-                            </span>    
+                            </span>
                         </span>
                 </span>
-            </td>           
-        </tr>   
-        
+            </td>
+        </tr>
+
         <tr class="hide_if_scheduled">
             <th><span><?php _e( 'Date Range ' ); do_action( 'mainwp_renderToolTip', __( 'Select a date range for this report. The extension will generate report only for the slected period of time.', 'mainwp-client-reports-extension' ) ); ?></span></th>
             <td class="date">
                 <input type="text" name="mwp_creport_date_from" id="mwp_creport_date_from" class="mainwp_creport_datepicker" value="<?php echo $date_from; ?>"/>&nbsp;&nbsp;<?php _e('To', 'mainwp-client-reports-extension') ?>&nbsp;&nbsp;<input type="text" class="mainwp_creport_datepicker" name="mwp_creport_date_to" id="mwp_creport_date_to" value="<?php echo $date_to; ?>" />
-            </td>           
+            </td>
         </tr>
-        
+
         <tr>
             <th><span>&nbsp;</span></th>
             <td>
-                <div class="show_if_scheduled">                
+                <div class="show_if_scheduled">
                     <input type="radio" name="mainwp_creport_schedule_send_email" value="email_review" id="mainwp_creport_schedule_send_email_me_review" <?php echo ('email_review' == $scheduleSendEmail) ? 'checked' : ''; ?>/><label for="mainwp_creport_schedule_send_email_me_review"><?php _e( 'Email me when report is complete so I can review' ); ?></label><br/>
                     <input type="radio" name="mainwp_creport_schedule_send_email" value="email_auto" id="mainwp_creport_schedule_send_email_auto" <?php echo ('email_auto' == $scheduleSendEmail) ? 'checked' : ''; ?>/><label for="mainwp_creport_schedule_send_email_auto"><?php _e( 'Automatically email my client the report' ); ?></label><br/>
                     &nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="mainwp_creport_schedule_bbc_me_email" value="1" id="mainwp_creport_schedule_bbc_me_email" <?php echo $scheduleBCCme ? 'checked' : ''; ?>/><label for="mainwp_creport_schedule_bbc_me_email"><?php _e( 'BCC me on report email' ); ?></label><br/>
                 </div>
-            </td>           
+            </td>
         </tr>
         <script>
             jQuery(document).ready(function ($) {
                 mainwp_creport_recurring_select_date_init();
             })
         </script>
-             <?php                
+             <?php
 	}
-        
-    public static function new_report_email_setting_table_content( $report = null ) {		
+
+    public static function new_report_email_setting_table_content( $report = null ) {
 		$from_name = $from_company = $from_email = '';
 
 		$to_client = '[client.name]';
@@ -3795,7 +3839,7 @@ class MainWP_CReport {
 		$bcc_email = '';
 
 		$client_id = 0;
-		$attachFiles = '';		
+		$attachFiles = '';
 		if ( ! empty( $report ) ) {
 			$from_name = $report->fname;
 			$from_company = $report->fcompany;
@@ -3805,7 +3849,7 @@ class MainWP_CReport {
 			$to_email = $report->email;
             $bcc_email = $report->bcc_email;
 			$to_client = $report->client;
-                        
+
 			$email_subject = $report->subject;
 			$attachFiles = isset( $report->attach_files ) ? $report->attach_files : '';
 			$client_id = intval( $report->client_id );
@@ -3822,7 +3866,7 @@ class MainWP_CReport {
 
 		$clients = MainWP_CReport_DB::get_instance()->get_clients();
 		if ( ! is_array( $clients ) ) {
-			$clients = array();                         
+			$clients = array();
                 }
             ?>
 
@@ -3831,38 +3875,38 @@ class MainWP_CReport {
             <td>
                 <input type="text" name="mwp_creport_femail" id="mwp_creport_femail" placeholder="Email (required)" value="<?php echo esc_attr( stripslashes( $from_email ) ); ?>" />&nbsp;&nbsp;
                 <input type="text" name="mwp_creport_fname" id="mwp_creport_fname" placeholder="Name" value="<?php echo esc_attr( stripslashes( $from_name ) ); ?>" />&nbsp;&nbsp;
-                <input type="text" name="mwp_creport_fcompany" id="mwp_creport_fcompany" placeholder="Company" value="<?php echo esc_attr( stripslashes( $from_company ) ); ?>" />			
+                <input type="text" name="mwp_creport_fcompany" id="mwp_creport_fcompany" placeholder="Company" value="<?php echo esc_attr( stripslashes( $from_company ) ); ?>" />
             </td>
-        </tr>     
+        </tr>
         <tr>
             <th><span><?php _e( 'Send To ' ); do_action( 'mainwp_renderToolTip', __( 'Set your client details here. By default, client tokens have been set, however, if you want to use custom values, you can update Send To fields. If you decide to keep default tokens, make sure that you have set token values for selected site(s) on the Site(s) Edit page.', 'mainwp-client-reports-extension' ) ); ?></span></th>
             <td>
                 <input type="text" name="mwp_creport_email" placeholder="Email (required)" value="<?php echo esc_attr( stripslashes( $to_email ) ); ?>" id="mwp_creport_email"/>&nbsp;&nbsp;
                 <input type="text" name="mwp_creport_name" placeholder="Name" value="<?php echo esc_attr( stripslashes( $to_name ) ); ?>" id="mwp_creport_name" />&nbsp;&nbsp;
                 <input type="text" name="mwp_creport_company" placeholder="Company" value="<?php echo esc_attr( stripslashes( $to_company ) ); ?>" id="mwp_creport_company" />&nbsp;&nbsp;
-                <input type="text" name="mwp_creport_client" placeholder="Client" value="<?php echo esc_attr( stripslashes( $to_client ) ); ?>" id="mwp_creport_client" /> 
+                <input type="text" name="mwp_creport_client" placeholder="Client" value="<?php echo esc_attr( stripslashes( $to_client ) ); ?>" id="mwp_creport_client" />
                 <span id="mainwp_creport_client_loading" style="width:20px; display:inline-block"><i class="fa fa-spinner fa-pulse" style="display: none"></i></span>
             </td>
-        </tr> 
+        </tr>
         <tr>
             <th><span><?php _e( 'BCC ' ); do_action( 'mainwp_renderToolTip', __( 'If you want, you can add BCC email address here.', 'mainwp-client-reports-extension' ) ); ?></span></th>
             <td>
                 <input type="text" name="mwp_creport_bcc_email" id="mwp_creport_bcc_email" placeholder="Email Address" value="<?php echo esc_attr( stripslashes( $bcc_email ) ); ?>" />
-                
+
             </td>
-        </tr> 
+        </tr>
         <tr>
 			<th><span><?php _e( 'Subject ' ); do_action( 'mainwp_renderToolTip', __( 'Add the Email Subject here.', 'mainwp-client-reports-extension' ) ); ?></span></th>
             <td>
-				<input type="text" name="mwp_creport_email_subject" value="<?php echo esc_attr( stripslashes( $email_subject ) ); ?>" id="mwp_creport_email_subject" />                  
+				<input type="text" name="mwp_creport_email_subject" value="<?php echo esc_attr( stripslashes( $email_subject ) ); ?>" id="mwp_creport_email_subject" />
             </td>
-        </tr>       
+        </tr>
         <tr>
                 <th><span><?php _e( 'Attach Files ' ); do_action( 'mainwp_renderToolTip', __( 'If you want to attach additional files to the report email, you can do it by uploading files here.', 'mainwp-client-reports-extension' ) ); ?></span></th>
                 <td><?php
                 if ( ! empty( $attachFiles ) ) {
                         ?>
-                        <p><?php echo $attachFiles ?></p>                                
+                        <p><?php echo $attachFiles ?></p>
             <p>
             <input type="checkbox" class="mainwp-checkbox2" value="1"  id="mainwp_creport_delete_attach_files" name="mainwp_creport_delete_attach_files">
                                 <label class="mainwp-label2" for="mainwp_creport_delete_attach_files"><?php _e( 'Delete attach files', 'mainwp-client-reports-extension' ); ?></label>
@@ -3870,75 +3914,75 @@ class MainWP_CReport {
                                 <?php
                 }
                         ?>
-                <input type="file" name="mainwp_creport_attach_files[]"  id="mainwp_creport_attach_files[]" multiple="true"><br /> 
+                <input type="file" name="mainwp_creport_attach_files[]"  id="mainwp_creport_attach_files[]" multiple="true"><br />
 				<span class="description"><?php _e( 'Maximum filesize 5MB.' ) ?></span>
             </td>
         </tr>
-       
+
             <input type="hidden" name="mwp_creport_client_id" value="<?php echo esc_attr( $client_id ); ?>">
-            <?php                
+            <?php
 	}
-        
+
 	public static function new_report_format_table_content( $report = null ) {
 		$header = $body = $footer = $file_logo = '';
 
 		if ( $report && is_object( $report ) ) {
 			$header = $report->header;
 			$body = $report->body;
-			$footer = $report->footer;			
+			$footer = $report->footer;
 		}
 
 		$client_tokens = MainWP_CReport_DB::get_instance()->get_tokens();
 		$client_tokens_values = array();
 		$website = null;
-//		
+//
 
 		$header_formats = MainWP_CReport_DB::get_instance()->get_formats( 'H' );
 		$body_formats = MainWP_CReport_DB::get_instance()->get_formats( 'B' );
 		$footer_formats = MainWP_CReport_DB::get_instance()->get_formats( 'F' );
 		if ( ! is_array( $header_formats ) ) {
-			$header_formats = array();                         
+			$header_formats = array();
                 }
 		if ( ! is_array( $body_formats ) ) {
-			$body_formats = array();                         
+			$body_formats = array();
                 }
 		if ( ! is_array( $footer_formats ) ) {
-			$footer_formats = array();                         
+			$footer_formats = array();
                 }
-    
-		?>  
-        
+
+		?>
+
         <div class="mainwp_creport_format_section_header closed" section="header">
 			<h3 class="mainwp_box_title" style="background: #fafafa;"><?php _e( 'Report Header' ); ?> <span class="handlelnk"><i class="fa fa-caret-up" aria-hidden="true"></i></span></h3>
         </div>
         <div class="mainwp_creport_format_section hidden-field"  style="border-bottom: 1px solid #eee;">
 	        <div class="inside">
 	        <?php
-	            add_filter( 'mce_buttons', 'add_tinymce_toolbar_button' );  
-	            add_filter( 'tiny_mce_before_init', 'tinymce_before_init', 10, 2 );  
-	            
-	            function add_tinymce_toolbar_button( $buttons ) {           
+	            add_filter( 'mce_buttons', 'add_tinymce_toolbar_button' );
+	            add_filter( 'tiny_mce_before_init', 'tinymce_before_init', 10, 2 );
+
+	            function add_tinymce_toolbar_button( $buttons ) {
 	                array_push( $buttons, 'insertsection', 'insertreporttoken' );
 	                return $buttons;
 	            }
-	            
-	            function tinymce_before_init( $settings, $eid ) {                  
+
+	            function tinymce_before_init( $settings, $eid ) {
 	                return $settings;
-	            }            
-	            
+	            }
+
 	//            add_filter( 'mce_external_plugins', 'register_tinymce_javascript' );
 	//            function register_tinymce_javascript( $plugin_array ) {
 	//                $plugin_array['mainwpcreporteditor'] = MainWP_CReport_Extension::$plugin_url . 'js/mainwp-creport-editor-plugin.js';
 	//                return $plugin_array;
 	//            }
-	            
-	                        remove_editor_styles(); // stop custom theme styling interfering with the editor
+
+				remove_editor_styles(); // stop custom theme styling interfering with the editor
 				wp_editor(stripslashes( $header ), 'mainwp_creport_report_header', array(
-					'textarea_name' => 'mainwp_creport_report_header',
-					'textarea_rows' => 20,
-					'teeny' => false,
-					'media_buttons' => true                                
-	                            )
+						'textarea_name' => 'mainwp_creport_report_header',
+						'textarea_rows' => 20,
+						'teeny' => false,
+						'media_buttons' => true
+					)
 				);
 				?>
 	            <div class="mainwp_creport_format_save_section">
@@ -3946,7 +3990,7 @@ class MainWP_CReport {
 	                    <?php _e( 'Save Report Header' ); ?>
 	                    <input type="text" placeholder="<?php _e( 'Enter Report Header Title' ); ?>" name="mainwp_creport_report_save_header" value=""/>
 	                    <input type="button" format="H" ed-name="header" class="button-primary mainwp_creport_report_save_format_btn" value="<?php _e( 'Save' ); ?>"/>
-	                    <span class="loading"><span class="status hidden-field"></span><i class="fa fa-spinner fa-pulse" style="display: none"></i></span>                    
+	                    <span class="loading"><span class="status hidden-field"></span><i class="fa fa-spinner fa-pulse" style="display: none"></i></span>
 	                </div>
 	                <div class="inner-right">
 	                    <?php _e( 'Report Header' ); ?>
@@ -3962,11 +4006,11 @@ class MainWP_CReport {
 	                    <input type="button" ed-name="header" class="button-primary mainwp_creport_report_delete_format_btn" value="<?php _e( 'Delete' ); ?>"/>
 	                    <span class="loading"><span class="status hidden-field"></span><i class="fa fa-spinner fa-pulse" style="display: none"></i></span>
 	                </div>
-	            </div>            
+	            </div>
 				<div style="background: #F5F5F5; padding: 10px; border-bottom: 1px dashed #fff; text-align: center;"><a href="#" class="mainwp_creport_show_insert_tokens_book_lnk"><?php _e( 'Show Available Tokens' ); ?></a></div>
 				<?php self::gen_insert_tokens_box( 'header', true, $client_tokens_values, $client_tokens, $website ); ?>
-	        </div> 
-        </div>  
+	        </div>
+        </div>
 
         <div class="mainwp_creport_format_section_header closed" section="body">
 			<h3 class="mainwp_box_title" style="background: #fafafa;"><?php _e( 'Report Body' ); ?> <span class="handlelnk"><i class="fa fa-caret-up" aria-hidden="true"></i></span></h3>
@@ -3979,7 +4023,7 @@ class MainWP_CReport {
 					'textarea_name' => 'mainwp_creport_report_body',
 					'textarea_rows' => 40,
 	                                'teeny' => false,
-	                                'media_buttons' => true				            
+	                                'media_buttons' => true
 	                            )
 				);
 				?>
@@ -3988,7 +4032,7 @@ class MainWP_CReport {
 						<?php _e( 'Save Report Body' ); ?>
 						<input type="text" placeholder="<?php _e( 'Enter Report Body Title' ); ?>" name="mainwp_creport_report_save_header" value=""/>
 						<input type="button" format="B" ed-name="body" class="button-primary mainwp_creport_report_save_format_btn" value="<?php _e( 'Save' ); ?>"/>
-						<span class="loading"><span class="status hidden-field"></span><i class="fa fa-spinner fa-pulse" style="display: none"></i></span>                    
+						<span class="loading"><span class="status hidden-field"></span><i class="fa fa-spinner fa-pulse" style="display: none"></i></span>
 	                </div>
 	                <div class="inner-right">
 						<?php _e( 'Report Body' ); ?>
@@ -4007,13 +4051,13 @@ class MainWP_CReport {
 	            </div>
 				<div style="background: #F5F5F5; padding: 10px; border-bottom: 1px Dashed #fff; text-align: center;"><a href="#" class="mainwp_creport_show_insert_tokens_book_lnk"><?php _e( 'Show Available Tokens' ); ?></a></div>
 				<?php self::gen_insert_tokens_box( 'body', true, $client_tokens_values, $client_tokens, $website ); ?>
-	        </div> 
+	        </div>
         </div>
 
         <div class="mainwp_creport_format_section_header closed" section="footer">
 			<h3 class="mainwp_box_title" style="background: #fafafa;"><?php _e( 'Report Footer' ); ?> <span class="handlelnk"><i class="fa fa-caret-up" aria-hidden="true"></i></span></h3>
         </div>
-        <div class="mainwp_creport_format_section hidden-field">     
+        <div class="mainwp_creport_format_section hidden-field">
 	        <div class="inside">
 				<?php
 				remove_editor_styles(); // stop custom theme styling interfering with the editor
@@ -4030,7 +4074,7 @@ class MainWP_CReport {
 						<?php _e( 'Save Report Footer' ); ?>
 						<input type="text" placeholder="<?php _e( 'Enter Report Footer Title' ); ?>" name="mainwp_creport_report_save_header" value=""/>
 						<input type="button" format="F" ed-name="footer" class="button-primary mainwp_creport_report_save_format_btn" value="<?php _e( 'Save' ); ?>"/>
-						<span class="loading"><span class="status hidden-field"></span><i class="fa fa-spinner fa-pulse" style="display: none"></i></span>                    
+						<span class="loading"><span class="status hidden-field"></span><i class="fa fa-spinner fa-pulse" style="display: none"></i></span>
 	                </div>
 	                <div class="inner-right">
 						<?php _e( 'Report Footer' ); ?>
@@ -4046,14 +4090,14 @@ class MainWP_CReport {
 						<input type="button" ed-name="footer" class="button-primary mainwp_creport_report_delete_format_btn" value="<?php _e( 'Delete' ); ?>"/>
 						<span class="loading"><span class="status hidden-field"></span><i class="fa fa-spinner fa-pulse" style="display: none"></i></span>
 	                </div>
-	            </div>                
+	            </div>
 				<div style="background: #F5F5F5; padding: 10px; border-bottom: 1px Dashed #fff; text-align: center;"><a href="#" class="mainwp_creport_show_insert_tokens_book_lnk"><?php _e( 'Show Available Tokens' ); ?></a></div>
 				<?php self::gen_insert_tokens_box( 'footer', true, $client_tokens_values, $client_tokens, $website ); ?>
-	        </div> 
-        </div> 
+	        </div>
+        </div>
             <?php
 	}
-        
+
         public static function gen_insert_tokens_box( $editor, $hide = false, $client_tokens_values, $client_tokens, $website ) {
 		?>
 		<div class="creport_format_insert_tokens_box <?php echo $hide ? 'hidden-field' : ''; ?>" editor="<?php echo $editor; ?>">
@@ -4071,20 +4115,20 @@ class MainWP_CReport {
 								( ! self::$enabled_woocomstatus && ('woocomstatus' == $group)) ||
                                                                 ( ! self::$enabled_wordfence && ('wordfence' == $group)) ||
                                                                 ( ! self::$enabled_maintenance && ('maintenance' == $group)) ||
-                                                                ( ! self::$enabled_pagespeed && ('pagespeed' == $group)) || 
+                                                                ( ! self::$enabled_pagespeed && ('pagespeed' == $group)) ||
                                                                 ( ! self::$enabled_brokenlinks && ('brokenlinks' == $group))
 						) {
 							$disabled = 'disabled';
-						}							
+						}
 						$first_group = current(array_keys(self::$stream_tokens[$group]['nav_group_tokens']));
 						$first_title = reset(self::$stream_tokens[$group]['nav_group_tokens']);
-						
+
 						$current = ($visible == $group) ? 'current' : '';
 						$nav_group .= '<a href="#" group="' . $group . '" group-title="' . $group_title . '" class="creport_nav_group_lnk ' . $current . ' ' . $disabled . '" first-group="' . $first_group . '" first-title="' . $first_title . '">' . $group_title . '</a> | ';
 					}
 					$nav_group = rtrim( $nav_group, ' | ' );
 					echo $nav_group;
-					?>                
+					?>
                 </div>
 				<?php
 				$visible_group = $visible . '_tokens';
@@ -4119,20 +4163,20 @@ class MainWP_CReport {
 						$str_requires = 'Requires' . ' <a href="https://mainwp.com/extension/broken-links-checker/" title="MainWP Broken Links Checker Extension">MainWP Broken Links Checker Extension</a>';
 						$enabled = false;
 					}
-                                        
-                                        
+
+
 					if ( ! $enabled ) {
-						?>             
+						?>
 						<div class="creport_format_group_data_tokens" group="<?php echo $group; ?>">
-							<div class="mainwp_info-box" style="text-align: center"><?php echo $str_requires; ?></div>    
-                        </div>     
+							<div class="mainwp_info-box" style="text-align: center"><?php echo $str_requires; ?></div>
+                        </div>
 						<?php
 						continue;
 					}
 
 					foreach ( $group_tokens as $key => $tokens ) {
 						if ( 'nav_group_tokens' == $key ) {
-							continue;                                                         
+							continue;
                                                 }
 						?>
 						<div class="creport_format_group_data_tokens <?php echo ($visible_group == $group . '_' . $key) ? 'current' : ''; ?>" group="<?php echo $group . '_' . $key; ?>">
@@ -4140,8 +4184,8 @@ class MainWP_CReport {
 							if ( 'sucuri' == $group && 'sections' == $key ) {
 								echo '<div class="mainwp_info-box">' . __( 'MainWP Sucuri Extensions version 0.0.6 is required. Previous version will show invalid data.' ) . '</div>';
 							}
-							?>             
-                            <table>                                
+							?>
+                            <table>
 								<?php
 								if ( 'client' == $group && 'tokens' == $key && is_array( $client_tokens ) ) {
 									if ( is_array( $client_tokens_values ) && count( $client_tokens_values ) > 0 ) {
@@ -4165,7 +4209,7 @@ class MainWP_CReport {
 									}
 								}
 								?>
-                            </table>                               
+                            </table>
                         </div>
 						<?php
 					}
@@ -4184,7 +4228,7 @@ class MainWP_CReport {
 							( ! self::$enabled_woocomstatus && 'woocomstatus' == $group) ||
                             ( ! self::$enabled_wordfence && ('wordfence' == $group)) ||
                             ( ! self::$enabled_maintenance && ('maintenance' == $group)) ||
-                            ( ! self::$enabled_pagespeed && ('pagespeed' == $group)) || 
+                            ( ! self::$enabled_pagespeed && ('pagespeed' == $group)) ||
                             ( ! self::$enabled_brokenlinks && ('brokenlinks' == $group))
 					) {
 						echo '<div class="creport_format_group_nav bottom" group="' . $group . '">&nbsp</div>';
@@ -4205,37 +4249,37 @@ class MainWP_CReport {
 						'</a><span class="crp_content_group2 hidden-field"> > ' . '<a href="javascript:void(0)" class="group2">' .
 						//self::$stream_tokens[$visible]['nav_group_tokens'][$visible_nav] .
 						'</a></span>';
-				?>    
+				?>
                 <div class="creport_format_nav_bottom_breadcrumb">
 					<?php _e( 'You are currently here:' ) ?> <span><?php echo $breadcrumb; ?></span>
 					<span class="mwp_creport_edit_client_tokens" style="float: right"><?php echo ! empty( $website ) ? '<a href="admin.php?page=managesites&id=' . $website['id'] . '">' . __( 'Edit Client Tokens' ) . '</a>' : '' ?></span>
-                </div> 
-            </div>         
-        </div> 
+                </div>
+            </div>
+        </div>
 		<?php
 	}
-        
+
 	public static function renderClientReportsSiteTokens( $post, $metabox ) {
-            
+
                 global $mainWPCReportExtensionActivator;
-		
-		$websiteid = isset($metabox['args']['websiteid']) ? $metabox['args']['websiteid'] : null;				
+
+		$websiteid = isset($metabox['args']['websiteid']) ? $metabox['args']['websiteid'] : null;
 		$website = apply_filters( 'mainwp-getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $websiteid );
-		
+
 		if ( $website && is_array( $website ) ) {
 			$website = current( $website );
 		}
 
 		if ( empty( $website ) )
 			return;
-                
+
 		$tokens = MainWP_CReport_DB::get_instance()->get_tokens();
 
-		$site_tokens = array();                
+		$site_tokens = array();
 		if ( $website ) {
-			$site_tokens = MainWP_CReport_DB::get_instance()->get_site_tokens( $website['url'] );                         
-                }              
-		
+			$site_tokens = MainWP_CReport_DB::get_instance()->get_site_tokens( $website['url'] );
+                }
+
 		if ( is_array( $tokens ) && count( $tokens ) > 0 ) {
 			$html .= '<table class="form-table" style="width: 100%">';
 			foreach ( $tokens as $token ) {
@@ -4246,18 +4290,18 @@ class MainWP_CReport {
 					$token_value = stripslashes( $site_tokens[ $token->id ]->token_value ); }
 
 				$input_name = 'creport_token_' . str_replace( array( '.', ' ', '-' ), '_', $token->token_name );
-				$html .= '<tr>                      
+				$html .= '<tr>
                             <th scope="row" class="token-name" >[' . esc_html( stripslashes( $token->token_name ) ) . ']</th>
-                            <td>                                        
+                            <td>
                             <input type="text" value="' . esc_attr( $token_value ) . '" class="regular-text" name="' . esc_attr( $input_name ) . '"/>
-                            </td>                           
+                            </td>
                     </tr>';
 			}
 			$html .= '</table>';
 		} else {
 			$html .= 'Not found tokens.';
 		}
-		//$html .= '<div class="mainwp_info-box"><strong><b>Note</b>: <i>Add or Edit Client Report Tokens in the <a target="_blank" href="' . admin_url( 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=token' ) . '">Client Report Extension Settings</a></i>.</strong></div>';                
+		//$html .= '<div class="mainwp_info-box"><strong><b>Note</b>: <i>Add or Edit Client Report Tokens in the <a target="_blank" href="' . admin_url( 'admin.php?page=Extensions-Mainwp-Client-Reports-Extension&action=token' ) . '">Client Report Extension Settings</a></i>.</strong></div>';
 		echo $html;
 	}
 
@@ -4300,12 +4344,12 @@ class MainWP_CReport {
 	}
 
 	public function load_tokens() {
-            self::verify_nonce();  
+            self::verify_nonce();
             $tokens = MainWP_CReport_DB::get_instance()->get_tokens();
         ?>
         <div class="creport_list_tokens">
             <table width="100%">
-                <tbody> 
+                <tbody>
 					<?php
 					if ( is_array( $tokens ) && count( $tokens ) > 0 ) {
 						foreach ( (array) $tokens as $token ) {
@@ -4316,24 +4360,24 @@ class MainWP_CReport {
 					}
 					?>
                     <tr class="managetoken-item">
-                        <td class="token-name">                         
+                        <td class="token-name">
                             <span class="actions-input input">
-                            	<div style="font-size: 16px; padding: 4px 5px; color: #333;">Create a Custom Token</div> 
+                            	<div style="font-size: 16px; padding: 4px 5px; color: #333;">Create a Custom Token</div>
                             	<input type="text" value=""  name="token_name" placeholder="Enter a Token">
                             </span><br/>
-                        </td>        
-                        <td class="token-description">                            
+                        </td>
+                        <td class="token-description">
                             <span class="actions-input input">
-                            	<div style="font-size: 16px; padding: 4px 5px; color: #333;">&nbsp;</div> 
-                                <input type="text" value="" class="token_description" name="token_description" placeholder="Enter a Token Description">                            
+                            	<div style="font-size: 16px; padding: 4px 5px; color: #333;">&nbsp;</div>
+                                <input type="text" value="" class="token_description" name="token_description" placeholder="Enter a Token Description">
                             </span>
                             <span class="mainwp_more_loading"><i class="fa fa-spinner fa-pulse"></i></span>
                         </td>
-                        <td class="token-option"><div style="font-size: 16px; padding: 4px 5px; color: #333;">&nbsp;</div><input type="button" value="Save" class="button-primary right" id="creport_managetoken_btn_add_token"></td>       
-                    </tr>       
+                        <td class="token-option"><div style="font-size: 16px; padding: 4px 5px; color: #333;">&nbsp;</div><input type="button" value="Save" class="button-primary right" id="creport_managetoken_btn_add_token"></td>
+                    </tr>
 
                 </tbody>
-            </table> 
+            </table>
         </div>
 		<?php
 		exit;
@@ -4423,41 +4467,41 @@ class MainWP_CReport {
 		}
 		die( json_encode( 'failed' ) );
 	}
-        
-        
+
+
         public function get_sites_with_reports( $websites ) {
 		$sites = array();
 		if ( is_array( $websites ) && count( $websites ) ) {
                     foreach ( $websites as $website ) {
                             if ( $website && $website->plugins != '' ) {
-                                    $plugins = json_decode( $website->plugins, 1 );						
+                                    $plugins = json_decode( $website->plugins, 1 );
                                     if ( is_array( $plugins ) && count( $plugins ) != 0 ) {
                                             foreach ( $plugins as $plugin ) {
-                                                    if ( 'mainwp-child-reports/mainwp-child-reports.php' == $plugin['slug'] ) {					
+                                                    if ( 'mainwp-child-reports/mainwp-child-reports.php' == $plugin['slug'] ) {
                                                             if (!$plugin['active'])
                                                                     break;
                                                             $site = MainWP_CReport_Utility::map_site( $website, array( 'id', 'name', 'url' ) );
-                                                            $sites[] = $site; 
+                                                            $sites[] = $site;
                                                             break;
                                                     }
                                             }
                                     }
                             }
-                    }		
+                    }
 		}
 		return $sites;
 	}
-        
+
         public static function verify_nonce() {
             if ( ! isset( $_REQUEST['nonce'] ) || ! wp_verify_nonce( $_REQUEST['nonce'], '_wpnonce_creport' ) ) {
-                die(json_encode( array( 'error' => 'Invalid request' ) ) );                         
-            }                 
+                die(json_encode( array( 'error' => 'Invalid request' ) ) );
+            }
         }
-        
-        public static function ajax_general_load_sites() {              
-                self::verify_nonce();                
+
+        public static function ajax_general_load_sites() {
+                self::verify_nonce();
                 global $mainWPCReportExtensionActivator;
-                
+
                 $what = $_POST['what'];
                 $websites = apply_filters( 'mainwp-getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), null );
 		$sites_ids = array();
@@ -4473,106 +4517,106 @@ class MainWP_CReport {
 		);
 		$dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sites_ids, array(), $option );
 		$dbwebsites_reports = self::get_sites_with_reports( $dbwebsites );
-		
+
 		unset( $dbwebsites );
-                
-                $error = '';                
-                
+
+                $error = '';
+
                 if (count($dbwebsites_reports) == 0) {
                     $error = '<div class="mainwp_info-box-yellow">' . _e('No websites were found with the MainWP Child Reports plugin installed.') . '</div>';
                 }
-                
+
                 $html = '';
                 if (empty($error)) {
                         $title = '';
                         if ($what == 'save_settings') {
                             $title = __( 'Saving settings to child sites ...', 'mainwp-client-reports-extension' );
-                        } 
+                        }
                         ob_start();
                         ?>
                         <div class="poststuff">
                             <div class="postbox">
-                                <h3 class="mainwp_box_title"><span><i class="fa fa-cog"></i> 
+                                <h3 class="mainwp_box_title"><span><i class="fa fa-cog"></i>
                                 <?php echo !empty( $title ) ? $title : '&nbsp;'; ?>
-                                </span></h3>                                
+                                </span></h3>
                                 <div class="inside">
-                                        <?php  
+                                        <?php
                                         foreach ( $dbwebsites_reports as $website ) {
                                             echo '<div><strong>' . $website['name'] . '</strong>: ';
                                             echo '<span class="siteItemProcess" action="" site-id="' . $website['id'] . '" status="queue"><span class="status">Queue ...</span> <i style="display: none;" class="fa fa-spinner fa-pulse"></i></span>';
                                             echo '</div><br />';
-                                        }                                                                                  
+                                        }
                                         ?>
                                     <div id="mainwp_creport_group_working"><span class="status" style="display:none"></span> <i style="display: none;" class="fa fa-spinner fa-pulse"></i></div>
                                 </div>
                             </div>
                         </div>
                         <?php
-                        $html = ob_get_clean();                                 
+                        $html = ob_get_clean();
                 }
-                
+
                 if (!empty( $error )) {
                     $error = '<div class="mainwp_info-box-yellow">' . $error . '</div>';
                     die($error);
                 }
-                
-                
-                die($html);                       
+
+
+                die($html);
 	}
-        
+
         function ajax_save_settings() {
-            self::verify_nonce();       
-            $siteid = $_POST['site_id'];		
+            self::verify_nonce();
+            $siteid = $_POST['site_id'];
             if ( empty( $siteid ) ) {
-                die( json_encode( array( 'error' => 'Error: site id empty' ) ) ); 			
-            }		
+                die( json_encode( array( 'error' => 'Error: site id empty' ) ) );
+            }
             global $mainWPCReportExtensionActivator;
-            $settings = get_option('mainwp_creport_settings', array());				
+            $settings = get_option('mainwp_creport_settings', array());
             $post_data = array( 'mwp_action' => 'save_settings',
-                                'settings' => $settings							
-                                );		
+                                'settings' => $settings
+                                );
             $information = apply_filters( 'mainwp_fetchurlauthed', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $siteid, 'client_report', $post_data );
 
             die( json_encode( $information ) );
         }
-        
-        public static function ajax_load_sites_for_group_report() {  
-            
+
+        public static function ajax_load_sites_for_group_report() {
+
                 self::verify_nonce();
-                
+
                 global $mainWPCReportExtensionActivator;
                 $what = $_POST['what'];
                 $report_id = $_POST['report_id'];
                 $websites = array();
-                
+
                 if ( $report_id ) {
                     $report = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $report_id );
-                    if ($report) {                        
+                    if ($report) {
                             $sel_sites = unserialize( base64_decode( $report->sites ) );
                             $sel_groups = unserialize( base64_decode( $report->groups ) );
                             if ( ! is_array( $sel_sites ) ) {
                                     $sel_sites = array(); }
                             if ( ! is_array( $sel_groups ) ) {
                                     $sel_groups = array(); }
-                            $dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sel_sites, $sel_groups );                            
+                            $dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sel_sites, $sel_groups );
                             if ( is_array( $dbwebsites ) ) {
                                     foreach ( $dbwebsites as $site ) {
                                             $websites[] = MainWP_CReport_Utility::map_site( $site, array( 'id', 'name', 'url' ) );
                                     }
-                            }                      
+                            }
                     }
-                }       
-                
-                 
-                $error = '';                
-                if (empty($report)) {
-                    $error  = __( 'Report could not be found.', 'mainwp-client-reports-extension' );                                                            
-                } 
- 
-                else if ( count( $websites ) == 0 ) {   
-                     $error = __( 'There are no selected sites for the report. Please select your site(s) first.', 'mainwp-client-reports-extension' );     
                 }
-                
+
+
+                $error = '';
+                if (empty($report)) {
+                    $error  = __( 'Report could not be found.', 'mainwp-client-reports-extension' );
+                }
+
+                else if ( count( $websites ) == 0 ) {
+                     $error = __( 'There are no selected sites for the report. Please select your site(s) first.', 'mainwp-client-reports-extension' );
+                }
+
                 $html = '';
                 if (empty($error)) {
                         $title = '';
@@ -4587,86 +4631,86 @@ class MainWP_CReport {
                         ?>
                         <div class="poststuff">
                             <div class="postbox">
-                                <h3 class="mainwp_box_title"><span><i class="fa fa-cog"></i> 
+                                <h3 class="mainwp_box_title"><span><i class="fa fa-cog"></i>
                                 <?php echo !empty( $title ) ? $title : '&nbsp;'; ?>
-                                </span></h3>                                
+                                </span></h3>
                                 <div class="inside">
-                                        <?php  
+                                        <?php
                                         foreach ( $websites as $website ) {
                                             echo '<div><strong>' . $website['name'] . '</strong>: ';
                                             echo '<span class="siteItemProcess" action="" site-id="' . $website['id'] . '" status="queue"><span class="status">Queue ...</span> <i style="display: none;" class="fa fa-spinner fa-pulse"></i></span>';
                                             echo '</div><br />';
-                                        }                                                                                  
+                                        }
                                         ?>
                                     <div id="mainwp_creport_group_working"><span class="status" style="display:none"></span> <i style="display: none;" class="fa fa-spinner fa-pulse"></i></div>
                                 </div>
                             </div>
                         </div>
                         <?php
-                        $html = ob_get_clean();                                 
+                        $html = ob_get_clean();
                 }
-                
+
                 if (!empty( $error )) {
                     $error = '<div class="mainwp_info-box-yellow">' . $error . '</div>';
                     die($error);
-                }                               
-                die($html);                       
+                }
+                die($html);
 	}
-                        
+
     public static function ajax_generate_group_report() {
             self::verify_nonce();
-            $report_id = $_POST['report_id']; 
+            $report_id = $_POST['report_id'];
             $site_id = $_POST['site_id'];
             $what = $_POST['what'];
-            
-            if (empty($site_id) || empty($report_id)) 
+
+            if (empty($site_id) || empty($report_id))
                 die( json_encode(array('error' => __('Invalid data.'))) );
-            
-            $report = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $report_id );		
-            
+
+            $report = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $report_id );
+
             if (empty($report)) { // is not group report
                 die( json_encode(array('error' => __('Report could not be found.', 'mainwp-client-reports-extension'))) );
             }
-            
-            if ( $report->is_archived ) { 
+
+            if ( $report->is_archived ) {
                 die( json_encode(array('error' => __('This is an archived report.', 'mainwp-client-reports-extension'))) );
             }
-            
+
             global $mainWPCReportExtensionActivator;
-            $dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array($site_id), array() );            
+            $dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array($site_id), array() );
             $site = array();
-            if ( is_array( $dbwebsites ) ) {                
-                $site = current($dbwebsites);                
-                $site = MainWP_CReport_Utility::map_site( $site, array( 'id', 'name', 'url' ) );   
+            if ( is_array( $dbwebsites ) ) {
+                $site = current($dbwebsites);
+                $site = MainWP_CReport_Utility::map_site( $site, array( 'id', 'name', 'url' ) );
                 $cust_from_date = $cust_to_date = 0;
-                
+
                 if ($what == 'preview' && $report->scheduled) {
-                    
-                    $preview_recurring = self::calc_recurring_date( $report->recurring_schedule, $report->recurring_day );
+
+                    $preview_recurring = self::calc_recurring_date( $report->recurring_schedule, $report->recurring_day ); // ok
                     if (is_array($preview_recurring)) {
                         if ( 'daily' == $report->recurring_schedule ) {
                             $cust_from_date = $preview_recurring['date_from'] - 24 * 3600 ;
-                            $cust_to_date = $preview_recurring['date_to']  - 24 * 3600;                                                              
-                        } 
-                        else if ( 'weekly' == $report->recurring_schedule ) {   
+                            $cust_to_date = $preview_recurring['date_to']  - 24 * 3600;
+                        }
+                        else if ( 'weekly' == $report->recurring_schedule ) {
                             $cust_from_date = $preview_recurring['date_from'] - 7 * 24 * 3600 ;
                             $cust_to_date = $preview_recurring['date_to']  - 7 * 24 * 3600;
-                        } 
+                        }
                         else if ( 'monthly' == $report->recurring_schedule ) {
                             $cust_from_date = strtotime('first day of last month');
-                            $cust_from_date = strtotime( date( 'Y-m-d', $cust_from_date ) . ' 00:00:00' );  
+                            $cust_from_date = strtotime( date( 'Y-m-d', $cust_from_date ) . ' 00:00:00' );
                             $cust_to_date = strtotime('last day of last month');
-                            $cust_to_date = strtotime( date( 'Y-m-d', $cust_to_date ) . ' 23:59:59' );  
-                        }                         
-                    }                   
+                            $cust_to_date = strtotime( date( 'Y-m-d', $cust_to_date ) . ' 23:59:59' );
+                        }
+                    }
                 }
-                
+
                 if ( self::update_group_report_site($report, $site, $cust_from_date, $cust_to_date)) {
                     $success = true;
                     if ($what == 'send_test_email') {
                         if (!self::send_report_mail( $report, true, $site )) {
                             die( json_encode( array( 'error' => 'Send mail error.' ) ) );
-                        } 
+                        }
                     } else if ($what == 'sendreport') {
                         if (!self::send_report_mail( $report, false, $site )) {
                             die( json_encode( array( 'error' => 'Send mail error.' ) ) );
@@ -4674,45 +4718,45 @@ class MainWP_CReport {
                     }
                     if ($success)
                         die( json_encode( array( 'result' => 'success' ) ) );
-                    
+
                 } else {
                     die( json_encode( array( 'error' => 'Save data' ) ) );
                 }
-            }            
+            }
             die( json_encode( array( 'error' => 'Site could not be found' ) ) );
         }
 
         public static function update_group_report_site($report, $site, $cust_from_date = 0, $cust_to_date = 0) {
                 if (empty($site) || !is_array($site))
-                    return false;                
+                    return false;
                 $site_id = $site['id'];
-                
+
                 // fix bug
                 if (empty($site_id))
-                    return false; 
-                
-                $filtered_reports = self::filter_report_website( $report, $site, $cust_from_date, $cust_to_date);   
-                $content = self::gen_report_content( $filtered_reports, true, true );
-                $content_pdf = self::gen_report_content_pdf( array( $site_id => $filtered_reports ) );       
+                    return false;
+
+                $filtered_reports = self::filter_report_website( $report, $site, $cust_from_date, $cust_to_date);
+                $content = self::gen_report_content( $filtered_reports );
+                $content_pdf = self::gen_report_content_pdf( array( $site_id => $filtered_reports ) );
                 $values = array(
                     'report_id' => $report->id,
                     'site_id' => $site_id,
                     'report_content' => json_encode($content),
                     'report_content_pdf' => json_encode($content_pdf),
-                );                
+                );
                 if ( MainWP_CReport_DB::get_instance()->update_group_report_content( $values ) ) {
                     return true;
                 } else {
                     return false;
                 }
         }
-        
+
         public static function ajax_archive_report() {
             self::verify_nonce();
-            
+
             if (!isset($_POST['report_id']) || empty($_POST['report_id']))
                 die(json_encode(array('error' => __('Empty report id', 'mainwp-client-reports-extension'))));
-                
+
             if (self::archive_report( $_POST['report_id'], true ))
                 die(json_encode(array('result' => 'success')));
             else
@@ -4732,7 +4776,7 @@ class MainWP_CReport {
 	}
 
 	public function save_token() {
-		
+
 		$return = array( 'success' => false, 'error' => '', 'message' => '' );
 		$token_name = sanitize_text_field( $_POST['token_name'] );
 		$token_name = trim( $token_name, '[]' );
@@ -4773,11 +4817,11 @@ class MainWP_CReport {
 		if ( $with_tr ) {
 			$html = '<tr class="managetoken-item" token_id="' . $token->id . '">'; }
 
-		$html .= '<td class="token-name">                            
+		$html .= '<td class="token-name">
                     <span class="text" ' . (($token->type == 1) ? '' : 'value="' . $token->token_name) . '">[' . esc_html( stripslashes( $token->token_name ) ) . ']</span>' .
 				(($token->type == 1) ? '' : '<span class="input hidden"><input type="text" value="' . esc_attr( stripslashes( $token->token_name ) ) . '" name="token_name"></span>') .
-				'</td>        
-                <td class="token-description" ' . $colspan . '>                            
+				'</td>
+                <td class="token-description" ' . $colspan . '>
                     <span class="text" ' . (($token->type == 1) ? '' : 'value="' . esc_attr( stripslashes( $token->token_description ) )) . '">' . esc_html( stripslashes( $token->token_description ) ) . '</span>';
 		if ( $token->type != 1 ) {
 			$html .= '<span class="input hidden"><input type="text" value="' . esc_attr( stripslashes( $token->token_description ) ) . '" name="token_description"></span>
@@ -4796,61 +4840,61 @@ class MainWP_CReport {
 
 		return $html;
 	}
-        
-        public function ajax_do_action_report() {      
+
+        public function ajax_do_action_report() {
             self::verify_nonce();
             $report_id = intval( $_POST['reportId'] );
             $action = $_POST['what'];
-            
+
             if (empty($report_id))
                 die( json_encode( array( 'error' => __('Site id empty') ) ) );
-            
+
             $ret = array();
             $success = false;
             switch ($action) {
-                case 'delete':                        
+                case 'delete':
                         if ( MainWP_CReport_DB::get_instance()->delete_report_by( 'id', $report_id ) ) {
-                            $success = true;                                
-                        }                        
-                    break;              
-                case 'unarchive':         
-                        if ( MainWP_CReport::un_archive_report( $report_id ) ) {
-                            $success = true;     
+                            $success = true;
                         }
                     break;
-                case 'cancelschedule':                        
+                case 'unarchive':
+                        if ( MainWP_CReport::un_archive_report( $report_id ) ) {
+                            $success = true;
+                        }
+                    break;
+                case 'cancelschedule':
                         $update = array( 'id' => $report_id, 'scheduled' => 0, 'recurring_schedule' => '' );
                         if (MainWP_CReport_DB::get_instance()->update_report( $update ) ) {
-                            $success = true; 
-                        }                       
+                            $success = true;
+                        }
                     break;
                 default:
                     break;
-            }    
-            
+            }
+
             if ($success)
-                $ret['status'] = 'success';   
-            
+                $ret['status'] = 'success';
+
             echo json_encode( $ret );
-            exit;                
+            exit;
 	}
-          
+
         public static function showMainWPMessage( $type, $notice_id ) {
                 if ($type == 'tour') {
                     $status = get_user_option( 'mainwp_tours_status' );
                 } else {
-                    $status = get_user_option( 'mainwp_notice_saved_status' );                    
+                    $status = get_user_option( 'mainwp_notice_saved_status' );
                 }
-                
+
                 if ( ! is_array( $status ) ) {
                         $status = array();
                 }
                 if ( isset( $status[ $notice_id ] ) ) {
                     return false;
-                }		
+                }
 		return true;
 	}
-        
+
         public static function gen_tour_message($tour_id) {
 		?>
 		<div class="mainwp-walkthrough mainwp-notice-wrap"><?php _e('Need help getting started?', 'mainwp' ); ?>&nbsp;&nbsp;&nbsp;<a href="" class="mainwp_starttours"> <i class="fa fa-play" aria-hidden="true"></i> <?php _e( "Start the Tour!", "mainwp" ); ?></a>
@@ -4859,7 +4903,7 @@ class MainWP_CReport {
 		</div>
 		<?php
 	}
-        
+
          /**
 	 * Render extension tour
 	 */
@@ -4867,7 +4911,7 @@ class MainWP_CReport {
                 if ( !self::showMainWPMessage( 'tour', 'creport_reports' ) ) {
 			return;
 		}
-                
+
 		?>
 		<ol id="mainwp-tours-content" style="display: none">
 		  <!-- Client Reports -->
@@ -4877,25 +4921,25 @@ class MainWP_CReport {
 		  </li>
 		  <li data-id="wpcr_report_tab_lnk" data-button="Next">
 		    <p><?php _e( 'The Client Reports tab shows you all your reports.', 'mainwp-client-reports-extension' ); ?></p>
-		  </li>	      
+		  </li>
 		  <li data-id="report-column" data-button="Next">
 		    <p><?php _e( 'The Report column shows you your report title. If you set your mouse cursor over the report title, action row will show up and you will be able to Preview, Edit, Archive, Delete report or download report in PDF format.', 'mainwp-client-reports-extension' ); ?></p>
-		  </li>	   
+		  </li>
 		  <li data-id="client-column" data-button="Next">
 		    <p><?php _e( 'The Client column shows you client details for the report.', 'mainwp-client-reports-extension' ); ?></p>
-		  </li>	 
+		  </li>
 		  <li data-id="send-to-column" data-button="Next">
 		    <p><?php _e( 'The Send To column shows you recipient details.', 'mainwp-client-reports-extension' ); ?></p>
-		  </li>	   
+		  </li>
 		  <li data-id="last-sent-column" data-button="Next">
 		    <p><?php _e( 'The Last Sent column shows you time and date when the report has been sent last time.', 'mainwp-client-reports-extension' ); ?></p>
-		  </li>	   
+		  </li>
 		  <li data-id="date-range-column" data-button="Next">
 		    <p><?php _e( 'The Date Range column shows you the date range for the report.', 'mainwp-client-reports-extension' ); ?></p>
-		  </li>	 
+		  </li>
 		  <li data-id="schedule-column" data-button="Next" data-options="tipLocation:left; nubPosition:right">
 		    <p><?php _e( 'The schedule column shows you if the report has been scheduled or you are using this report to send the report manually. If the report is scheduled, you will see how often the report will be sent.', 'mainwp-client-reports-extension' ); ?></p>
-		  </li>	 
+		  </li>
 		  <!-- New Report -->
 		  <li data-id="wpcr_edit_tab_lnk" data-button="Next">
 		    <p><?php _e( 'On the New Report tab, you can create a new report.', 'mainwp-client-reports-extension' ); ?></p>
@@ -4903,25 +4947,25 @@ class MainWP_CReport {
 		  </li>
 		  <li data-class="mainwp-creport-report-setting-box" data-button="Next">
 		    <p><?php _e( 'The Report settings allows you to set your report settings.', 'mainwp-client-reports-extension' ); ?></p>
-		  </li>	      
+		  </li>
 		  <li data-id="mwp_creport_title" data-button="Next">
 		    <p><?php _e( 'Enter the report title here.', 'mainwp-client-reports-extension' ); ?></p>
-		  </li>	   
+		  </li>
 		  <li data-id="mainwp_creport_type" data-button="Next">
 		    <p><?php _e( 'Select if you want to create a report and send it manually when needed or to schedule it to be sent automatically.', 'mainwp-client-reports-extension' ); ?></p>
-		  </li>	 
+		  </li>
 		  <li data-class="date" data-button="Next">
 		    <p><?php _e( 'Select a date range for the report.', 'mainwp-client-reports-extension' ); ?></p>
-		  </li>	   
+		  </li>
 		  <li data-id="mwp_creport_femail" data-button="Next">
 		    <p><?php _e( 'Enter your email address here. It will be used as Send From email address. (Required)', 'mainwp-client-reports-extension' ); ?></p>
-		  </li>	   
+		  </li>
 		  <li data-id="mwp_creport_fname" data-button="Next">
 		    <p><?php _e( 'Enter your name here. (Optional)', 'mainwp-client-reports-extension' ); ?></p>
-		  </li>	 
+		  </li>
 		  <li data-id="mwp_creport_fcompany" data-button="Next">
 		    <p><?php _e( 'Enter your company name here. (Optional)', 'mainwp-client-reports-extension' ); ?></p>
-		  </li>	 
+		  </li>
 		  <li data-id="mwp_creport_email" data-button="Next">
 		    <p><?php _e( 'Enter your client email here. The report will be sent to this email address. If you want, you can leave the token in place, but make sure that you have the client email field set in the site edit page. (Required)', 'mainwp-client-reports-extension' ); ?></p>
 		  </li>
@@ -4998,26 +5042,26 @@ class MainWP_CReport {
 		  </li>
 		</ol>
 		<?php self::gen_tour_message('creport_reports');?>
-			<script type="text/javascript">		
-				jQuery(window).load(function() {					
+			<script type="text/javascript">
+				jQuery(window).load(function() {
 					jQuery("#mainwp-tours-content").joyride({
 						autoStart : false,
 						tipLocation: 'top',
 						tipAdjustmentY: -35
-					});	
-					jQuery(document).on( 'click', '.mainwp_starttours', function(e) {										
-						jQuery('.metabox-holder div.postbox').each(function(){						
-							if (jQuery(this).hasClass('closed')) {							
+					});
+					jQuery(document).on( 'click', '.mainwp_starttours', function(e) {
+						jQuery('.metabox-holder div.postbox').each(function(){
+							if (jQuery(this).hasClass('closed')) {
 								jQuery(this).find('.handlediv').trigger("click");
-							}						
-						});					
-						jQuery("#mainwp-tours-content").joyride();					
+							}
+						});
+						jQuery("#mainwp-tours-content").joyride();
 						return false;
 					});
 				});
 			  </script>
 		<?php
 	}
-        
-        
+
+
 }

@@ -5,7 +5,8 @@
         ?>        
             <script type="text/javascript">
                 jQuery(function ($) {
-                    tinymce.on('SetupEditor', function (editor) {                
+                    tinymce.on('SetupEditor', function (setup) {   
+						var editor = setup.editor;
                         if (editor.id === 'mainwp_creport_report_header' || editor.id === 'mainwp_creport_report_body' || editor.id === 'mainwp_creport_report_footer') {                                 
                                 editor.addButton('insertsection', {
                                     type: 'menubutton',
@@ -2315,7 +2316,7 @@
                         ]
 
                     });  
-                        }
+                        }  
                     });
                 });
             </script>
