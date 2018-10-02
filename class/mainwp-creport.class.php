@@ -23,7 +23,6 @@ class MainWP_CReport {
 
     public function __construct() {
 
-            $this->check_update();
 	}
 
 	public static function init() {
@@ -758,25 +757,6 @@ class MainWP_CReport {
 
 	}
 
-    public function check_update() {
-
-        $update_version = get_option('mainwp_creport_update_version', false);
-
-        if (version_compare($update_version, $this->update_version, '<>')) {
-            update_option('mainwp_creport_update_version', $this->update_version);
-        }
-
-        if (empty($update_version)) {
-            if ( $sched = wp_next_scheduled( 'mainwp_creport_cron_send_reports' ) ) {
-                wp_unschedule_event( $sched, 'mainwp_creport_cron_send_reports' ); // reset
-            }
-            if ( $sched = wp_next_scheduled( 'mainwp_creport_cron_continue_send_reports' ) ) {
-                wp_unschedule_event( $sched, 'mainwp_creport_cron_continue_send_reports' ); // reset
-            }
-        }
-
-    }
-
 	function managesite_backup( $website, $args, $information ) {
 		if ( empty( $website ) ) {
 			return; }
@@ -970,6 +950,13 @@ class MainWP_CReport {
 
 
     public static function cron_send_reports() {
+
+        $mainwpLastCheck = get_option( 'mainwp_creport_sendcheck_last' );
+		if ( $mainwpLastCheck == date( 'd/m/Y' ) ) {
+            do_action('mainp_log_debug', 'CRON :: Client Report :: already checked today');
+			return;
+		}
+
         do_action('mainp_log_debug', 'CRON :: Client Report :: sending');
 		//Do cronjobs!
 		//this will execute once every day to check to send the group reports
@@ -998,6 +985,10 @@ class MainWP_CReport {
         unset($allGroupReports);
 
         do_action('mainp_log_debug', 'CRON :: Client Report :: Found ' . count($allReportsToSend) . ' group reports to send.');
+
+        if ( count( $allReportsToSend ) == 0 ) {
+            update_option( 'mainwp_creport_sendcheck_last', date( 'd/m/Y' ) );
+        }
 
         foreach ( $allReportsToSend as $report ) {
                 // update report to start sending
@@ -1391,7 +1382,7 @@ class MainWP_CReport {
 
 			$report['email'] = $to_email;
 
-                        $bcc_email = '';
+            $bcc_email = '';
 			if ( ! empty( $_POST['mwp_creport_bcc_email'] ) ) {
 				$bcc_email = trim( $_POST['mwp_creport_bcc_email'] );
 				if ( ! preg_match( '/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/is', $bcc_email ) ) {
@@ -1998,6 +1989,15 @@ class MainWP_CReport {
 			$report->title = '';
 			$report->is_archived = 0;
 			$report->attach_files = '';
+            // do not replicate client info
+            $report->name = '[client.name]';
+			$report->company = '[client.company]';
+			$report->email = '[client.email]';
+            $report->bcc_email = '';
+			$report->client = '[client.name]';
+			//$report->subject = 'Report for [client.site.name]'; // replicate this
+            $report->client_id = 0;
+
 		}
 
 		$selected_site = 0;
@@ -2214,7 +2214,7 @@ class MainWP_CReport {
                                                         $_select = 'selected';
                                                 }
                                                 ?>
-                                                <option value="<?php echo $client->clientid; ?>" <?php echo $_select; ?>><?php echo (!empty($client->email) ? esc_html( stripslashes( $client->client ) ) : esc_html( stripslashes( $client->email ) )); ?></option>
+                                                <option value="<?php echo $client->clientid; ?>" <?php echo $_select; ?>><?php echo (!empty($client->client) ? esc_html( stripslashes( $client->client ) ) : esc_html( stripslashes( $client->email ) )); ?></option>
                                                 <?php
                                         }
                                         ?>
@@ -2721,7 +2721,7 @@ class MainWP_CReport {
 				foreach ( $loop as $replace ) {
 					//$replace = self::sucuri_replace_data($replace);;
 					$replaced = self::replace_section_content( $sec_content, $search, $replace );
-					$replaced_content .= $replaced . '<br>';
+					$replaced_content .= '<p style="margin: 2px 0px 2px 0px">' . $replaced . "</p>";
 				}
 			}
 			return $replaced_content;
@@ -2742,7 +2742,7 @@ class MainWP_CReport {
 				foreach ( $loop as $replace ) {
 					//$replace = self::sucuri_replace_data($replace);;
 					$replaced = self::replace_section_content( $sec_content, $search, $replace );
-					$replaced_content .= $replaced . '<br>';
+					$replaced_content .= '<p style="margin: 2px 0px 2px 0px">' . $replaced . "</p>";
 				}
 			}
 			return $replaced_content;
@@ -2764,7 +2764,7 @@ class MainWP_CReport {
 				foreach ( $loop as $replace ) {
 					//$replace = self::sucuri_replace_data($replace);
 					$replaced = self::replace_section_content( $sec_content, $search, $replace );
-					$replaced_content .= $replaced . '<br>';
+					$replaced_content .= '<p style="margin: 2px 0px 2px 0px">' . $replaced . "</p>";
 				}
 			}
 			return $replaced_content;
@@ -3841,16 +3841,21 @@ class MainWP_CReport {
 		$client_id = 0;
 		$attachFiles = '';
 		if ( ! empty( $report ) ) {
+            // send from info
 			$from_name = $report->fname;
 			$from_company = $report->fcompany;
 			$from_email = $report->femail;
-			$to_name = $report->name;
+            ///////////
+
+            // to client info
+            $to_name = $report->name;
 			$to_company = $report->company;
 			$to_email = $report->email;
             $bcc_email = $report->bcc_email;
 			$to_client = $report->client;
-
 			$email_subject = $report->subject;
+            ///////////
+
 			$attachFiles = isset( $report->attach_files ) ? $report->attach_files : '';
 			$client_id = intval( $report->client_id );
 			if ( $client_id ) {
@@ -3864,11 +3869,7 @@ class MainWP_CReport {
 			}
 		}
 
-		$clients = MainWP_CReport_DB::get_instance()->get_clients();
-		if ( ! is_array( $clients ) ) {
-			$clients = array();
-                }
-            ?>
+        ?>
 
         <tr>
 			<th><span><?php _e( 'Send From ' ); do_action( 'mainwp_renderToolTip', __( 'Set details that will be displayed to your client. Your client will receive email that has been sent from the details that you have set here. Please note that the Email Address field is required.', 'mainwp-client-reports-extension' ) ); ?></span></th>

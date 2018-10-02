@@ -18,14 +18,18 @@ use Dompdf\Options;
 $options = new Options();
 $options->setIsRemoteEnabled(true);
 $dompdf = new Dompdf($options);
+$dompdf->set_option('isHtml5ParserEnabled', true);
 
 $html = false; // to fix bug
 if ( isset( $_GET['id'] ) && $_GET['id'] && isset($_GET['time']) && !empty($_GET['time'])) {
     $time = $_GET['time'];
 	$content = get_option( 'mwp_creport_pdf_' . $time . '_' . $_GET['id'], false );
 	if ( !empty($content) ) {
-        $html = '<html>' ;
-        $html .= '<head><title>Client Report</title></head>' ;
+        $html = '<!DOCTYPE html><html>' ;
+        $html .= '<head>';
+        $html .= '<title>Client Report</title>';
+        $html .= '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>';
+        $html .= '</head>' ;
         $html .= '<body>' . unserialize( $content ) . '</body>';
         $html .= '</html>' ;
 		delete_option( 'mwp_creport_pdf_' . $time . '_' . $_GET['id'] );

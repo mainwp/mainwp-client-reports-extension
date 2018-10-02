@@ -2,7 +2,7 @@
 
 class MainWP_CReport_DB {
 
-	private $mainwp_wpcreport_db_version = '6';
+	private $mainwp_wpcreport_db_version = '6.1';
 	private $table_prefix;
 	//Singleton
 	private static $instance = null;
@@ -42,31 +42,40 @@ class MainWP_CReport_DB {
 		$charset_collate = $wpdb->get_charset_collate();
 		$sql = array();
 
+        $rslt = $this->query( "SHOW TABLES LIKE '" . $this->table_name( 'client_report_token' ) . "'" );
+        $table_existed = !empty( $rslt ) ? true : false;
+
 		$tbl = 'CREATE TABLE `' . $this->table_name( 'client_report_token' ) . '` (
 `id` int(11) NOT NULL AUTO_INCREMENT,
 `token_name` varchar(512) NOT NULL DEFAULT "",
 `token_description` text NOT NULL,
 `type` tinyint(1) NOT NULL DEFAULT 0';
-		if ( '' == $currentVersion ) {
+		if ( '' == $currentVersion || !$table_existed ) {
 			$tbl .= ',
 PRIMARY KEY  (`id`)  ';
                 }
 
 		$tbl .= ') ' . $charset_collate;
 		$sql[] = $tbl;
+
+        $rslt = $this->query( "SHOW TABLES LIKE '" . $this->table_name( 'client_report_site_token' ) . "'" );
+        $table_existed = !empty( $rslt ) ? true : false;
 
 		$tbl = 'CREATE TABLE `' . $this->table_name( 'client_report_site_token' ) . '` (
 `id` int(11) NOT NULL AUTO_INCREMENT,
 `site_url` varchar(255) NOT NULL,
 `token_id` int(12) NOT NULL,
 `token_value` varchar(512) NOT NULL';
-		if ( '' == $currentVersion ) {
+		if ( '' == $currentVersion || !$table_existed ) {
 			$tbl .= ',
 PRIMARY KEY  (`id`)  ';
                 }
 
 		$tbl .= ') ' . $charset_collate;
 		$sql[] = $tbl;
+
+        $rslt = $this->query( "SHOW TABLES LIKE '" . $this->table_name( 'client_report' ) . "'" );
+        $table_existed = !empty( $rslt ) ? true : false;
 
 		$tbl = 'CREATE TABLE `' . $this->table_name( 'client_report' ) . '` (
 `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -100,13 +109,16 @@ PRIMARY KEY  (`id`)  ';
 `sites` text NOT NULL,
 `groups` text NOT NULL';
 
-		if ( '' == $currentVersion ) {
+		if ( '' == $currentVersion || !$table_existed ) {
 			$tbl .= ',
 PRIMARY KEY  (`id`)  ';
                 }
 
 		$tbl .= ') ' . $charset_collate;
 		$sql[] = $tbl;
+
+        $rslt = $this->query( "SHOW TABLES LIKE '" . $this->table_name( 'client_report_client' ) . "'" );
+        $table_existed = !empty( $rslt ) ? true : false;
 
 		$tbl = 'CREATE TABLE `' . $this->table_name( 'client_report_client' ) . '` (
 `clientid` int(11) NOT NULL AUTO_INCREMENT,
@@ -114,7 +126,7 @@ PRIMARY KEY  (`id`)  ';
 `name` VARCHAR(512),
 `company` VARCHAR(512),
 `email` text NOT NULL';
-		if ( '' == $currentVersion ) {
+		if ( '' == $currentVersion || !$table_existed ) {
 			$tbl .= ',
 PRIMARY KEY  (`clientid`)  ';
                 }
@@ -122,12 +134,15 @@ PRIMARY KEY  (`clientid`)  ';
 		$tbl .= ') ' . $charset_collate;
 		$sql[] = $tbl;
 
+        $rslt = $this->query( "SHOW TABLES LIKE '" . $this->table_name( 'client_report_format' ) . "'" );
+        $table_existed = !empty( $rslt ) ? true : false;
+
 		$tbl = 'CREATE TABLE `' . $this->table_name( 'client_report_format' ) . '` (
 `id` int(11) NOT NULL AUTO_INCREMENT,
 `title` VARCHAR(512),
 `content` longtext NOT NULL,
 `type` CHAR(1)';
-		if ( '' == $currentVersion || '1.3' == $currentVersion ) {
+		if ( '' == $currentVersion || ! $table_existed ) {
 			$tbl .= ',
 PRIMARY KEY  (`id`)  ';
                 }
@@ -136,13 +151,16 @@ PRIMARY KEY  (`id`)  ';
 
 		$sql[] = $tbl;
 
+        $rslt = $this->query( "SHOW TABLES LIKE '" . $this->table_name( 'client_group_report_content' ) . "'" );
+        $table_existed = !empty( $rslt ) ? true : false;
+
                 $tbl = 'CREATE TABLE `' . $this->table_name( 'client_group_report_content' ) . '` (
 `id` int(11) NOT NULL AUTO_INCREMENT,
 `report_id` int(11) NOT NULL,
 `site_id` int(11) NOT NULL,
 `report_content` longtext NOT NULL,
 `report_content_pdf` longtext NOT NULL';
-		if ( '' == $currentVersion || '4.2' == $currentVersion || '5.6' == $currentVersion) {
+		if ( '' == $currentVersion || !$table_existed ) {
 			$tbl .= ',
 PRIMARY KEY  (`id`)  ';
                 }
