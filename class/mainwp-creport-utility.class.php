@@ -7,19 +7,19 @@ class MainWP_CReport_Utility {
 
 			return ($gmtOffset ? ($gmtOffset * HOUR_IN_SECONDS) + $timestamp : $timestamp);
 	}
-	
-	public static function format_timestamp( $timestamp ) {
-		return date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $timestamp );
+
+	public static function format_timestamp( $timestamp, $gmt = false ) {
+		return date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $timestamp, $gmt );
 	}
 
-	public static function format_datestamp( $timestamp ) {
-		return date_i18n( get_option( 'date_format' ), $timestamp );
+	public static function format_datestamp( $timestamp, $gmt = false ) {
+		return date_i18n( get_option( 'date_format' ), $timestamp, $gmt );
 	}
-    
+
     public static function format_date( $timestamp ) {
 		return date_i18n( get_option( 'date_format' ), $timestamp );
 	}
-    
+
 	static function ctype_digit( $str ) {
 		return (is_string( $str ) || is_int( $str ) || is_float( $str )) && preg_match( '/^\d+\z/', $str );
 	}
@@ -64,13 +64,4 @@ class MainWP_CReport_Utility {
 		return $hms;
 	}
 
-	static function update_option( $option_name, $option_value ) {
-		$success = add_option( $option_name, $option_value, '', 'no' );
-
-		if ( ! $success ) {
-			$success = update_option( $option_name, $option_value );
-		}
-
-		return $success;
-	}
 }

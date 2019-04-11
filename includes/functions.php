@@ -1,18 +1,18 @@
 <?php
 
   function mainwp_creport_admin_print_footer_scripts() {
-        $client_tokens = MainWP_CReport_DB::get_instance()->get_tokens(); 
-        ?>        
+        $client_tokens = MainWP_CReport_DB::get_instance()->get_tokens();
+        ?>
             <script type="text/javascript">
                 jQuery(function ($) {
-                    tinymce.on('SetupEditor', function (setup) {   
+                    tinymce.on('SetupEditor', function (setup) {
 						var editor = setup.editor;
-                        if (editor.id === 'mainwp_creport_report_header' || editor.id === 'mainwp_creport_report_body' || editor.id === 'mainwp_creport_report_footer') {                                 
+                        if (editor.id === 'mainwp_creport_report_header' || editor.id === 'mainwp_creport_report_body' || editor.id === 'mainwp_creport_report_footer') {
                                 editor.addButton('insertsection', {
                                     type: 'menubutton',
                                     text: 'Insert Sections',
                                     icon: false,
-                                    menu: [                            
+                                    menu: [
                                          {
                                             text: 'Plugins',
                                             menu: [{
@@ -329,7 +329,7 @@
 
                                   ]
 
-                                }); 
+                                });
                                 editor.addButton('insertreporttoken', {
                         type: 'menubutton',
                         text: 'Insert Tokens',
@@ -338,16 +338,16 @@
                              {
                                 text: 'Client Tokens',
                                 menu: [
-                                <?php                                 
+                                <?php
                                 foreach($client_tokens as $token) {
                                     ?>
                                     {
                                         text: '[<?php echo esc_html($token->token_name ); ?>] - <?php echo esc_html( $token->token_description ); ?>',
                                         onclick: function() {
                                             editor.insertContent('[<?php echo esc_html( $token->token_name ) ?>]');
-                                        }  
+                                        }
                                     },
-                                    <?php                               
+                                    <?php
                                 }
                                 ?>
                                 ]
@@ -541,7 +541,7 @@
                                                 }
                                             }]
                                     }]
-                            },                            
+                            },
                             {
                                 text: 'Themes',
                                 menu: [{
@@ -703,7 +703,7 @@
                                                 }
                                             }]
                                     }]
-                            },                            
+                            },
                             {
                                 text: 'Posts',
                                 menu: [{
@@ -1928,14 +1928,14 @@
 
                                             }]
                                     },
-                                    
+
                                     {
                                         text: 'Google Analytics',
                                         <?php if (!MainWP_CReport::$enabled_ga) { ?>
                                           menu: [{
                                               text: 'Requires MainWP Google Analytics Extension',
                                           }]
-                                      <?php } else { ?>                                            
+                                      <?php } else { ?>
                                         menu: [{
                                                 text: '[ga.visits] - Displays the Number Visits during the selected date range',
                                                 onclick: function() {
@@ -1979,9 +1979,9 @@
 
 
                                             }, {
-                                                text: '[a.visits.chart] - Displays a chart for the selected date range',
+                                                text: '[ga.visits.chart] - Displays a chart for the selected date range',
                                                 onclick: function() {
-                                                    editor.insertContent('[a.visits.chart]');
+                                                    editor.insertContent('[ga.visits.chart]');
                                                 }
 
 
@@ -2101,7 +2101,7 @@
                                             menu: [{
                                                 text: 'Requires MainWP WooCommerce Status Extension',
                                             }]
-                                        <?php } else { ?>                                                
+                                        <?php } else { ?>
                                         menu: [{
                                                 text: '[wcomstatus.sales] - Displays total sales during the selected data range',
                                                 onclick: function() {
@@ -2153,7 +2153,7 @@
                                             menu: [{
                                                 text: 'Requires MainWP Wordfence Extension',
                                             }]
-                                        <?php } else { ?>                                                
+                                        <?php } else { ?>
                                             menu: [{
                                                 text: '[section.wordfence.scan][/section.wordfence.scan] - Loops through Wordfence scans during the selected date range',
                                                 onclick: function() {
@@ -2205,7 +2205,7 @@
                                             menu: [{
                                                 text: 'Requires MainWP Maintenance Extension',
                                             }]
-                                        <?php } else { ?>  
+                                        <?php } else { ?>
                                         menu: [{
                                                 text: '[section.maintenance.process][/section.maintenance.process] - Loops through performed Maintenance actions',
                                                 onclick: function() {
@@ -2249,7 +2249,7 @@
 
 
                                             }]
-                                        <?php } ?>  
+                                        <?php } ?>
                                     },
                                     {
                                         text: 'Pagespeed',
@@ -2257,7 +2257,7 @@
                                             menu: [{
                                                 text: 'Requires MainWP Page Speed Extension',
                                             }]
-                                        <?php } else { ?>  
+                                        <?php } else { ?>
                                         menu: [{
                                                 text: '[pagespeed.average.desktop] - Displays the average desktop page-speed score at the moment of report generation',
                                                 onclick: function() {
@@ -2273,7 +2273,7 @@
 
 
                                             }]
-                                        <?php } ?>  
+                                        <?php } ?>
                                     },
                                     {
                                         text: 'Broken Links',
@@ -2281,7 +2281,7 @@
                                             menu: [{
                                                 text: 'Requires MainWP Broken Links Checker Extension',
                                             }]
-                                        <?php } else { ?> 
+                                        <?php } else { ?>
                                         menu: [{
                                                 text: '[brokenlinks.links.broken] - Displays the number of broken links at the moment of report creation',
                                                 onclick: function() {
@@ -2311,12 +2311,12 @@
 
 
                                             }]
-                                         <?php } ?>  
-                                    }                                    
+                                         <?php } ?>
+                                    }
                         ]
 
-                    });  
-                        }  
+                    });
+                        }
                     });
                 });
             </script>

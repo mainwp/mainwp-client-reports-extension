@@ -2,4 +2,6 @@
 
 include_once( 'bootstrap.php' );
 
-MainWP_CReport::cron_send_reports();
+if ( class_exists('MainWP_CReport')) {
+    MainWP_CReport::cron_send_reports();
+}

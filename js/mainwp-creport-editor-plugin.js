@@ -2,8 +2,8 @@
  **** Not Used ****
  * MainWP Client Report TinyMCE plugin
  */
-(function () {	
-	tinymce.create('tinymce.plugins.mainwpcreporteditor', {		            
+(function () {
+	tinymce.create('tinymce.plugins.mainwpcreporteditor', {
 		init: function (editor, url) {
                     editor.addButton('insertsection', {
                         type: 'menubutton',
@@ -52,7 +52,7 @@
                                 ]
 
                             },
-                            
+
                             {
                                 text: 'Themes',
                                 menu: [{
@@ -322,12 +322,12 @@
                                 ]
 
                             }
-                               
-                          
+
+
                       ]
 
-                    }); 
-                    
+                    });
+
                     editor.addButton('insertreporttoken', {
                         type: 'menubutton',
                         text: 'Insert Tokens',
@@ -522,7 +522,7 @@
                                                 }
                                             }]
                                     }]
-                            },                            
+                            },
                             {
                                 text: 'Themes',
                                 menu: [{
@@ -684,7 +684,7 @@
                                                 }
                                             }]
                                     }]
-                            },                            
+                            },
                             {
                                 text: 'Posts',
                                 menu: [{
@@ -1909,7 +1909,7 @@
 
                                             }]
                                     },
-                                    
+
                                     {
                                         text: 'Google Analytics',
                                         menu: [{
@@ -1955,9 +1955,9 @@
 
 
                                             }, {
-                                                text: '[a.visits.chart] - Displays a chart for the selected date range',
+                                                text: '[ga.visits.chart] - Displays a chart for the selected date range',
                                                 onclick: function() {
-                                                    editor.insertContent('[a.visits.chart]');
+                                                    editor.insertContent('[ga.visits.chart]');
                                                 }
 
 
@@ -2245,11 +2245,11 @@
 
 
                                             }]
-                                    }                                    
+                                    }
                         ]
 
-                    });  
-                    
+                    });
+
 		} // init
 	});
 	tinymce.PluginManager.add( 'mainwpcreporteditor', tinymce.plugins.mainwpcreporteditor );

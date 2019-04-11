@@ -175,17 +175,17 @@ PRIMARY KEY  (`id`)  ';
 			dbDelta( $query );
 		}
 
-                // create default client
-                $client_tokens = $this->get_client_by( 'email', '[client.email]' );
-                if (empty($client_tokens )) {
-                    $update_client = array(
-                        'client' => '[client.name]',
-                        'name' => '[client.name]',
-                        'company' => '[client.company]	',
-                        'email' => '[client.email]',
-                    );
-                    $this->update_client( $update_client ); // create client with tokens
-                }
+        // create default client
+        $client_tokens = $this->get_client_by( 'email', '[client.email]' );
+        if (empty($client_tokens )) {
+            $update_client = array(
+                'client' => '[client.name]',
+                'name' => '[client.name]',
+                'company' => '[client.company]	',
+                'email' => '[client.email]',
+            );
+            $this->update_client( $update_client ); // create client with tokens
+        }
 
                 // create or update default token
 		foreach ( $this->default_tokens as $token_name => $token_description ) {
@@ -838,19 +838,27 @@ $this->default_formats = array(
                         if ( $update_client['email'] == '[client.email]') {
                             if ( $client_tokens ) {
                                 $client_id = $client_tokens->clientid; // do not override client with email is [client.email]
+                            } else {
+                                $client_id = 0; // to create new
                             }
                         } else {
-                            $update_client['clientid'] = $client_id;
-                            $this->update_client( $update_client ); // update client
+                            $existed_client = $this->get_client_by( 'email', $update_client['email'] );
+                            if ( $existed_client ) {
+                                $update_client['clientid'] = $client_id = $existed_client->clientid; // found the existed client
+                                $this->update_client( $update_client ); // update client info
+                            } else {
+                                $client_id = 0;
+                            }
                         }
                     }
                 }
+
                 // create new client
-                if (empty($client_id)) {
+                if ( empty($client_id) ) {
                     // check client with tokens
                     if ( $update_client['email'] == '[client.email]' ) {
                         $client_tokens = $this->get_client_by( 'email', '[client.email]' );
-                        if ($client_tokens ) {
+                        if ( $client_tokens ) {
                             $client_id = $client_tokens->clientid; // do not override client with email is [client.email]
                         }
                     } else if ($updatedClient = $this->update_client( $update_client ) ) { // create new client
@@ -1195,13 +1203,13 @@ $this->default_formats = array(
 	}
 
 
-    public function get_scheduled_reports_to_continue_send() {
+    public function get_scheduled_reports_to_continue_send( $limit = 2) {
 		global $wpdb;
 		$sql = 'SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
 				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
 				. ' ON rp.client_id = c.clientid '
 				. " WHERE rp.recurring_schedule != '' AND rp.scheduled = 1 "
-                . " AND rp.completed < rp.schedule_lastsend "; // do not send if completed > schedule_lastsend
+                . " AND rp.completed < rp.schedule_lastsend LIMIT 0, " . intval($limit); // do not send if completed > schedule_lastsend
 		//echo $sql;
 		return $wpdb->get_results( $sql );
 	}
@@ -1295,7 +1303,7 @@ $this->default_formats = array(
 		if ( ! empty( $id ) ) {
 			if ( $wpdb->update( $this->table_name( 'client_report_client' ), $client, array( 'clientid' => intval( $id ) ) ) ) {
 				return $this->get_client_by( 'clientid', $id );
-                        }
+            }
 		} else {
 			if ( $wpdb->insert( $this->table_name( 'client_report_client' ), $client ) ) {
 				//echo $wpdb->last_error;
