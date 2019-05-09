@@ -91,5 +91,12 @@ return array(
             'bold_italic' => $distFontDir . 'DejaVuSerif-BoldItalic',
             'italic' => $distFontDir . 'DejaVuSerif-Italic',
             'normal' => $distFontDir . 'DejaVuSerif'
+        ),
+    'opensans' =>
+        array(
+            'bold' => $distFontDir . 'OpenSans-Bold',
+            'bold_italic' => $distFontDir . 'OpenSans-BoldItalic',
+            'italic' => $distFontDir . 'OpenSans-Italic',
+            'regular' => $distFontDir . 'OpenSans-Regular'
         )
 );

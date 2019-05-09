@@ -17,6 +17,8 @@ use Dompdf\Options;
 
 $options = new Options();
 $options->setIsRemoteEnabled(true);
+$options->set('defaultFont', 'opensans');
+
 $dompdf = new Dompdf($options);
 $dompdf->set_option('isHtml5ParserEnabled', true);
 

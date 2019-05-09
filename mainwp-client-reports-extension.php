@@ -52,7 +52,7 @@ class MainWP_CReport_Extension {
 		 *
          * @see \MainWP_CReport::hook_generate_report();
 		 */
-        add_filter( 'mainwp_client_report_generate', array( 'MainWP_CReport', 'hook_generate_report' ), 10, 4 );
+        add_filter( 'mainwp_client_report_generate', array( 'MainWP_CReport', 'hook_generate_report' ), 10, 5 );
 
         if ( isset( $_GET['page'] ) && ('Extensions-Mainwp-Client-Reports-Extension' == $_GET['page'])) {
             require_once 'includes/functions.php';

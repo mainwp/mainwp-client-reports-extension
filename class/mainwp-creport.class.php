@@ -18,6 +18,8 @@ class MainWP_CReport {
 	private static $count_sec_header = 0;
 	private static $count_sec_body = 0;
 	private static $count_sec_footer = 0;
+    private static $raw_sec_body = false;
+    private static $raw_section_body = array();
     public $update_version = '1.0';
 
 
@@ -1231,7 +1233,7 @@ class MainWP_CReport {
 	 * @return html content of generated report. False when something goes wrong.
 	 */
 
-    public static function hook_generate_report( $report_id, $site_id, $from_date = 0, $to_date = 0 ) {
+    public static function hook_generate_report( $report_id, $site_id, $from_date = 0, $to_date = 0, $type = '' ) {
         if ( empty($report_id) || empty($site_id) )
             return false;
 
@@ -1255,8 +1257,13 @@ class MainWP_CReport {
             $from_date = $to_date = 0;
         }
 
-        $filtered_reports = self::filter_report_website( $report, $website, $from_date, $to_date);
-        $content = self::gen_report_content( $filtered_reports );
+        $filtered_reports = self::filter_report_website( $report, $website, $from_date, $to_date, $type);
+
+        if ($type == 'raw') {
+            return $filtered_reports;
+        } else {
+            $content = self::gen_report_content( $filtered_reports );
+        }
         return $content;
     }
 
@@ -2510,34 +2517,8 @@ class MainWP_CReport {
 		return $output;
 	}
 
-	public static function filter_report( $report ) {
-		global $mainWPCReportExtensionActivator;
-		$websites = array();
-        $sel_sites = unserialize( base64_decode( $report->sites ) );
-        $sel_groups = unserialize( base64_decode( $report->groups ) );
-        if ( ! is_array( $sel_sites ) ) {
-                $sel_sites = array(); }
-        if ( ! is_array( $sel_groups ) ) {
-                $sel_groups = array(); }
-        $dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sel_sites, $sel_groups );
 
-        if ( is_array( $dbwebsites ) ) {
-                foreach ( $dbwebsites as $site ) {
-                        $websites[] = MainWP_CReport_Utility::map_site( $site, array( 'id', 'name', 'url' ) );
-                }
-        }
-        $filtered_reports = array();
-		if ( count( $websites ) == 0 ) {
-			return $filtered_reports;
-        }
-
-		foreach ( $websites as $site ) {
-			$filtered_reports[ $site['id'] ] = self::filter_report_website( $report, $site );
-		}
-		return $filtered_reports;
-	}
-
-	public static function filter_report_website( $report, $website, $cust_from_date = 0, $cust_to_date = 0 ) {
+	public static function filter_report_website( $report, $website, $cust_from_date = 0, $cust_to_date = 0, $type = '' ) {
         $date_from = $cust_from_date ? $cust_from_date : $report->date_from;
         $date_to = $cust_to_date ? $cust_to_date : $report->date_to;
 
@@ -2662,7 +2643,44 @@ class MainWP_CReport {
 			}
 			unset( $information );
 
-			self::$count_sec_header = self::$count_sec_body = self::$count_sec_footer = 0;
+            self::$count_sec_header = self::$count_sec_body = self::$count_sec_footer = 0;
+            self::$raw_sec_body = false;
+
+            if ($type == 'raw') {
+                // support get raw report data for body only
+                self::$raw_sec_body = true;
+                self::$raw_section_body = array();
+                $filtered_raw = array();
+
+                if (is_array($replace_tokens_values)) {
+                    foreach ( $replace_tokens_values as $token => $value ) {
+                        if ( strpos( $report_body, $token ) !== false ) {
+                           $filtered_raw[$token] = $value;
+                        }
+                    }
+                }
+
+                if (isset($other_tokens_data['body']) && is_array($other_tokens_data['body'])) {
+                    foreach ( $other_tokens_data['body'] as $token => $value ) {
+                        if ( in_array( $token, $other_tokens['body'] ) ) {
+                           $filtered_raw[$token] = $value;
+                        }
+                    }
+                }
+
+                if ( isset( $sections_data['body'] ) && is_array( $sections_data['body'] )) {
+                    $filtered_body = preg_replace_callback( '/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is', array( 'MainWP_CReport', 'section_mark_body' ), $filtered_body );
+                    if (is_array(self::$raw_section_body)) {
+                        foreach ( self::$raw_section_body as $sectoken => $values ) {
+                            $filtered_raw[$sectoken] = $values;
+                        }
+                    }
+                }
+
+                return $filtered_raw;
+            }
+
+
 			if ( isset( $sections_data['header'] ) && is_array( $sections_data['header'] ) && count( $sections_data['header'] ) > 0 ) {
 				$filtered_header = preg_replace_callback( '/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is', array( 'MainWP_CReport', 'section_mark_header' ), $filtered_header );
 			}
@@ -2740,6 +2758,7 @@ class MainWP_CReport {
 
 	public static function section_mark_body( $matches ) {
 		$content = $matches[0];
+        $start_sec = $matches[1];
 		$index = self::$count_sec_body;
 		$search = self::$buffer['sections']['body']['section_content_tokens'][ $index ];
 		self::$count_sec_body++;
@@ -2749,9 +2768,13 @@ class MainWP_CReport {
 			$replaced_content = '';
 			if ( is_array( $loop ) ) {
 				foreach ( $loop as $replace ) {
-					//$replace = self::sucuri_replace_data($replace);;
+					//$replace = self::sucuri_replace_data($replace);
 					$replaced = self::replace_section_content( $sec_content, $search, $replace );
 					$replaced_content .= '<p style="margin: 2px 0px 2px 0px">' . $replaced . "</p>";
+                    if (self::$raw_sec_body == true) {
+                        self::$raw_section_body[$start_sec][] = $replaced;
+                    }
+
 				}
 			}
 			return $replaced_content;
@@ -2797,6 +2820,7 @@ class MainWP_CReport {
 
 	public static function replace_section_content( $content, $tokens, $replace_tokens ) {
 		foreach ( $replace_tokens as $token => $value ) {
+            $value = strip_tags($value); // to fix
 			$content = str_replace( $token, $value, $content );
 		}
 		$content = str_replace( $tokens, array(), $content ); // clear others tokens
@@ -2821,7 +2845,9 @@ class MainWP_CReport {
 				$sections['section_content_tokens'][] = $sec_tokens;
 			}
 		}
-		$removed_sections = preg_replace_callback( '/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is', create_function( '$matches', 'return "";' ), $content );
+
+         // remove sections token, to find other tokens in the report content
+		$removed_sections = preg_replace_callback( '/(\[section\.[^\]]+\])(.*?)(\[\/section\.[^\]]+\])/is', '__return_empty_string', $content );
 		$other_tokens = array();
 		if ( preg_match_all( '/\[[^\]]+\]/is', $removed_sections, $matches ) ) {
 			$other_tokens = $matches[0];
