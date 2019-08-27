@@ -3,7 +3,7 @@
   Plugin Name: MainWP Client Reports Extension
   Plugin URI: https://mainwp.com
   Description: MainWP Client Reports Extension allows you to generate activity reports for your clients sites. Requires MainWP Dashboard.
-  Version: 2.3
+  Version: 4.0
   Author: MainWP
   Author URI: https://mainwp.com
   Documentation URI: https://mainwp.com/help/category/mainwp-extensions/client-reports/
@@ -21,7 +21,7 @@ class MainWP_CReport_Extension {
 	public $plugin_dir;
 	protected $option;
 	protected $option_handle = 'mainwp_wpcreport_extension';
-    public $version = '1.4';
+  public $version = '1.4';
 
     static function get_instance() {
 		if ( null == MainWP_CReport_Extension::$instance ) {
@@ -40,30 +40,28 @@ class MainWP_CReport_Extension {
 		add_action( 'init', array( &$this, 'init' ) );
 		add_filter( 'plugin_row_meta', array( &$this, 'plugin_row_meta' ), 10, 2 );
 		add_action( 'admin_init', array( &$this, 'admin_init' ) );
-        add_action( 'in_admin_header', array( &$this, 'in_admin_head' ) ); // Adds Help Tab in admin header
 		add_filter( 'mainwp-sync-extensions-options', array( &$this, 'mainwp_sync_extensions_options' ), 10, 1 );
-        add_filter( 'mainwp-sync-others-data', array( $this, 'sync_others_data' ), 10, 2 );
+    add_filter( 'mainwp-sync-others-data', array( $this, 'sync_others_data' ), 10, 2 );
 		add_action( 'mainwp-site-synced', array( &$this, 'site_synced' ), 10, 2 );
-        add_action( 'mainwp_delete_site', array( &$this, 'on_delete_site' ), 10, 1 );
-        add_action( 'mainwp_sucuri_scan_done', array( &$this, 'sucuri_scan_done' ), 10, 3 ); // to fix action for wp cli
+    add_action( 'mainwp_delete_site', array( &$this, 'on_delete_site' ), 10, 1 );
+    add_action( 'mainwp_sucuri_scan_done', array( &$this, 'sucuri_scan_done' ), 10, 3 ); // to fix action for wp cli
 
-        /**
+    /**
 		 * This hook allows you to generate report content via the 'mainwp_client_report_generate' filter.
 		 *
-         * @see \MainWP_CReport::hook_generate_report();
+     * @see \MainWP_CReport::hook_generate_report();
 		 */
-        add_filter( 'mainwp_client_report_generate', array( 'MainWP_CReport', 'hook_generate_report' ), 10, 5 );
+    add_filter( 'mainwp_client_report_generate', array( 'MainWP_CReport', 'hook_generate_report' ), 10, 5 );
 
-        if ( isset( $_GET['page'] ) && ('Extensions-Mainwp-Client-Reports-Extension' == $_GET['page'])) {
-            require_once 'includes/functions.php';
-            add_action( 'admin_print_footer_scripts', 'mainwp_creport_admin_print_footer_scripts');
-        }
+    if ( isset( $_GET['page'] ) && ('Extensions-Mainwp-Client-Reports-Extension' == $_GET['page'])) {
+	    require_once 'includes/functions.php';
+	    add_action( 'admin_print_footer_scripts', 'mainwp_creport_admin_print_footer_scripts');
+    }
 
 		MainWP_CReport_DB::get_instance()->install();
+
 		add_filter( 'cron_schedules', array( $this, 'getCronSchedules' ) );
 	}
-
-
 
 	public function localization() {
 		load_plugin_textdomain( 'mainwp-client-reports-extension', false,  dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
@@ -207,76 +205,6 @@ class MainWP_CReport_Extension {
 		return update_option( $this->option_handle, $this->option );
 	}
 
-        /**
-	 * This function check if current page is Client Reports Extension page.
-	 * @return void
-	 */
-	function in_admin_head() {
-		if ( isset( $_GET['page'] ) && $_GET['page'] == 'Extensions-Mainwp-Client-Reports-Extension' ) {
-			self::addHelpTabs(); // If page is Client Reports Extension then call this 'addHelpTabs' function
-		}
-	}
-
-	/**
-	 * This function add help tabs in header.
-	 * @return void
-	 */
-	public static function addHelpTabs() {
-		$screen = get_current_screen(); //This function returns an object that includes the screen's ID, base, post type, and taxonomy, among other data points.
-		$i      = 1;
-
-		$screen->add_help_tab( array(
-			'id'      => 'mainwp_creport_helptabs_' . $i ++,
-			'title'   => __( 'First Steps with Extensions', 'mainwp-client-reports-extension' ),
-			'content' => self::getHelpContent( 1 ),
-		) );
-		$screen->add_help_tab( array(
-			'id'      => 'mainwp_creport_helptabs_' . $i ++,
-			'title'   => __( 'Client Reports Extension', 'mainwp-client-reports-extension' ),
-			'content' => self::getHelpContent( 2 ),
-		) );
-	}
-
-	/**
-	 * Get help tab content.
-	 *
-	 * @param int $tabId
-	 *
-	 * @return string|bool
-	 */
-	public static function getHelpContent( $tabId ) {
-		ob_start();
-		if ( 1 == $tabId ) {
-			?>
-			<h3><?php echo __( 'First Steps with Extensions', 'mainwp-client-reports-extension' ); ?></h3>
-			<p><?php echo __( 'If you are having issues with getting started with the MainWP extensions, please review following help documents', 'mainwp-client-reports-extension' ); ?></p>
-			<a href="https://mainwp.com/help/docs/what-are-mainwp-extensions/" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'What are the MainWP Extensions', 'mainwp-client-reports-extension' ); ?></a><br/>
-			<a href="https://mainwp.com/help/docs/what-are-mainwp-extensions/order-extensions/" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Order Extension(s)', 'mainwp-client-reports-extension' ); ?></a><br/>
-			<a href="https://mainwp.com/help/docs/what-are-mainwp-extensions/my-downloads-and-api-keys/" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'My Downloads and API Keys', 'mainwp-client-reports-extension' ); ?></a><br/>
-			<a href="https://mainwp.com/help/docs/what-are-mainwp-extensions/install-extensions/" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Install Extension(s)', 'mainwp-client-reports-extension' ); ?></a><br/>
-			<a href="https://mainwp.com/help/docs/what-are-mainwp-extensions/activate-extensions-api/" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Activate Extension(s) API', 'mainwp-client-reports-extension' ); ?></a><br/>
-			<a href="https://mainwp.com/help/docs/what-are-mainwp-extensions/updating-extensions/" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Updating Extension(s)', 'mainwp-client-reports-extension' ); ?></a><br/>
-			<a href="https://mainwp.com/help/docs/what-are-mainwp-extensions/remove-extensions/" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Remove Extension(s)', 'mainwp-client-reports-extension' ); ?></a><br/><br/>
-			<a href="https://mainwp.com/help/category/mainwp-extensions/" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Help Documenation for all MainWP Extensions', 'mainwp-client-reports-extension' ); ?></a>
-		<?php } else if ( 2 == $tabId ) { ?>
-			<h3><?php echo __( 'MainWP Client Reports Extension', 'mainwp-client-reports-extension' ); ?></h3>
-			<a href="https://mainwp.com/help/docs/client-reports-extension/" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Client Reports Extension', 'mainwp-client-reports-extension' ); ?></a><br/>
-			<a href="https://mainwp.com/help/docs/client-reports-extension/install-and-set-mainwp-client-reports-extension" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Install and Set the MainWP Client Reports Extension', 'mainwp-client-reports-extension' ); ?></a><br/>
-			<a href="https://mainwp.com/help/docs/client-reports-extension/mainwp-child-reports-dashboard" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'MainWP Child Reports Dashboard', 'mainwp-client-reports-extension' ); ?></a><br/>
-			<a href="https://mainwp.com/help/docs/client-reports-extension/mainwp-child-reports-dashboard/mainwp-child-reports" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'MainWP Child Reports', 'mainwp-client-reports-extension' ); ?></a><br/>
-			<a href="https://mainwp.com/help/docs/client-reports-extension/manage-reports" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Manage Reports', 'mainwp-client-reports-extension' ); ?></a><br/>
-			<a href="https://mainwp.com/help/docs/client-reports-extension/manage-reports/create-report" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Create Report', 'mainwp-client-reports-extension' ); ?></a><br/>
-			<a href="https://mainwp.com/help/docs/client-reports-extension/manage-reports/schedule-report" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Schedule Report', 'mainwp-client-reports-extension' ); ?></a><br/>
-			<a href="https://mainwp.com/help/docs/client-reports-extension/manage-reports/edit-report" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Edit Report', 'mainwp-client-reports-extension' ); ?></a><br/>
-			<a href="https://mainwp.com/help/docs/client-reports-extension/manage-reports/delete-report" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Delete Report', 'mainwp-client-reports-extension' ); ?></a><br/>
-			<a href="https://mainwp.com/help/docs/client-reports-extension/client-report-tokens" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Client Report Tokens', 'mainwp-client-reports-extension' ); ?></a><br/>
-			<a href="https://mainwp.com/help/docs/client-reports-extension/client-report-tokens/available-client-report-tokens" target="_blank"><i class="fa fa-book"></i> <?php echo __( 'Available Client Report Tokens', 'mainwp-client-reports-extension' ); ?></a><br/>
-		<?php }
-		$output = ob_get_clean();
-
-		return $output;
-	}
-
 
 }
 
@@ -288,7 +216,7 @@ class MainWP_CReport_Extension_Activator {
 	protected $childFile;
 	protected $plugin_handle = 'mainwp-client-reports-extension';
 	protected $product_id = 'MainWP Client Reports Extension';
-	protected $software_version = '2.3';
+	protected $software_version = '4.0';
 
 	public function __construct() {
 
@@ -343,11 +271,13 @@ class MainWP_CReport_Extension_Activator {
 		$this->mainwpMainActivated = apply_filters( 'mainwp-activated-check', $this->mainwpMainActivated );
 		$this->childEnabled = apply_filters( 'mainwp-extension-enabled-check', __FILE__ );
 		$this->childKey = $this->childEnabled['key'];
+
 		if ( function_exists( 'mainwp_current_user_can' ) && ! mainwp_current_user_can( 'extension', 'mainwp-client-reports-extension' ) ) {
 			return;
 		}
 
-        add_action('mainwp_postboxes_on_load_site_page', array( 'MainWP_CReport', 'on_load_site_page_callback'), 10, 1);
+    add_action( 'mainwp_extension_sites_edit_tablerow', array( 'MainWP_CReport', 'renderClientReportsSiteTokens'), 10, 1);
+
 		new MainWP_CReport_Extension();
 	}
 

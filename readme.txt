@@ -2,7 +2,7 @@
 Plugin Name: MainWP Client Reports Extension
 Plugin URI: https://mainwp.com
 Description: MainWP Client Reports Extension allows you to generate activity reports for your clients sites. Requires MainWP Dashboard.
-Version: 2.3
+Version: 4.0
 Author: MainWP
 Author URI: https://mainwp.com
 
@@ -17,6 +17,10 @@ Author URI: https://mainwp.com
 
 == Changelog ==
 
+= 4.0 - 8-27-2019 =
+* Updated: extension UI/UX redesign
+* Updated: support for the MainWP 4.0
+
 = 2.3 - 8-2-2018 =
 * Fixed: an issue with sending scheduled reports on a specific setups
 * Fixed: an issue with inserting tokens from the tokens menu
@@ -30,7 +34,7 @@ Author URI: https://mainwp.com
 * Updated: scheduling process to send reports at local time
 
 = 2.1.2 - 12-15-2017 =
-* Fixed: an issue with reviewing reports 
+* Fixed: an issue with reviewing reports
 * Fixed: an issue with sending the same report twice
 * Fixed: an issue with displaying report date range
 * Added: support for the new aum.stats token (Advanced Uptime Monitor 4.2 required)
@@ -84,7 +88,7 @@ Updated: date range for preview scheduled report
 * Added: the Insert Tokens menu in the content editors
 * Added: the Insert Sections menu in the content editors
 * Added: the BCC option for sending emails
-* Added: new "MainWP Client Report" as default report 
+* Added: new "MainWP Client Report" as default report
 * Added: "MainWP Client Report" header, body and footer fragments in insert option
 * Added: the "First Installation" column in the MainWP Child Reports Dashboard table
 * Added: 'mainwp_client_reports_tokens_groups' hook to support custom tokens
@@ -102,7 +106,7 @@ Updated: date range for preview scheduled report
 * Removed: default report HTML formatting
 * Removed: redundant scheduling options
 * Removed: client information prediction mechanism from the Report Settings option box
-* Removed: Stream plugin references 
+* Removed: Stream plugin references
 * Removed: unnecessary tips
 
 = 1.1 - 4-8-2016 =
@@ -128,10 +132,10 @@ Updated: date range for preview scheduled report
 * Added: Support for the MainWP Child Reports plugin
 * Added: Additional schedule options (Quarterly, Twice a Year, Yearly)
 
-= 0.1.1 = 
+= 0.1.1 =
 * Fixed: An issue with displaying GA tokens
 
-= 0.1.0 = 
+= 0.1.0 =
 * Updated: Quick start guide layout
 
 = 0.0.9=
@@ -174,4 +178,3 @@ Fixed: PHP Warning
 
 = 0.0.1 =
 * First version
-
