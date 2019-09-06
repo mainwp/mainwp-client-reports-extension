@@ -11,16 +11,16 @@ class MainWP_CReport {
 	public static $enabled_ga = null;
 	public static $enabled_aum = null;
 	public static $enabled_woocomstatus = null;
-  public static $enabled_wordfence = null;
-  public static $enabled_maintenance = null;
-  public static $enabled_pagespeed = null;
-  public static $enabled_brokenlinks = null;
+	public static $enabled_wordfence = null;
+	public static $enabled_maintenance = null;
+	public static $enabled_pagespeed = null;
+	public static $enabled_brokenlinks = null;
 	private static $count_sec_header = 0;
 	private static $count_sec_body = 0;
 	private static $count_sec_footer = 0;
-  private static $raw_sec_body = false;
-  private static $raw_section_body = array();
-  public $update_version = '1.0';
+	private static $raw_sec_body = false;
+	private static $raw_section_body = array();
+	public $update_version = '1.0';
 
 
   public function __construct() {
@@ -903,20 +903,20 @@ class MainWP_CReport {
 
 
 	public function init_cron() {
-		add_action( 'mainwp_creport_cron_archive_reports', array( 'MainWP_CReport', 'cron_archive_reports' ) );
+//		add_action( 'mainwp_creport_cron_archive_reports', array( 'MainWP_CReport', 'cron_archive_reports' ) );
         add_action( 'mainwp_creport_cron_send_reports', array( 'MainWP_CReport', 'cron_send_reports' ) );
         add_action( 'mainwp_creport_cron_continue_send_reports', array( 'MainWP_CReport', 'cron_continue_send_reports' ) );
 		$useWPCron = (false === get_option( 'mainwp_wp_cron' )) || (1 == get_option( 'mainwp_wp_cron' ));
-        if ( ($sched = wp_next_scheduled( 'mainwp_creport_cron_archive_reports' )) == false ) {
-            if ( $useWPCron ) {
-                $time = strtotime( date( 'Y-m-d' ) . ' 23:59:59' );
-                wp_schedule_event( $time, 'daily', 'mainwp_creport_cron_archive_reports' );
-            }
-        } else {
-            if ( ! $useWPCron ) {
-                wp_unschedule_event( $sched, 'mainwp_creport_cron_archive_reports' );
-            }
-        }
+//        if ( ($sched = wp_next_scheduled( 'mainwp_creport_cron_archive_reports' )) == false ) {
+//            if ( $useWPCron ) {
+//                $time = strtotime( date( 'Y-m-d' ) . ' 23:59:59' );
+//                wp_schedule_event( $time, 'daily', 'mainwp_creport_cron_archive_reports' );
+//            }
+//        } else {
+//            if ( ! $useWPCron ) {
+//                wp_unschedule_event( $sched, 'mainwp_creport_cron_archive_reports' );
+//            }
+//        }
 
         if ( ($sched = wp_next_scheduled( 'mainwp_creport_cron_send_reports' )) == false ) {
             if ( $useWPCron ) {
@@ -942,12 +942,12 @@ class MainWP_CReport {
 
 	public static function cron_archive_reports() {
                 // archive reports
-		$reports = MainWP_CReport_DB::get_instance()->get_available_archive_reports();
-		if ( is_array( $reports ) ) {
-                    foreach ( $reports as $report ) {
-                            self::archive_report( $report->id );
-                    }
-		}
+//		$reports = MainWP_CReport_DB::get_instance()->get_available_archive_reports();
+//		if ( is_array( $reports ) ) {
+//                    foreach ( $reports as $report ) {
+//                            self::archive_report( $report->id );
+//                    }
+//		}
 	}
 
 
@@ -1276,8 +1276,8 @@ class MainWP_CReport {
                 $start_time = $end_time = 0;
                 if ( isset( $_POST['mwp_creport_date_from'] ) && ($start_date = trim( $_POST['mwp_creport_date_from'] )) != '' ) {
                         $start_time = strtotime( $start_date . ' ' . date( 'H:i:s' ) );
-
                 }
+				
                 if ( isset( $_POST['mwp_creport_date_to'] ) && ($end_date = trim( $_POST['mwp_creport_date_to'] )) != '' ) {
                         $end_time = strtotime( $end_date . ' ' . date( 'H:i:s' ) );
                 }
@@ -1844,52 +1844,52 @@ class MainWP_CReport {
 	public static function render() {
 		$messages = $errors = $reporttab_messages = array();
 		$do_preview = $do_group_preview = $do_send = $do_send_test_email = false;
-    $do_save_pdf = $do_download_pdf_group = $do_replicate = $do_archive = false;
+		$do_save_pdf = $do_download_pdf_group = $do_replicate = $do_archive = false;
 		$do_save_pdf_get = $do_un_archive = $do_archive_get = false;
 		$report_id = 0;
 		$report = false;
 		$scheduled_creport = false;
-    $filter_group_report_actions = array('preview', 'send_test_email', 'save_pdf', 'archive_report', 'sendreport'); // do not unarchive_report
-    $action_group_report =  '';
+		$filter_group_report_actions = array('preview', 'send_test_email', 'save_pdf', 'archive_report', 'sendreport'); // do not unarchive_report
+		$action_group_report =  '';
 
 		if ( isset( $_GET['action'] ) ) {
 			if ( 'sendreport' === (string) $_GET['action'] ) {
 				$do_send = true;
-      } else if ( 'preview' === (string) $_GET['action'] ) {
-				$do_preview = true;
-      } else if ( 'show_preview_group' === (string) $_GET['action'] ) {
-				$do_group_preview = true;
-      } else if ( 'replicate' === (string) $_REQUEST['action'] ) {
-        $do_replicate = true;
-      } else if ( 'save_pdf' === (string) $_REQUEST['action'] ) {
-      	$do_save_pdf_get = true;
-      } else if ( 'archive_report' === (string) $_REQUEST['action'] ) {
-        $do_archive_get = true;
-      } else if ( 'download_pdf_group' === $_GET['action']  ) {
-        $do_download_pdf_group = true;
-    	}
+			} else if ( 'preview' === (string) $_GET['action'] ) {
+					  $do_preview = true;
+			} else if ( 'show_preview_group' === (string) $_GET['action'] ) {
+					  $do_group_preview = true;
+			} else if ( 'replicate' === (string) $_REQUEST['action'] ) {
+			  $do_replicate = true;
+			} else if ( 'save_pdf' === (string) $_REQUEST['action'] ) {
+			  $do_save_pdf_get = true;
+			} else if ( 'archive_report' === (string) $_REQUEST['action'] ) {
+			  $do_archive_get = true;
+			} else if ( 'download_pdf_group' === $_GET['action']  ) {
+			  $do_download_pdf_group = true;
+			}
 
-      if ( in_array( $_GET['action'], $filter_group_report_actions ) )
-        $action_group_report = $_GET['action'];
+			if ( in_array( $_GET['action'], $filter_group_report_actions ) )
+			  $action_group_report = $_GET['action'];
 		}
 
 		if ( isset( $_POST['mwp_creport_report_submit_action'] ) ) {
 			if ( 'sendreport' === (string) $_POST['mwp_creport_report_submit_action'] ) {
-        $do_send = true;
-      } else if ( 'send_test_email' === (string) $_POST['mwp_creport_report_submit_action'] ) {
-        $do_send_test_email = true;
-      } else if ( 'save_pdf' === (string) $_POST['mwp_creport_report_submit_action'] ) {
-        $do_save_pdf = true;
-      } else if ( 'preview' === (string) $_POST['mwp_creport_report_submit_action'] ) {
-        $do_preview = true;
-      } else if ( 'archive_report' === (string) $_POST['mwp_creport_report_submit_action'] ) {
-        $do_archive = true;
-      } else if ( 'unarchive_report' == $_POST['mwp_creport_report_submit_action'] ) {
-        $do_un_archive = true;
-      }
+					$do_send = true;
+			} else if ( 'send_test_email' === (string) $_POST['mwp_creport_report_submit_action'] ) {
+					$do_send_test_email = true;
+			} else if ( 'save_pdf' === (string) $_POST['mwp_creport_report_submit_action'] ) {
+					$do_save_pdf = true;
+			} else if ( 'preview' === (string) $_POST['mwp_creport_report_submit_action'] ) {
+					$do_preview = true;
+			} else if ( 'archive_report' === (string) $_POST['mwp_creport_report_submit_action'] ) {
+					$do_archive = true;
+			} else if ( 'unarchive_report' == $_POST['mwp_creport_report_submit_action'] ) {
+					$do_un_archive = true;
+			}
 
-      if ( in_array( $_POST['mwp_creport_report_submit_action'], $filter_group_report_actions ) )
-        $action_group_report = $_POST['mwp_creport_report_submit_action'];
+			if ( in_array( $_POST['mwp_creport_report_submit_action'], $filter_group_report_actions ) )
+				$action_group_report = $_POST['mwp_creport_report_submit_action'];
 		}
 
 		if ( isset( $_REQUEST['id'] ) ) {
@@ -1899,17 +1899,19 @@ class MainWP_CReport {
 		// for normal report and group report
 		if ( $do_un_archive ) {
 			if ( self::un_archive_report( $report_id ) ) {
-        $messages[] = __( 'Report restored successfully.', 'mainwp-client-reports' );
+				$messages[] = __( 'Report restored successfully.', 'mainwp-client-reports' );
 			} else {
 				$errors[] = __( 'Restoring the report failed. Please try again.', 'mainwp-client-reports' );
-      }
+			}
 		}
 
 		$current_is_archived = false;
 
 		if ( $report_id ) {
 			$current_report = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $report_id );
-			$current_is_archived = ! empty( $current_report ) && $current_report->is_archived ? true : false;
+			MainWP_CReport::un_archive_report( $report_id ); // to un-archive, the archive feature retired			
+			$current_report->is_archived = false;
+			//$current_is_archived = ! empty( $current_report ) && $current_report->is_archived ? true : false;			
 			unset( $current_report );
 		}
 
@@ -1968,12 +1970,12 @@ class MainWP_CReport {
 			$report->title = '';
 			$report->is_archived = 0;
 			$report->attach_files = '';
-      $report->name = '[client.name]';
+			$report->name = '[client.name]';
 			$report->company = '[client.company]';
 			$report->email = '[client.email]';
-      $report->bcc_email = '';
+			$report->bcc_email = '';
 			$report->client = '[client.name]';
-      $report->client_id = 0;
+			$report->client_id = 0;
 		}
 
 		$selected_site = 0;
@@ -2125,7 +2127,7 @@ class MainWP_CReport {
 						<div class="ui hidden divider"></div>
 						<div class="ui red message" id="mwp-creport-error-box" <?php echo empty( $str_error ) ? 'style="display: none"' : ''; ?>><?php echo $str_error; ?></div>
 						<div class="ui green message" id="mwp-creport-info-box" <?php echo empty( $str_message ) ? ' style="display: none" ' : ''; ?>><?php echo $str_message; ?></div>
-						<?php self::new_report_tab( $report ); ?>
+						<?php self::new_report_tab( $report ); ?>						
 					</div>
 					<div class="mainwp-side-content mainwp-no-padding">
 						<div class="mainwp-select-sites" id="creport_select_sites_box">
@@ -2133,23 +2135,32 @@ class MainWP_CReport {
 							<?php
 				      $sel_sites = $sel_groups = array();
 				      if ( $do_create_new_global ||  ! empty( $report ) ) {
-	              if ( ! empty( $report ) ) {
-                  $sel_sites = unserialize( base64_decode( $report->sites ) );
-                  $sel_groups = unserialize( base64_decode( $report->groups ) );
-	              }
+							if ( ! empty( $report ) ) {
+							$sel_sites = unserialize( base64_decode( $report->sites ) );
+							$sel_groups = unserialize( base64_decode( $report->groups ) );
+							}
 
-	              if ( ! is_array( $sel_sites ) ) {
-                  $sel_sites = array();
-	              }
+							if ( ! is_array( $sel_sites ) ) {
+							$sel_sites = array();
+							}
 
-	              if ( ! is_array( $sel_groups ) ) {
-                  $sel_groups = array();
-	              }
+							if ( ! is_array( $sel_groups ) ) {
+							$sel_groups = array();
+							}
 				      }
 
 				      if ( $selected_site ) {
-			          $sel_sites[] = $selected_site;
+							$sel_sites[] = $selected_site;
 				      }
+					  
+					$un_archive_btn = '';
+					$_disabled = '';
+					if ( ! empty( $report ) && isset( $report->id ) && isset( $report->is_archived ) && $report->is_archived ) {						
+//						$un_archive_btn = '<input type="submit" value="' . __( 'Un-Archive Report', 'mainwp-client-reports-extension' ) . '" class="ui big fluid button" id="mwp-creport-unarchive-report-btn" name="button_unarchive">';
+//						$_disabled = 'disabled="disabled"';
+					}
+
+														
 				      do_action( 'mainwp_select_sites_box', '', 'checkbox', true, true, '', '', $sel_sites, $sel_groups );
 				      ?>
 						</div>
@@ -2161,10 +2172,10 @@ class MainWP_CReport {
 							<div class="ui hidden fitted divider"></div>
 							<input type="submit" value="<?php _e( 'Download PDF' ); ?>" class="ui big fluid button" id="mwp-creport-save-pdf-btn" name="button_save_pdf">
 							<div class="ui hidden fitted divider"></div>
-							<input type="submit" value="<?php _e( 'Save Report' ); ?>" class="ui big green basic fluid button" id="mwp-creport-save-btn" name="button_save">
+							<input type="submit" <?php echo $_disabled; ?> value="<?php _e( 'Save Report' ); ?>" class="ui big green basic fluid button" id="mwp-creport-save-btn" name="button_save">
 							<div class="ui hidden fitted divider"></div>
 							<input type="submit" <?php echo $scheduled_creport ? 'style="display:none"' : ''; ?> value="<?php _e( 'Send Now' ); ?>"  class="ui big green fluid button" id="mwp-creport-send-btn" name="submit">
-							<input type="submit" <?php echo $scheduled_creport ? '' : 'style="display:none"'; ?> value="<?php _e( 'Schedule Report' ); ?>" class="ui big green fluid button" id="mwp-creport-schedule-btn" name="button_schedule">
+							<input type="submit" <?php echo $scheduled_creport ? '' : 'style="display:none"'; ?> value="<?php _e( 'Schedule Report' ); ?>" <?php echo $_disabled; ?> class="ui big green fluid button" id="mwp-creport-schedule-btn" name="button_schedule">
 
 							<input type="hidden" name="mwp_creport_report_submit_action" id="mwp_creport_report_submit_action" value="">
 				      <input type="hidden" name="id" value="<?php echo (is_object( $report ) && isset( $report->id )) ? $report->id : '0'; ?>">
@@ -2223,57 +2234,49 @@ class MainWP_CReport {
 
 	public static function render_tabs() {
 
-
-
-
-
-
-
-
-
-
-
 	}
 
 	public static function archive_report( $report_id, $generated_content = false ) {
-                $report = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $report_id );
-
-		if (empty($report))
-                    return false;
-
-		if ( $report->is_archived ) {
-                    return true;
-                }
-
-                if (!$generated_content) {
-                    $sites = unserialize( base64_decode( $report->sites ) );
-                    $groups = unserialize( base64_decode( $report->groups ) );
-
-                    if ( ! is_array( $sites ) ) {
-                            $sites = array();
-                    }
-                    if ( ! is_array( $groups ) ) {
-                            $groups = array();
-                    }
-                    global $mainWPCReportExtensionActivator;
-                    $dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sites, $groups );
-                    foreach ( $dbwebsites as $dbsite ) {
-                        $website = MainWP_CReport_Utility::map_site( $dbsite, array( 'id', 'name', 'url' ) );
-                        self::update_group_report_site($report, $website);
-                    }
-                }
-
-                $update_archive = array(
-                    'id' => $report->id,
-                    'is_archived' => 1
-                );
-
-		$ret = MainWP_CReport_DB::get_instance()->update_report( $update_archive );
-
-                if (is_object($ret) && $ret->is_archived) {
-                    return true;
-                }
-		return false;
+		
+//		$report = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $report_id );
+//
+//		if (empty($report))
+//			return false;
+//
+//		if ( $report->is_archived ) {
+//			return true;
+//		}
+//
+//		if (!$generated_content) {
+//			$sites = unserialize( base64_decode( $report->sites ) );
+//			$groups = unserialize( base64_decode( $report->groups ) );
+//
+//			if ( ! is_array( $sites ) ) {
+//					$sites = array();
+//			}
+//			if ( ! is_array( $groups ) ) {
+//					$groups = array();
+//			}
+//			global $mainWPCReportExtensionActivator;
+//			$dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sites, $groups );
+//			foreach ( $dbwebsites as $dbsite ) {
+//				$website = MainWP_CReport_Utility::map_site( $dbsite, array( 'id', 'name', 'url' ) );
+//				self::update_group_report_site($report, $website);
+//			}
+//		}
+//
+//		$update_archive = array(
+//			'id' => $report->id,
+//			'is_archived' => 1
+//		);
+//
+//		$ret = MainWP_CReport_DB::get_instance()->update_report( $update_archive );
+//
+//		if (is_object($ret) && $ret->is_archived) {
+//			return true;
+//		}
+//		return false;
+		
 	}
 
 	public static function un_archive_report( $report ) {
@@ -2283,7 +2286,7 @@ class MainWP_CReport {
 
 		if ( ! $report->is_archived ) {
 			return true;
-                }
+		}
 
 		$update_archive = array(
                         'id' => $report->id,
@@ -2767,7 +2770,7 @@ class MainWP_CReport {
 
 		$result = apply_filters( 'mainwp_ga_get_data', $site_id, $start_date, $end_date, $chart );
 		$output = array(
-		'ga.visits' => 'N/A',
+			'ga.visits' => 'N/A',
 			'ga.pageviews' => 'N/A',
 			'ga.pages.visit' => 'N/A',
 			'ga.bounce.rate' => 'N/A',
@@ -2910,8 +2913,13 @@ class MainWP_CReport {
 					$date1[0] = '11'; }
 				if ( 'Dec' == $date1[0] ) {
 					$date1[0] = '12'; }
-				$maximum_value_date = $date1[1] . '.' . $date1[0] . '.';
-				$output['ga.visits.maximum'] = $maximum_value . ' (' . $maximum_value_date . ')';
+				
+				$display_maximum_value_date = apply_filters('mainwp_client_reports_ga_visits_maximum_date', false , $date1[1], $date1[0] ); // day.month
+				if ( empty($display_maximum_value_date) )
+					$display_maximum_value_date = $date1[1] . '.' . $date1[0] . '.'; // day.month
+				
+				//$maximum_value_date = $date1[1] . '.' . $date1[0] . '.'; // day.month
+				$output['ga.visits.maximum'] = $maximum_value . ' (' . $display_maximum_value_date . ')';
 			}
 
 			$output['ga.startdate'] = MainWP_CReport_Utility::format_datestamp( $start_date, true );
@@ -3157,7 +3165,10 @@ class MainWP_CReport {
 		jQuery( '#mainwp-client-reports-reports-table' ).DataTable( {
 			"columnDefs": [ { "orderable": false, "targets": "no-sort" } ],
 			"order": [ [ 1, "asc" ] ],
-			"language": { "emptyTable": "No websites were found with the MainWP Child Reports plugin installed." }
+			"language": { "emptyTable": "No websites were found with the MainWP Child Reports plugin installed." },
+			"drawCallback": function( settings ) {
+				jQuery( '#mainwp-client-reports-reports-table ui.dropdown').dropdown();
+			},
 		} );
 		</script>
 		<?php
@@ -3339,27 +3350,27 @@ class MainWP_CReport {
     $send_on_style = $send_on_day_of_week_style = $send_on_day_of_mon_style = $send_on_month_style = $monthly_style = 'style="display:none"';
 
 		if ( ! empty( $report ) ) {
-			$title = $report->title;
+			$title = $report->title;			
 			$date_from = ! empty( $report->date_from ) ? date( 'Y-m-d', $report->date_from ) : '';
-			$date_to = ! empty( $report->date_to ) ? date( 'Y-m-d', $report->date_to ) : '';
-      $recurringSchedule = $report->recurring_schedule;
-      $recurringDay = $report->recurring_day;
+			$date_to = ! empty( $report->date_to ) ? date( 'Y-m-d', $report->date_to ) : '';			
+			$recurringSchedule = $report->recurring_schedule;
+			$recurringDay = $report->recurring_day;
 			$scheduleSendEmail = $report->schedule_send_email;
 			$scheduleBCCme = isset( $report->schedule_bcc_me ) ? $report->schedule_bcc_me : 0;
-      $scheduled_report = isset($report->scheduled) && !empty($report->scheduled) ? true : false;
+			$scheduled_report = isset($report->scheduled) && !empty($report->scheduled) ? true : false;
 
-      if ( $scheduled_report && ($recurringSchedule == 'weekly' || $recurringSchedule == 'monthly' || $recurringSchedule == 'yearly') ) {
-        $send_on_style = '';
-        if ( $recurringSchedule == 'weekly' ) {
-          $send_on_day_of_week_style = '';
-        } else if ($recurringSchedule == 'monthly') {
-          $send_on_day_of_mon_style = $monthly_style = '';
-          $recurringDate = $recurringDay;
-        } else if ($recurringSchedule == 'yearly') {
-          list($recurringMonth, $recurringDate) = explode( '-', $recurringDay);
-          $send_on_day_of_mon_style = $send_on_month_style = '';
-        }
-      }
+			if ( $scheduled_report && ($recurringSchedule == 'weekly' || $recurringSchedule == 'monthly' || $recurringSchedule == 'yearly') ) {
+					$send_on_style = '';
+					if ( $recurringSchedule == 'weekly' ) {
+					  $send_on_day_of_week_style = '';
+					} else if ($recurringSchedule == 'monthly') {
+					  $send_on_day_of_mon_style = $monthly_style = '';
+					  $recurringDate = $recurringDay;
+					} else if ($recurringSchedule == 'yearly') {
+					  list($recurringMonth, $recurringDate) = explode( '-', $recurringDay);
+					  $send_on_day_of_mon_style = $send_on_month_style = '';
+					}
+			}
 		}
     ?>
 		<div class="ui grid field">
@@ -4133,7 +4144,10 @@ class MainWP_CReport {
 		jQuery( '#mainwp-client-reports-tokens-table' ).DataTable( {
 			"columnDefs": [ { "orderable": false, "targets": "no-sort" } ],
 			"order": [ [ 0, "asc" ] ],
-			"language": { "emptyTable": "No tokens found." }
+			"language": { "emptyTable": "No tokens found." },
+			"drawCallback": function( settings ) {
+				jQuery( '#mainwp-client-reports-tokens-table ui.dropdown').dropdown();
+			},
 		} );
 		jQuery( '#mainwp-creport-new-token-button' ).on( 'click', function () {
 			jQuery( '#mainwp-creport-new-token-modal' ).modal( 'show' );

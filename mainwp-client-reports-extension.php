@@ -21,7 +21,7 @@ class MainWP_CReport_Extension {
 	public $plugin_dir;
 	protected $option;
 	protected $option_handle = 'mainwp_wpcreport_extension';
-  public $version = '1.4';
+	public $version = '1.5';
 
     static function get_instance() {
 		if ( null == MainWP_CReport_Extension::$instance ) {
@@ -161,11 +161,12 @@ class MainWP_CReport_Extension {
 
 		wp_enqueue_style( 'mainwp-creport-extension', self::$plugin_url . 'css/mainwp-reporting.css', array(), $this->version);
 		wp_enqueue_script( 'mainwp-creport-extension', self::$plugin_url . 'js/mainwp-reporting.js', array(), $this->version );
+		
 		wp_localize_script(
-                        'mainwp-creport-extension', 'mainwp_clientreport_loc', array(
-                            'nonce' => wp_create_nonce( '_wpnonce_creport' ),
-                        )
-                );
+			'mainwp-creport-extension', 'mainwp_clientreport_loc', array(
+			'nonce' => wp_create_nonce( '_wpnonce_creport' ),
+			)
+		);
 
 		MainWP_CReport::init();
 		$mwp_creport = new MainWP_CReport();
@@ -276,7 +277,7 @@ class MainWP_CReport_Extension_Activator {
 			return;
 		}
 
-    add_action( 'mainwp_extension_sites_edit_tablerow', array( 'MainWP_CReport', 'renderClientReportsSiteTokens'), 10, 1);
+    add_action( 'mainwp_extension_sites_edit_tablerow', array( 'MainWP_CReport', 'renderClientReportsSiteTokens'), 10, 1); // to do change to: mainwp-manage-sites-edit
 
 		new MainWP_CReport_Extension();
 	}
