@@ -16,8 +16,8 @@ class MainWP_CReport_Utility {
 		return date_i18n( get_option( 'date_format' ), $timestamp, $gmt );
 	}
 
-    public static function format_date( $timestamp ) {
-		return date_i18n( get_option( 'date_format' ), $timestamp );
+    public static function format_date( $timestamp, $gmt = false  ) {
+		return date_i18n( get_option( 'date_format' ), $timestamp, $gmt );
 	}
 
 	static function ctype_digit( $str ) {
