@@ -40,7 +40,7 @@ class MainWP_CReport_Stream {
 	public static function gen_dashboard_tab( $websites ) {
 		?>
 		<div class="ui segment">
-			<table id="mainwp-client-reports-sites-table" class="ui single line table">
+			<table id="mainwp-client-reports-sites-table" class="ui single line table" style="width: 100%">
 				<thead>
 					<tr>
 						<th class="no-sort collapsing check-column"><span class="ui checkbox"><input type="checkbox"></span></th>
@@ -78,6 +78,10 @@ class MainWP_CReport_Stream {
 		</div>
 		<script type="text/javascript">
 		jQuery( '#mainwp-client-reports-sites-table' ).DataTable( {
+			"stateSave": true,
+			"stateDuration": 0, // forever
+			"scrollX": true,
+			"colReorder" : true,
 			"columnDefs": [ { "orderable": false, "targets": "no-sort" } ],
 			"order": [ [ 1, "asc" ] ],
 			"language": { "emptyTable": "No websites were found with the MainWP Child Reports plugin installed." },
