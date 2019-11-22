@@ -18,9 +18,9 @@ Author URI: https://mainwp.com
 == Changelog ==
 
 = 4.0.2 - 11-22-2019 =
-* Fixed: an issue with creating customtokens
-* Fixed: an issue with saving report date range
-* Fixed: multiple usability problmes
+* Fixed: a problem  with creating custom tokens
+* Fixed: a problem with saving report date range
+* Fixed: multiple usability problems
 
 = 4.0.1 - 9-6-2019 =
 * Fixed: an issue with saving report changes
