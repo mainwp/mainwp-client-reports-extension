@@ -714,10 +714,10 @@ class MainWP_CReport {
 			'piwik' => 'Piwik',
 			'aum' => 'AUM',
 			'woocomstatus' => 'WooCommerce',
-      'wordfence' => 'Wordfence',
-      'maintenance' => 'Maintenance',
-      'pagespeed' => 'Page Speed',
-      'brokenlinks' => 'Broken Links'
+			'wordfence' => 'Wordfence',
+			'maintenance' => 'Maintenance',
+			'pagespeed' => 'Page Speed',
+			'brokenlinks' => 'Broken Links'
 		);
 	}
 
@@ -2465,6 +2465,9 @@ class MainWP_CReport {
 			// get data from stream plugin
 			$sections_data = $other_tokens_data = array();
 			$information = self::fetch_stream_data( $website, $report, $sections, $other_tokens, $date_from, $date_to);
+			
+			$information = self::fix_empty_logs_values( $information );
+			
 			//print_r($information);
 			if ( is_array( $information ) && ! isset( $information['error'] ) ) {
 				self::$buffer['sections_data'] = $sections_data = isset( $information['sections_data'] ) ? $information['sections_data'] : array();
@@ -2685,6 +2688,69 @@ class MainWP_CReport {
 			$other_tokens = $matches[0];
 		}
 		return array( 'sections' => $sections, 'other_tokens' => $other_tokens, 'filtered_content' => $filtered_content );
+	}
+	
+	public static function fix_empty_logs_values( $infor ){
+		
+		$secs = array(
+			'header',
+			'body',
+			'footer'
+			
+		);
+		foreach ( $secs as $sec ) {				
+				if (isset( $infor['sections_data']) &&  isset($infor['sections_data'][$sec])) {
+					$sections_data = $infor['sections_data'][$sec];
+					$other_tokens_data = $infor['other_tokens_data']['body'];
+
+					$fix_section_count = array();
+					$fix_sections_data = $sections_data;			
+					foreach($sections_data as $index1 => $sec_logs) {
+						foreach( $sec_logs as $index2 => $log_records) {
+
+							$removed_empty = false;
+							foreach ( $log_records as $token => $value) {
+								if ( empty( $value ) ) {
+									unset($fix_sections_data[$index1][$index2]);
+									$removed_empty = true;
+									break;
+								}							
+							}
+
+							if ($removed_empty) {
+								foreach ( $log_records as $token => $value) {
+									$str_tmp   = str_replace( array( '[', ']' ), '', $token );			
+									$array_tmp = explode( '.', $str_tmp );
+
+									if ( count( $array_tmp ) == 3) { // to able to get .count token
+										if ( isset( $fix_section_count[$token] ) ) {
+											$fix_section_count[$token]++;
+										} else{
+											$fix_section_count[$token] = 1;
+										}
+										break;
+									}							
+								}
+							}
+
+						}				
+					}			
+
+					// fix count tokens value
+					foreach($fix_section_count as $tk => $count) {
+						$str_tmp   = str_replace( array( '[', ']' ), '', $tk );	
+						$array_tmp = explode( '.', $str_tmp );
+						list( $context, $action, $data ) = $array_tmp;
+						$count_token = '[' . $context . '.' . $action . '.count]';				
+						if (isset( $other_tokens_data[$count_token] ) && ( $other_tokens_data[$count_token] >=  $count) ) {
+							$other_tokens_data[$count_token] = $other_tokens_data[$count_token] - $count; // fix count value
+						}
+					}			
+					$infor['other_tokens_data'][ $sec ] = $other_tokens_data;
+					$infor['sections_data'][ $sec ] = $fix_sections_data;			
+				}		
+		}
+		return $infor;		
 	}
 
 	public static function remove_section_tokens( $content ) {

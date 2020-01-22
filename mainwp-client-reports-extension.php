@@ -3,7 +3,7 @@
   Plugin Name: MainWP Client Reports Extension
   Plugin URI: https://mainwp.com
   Description: MainWP Client Reports Extension allows you to generate activity reports for your clients sites. Requires MainWP Dashboard.
-  Version: 4.0.2
+  Version: 4.0.3
   Author: MainWP
   Author URI: https://mainwp.com
   Documentation URI: https://mainwp.com/help/category/mainwp-extensions/client-reports/
@@ -99,16 +99,16 @@ class MainWP_CReport_Extension {
 
 	public function site_synced( $website, $information = array()) {
 		$website_id = $website->id;
-                if ( is_array( $information ) && isset( $information['syncClientReportData'] ) && is_array( $information['syncClientReportData'] ) ) {
-                    $data = $information['syncClientReportData'];
-                    if (isset($data['firsttime_activated'])) {
-                        $creportSettings = MainWP_CReport_Stream::get_instance()->get_option( 'settings' );
-                        if (!is_array($creportSettings))
-                            $creportSettings = array();
-                        $creportSettings[$website_id]['first_time'] = $data['firsttime_activated'];
-                        MainWP_CReport_Stream::get_instance()->set_option( 'settings', $creportSettings );
-                    }
-                }
+	    if ( is_array( $information ) && isset( $information['syncClientReportData'] ) && is_array( $information['syncClientReportData'] ) ) {
+        $data = $information['syncClientReportData'];
+        if (isset($data['firsttime_activated'])) {
+          $creportSettings = MainWP_CReport_Stream::get_instance()->get_option( 'settings' );
+          if (!is_array($creportSettings))
+            $creportSettings = array();
+          $creportSettings[$website_id]['first_time'] = $data['firsttime_activated'];
+          MainWP_CReport_Stream::get_instance()->set_option( 'settings', $creportSettings );
+        }
+	    }
 	}
 
     public function on_delete_site( $website ) {
@@ -161,7 +161,7 @@ class MainWP_CReport_Extension {
 
 		wp_enqueue_style( 'mainwp-creport-extension', self::$plugin_url . 'css/mainwp-reporting.css', array(), $this->version);
 		wp_enqueue_script( 'mainwp-creport-extension', self::$plugin_url . 'js/mainwp-reporting.js', array(), $this->version );
-		
+
 		wp_localize_script(
 			'mainwp-creport-extension', 'mainwp_clientreport_loc', array(
 			'nonce' => wp_create_nonce( '_wpnonce_creport' ),
@@ -217,7 +217,7 @@ class MainWP_CReport_Extension_Activator {
 	protected $childFile;
 	protected $plugin_handle = 'mainwp-client-reports-extension';
 	protected $product_id = 'MainWP Client Reports Extension';
-	protected $software_version = '4.0.2';
+	protected $software_version = '4.0.3';
 
 	public function __construct() {
 
