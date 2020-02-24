@@ -330,17 +330,17 @@ jQuery( document ).ready(function ($) {
 		}
 	}
 
-    $( '.creport_action_row_lnk' ).on('click', function () {
-        var actionObj = jQuery( this ).closest('tr');
-        var what = jQuery(this).attr('action');
-        if ( what == 'delete' ) {
-          if ( !confirm( __( 'Are you sure?' ) ) ) {
+        jQuery( document ).on('click', 'a.creport_action_row_lnk', function () {
+            var actionObj = jQuery( this ).closest('tr');
+            var what = jQuery(this).attr('action');
+            if ( what == 'delete' ) {
+              if ( !confirm( __( 'Are you sure?' ) ) ) {
+                return false;
+              }
+            }
+            mainwp_creport_do_action_start_specific( actionObj, what, false );
             return false;
-          }
-        }
-        mainwp_creport_do_action_start_specific( actionObj, what, false );
-        return false;
-    });
+        });
 
 	mainwp_creport_valid_report_data = function (action) {
 		$( '#mwp_creport_title' ).removeClass( 'form-invalid' );
