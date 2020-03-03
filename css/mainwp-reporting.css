@@ -6,3 +6,32 @@
 #mwp_creport_settings_tbl.scheduled_creport .show_if_scheduled {
   display: block;
 }
+
+.hidden-field { display: none; }
+
+.creport_format_nav_bottom_breadcrumb {
+  text-align: left;
+}
+
+.creport_format_group_data_tokens {
+	display: none;
+}
+.creport_format_group_data_tokens.current{
+	display: block;
+}
+.creport_format_group_nav.top {
+  text-align: left;
+}
+.creport_format_group_nav.bottom {
+	display: none;
+  text-align: left;
+}
+
+.creport_format_group_nav.bottom.current {
+	display: block;
+}
+
+.creport_format_group_nav .current {
+	color: #AA0000;
+  font-weight: bolder;
+}

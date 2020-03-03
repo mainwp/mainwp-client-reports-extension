@@ -2274,45 +2274,7 @@
 
                                             }]
                                         <?php } ?>
-                                    },
-                                    {
-                                        text: 'Broken Links',
-                                        <?php if (!MainWP_CReport::$enabled_brokenlinks) { ?>
-                                            menu: [{
-                                                text: 'Requires MainWP Broken Links Checker Extension',
-                                            }]
-                                        <?php } else { ?>
-                                        menu: [{
-                                                text: '[brokenlinks.links.broken] - Displays the number of broken links at the moment of report creation',
-                                                onclick: function() {
-                                                    editor.insertContent('[brokenlinks.links.broken]');
-                                                }
-
-
-                                            }, {
-                                                text: '[brokenlinks.links.redirect] - Displays the number of redirected links at the moment of report creation',
-                                                onclick: function() {
-                                                    editor.insertContent('[brokenlinks.links.redirect]');
-                                                }
-
-
-                                            }, {
-                                                text: '[brokenlinks.links.dismissed] - Displays the number of dismissed links at the moment of report creation',
-                                                onclick: function() {
-                                                    editor.insertContent('[brokenlinks.links.dismissed]');
-                                                }
-
-
-                                            }, {
-                                                text: '[brokenlinks.links.all] - Displays the number of all links at the moment of report creation',
-                                                onclick: function() {
-                                                    editor.insertContent('[brokenlinks.links.all]');
-                                                }
-
-
-                                            }]
-                                         <?php } ?>
-                                    }
+                                    }                                    
                         ]
 
                     });

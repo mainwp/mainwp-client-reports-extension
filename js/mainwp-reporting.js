@@ -53,7 +53,7 @@ jQuery( document ).ready(function ($) {
   	mainwp_creport_recurring_select_date_init();
 	} );
 
-        $( '#mainwp_creport_schedule_send_email_me_review' ).change(function () {
+  $( '#mainwp_creport_schedule_send_email_me_review' ).change(function () {
 		if ($( this ).is( ':checked' )) {
 			$( '#mainwp_creport_schedule_bbc_me_email' ).attr( "disabled", "disabled" );
 			$( '#mainwp_creport_schedule_bbc_me_email' ).removeAttr( "checked" );
@@ -72,13 +72,13 @@ jQuery( document ).ready(function ($) {
 		token_name = token_name.replace(/\[|\]/gi, "");
 
 		jQuery( '#mainwp-creport-update-token-modal' ).modal({
-                    closable: false,
-                    onHide: function() {
-                        jQuery( '#mainwp-creport-update-token-modal input[name="token-name"]' ).val('');
-                        jQuery( '#mainwp-creport-update-token-modal input[name="token-description"]' ).val( '' );
-                        jQuery( '#mainwp-creport-update-token-modal input[name="token-id"]' ).val(0);
-                    }
-                }).modal( 'show' );
+	      closable: false,
+	      onHide: function() {
+	          jQuery( '#mainwp-creport-update-token-modal input[name="token-name"]' ).val('');
+	          jQuery( '#mainwp-creport-update-token-modal input[name="token-description"]' ).val( '' );
+	          jQuery( '#mainwp-creport-update-token-modal input[name="token-id"]' ).val(0);
+	      }
+	  }).modal( 'show' );
 		jQuery( '#mainwp-creport-update-token-modal input[name="token-name"]' ).val( token_name );
 		jQuery( '#mainwp-creport-update-token-modal input[name="token-description"]' ).val( token_description );
 		jQuery( '#mainwp-creport-update-token-modal input[name="token-id"]' ).val( token_id );
@@ -178,7 +178,7 @@ jQuery( document ).ready(function ($) {
 			}, 'json');
 			return false;
 	} );
-        
+
         jQuery( document ).on( 'click', '#mainwp-creport-delete-token', function () {
 		if (confirm( __( 'Are you sure?' ) )) {
                     var parent = $( this ).closest( '.mainwp-token' );
@@ -242,7 +242,7 @@ jQuery( document ).ready(function ($) {
 		parent.find( '.creport_format_group_data_tokens[group="' + gr + '"]' ).addClass( 'current' );
 		mainwp_creport_insert_token_set_breadcrumb( parent, gr_title, gr2_title );
 		return false;
-	})
+	} );
 
 	mainwp_creport_insert_token_set_breadcrumb = function (parent, group, group2) {
 		parent.find( '.creport_format_nav_bottom_breadcrumb .group' ).text( group );
@@ -348,7 +348,7 @@ jQuery( document ).ready(function ($) {
 		$( '#mwp_creport_date_to' ).removeClass( 'form-invalid' );
 		$( '#selected_sites' ).removeClass( 'form-invalid' );
 		$( '#mwp_creport_email' ).removeClass( 'form-invalid' );
-                $( '#mwp_creport_femail' ).removeClass( 'form-invalid' );
+    $( '#mwp_creport_femail' ).removeClass( 'form-invalid' );
 		$( '#mainwp_creport_recurring_schedule' ).removeClass( 'form-invalid' );
 
 		var errors = [];
@@ -414,7 +414,7 @@ jQuery( document ).ready(function ($) {
 			}
 		}
 
-		if (errors.length > 0) {                     
+		if (errors.length > 0) {
 			jQuery( '#mwp-creport-error-box', errors.join( '<br />' ) );
 			return false;
 		} else {
@@ -524,7 +524,7 @@ jQuery( document ).ready(function ($) {
 		var titleEl = pr.find( 'input[type="text"]' );
 		var statusEl = pr.find( '.status' );
 		statusEl.html('');
-                
+
 //		titleEl.removeClass( 'form-invalid' );
 
 		if (titleEl.val() == "") {
@@ -534,7 +534,7 @@ jQuery( document ).ready(function ($) {
                         statusEl.html( '<i class="red times icon"></i>' );
 			return false;
 		}
-                
+
 		var content = creport_get_content_format( $( this ).attr( 'ed-name' ) );
 		var data = {
 			action: 'mainwp_creport_save_format',
@@ -546,13 +546,13 @@ jQuery( document ).ready(function ($) {
 
 //		var loader = pr.find( '.loading i' );
 //		loader.show();
-                statusEl.html( '<i class="notched circle loading icon"></i>' );                
+                statusEl.html( '<i class="notched circle loading icon"></i>' );
 		$.post(ajaxurl, data, function (response) {
 //			loader.hide();
                         statusEl.html('');
 			if (response && response == 'success') {
 //				statusEl.css( 'color', '#21759B' );
-//				statusEl.html( 'Saved' ).show();                                
+//				statusEl.html( 'Saved' ).show();
 //				statusEl.fadeOut( 3000 );
                                 statusEl.html( '<i class="green check icon"></i>' );
                                 setTimeout(function () {
@@ -589,7 +589,7 @@ jQuery( document ).ready(function ($) {
 //		statusEl.hide();
 
 		if (selectEl.val() == 0) {
-			return false; 
+			return false;
                 }
 		var content = creport_get_content_format( $( this ).attr( 'ed-name' ) );
 		var fid = selectEl.val();
@@ -597,7 +597,7 @@ jQuery( document ).ready(function ($) {
 			return false; }
 
 		if ( ! confirm( "Are you sure?" )) {
-			return false; 
+			return false;
                 }
 
 		var data = {
@@ -605,7 +605,7 @@ jQuery( document ).ready(function ($) {
 			formatId: fid,
                         nonce: mainwp_clientreport_loc.nonce
 		}
-                
+
                 statusEl.html( '<i class="notched circle loading icon"></i>' );
 		var name = $( this ).attr( 'ed-name' );
 //		var loader = pr.find( '.loading i' );
@@ -640,17 +640,17 @@ jQuery( document ).ready(function ($) {
 //		statusEl.hide();
 
 		if (selectEl.val() == 0) {
-                    return false; 
+                    return false;
                 }
-                
+
 		var content = creport_get_content_format( $( this ).attr( 'ed-name' ) );
 		var data = {
 			action: 'mainwp_creport_get_format',
 			formatId: selectEl.val(),
                         nonce: mainwp_clientreport_loc.nonce
 		}
-                
-                statusEl.html( '<i class="notched circle loading icon"></i>' );                
+
+                statusEl.html( '<i class="notched circle loading icon"></i>' );
 		var name = $( this ).attr( 'ed-name' );
 //		var loader = pr.find( '.loading i' );
 //		loader.show();

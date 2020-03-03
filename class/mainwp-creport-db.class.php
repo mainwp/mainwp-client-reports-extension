@@ -1194,6 +1194,13 @@ $this->default_formats = array(
 
     public function get_scheduled_reports_to_send() {
 		global $wpdb;
+		/*
+		 * For testers
+		 * to force the schedule reports start run, 
+		 * reset values: `schedule_nextsend`, `schedule_lastsend`, `completed` and option 'mainwp_creport_sendcheck_last', 
+		 * to corresponding values, for example values one previous day 
+		 * 
+		 */
         $sql = 'SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
 				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
 				. ' ON rp.client_id = c.clientid '
@@ -1203,7 +1210,7 @@ $this->default_formats = array(
 	}
 
 
-    public function get_scheduled_reports_to_continue_send( $limit = 2) {
+    public function get_scheduled_reports_to_continue_send( $limit = 1) {
 		global $wpdb;
 		$sql = 'SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
 				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
@@ -1214,7 +1221,26 @@ $this->default_formats = array(
 		return $wpdb->get_results( $sql );
 	}
 
-
+	public function get_completed_sites( $id ) {
+		global $wpdb;
+		
+		if ( empty( $id ) ) {
+			return array();
+		}
+		
+		$qry = ' SELECT completed_sites FROM ' . $this->table_name( 'client_report' ) . " WHERE id = " . intval( $id ) . " ";
+		
+		$com_sites =  $wpdb->get_var( $qry );
+		
+		if ( $com_sites != '' ) {
+			$com_sites = json_decode( $com_sites, true );
+		}
+		if ( ! is_array( $com_sites ) ) {
+			$com_sites = array();
+		}		
+		return $com_sites;
+	}
+	
     public function update_reports_with_values( $id, $values ) {
 		if ( ! is_array( $values ) ) {
 			return false;
