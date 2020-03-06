@@ -21,7 +21,7 @@ class MainWP_CReport {
 	private static $raw_sec_body = false;
 	private static $raw_section_body = array();
 	public $update_version = '1.0';
-
+	static $retry_time = 2;
 
   public function __construct() {
 
@@ -963,26 +963,49 @@ class MainWP_CReport {
 			return;
 		}
 		$forced_log = false; 
-        do_action('mainp_log_debug', 'CRON :: Client Report :: sending', $forced_log);
-		//Do cronjobs!
+		
+        //Do cronjobs!
 		//this will execute once every day to check to send the group reports
 
         $allReportsToSend   = array();
 		$allGroupReports = MainWP_CReport_DB::get_instance()->get_scheduled_reports_to_send();
-		foreach ( $allGroupReports as $report ) {
-            if ( time() < $report->schedule_nextsend ) {
-                continue;
+		
+		$check_seconds = 6 * 60 * 60; // hours in seconds
+		
+		foreach ( $allGroupReports as $report ) {           			
+			// if not debugging				
+			// IMPORTANCE CHECK: to prevent INCORRECT schedule_nextsend or auto send to quick (at least after about 12 hours)
+			if (time() - $report->schedule_lastsend < $check_seconds ) {
+				continue;
 			}
-            // IMPORTANCE CHECK: to prevent INCORRECT schedule_nextsend or auto send to quick (at least after about 12 hours)
-            if (($report->schedule_nextsend < $report->schedule_lastsend) || (time() - $report->schedule_lastsend < 60 * 60 * 12)) {
-                continue;
-            }
+			$cal_recurring = self::calc_recurring_date( $report->recurring_schedule, $report->recurring_day );
+
+			if (empty($cal_recurring))
+				continue;
+
+			$log_time = date( "Y-m-d H:i:s", $cal_recurring['date_send'] );
+			do_action('mainp_log_debug', 'CRON :: Client Report :: report id ' . $report->id . ', next send: ' . $log_time);
+
+			// to fix: send current day/month/year... issue
+			$values = array(
+					'date_from_nextsend' => $cal_recurring['date_from'],
+					'date_to_nextsend' => $cal_recurring['date_to'],
+					'schedule_nextsend' => $cal_recurring['date_send'], // to check if current time > schedule nextsend then prepare report to send
+			);
+			$date_from = $report->date_from_nextsend;
+			$date_to = $report->date_to_nextsend;
+			if (!empty($date_from)) {
+				// using to generate report content to send now
+				$values['date_from'] = $date_from;
+				$values['date_to'] = $date_to;
+			}
+			MainWP_CReport_DB::get_instance()->update_reports_with_values($report->id, $values );
 
             $allReportsToSend[] = $report;
 		}
         unset($allGroupReports);
-
-        do_action('mainp_log_debug', 'CRON :: Client Report :: Found ' . count($allReportsToSend) . ' reports to send.', $forced_log);
+		
+		do_action( 'mainp_log_debug', 'CRON :: MainWP Client Reports :: Check reports to send :: Found ' . count( $allReportsToSend ) . ' reports to send.', $forced_log);
 
         if ( count( $allReportsToSend ) == 0 ) {
             update_option( 'mainwp_creport_sendcheck_last', date( 'd/m/Y' ) );
@@ -992,28 +1015,29 @@ class MainWP_CReport {
                 // update report to start sending
 				// update `schedule_lastsend` to current time, `completed_sites` to empty array				
                 MainWP_CReport_DB::get_instance()->update_reports_send( $report->id );
-                $cal_recurring = self::calc_recurring_date( $report->recurring_schedule, $report->recurring_day );
-
-                if (empty($cal_recurring))
-                    continue;
-
-                $log_time = date( "Y-m-d H:i:s", $cal_recurring['date_send'] );
-                do_action('mainp_log_debug', 'CRON :: Client Report :: report id ' . $report->id . ', next send: ' . $log_time);
-
-                // to fix: send current day/month/year... issue
-                $values = array(
-                        'date_from_nextsend' => $cal_recurring['date_from'],
-                        'date_to_nextsend' => $cal_recurring['date_to'],
-                        'schedule_nextsend' => $cal_recurring['date_send'], // to check if current time > schedule nextsend then prepare report to send
-                );
-                $date_from = $report->date_from_nextsend;
-                $date_to = $report->date_to_nextsend;
-                if (!empty($date_from)) {
-                    // using to generate report content to send now
-                    $values['date_from'] = $date_from;
-                    $values['date_to'] = $date_to;
-                }
-                MainWP_CReport_DB::get_instance()->update_reports_with_values($report->id, $values );
+				
+//                $cal_recurring = self::calc_recurring_date( $report->recurring_schedule, $report->recurring_day );
+//
+//                if (empty($cal_recurring))
+//                    continue;
+//
+//                $log_time = date( "Y-m-d H:i:s", $cal_recurring['date_send'] );
+//                do_action('mainp_log_debug', 'CRON :: Client Report :: report id ' . $report->id . ', next send: ' . $log_time);
+//
+//                // to fix: send current day/month/year... issue
+//                $values = array(
+//                        'date_from_nextsend' => $cal_recurring['date_from'],
+//                        'date_to_nextsend' => $cal_recurring['date_to'],
+//                        'schedule_nextsend' => $cal_recurring['date_send'], // to check if current time > schedule nextsend then prepare report to send
+//                );
+//                $date_from = $report->date_from_nextsend;
+//                $date_to = $report->date_to_nextsend;
+//                if (!empty($date_from)) {
+//                    // using to generate report content to send now
+//                    $values['date_from'] = $date_from;
+//                    $values['date_to'] = $date_to;
+//                }
+//                MainWP_CReport_DB::get_instance()->update_reports_with_values($report->id, $values );
         }
 	}
 
@@ -1021,8 +1045,6 @@ class MainWP_CReport {
 		
 		$forced_log = false;
 		
-        do_action('mainp_log_debug', 'CRON :: Client Report :: continue send reports', $forced_log);
-
 		@ignore_user_abort( true );
 		@set_time_limit( 0 );
 		$mem = '512M';
@@ -1088,20 +1110,26 @@ class MainWP_CReport {
 				$site_id = $website['id'];
 				
 				if ( isset( $completed_sites[ $site_id ] ) ) {	
+					// if send success (1) or failed (0) or greater than $retry_time will do not re-try
+//					if ( $completed_sites[ $site_id ] == 0 || $completed_sites[ $site_id ] == 1 || ( $completed_sites[ $site_id ] >= self::$retry_time + 1) ) {					
 					$idx++;
 					continue;
+//					} else {
+//						$completed_sites[ $site_id ] += 1; // increased the re-try time value
+//					}
+				} else {					
+					// will update to 0 or 1 later?
+					$completed_sites[ $site_id ] = 2; 
 				}
 				
-				$success = false;
-
 				$data = self::prepare_content_report_email( $report, false, $website, true );										
-
+				
+				$countSend++;
+						
 				
 				if ( $data )  {
 						$content_email =  $data['content'];
-
-						$countSend++;
-						
+		
 						/*
 						 * Perform send scheduled report email
 						 * see send_onetime_report_email()
@@ -1116,12 +1144,11 @@ class MainWP_CReport {
 								MainWP_CReport_DB::get_instance()->update_reports_with_values($report->id, $values );
 								MainWP_CReport_DB::get_instance()->updateWebsiteOption($site_id, 'creport_last_report', $lastsend );
 								
-								do_action('mainp_log_debug', 'MainWP Client Reports :: Send report success :: Subject :: ' . $email_subject, $forced_log );
-								$success = true;
+								do_action('mainp_log_debug', 'CRON :: MainWP Client Reports :: Send report success - website :: ' . $website['url'] . ' :: Subject :: ' . $email_subject, $forced_log );								
 								$completed_sites[ $site_id ] = true; 
 								self::update_completed_sites($report, $completed_sites, $total_sites, $forced_log );
-						} else {
-								do_action('mainp_log_debug', 'MainWP Client Reports :: Send report failed :: Subject :: ' . $email_subject, $forced_log);
+						} else {								
+								do_action('mainp_log_debug', 'CRON :: MainWP Client Reports :: Send report failed - website :: ' . $website['url'] . ' :: Subject :: ' . $email_subject, $forced_log );
 								/*
 								 * If send report failed
 								 * update completed sites to prevent re-send report multi-time
@@ -1134,10 +1161,6 @@ class MainWP_CReport {
 						 */
 				}
 								
-				if ( ! $success ) {					
-					do_action('mainp_log_debug', 'CRON :: MainWP Client Reports :: Send report of site: ' . $website['url'] . ' failed.', $forced_log);
-				}	
-				
 				$idx++;
 				if ( $countSend >= $chunkSend ) {					
 					$sendme = false;
@@ -1145,74 +1168,7 @@ class MainWP_CReport {
 				
 			}
 		}
-		
-		
-//		foreach ( $reports as $report ) {
-//            do_action('mainp_log_debug', 'CRON :: Client Report :: continue send :: Report: ' . $report->title );
-//            $report = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $report->id );
-//            self::do_send_client_report( $report, $chunkedSend);
-//		}
     }
-
-
-//    public static function do_send_client_report( $report,  $nrOfSites = 0 ) {
-//
-//		$report = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $report->id );
-//
-//		$completed_sites = $report->completed_sites;
-//
-//		if ( $completed_sites != '' ) {
-//			$completed_sites = json_decode( $completed_sites, true );
-//		}
-//		if ( ! is_array( $completed_sites ) ) {
-//			$completed_sites = array();
-//		}
-//
-//        $sites = unserialize( base64_decode( $report->sites ) );
-//        $groups = unserialize( base64_decode( $report->groups ) );
-//
-//        if ( ! is_array( $sites ) ) {
-//                $sites = array();
-//        }
-//        if ( ! is_array( $groups ) ) {
-//                $groups = array();
-//        }
-//        global $mainWPCReportExtensionActivator;
-//        $dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sites, $groups );
-//
-//		$currentCount = 0;
-//        foreach ( $dbwebsites as $dbsite ) {
-//                $siteid = $dbsite->id;
-//
-//                if ( isset( $completed_sites[ $siteid ] ) && ( $completed_sites[ $siteid ] == true ) ) {
-//                    continue;
-//                }
-//
-//                $completed_sites[ $siteid ] = true;
-//                MainWP_CReport_DB::get_instance()->update_reports_completed_sites( $report->id, $completed_sites );
-//
-//                $website =  MainWP_CReport_Utility::map_site( $dbsite, array( 'id', 'name', 'url' ) );
-//				
-//				$data = self::prepare_content_report_email( $report, false, $website );
-//                if ( empty( $data ) || !self::send_onetime_report_email( $data, $report, false, $website  ) ) {
-//                    do_action('mainp_log_debug', 'CRON :: Client Report :: Send report of site: ' . $website['url'] . ' failed.');
-//                }
-//
-//                $currentCount ++;
-//
-//                if ( ( $nrOfSites != 0 ) && ( $nrOfSites <= $currentCount ) ) {
-//                    break;
-//                }
-//		}
-//
-//        //update completed sites
-//		if ( count( $completed_sites ) == count( $dbwebsites ) ) {
-//			MainWP_CReport_DB::get_instance()->update_reports_completed( $report->id );
-//		}
-//
-//		return true;
-//	}
-
 	
 	function send_onetime_report_email( $data, $report, $send_test = false, $website = null ) {		
 		
@@ -1247,8 +1203,12 @@ class MainWP_CReport {
 	public static function update_completed_sites( $report, $completedSites, $total_sites, $forced_log = false ){
 		if ( $report->scheduled ) {														
 			MainWP_CReport_DB::get_instance()->update_reports_completed_sites( $report->id, $completedSites );			
+			// filter completed site ids with completed value = 0 or = 1;
+			$filter_NotRetryVals = array_filter( $completedSites, function( $val ) {
+											return ( $val < 3 ); // || $val > self::$retry_time
+										} );
 			//update completed sites
-			if ( $total_sites > 0 && count( $completedSites ) >= $total_sites ) {
+			if ( $total_sites > 0 && count( $filter_NotRetryVals ) >= $total_sites ) {
 				do_action('mainp_log_debug', 'MainWP Client Reports :: Test schedule reports :: count completed sites :: ' . count( $completedSites ) , $forced_log );
 				MainWP_CReport_DB::get_instance()->update_reports_completed( $report->id );
 			}
@@ -1845,7 +1805,6 @@ class MainWP_CReport {
 			}
 		}
 
-//		$success = 0;        
 		$send_content = '';
         if (!empty($site)) {
             if (!$report->is_archived) {
@@ -3259,13 +3218,15 @@ class MainWP_CReport {
 	public static function fetch_stream_data( $website, $report, $sections, $tokens, $date_from, $date_to ) {
 		global $mainWPCReportExtensionActivator;
 		$post_data = array(
-		'mwp_action' => 'get_stream',
+			'mwp_action' => 'get_stream',
 			'sections' => base64_encode( serialize( $sections ) ),
 			'other_tokens' => base64_encode( serialize( $tokens ) ),
 			'date_from' => $date_from,
 			'date_to' => $date_to,
 		);
-
+		
+		$post_data = apply_filters('mainwp_client_reports_fetch_post_data', $post_data, $website, $report);
+		
 		$information = apply_filters( 'mainwp_fetchurlauthed', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $website['id'], 'client_report', $post_data );
 
 		if ( is_array( $information ) && ! isset( $information['error'] ) ) {
@@ -3401,12 +3362,14 @@ class MainWP_CReport {
 					
 					if (!empty($comp_ids) && is_array($comp_ids)) {
 						
-						$failed_ids = $success_ids = array();						
+						$failed_ids = $success_ids = $gen_failed_ids = array();						
 						foreach( $comp_ids as $sid => $val) {
-							if ($val)
+							if ( $val == 1 )
 								$success_ids[] = $sid;
-							else
+							else if ($val == 0)
 								$failed_ids[] = $sid;
+							else if ( $val > 1 ) // generated content failed
+								$gen_failed_ids[] = $sid;
 						}
 						
 						if (!empty($success_ids)) {
@@ -3415,7 +3378,12 @@ class MainWP_CReport {
 						
 						if (!empty($failed_ids)) {
 							$str_info .= '<br/>';
-							$str_info ='Failed: ' . count($failed_ids);
+							$str_info ='Send failed: ' . count($failed_ids);
+						}
+						
+						if (!empty($gen_failed_ids)) {
+							$str_info .= '<br/>';
+							$str_info .= 'Generate failed: ' . count($gen_failed_ids) ;
 						}
 						
 					}			
