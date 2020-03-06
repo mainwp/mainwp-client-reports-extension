@@ -2452,6 +2452,28 @@ class MainWP_CReport {
 		return $output;
 	}
 
+	
+	public static function get_addition_tokens( $site_id, $which ){
+		$tokens_value = array();
+		if ( $which == 'site_tokens' ) {
+				$site_info = apply_filters( 'mainwp_getwebsiteoptions', false, $site_id, 'site_info' );
+				if ($site_info) {
+					$site_info = json_decode( $site_info, true );
+					if ( is_array( $site_info )) {
+						$map_site_tokens = array(
+							'client.site.version' => 'wpversion',   // Displays the WP version of the child site,
+							'client.site.theme' => 'themeactivated', // Displays the currently active theme for the child site
+							'client.site.php' => 'phpversion', // Displays the PHP version of the child site
+							'client.site.mysql' => 'mysql_version', // Displays the MySQL version of the child site
+						);
+						foreach( $map_site_tokens as $tok => $val) {
+							$tokens_value[ $tok ] = ( is_array( $site_info ) && isset( $site_info[$val] ) ) ? $site_info[$val] : '';
+						}
+					}
+				}
+		}
+		return $tokens_value;
+	}
 
 	public static function filter_report_website( $report, $website, $cust_from_date = 0, $cust_to_date = 0, $type = '' ) {
         $date_from = $cust_from_date ? $cust_from_date : $report->date_from;
@@ -2477,6 +2499,13 @@ class MainWP_CReport {
 			$replace_tokens_values = array();
 			foreach ( $tokens as $token ) {
 				$replace_tokens_values['[' . $token->token_name . ']'] = isset( $site_tokens[ $token->id ] ) ? $site_tokens[ $token->id ]->token_value : '';
+			}
+			
+			$client_addition_tokens = self::get_addition_tokens( $website['id'], 'site_tokens');
+			if ( is_array( $client_addition_tokens ) ) {
+				foreach ( $client_addition_tokens as $token => $value ) {
+					$replace_tokens_values['[' . $token . ']'] = $value;
+				}
 			}
 
 			if ( $get_piwik_tokens ) {
