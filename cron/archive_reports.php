@@ -1,5 +1,9 @@
 <?php
-/** MainWP Client Reports Extension Archive. */
+/**
+ * MainWP Client Reports Extension Archive.
+ *
+ * @uses MainWP_CReport::cron_archive_reports()
+ */
 
 //include_once( 'bootstrap.php' );
 //
