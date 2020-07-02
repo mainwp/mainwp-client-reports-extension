@@ -8,7 +8,8 @@
  */
 
 // HMLT5 Parser
-require_once __DIR__ . '/lib/html5lib/Parser.php';
+//FIXME: replace with masterminds HTML5
+//require_once __DIR__ . '/lib/html5lib/Parser.php';
 
 // Sabberworm
 spl_autoload_register(function($class)

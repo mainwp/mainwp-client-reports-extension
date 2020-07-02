@@ -244,176 +244,7 @@ PRIMARY KEY  (`id`)  ';
     function check_update($check_version) {
             global $wpdb;
 
-            if ($check_version == '4.2') {
-                $sql = 'UPDATE ' . $this->table_name( 'client_report' ) .
-				" SET completed = schedule_lastsend " .
-				" WHERE type = 1 ";
-                $wpdb->query($sql);
-            }
-            // check for update
-            if (!empty($check_version)) {
-                if ( version_compare( $check_version, '4.8', '<' ) ) {
-                    $wpdb->query( "ALTER TABLE " . $this->table_name( 'client_report' ) . " CHANGE `header` `header` longtext " . ( !empty($wpdb->charset) ? "CHARACTER SET " . $wpdb->charset : "" ) . ( !empty($wpdb->collate) ? " COLLATE " . $wpdb->collate : "" ) . " NOT NULL;");
-                    $wpdb->query( "ALTER TABLE " . $this->table_name( 'client_report' ) . " CHANGE `body` `body` longtext " . ( !empty($wpdb->charset) ? "CHARACTER SET " . $wpdb->charset : "" ) . ( !empty($wpdb->collate) ? " COLLATE " . $wpdb->collate : "" ) . " NOT NULL;");
-                    $wpdb->query( "ALTER TABLE " . $this->table_name( 'client_report' ) . " CHANGE `footer` `footer` longtext " . ( !empty($wpdb->charset) ? "CHARACTER SET " . $wpdb->charset : "" ) . ( !empty($wpdb->collate) ? " COLLATE " . $wpdb->collate : "" ) . " NOT NULL;");
-                    $wpdb->query( "ALTER TABLE " . $this->table_name( 'client_report_format' ) . " CHANGE `content` `content` longtext " . ( !empty($wpdb->charset) ? "CHARACTER SET " . $wpdb->charset : "" ) . ( !empty($wpdb->collate) ? " COLLATE " . $wpdb->collate : "" ) . " NOT NULL;");
-                }
-
-                if ( version_compare( $check_version, '5.6', '<' ) ) {
-                    $sql = 'SELECT * FROM ' . $this->table_name( 'client_report' ) . ' WHERE type != 1 ';
-                    $single_reports = $wpdb->get_results( $sql );
-                    if (is_array($single_reports) && count($single_reports) > 0) {
-                        foreach ( $single_reports as $report ) {
-                            if ($report->selected_site) {
-                                $site_id = $report->selected_site;
-                                if ($report->is_archived) {
-                                        $content = $content_pdf = '';
-                                        if ( is_serialized( $report->archive_report ) ) {
-                                                $content[$site_id] = $report->archive_report;
-                                        } else {
-                                                $content = unserialize( $report->archive_report );
-                                        }
-
-                                        if ( ! is_serialized( $report->archive_report_pdf ) ) {
-                                                $content_pdf[$site_id] =  $report->archive_report_pdf;
-                                        } else {
-                                                $content_pdf = unserialize( $report->archive_report_pdf );
-                                        }
-
-                                        $values = array(
-                                            'report_id' => $report->id,
-                                            'site_id' => $site_id,
-                                            'report_content' => json_encode($content),
-                                            'report_content_pdf' => json_encode($content_pdf),
-                                        );
-                                        MainWP_CReport_DB::get_instance()->update_group_report_content( $values );
-                                }
-
-                                $update = array(
-                                    'id' => $report->id,
-                                    'sites' => base64_encode( serialize( array( $site_id ) ) )
-                                );
-
-                                MainWP_CReport_DB::get_instance()->update_report( $update );
-                            }
-                        }
-                    }
-                    $wpdb->query( "ALTER TABLE " . $this->table_name( 'client_report' ) . " DROP `type`, DROP `archive_report`, DROP `archive_report_pdf`, DROP `selected_site` ");
-                }
-
-                if ( version_compare( $check_version, '5.9', '<' ) ) {
-                    $sql = 'SELECT * FROM ' . $this->table_name( 'client_report' ) . ' WHERE 1 = 1 ';
-                    $all_reports = $wpdb->get_results( $sql );
-                    if (is_array($all_reports) && count($all_reports) > 0) {
-                        foreach ( $all_reports as $report ) {
-                                $updates = array(
-                                    'id' => $report->id,
-                                );
-                                $recurring_schedule = $report->recurring_schedule;
-                                $updates['recurring_schedule'] = $recurring_schedule;
-
-                                if ( $recurring_schedule == 'biweekly') {
-                                    $recurring_schedule = 'weekly';
-                                } else if ($recurring_schedule == 'quarterly') {
-                                    $recurring_schedule = 'monthly';
-                                } else if ($recurring_schedule == 'twice_a_year') {
-                                    $recurring_schedule = 'yearly';
-                                }
-                                $updates['recurring_schedule'] = $recurring_schedule;
-
-                                // calculate recurring_day for schuduled report
-                                $recurring_day = '';
-                                if ($recurring_schedule == 'yearly') {
-                                    $recurring_day = date('n', $report->recurring_date ) . '-' . date('j', $report->recurring_date );
-                                } else if ($recurring_schedule == 'monthly') {
-                                    $recurring_day = date('j', $report->recurring_date );
-                                } else if ($recurring_schedule == 'weekly') {
-                                    $recurring_day = date('N', $report->recurring_date );
-                                }
-                                $updates['recurring_day'] = $recurring_day;
-
-                                $cal_recurring = MainWP_CReport::calc_recurring_date( $recurring_schedule, $recurring_day );    // ok
-                                if (is_array($cal_recurring)) {
-                                        $updates['date_from'] = $cal_recurring['date_from'];
-                                        $updates['date_to'] = $cal_recurring['date_to'];
-                                        $updates['schedule_nextsend'] = $cal_recurring['date_send'];
-                                };
-                                MainWP_CReport_DB::get_instance()->update_report( $updates );
-                        }
-                    }
-                    $wpdb->query( "ALTER TABLE " . $this->table_name( 'client_report' ) . " DROP `recurring_date`");
-                }
-
-                if ( version_compare( $check_version, '5.15', '<' ) ) {
-                    // to fix missing table
-                    $rslt = $this->query( "SHOW TABLES LIKE '" . $this->table_name( 'client_group_report_content' ) . "'" );
-                    if ( !$rslt ) {
-                            $charset_collate = $wpdb->get_charset_collate();
-
-                            $tbl = 'CREATE TABLE `' . $this->table_name( 'client_group_report_content' ) . '` (
-                            `id` int(11) NOT NULL AUTO_INCREMENT,
-                            `report_id` int(11) NOT NULL,
-                            `site_id` int(11) NOT NULL,
-                            `report_content` longtext NOT NULL,
-                            `report_content_pdf` longtext NOT NULL,
-                            PRIMARY KEY (`id`)';
-                            $tbl .= ') ' . $charset_collate;
-
-                            $sql[] = $tbl;
-
-                            error_reporting( 0 );
-                            require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-                            foreach ( $sql as $query ) {
-                                dbDelta( $query );
-                            }
-                    }
-                }
-
-                if ( version_compare( $check_version, '5.16', '<=' ) ) {
-                    $sql = 'SELECT * FROM ' . $this->table_name( 'client_report' ) . " WHERE recurring_schedule = 'monthly' ";
-                    $all_reports = $wpdb->get_results( $sql );
-                    if (is_array($all_reports) && count($all_reports) > 0) {
-                        foreach ( $all_reports as $report ) {
-                                $recurring_day = intval($report->recurring_day);
-
-                                $updates = array(
-                                    'id' => $report->id,
-                                );
-                                $this_date = date('j');
-
-                                if ($recurring_day > $this_date ) {
-                                    $date_to_fix = strtotime("last month");  // scheduled for this month
-                                } else {
-                                    $date_to_fix = strtotime("next month");  // scheduled for next month
-                                }
-
-                                $cal_recurring =  MainWP_CReport::calc_recurring_date('monthly', $recurring_day, $date_to_fix); //ok
-                                // update to fix dates
-                                if (is_array($cal_recurring)) {
-                                        $updates['date_from_nextsend'] = $cal_recurring['date_from'];
-                                        $updates['date_to_nextsend'] = $cal_recurring['date_to'];
-                                        $updates['schedule_nextsend'] = $cal_recurring['date_send'];
-                                }
-
-                                MainWP_CReport_DB::get_instance()->update_report( $updates );
-                        }
-                    }
-
-                }
-
-
-                if ( version_compare( $check_version, '5.21', '<' ) ) {
-                    $wpdb->query( "ALTER TABLE " . $this->table_name( 'client_report' ) . " DROP `nextsend`");
-                }
-
-                if ( version_compare( $check_version, '6', '<' ) ) {
-                    $sql = 'UPDATE ' .
-                            $this->table_name( 'client_report' ) .
-                            " SET sending_errors = '' ";
-                    $wpdb->query($sql);
-                }
-            }
-        }
+	}
 
         public function init_default_data() {
 
@@ -1179,20 +1010,7 @@ $this->default_formats = array(
 		return $this->wpdb->get_results( 'SELECT wpid, value FROM ' . $this->table_name( 'wp_options' ) . ' WHERE wpid IN (' . implode(',', $websiteIds) . ') AND name = "' . $this->escape( $option ) . '"' );
 	}
 
-	public function get_available_archive_reports() {
-		global $wpdb;
-		$sql = 'SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
-				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
-				. ' ON rp.client_id = c.clientid '
-				. ' WHERE rp.is_archived = 0 AND rp.scheduled = 0'
-				. ' AND rp.date_from <= ' . (time() - 3600 * 24 * 30) . '  '
-				. ' AND (rp.sites != "" || rp.groups != "") AND c.email IS NOT NULL '
-				. '';
-		return $wpdb->get_results( $sql );
-	}
-
-
-    public function get_scheduled_reports_to_send() {
+    public function get_scheduled_reports_to_send( $date_offset ) {
 		global $wpdb;
 		/*
 		 * For testers
@@ -1205,7 +1023,7 @@ $this->default_formats = array(
 				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
 				. ' ON rp.client_id = c.clientid '
 				. " WHERE rp.recurring_schedule != '' AND rp.scheduled = 1 "
-                . " AND rp.schedule_nextsend < " . time(); // this conditional to check time to send scheduled reports
+                . " AND rp.schedule_nextsend < " . ( time() - $date_offset ); // this conditional to check time to send scheduled reports,  support send report at local time.
 		return $wpdb->get_results( $sql );
 	}
 

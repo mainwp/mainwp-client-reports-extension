@@ -44,7 +44,16 @@ if ( isset( $_GET['id'] ) && $_GET['id'] && isset($_GET['time']) && !empty($_GET
 if ( !empty( $html) ) {
     $dompdf->loadHtml($html);
     $dompdf->render();
-    $dompdf->stream('client-report.pdf', array("Attachment"=>0));
+
+    $filename = 'client-report.pdf';		
+    $filename = apply_filters( 'mainwp_client_reports_pdf_filename', $filename, $_GET['id'] );
+		
+    if ( substr( $filename, -4 ) !== '.pdf' )
+        $filename .= '.pdf';		
+    // sanitize filename.
+    $filename = sanitize_file_name( $filename );
+
+    $dompdf->stream( $filename, array("Attachment"=>0));
 }
 
 
