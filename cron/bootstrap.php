@@ -1,4 +1,6 @@
 <?php
+/** MainWP Client Reports Extension Cron Bootstrap. */
+
 @ignore_user_abort(true);
 @set_time_limit(0);
 $mem =  '512M';

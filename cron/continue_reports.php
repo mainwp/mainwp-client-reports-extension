@@ -1,4 +1,10 @@
 <?php
+/**
+ * MainWP Client Reports Extension continue sending reports.
+ *
+ * @uses MainWP_CReport::cron_continue_send_reports()
+ */
+
 include_once('bootstrap.php');
 
 if ( class_exists('MainWP_CReport')) {

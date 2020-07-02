@@ -1,4 +1,5 @@
 <?php
+/** MainWP Client Reports Extension Archive. */
 
 //include_once( 'bootstrap.php' );
 //
