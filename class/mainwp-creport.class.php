@@ -945,13 +945,13 @@ class MainWP_CReport {
 	public static function cron_send_reports() {
 		
 		$send_local_time = apply_filters( 'mainwp_client_reports_send_local_time' , false);
-		$date_offset = 0;
+		$timestamp_offset = 0;
 		if ($send_local_time) {
 			$gmtOffset = get_option( 'gmt_offset' );
-			$date_offset = $gmtOffset * HOUR_IN_SECONDS;
+			$timestamp_offset = $gmtOffset * HOUR_IN_SECONDS;
 		}
 
-		$time_check = time() - $date_offset;
+		$time_check = time() + $timestamp_offset;
 
 		$mainwpLastCheck = get_option( 'mainwp_creport_sendcheck_last' );
 		if ( $mainwpLastCheck == date( 'd/m/Y', $time_check ) ) {
@@ -964,7 +964,7 @@ class MainWP_CReport {
 		//this will execute once every day to check to send the group reports
 
 		$allReportsToSend	 = array();
-		$allGroupReports	 = MainWP_CReport_DB::get_instance()->get_scheduled_reports_to_send( $date_offset );
+		$allGroupReports	 = MainWP_CReport_DB::get_instance()->get_scheduled_reports_to_send( $timestamp_offset );
 
 		$check_seconds = 6 * 60 * 60; // hours in seconds
 
@@ -1004,7 +1004,7 @@ class MainWP_CReport {
 		do_action( 'mainp_log_debug', 'CRON :: MainWP Client Reports :: Check reports to send :: Found ' . count( $allReportsToSend ) . ' reports to send.', $forced_log );
 
 		if ( count( $allReportsToSend ) == 0 ) {
-			update_option( 'mainwp_creport_sendcheck_last', date( 'd/m/Y' ) );
+			update_option( 'mainwp_creport_sendcheck_last', date( 'd/m/Y', time() ) );
 		}
 
 		foreach ( $allReportsToSend as $report ) {
@@ -1038,11 +1038,6 @@ class MainWP_CReport {
 
 		do_action( 'mainp_log_debug', 'CRON :: MainWP Client Reports :: Continue send :: Report: ' . $report->title, $forced_log );
 
-		$report = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $report->id );
-
-		if ( empty( $report ) )
-			return;
-
 		$sites	 = unserialize( base64_decode( $report->sites ) );
 		$groups	 = unserialize( base64_decode( $report->groups ) );
 
@@ -1073,7 +1068,7 @@ class MainWP_CReport {
 
 			$sendme			 = true;
 			$idx			 = 0;
-			$completed_sites = MainWP_CReport_DB::get_instance()->get_completed_sites( $report->id );
+			$completedSites = MainWP_CReport_DB::get_instance()->get_completed_sites( $report->id );
 
 			while ( $sendme && ( $idx < $total_sites ) ) {
 
@@ -1082,18 +1077,16 @@ class MainWP_CReport {
 				$website = MainWP_CReport_Utility::map_site( $dbsite, array('id', 'name', 'url') );
 				$site_id = $website['id'];
 
-				if ( isset( $completed_sites[$site_id] ) ) {
-					// if send success (1) or failed (0) or greater than $retry_time will do not re-try
-//					if ( $completed_sites[ $site_id ] == 0 || $completed_sites[ $site_id ] == 1 || ( $completed_sites[ $site_id ] >= self::$retry_time + 1) ) {					
-					$idx++;
-					continue;
-//					} else {
-//						$completed_sites[ $site_id ] += 1; // increased the re-try time value
-//					}
-				} else {
-					// will update to 0 or 1 later?
-					$completed_sites[$site_id] = 2;
-				}
+				if ( isset( $completedSites[$site_id] ) ) {
+					if ( 1 == $completedSites[ $site_id ] || 0 == $completedSites[ $site_id ] ) {
+						$idx++; // count to next site.
+						continue;
+					}
+				} 
+				// will update to 0 or 1 later after send report mail, to fix delay of send mail.
+				$completedSites[$site_id] = 2;				
+				self::update_completed_websites($report, $completedSites, $total_sites );	// update  before prepare report content, will re-set later.
+				
 
 				$data = self::prepare_content_report_email( $report, false, $website, true );
 
@@ -1118,16 +1111,16 @@ class MainWP_CReport {
 						MainWP_CReport_DB::get_instance()->updateWebsiteOption( $site_id, 'creport_last_report', $lastsend );
 
 						do_action( 'mainp_log_debug', 'CRON :: MainWP Client Reports :: Send report success - website :: ' . $website['url'] . ' :: Subject :: ' . $email_subject, $forced_log );
-						$completed_sites[$site_id] = true;
-						self::update_completed_sites( $report, $completed_sites, $total_sites, $forced_log );
+						$completedSites[$site_id] = 1;
+						self::update_completed_websites( $report, $completedSites, $total_sites, $forced_log );
 					} else {
 						do_action( 'mainp_log_debug', 'CRON :: MainWP Client Reports :: Send report failed - website :: ' . $website['url'] . ' :: Subject :: ' . $email_subject, $forced_log );
 						/*
 						 * If send report failed
 						 * update completed sites to prevent re-send report multi-time
 						 */
-						$completed_sites[$site_id] = false;
-						self::update_completed_sites( $report, $completed_sites, $total_sites, $forced_log );
+						$completedSites[$site_id] = 0;
+						self::update_completed_websites( $report, $completedSites, $total_sites, $forced_log );
 					}
 					/*
 					 * end send email
@@ -1138,12 +1131,12 @@ class MainWP_CReport {
 				if ( $countSend >= $chunkSend ) {
 					$sendme = false;
 				}
+				usleep( 200000 );
 			}
 		}
 	}
 
-	function send_onetime_report_email( $data, $report, $send_test = false,
-									 $website = null ) {
+	function send_onetime_report_email( $data, $report, $send_test = false, $website = null ) {
 
 		$email_subject	 = stripslashes( $data['subject'] );
 		$content_email	 = $data['content'];
@@ -1154,9 +1147,9 @@ class MainWP_CReport {
 
 		if ( wp_mail( $data['to_email'], $email_subject, $content_email, $data['header'], $data['attachments'] ) ) {
 			if ( !$send_test ) {
-				$lastsend	 = time();
+				$lastsend	 = time(); // UTC time.
 				$values		 = array(
-					'lastsend' => $lastsend  // to display last send time only
+					'lastsend' => $lastsend  // to display last send time only.
 				);
 				MainWP_CReport_DB::get_instance()->update_reports_with_values( $report->id, $values );
 				MainWP_CReport_DB::get_instance()->updateWebsiteOption( $site_id, 'creport_last_report', $lastsend );
@@ -1174,17 +1167,16 @@ class MainWP_CReport {
 	 * update the completed info for scheduled report
 	 */
 
-	public static function update_completed_sites( $report, $completedSites,
-												$total_sites, $forced_log = false ) {
+	public static function update_completed_websites( $report, $pCompletedSites, $total_sites, $forced_log = false ) {
 		if ( $report->scheduled ) {
-			MainWP_CReport_DB::get_instance()->update_reports_completed_sites( $report->id, $completedSites );
+			MainWP_CReport_DB::get_instance()->update_reports_completed_sites( $report->id, $pCompletedSites );
 			// filter completed site ids with completed value = 0 or = 1;
-			$filter_NotRetryVals = array_filter( $completedSites, function( $val ) {
-				return ( $val < 3 ); // || $val > self::$retry_time
+			$filter_completedSend = array_filter( $pCompletedSites, function( $val ) {
+				return ( $val < 2 ); 
 			} );
 			//update completed sites
-			if ( $total_sites > 0 && count( $filter_NotRetryVals ) >= $total_sites ) {
-				do_action( 'mainp_log_debug', 'MainWP Client Reports :: Test schedule reports :: count completed sites :: ' . count( $completedSites ), $forced_log );
+			if ( $total_sites > 0 && count( $filter_completedSend ) >= $total_sites ) {
+				do_action( 'mainp_log_debug', 'MainWP Client Reports :: Test schedule reports :: count completed sites :: ' . count( $pCompletedSites ), $forced_log );
 				MainWP_CReport_DB::get_instance()->update_reports_completed( $report->id );
 			}
 		}
@@ -3386,15 +3378,6 @@ class MainWP_CReport {
 
 		$_show_completed_siteids = apply_filters( 'mainwp_client_reports_table_show_completed_site_ids', false );
 		
-		$date_offset = 0;
-		$send_local_time = apply_filters( 'mainwp_client_reports_send_local_time' , false );
-
-		if ($send_local_time) {
-			$gmtOffset = get_option( 'gmt_offset' );
-			$date_offset = $gmtOffset * HOUR_IN_SECONDS;
-		}
-
-
 		foreach ( $reports as $report ) {
 
 			$is_scheduled = $report->scheduled ? true : false;
@@ -3404,7 +3387,7 @@ class MainWP_CReport {
 			if ( !empty( $report->recurring_schedule ) && $is_scheduled ) {
 				$sche_column = $recurring_schedule[$report->recurring_schedule];
 				if ( !empty( $report->schedule_nextsend ) ) {
-					$sche_column .= '<br><em>Next Run: ' . MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $report->schedule_nextsend - $date_offset ) ) . '</em>';
+					$sche_column .= '<br><em>Next Run: ' . MainWP_CReport_Utility::format_timestamp( $report->schedule_nextsend ) . '</em>';
 				}
 			}
 
@@ -3432,7 +3415,7 @@ class MainWP_CReport {
 				<td><?php echo stripslashes( $report->email ); ?></td>
 				<td>
 					<?php
-					echo !empty( $report->lastsend ) ? MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $report->lastsend - $date_offset ) ) : '';
+					echo !empty( $report->lastsend ) ? MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $report->lastsend ) ) : ''; // format to show local time.
 
 					if ( $_show_completed_siteids ) {
 

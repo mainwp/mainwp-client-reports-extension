@@ -1010,20 +1010,20 @@ $this->default_formats = array(
 		return $this->wpdb->get_results( 'SELECT wpid, value FROM ' . $this->table_name( 'wp_options' ) . ' WHERE wpid IN (' . implode(',', $websiteIds) . ') AND name = "' . $this->escape( $option ) . '"' );
 	}
 
-    public function get_scheduled_reports_to_send( $date_offset ) {
+    public function get_scheduled_reports_to_send( $timestamp_offset ) {
 		global $wpdb;
-		/*
-		 * For testers
-		 * to force the schedule reports start run, 
-		 * reset values: `schedule_nextsend`, `schedule_lastsend`, `completed` and option 'mainwp_creport_sendcheck_last', 
-		 * to corresponding values, for example values one previous day 
-		 * 
+		 /*
+		 * For testing, to force the schedule reports start run.
+		 * Reset values: `schedule_nextsend`, `schedule_lastsend` and option 'mainwp_creport_sendcheck_last',
+		 * to corresponding values ( values one day ago, for example )
+		 * cron job will update 'schedule_lastsend' to current time, and 'completed_sites' to empty array().
+		 *
 		 */
         $sql = 'SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
 				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
 				. ' ON rp.client_id = c.clientid '
 				. " WHERE rp.recurring_schedule != '' AND rp.scheduled = 1 "
-                . " AND rp.schedule_nextsend < " . ( time() - $date_offset ); // this conditional to check time to send scheduled reports,  support send report at local time.
+                . " AND rp.schedule_nextsend < " . ( time() + $timestamp_offset ); // this conditional to check time to send scheduled reports,  support send report at local time.
 		return $wpdb->get_results( $sql );
 	}
 
@@ -1083,20 +1083,9 @@ $this->default_formats = array(
                 return $wpdb->update( $this->table_name( 'client_report' ), array( 'completed' => time() ), array( 'id' => $id ) );
 	}
 
-//	public function update_reports_errors( $id, $errors ) {
-//            global $wpdb;
-//            if ( $errors == '' ) {
-//                    return $wpdb->update( $this->table_name( 'client_report' ), array( 'sending_errors' => '' ), array( 'id' => $id ) );
-//            } else {
-//                    $report = MainWP_CReport_DB::get_instance()->get_report_by( 'id', $id );
-//                    return $wpdb->update( $this->table_name( 'client_report' ), array( 'sending_errors' => $report->sending_errors . ' ' . $errors ), array( 'id' => $id ) );
-//            }
-//	}
-
-
-	public function update_reports_completed_sites( $id, $completedSites ) {
+	public function update_reports_completed_sites( $id, $pCompletedSites ) {
             global $wpdb;
-            return $wpdb->update( $this->table_name( 'client_report' ), array( 'completed_sites' => json_encode( $completedSites ) ), array( 'id' => $id ) );
+            return $wpdb->update( $this->table_name( 'client_report' ), array( 'completed_sites' => json_encode( $pCompletedSites ) ), array( 'id' => $id ) );
 	}
 
 	public function delete_report_by( $by = 'id', $report_id = null ) {
