@@ -44,15 +44,19 @@ class MainWP_CReport_Extension {
 		add_filter( 'mainwp-sync-others-data', array( $this, 'sync_others_data' ), 10, 2 );
 		add_action( 'mainwp-site-synced', array( &$this, 'site_synced' ), 10, 2 );
 		add_action( 'mainwp_delete_site', array( &$this, 'on_delete_site' ), 10, 1 );
-		// not used
+		// not used.
 		add_action( 'mainwp_sucuri_scan_done', array( &$this, 'sucuri_scan_done' ), 10, 3 ); // to fix action for wp cli
 
 		/**
-			 * This hook allows you to generate report content via the 'mainwp_client_report_generate' filter.
-			 *
+		 * This hook allows you to generate report content via the 'mainwp_client_report_generate' filter.
+		 *
 		 * @see \MainWP_CReport::hook_generate_report();
-			 */
+		 */
 		add_filter( 'mainwp_client_report_generate', array( 'MainWP_CReport', 'hook_generate_report' ), 10, 5 );
+
+		add_filter( 'mainwp_client_report_get_site_tokens', array( 'MainWP_CReport', 'hook_get_site_tokens' ), 10, 2 );
+		add_filter( 'mainwp_client_report_generate_content', array( 'MainWP_CReport', 'hook_generate_content' ), 10, 5 );
+
 
 		if ( isset( $_GET['page'] ) && ( 'Extensions-Mainwp-Client-Reports-Extension' == $_GET['page'] ) && isset( $_GET['tab'] ) && $_GET['page'] == 'report' ) {
 			require_once 'includes/functions.php';

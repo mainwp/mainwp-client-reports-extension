@@ -2,7 +2,7 @@
 
 class MainWP_CReport_DB {
 
-	private $mainwp_wpcreport_db_version = '6.1';
+	private $mainwp_wpcreport_db_version = '6.2';
 	private $table_prefix;
 	// Singleton
 	private static $instance = null;
@@ -64,6 +64,7 @@ PRIMARY KEY  (`id`)  ';
 		$tbl = 'CREATE TABLE `' . $this->table_name( 'client_report_site_token' ) . '` (
 `id` int(11) NOT NULL AUTO_INCREMENT,
 `site_url` varchar(255) NOT NULL,
+`site_id` int(11) NOT NULL,
 `token_id` int(12) NOT NULL,
 `token_value` varchar(512) NOT NULL';
 		if ( '' == $currentVersion || ! $table_existed ) {
@@ -243,6 +244,25 @@ PRIMARY KEY  (`id`)  ';
 
 	function check_update( $check_version ) {
 			global $wpdb;
+
+		if ( empty( $check_version ) ) {
+			return;
+		}
+
+		if ( version_compare( $check_version, '6.2' ) < 0 ) {
+			$tokens = $wpdb->get_results( ' SELECT st.* FROM ' . $this->table_name( 'client_report_site_token' ) . ' st WHERE 1 = 1 ' );
+			foreach ( $tokens as $item ) {
+				$site_url = $item->site_url;
+				$website  = apply_filters( 'mainwp_getwebsitesbyurl', $site_url );
+				if ( $website ) {
+					$website = current( $website );
+					$sql     = 'UPDATE ' . $this->table_name( 'client_report_site_token' ) . '
+								SET site_id = ' . $this->escape( $website->id ) . ' 
+								WHERE id = ' . $item->id;
+					$wpdb->query( $sql );
+				}
+			}
+		}
 
 	}
 
@@ -447,12 +467,13 @@ We hope that this report was useful and we look forward to managing your website
 		global $wpdb;
 		if ( MainWP_CReport_Utility::ctype_digit( $id ) && ! empty( $token['token_name'] ) && ! empty( $token['token_description'] ) ) {
 			if ( $wpdb->update( $this->table_name( 'client_report_token' ), $token, array( 'id' => intval( $id ) ) ) ) {
-				return $this->get_tokens_by( 'id', $id ); }
+				return $this->get_tokens_by( 'id', $id );
+			}
 		}
 		return false;
 	}
 
-	public function get_tokens_by( $by = 'id', $value = null, $site_url = '' ) {
+	public function get_tokens_by( $by = 'id', $value = null, $site_id = false ) {
 		global $wpdb;
 
 		if ( empty( $by ) || empty( $value ) ) {
@@ -463,6 +484,7 @@ We hope that this report was useful and we look forward to managing your website
 		}
 
 		$sql = '';
+
 		if ( 'id' == $by ) {
 			$sql = $wpdb->prepare( 'SELECT * FROM ' . $this->table_name( 'client_report_token' ) . ' WHERE `id`=%d ', $value );
 		} elseif ( 'token_name' == $by ) {
@@ -471,16 +493,19 @@ We hope that this report was useful and we look forward to managing your website
 
 		$token = null;
 		if ( ! empty( $sql ) ) {
-			$token = $wpdb->get_row( $sql ); }
+			$token = $wpdb->get_row( $sql );
+		}
 
-		$site_url = trim( $site_url );
+		if ( empty( $site_id ) ) {
+			return $token;
+		}
 
-		if ( empty( $site_url ) ) {
-			return $token; }
+		if ( $token && ! empty( $site_id ) ) {
+			$sql = 'SELECT * FROM ' .
+					$this->table_name( 'client_report_site_token' ) . " 
+					WHERE site_id = '" . $this->escape( $site_id ) . "' 
+					AND token_id = " . $token->id;
 
-		if ( $token && ! empty( $site_url ) ) {
-			$sql        = 'SELECT * FROM ' . $this->table_name( 'client_report_site_token' ) .
-					" WHERE site_url = '" . $this->escape( $site_url ) . "' AND token_id = " . $token->id;
 			$site_token = $wpdb->get_row( $sql );
 			if ( $site_token ) {
 				$token->site_token = $site_token;
@@ -489,6 +514,7 @@ We hope that this report was useful and we look forward to managing your website
 				return null;
 			}
 		}
+
 		return null;
 	}
 
@@ -506,63 +532,69 @@ We hope that this report was useful and we look forward to managing your website
 		return $wpdb->get_results( $qry );
 	}
 
-	public function get_site_tokens( $site_url, $index = 'id' ) {
+	public function get_site_tokens_by_site( $website ) {
+
 		global $wpdb;
 
-				$site_url = trim( $site_url );
-		if ( empty( $site_url ) ) {
-			return false;
+		if ( empty( $website ) || ! is_array( $website ) ) {
+			return array();
 		}
 
-		$qry = ' SELECT st.*, t.token_name FROM ' . $this->table_name( 'client_report_site_token' ) . ' st , ' . $this->table_name( 'client_report_token' ) . ' t ' .
-				" WHERE st.site_url = '" . $site_url . "' AND st.token_id = t.id ";
-		// echo $qry;
+		$site_url  = $website['url'];
+		$site_name = $website['name'];
+		$site_id   = $website['id'];
+
+		$default_tokens = array(
+			'client.site.url'  => $site_url,
+			'client.site.name' => $site_name,
+		);
+
+		$qry = ' SELECT st.*, t.token_name FROM ' .
+					$this->table_name( 'client_report_site_token' ) . ' st , ' .
+					$this->table_name( 'client_report_token' ) . ' t ' . " 
+					WHERE ( st.site_url = '" . $site_url . "' OR st.site_id = '" . $site_id . "' )  
+					AND st.token_id = t.id "; // st.site_url for compatible data.
+
 		$site_tokens = $wpdb->get_results( $qry );
-		$return      = array();
+
+		$return = array();
+
 		if ( is_array( $site_tokens ) ) {
 			foreach ( $site_tokens as $token ) {
-				if ( 'id' == $index ) {
-					$return[ $token->token_id ] = $token;
-				} else {
-					$return[ $token->token_name ] = $token;
-				}
+				$return[ $token->token_name ] = $token;
 			}
 		}
 		// get default token value if empty
 		$tokens = $this->get_tokens();
 		if ( is_array( $tokens ) ) {
 			foreach ( $tokens as $token ) {
-				// check default tokens if it is empty
+				// check default tokens if it is empty.
 				if ( is_object( $token ) ) {
-					if ( 'id' == $index ) {
-						if ( 1 == $token->type && ( ! isset( $return[ $token->id ] ) || empty( $return[ $token->id ] ) ) ) {
-							if ( ! isset( $return[ $token->id ] ) ) {
-								$return[ $token->id ] = new stdClass(); }
-							$return[ $token->id ]->token_value = $this->_get_default_token_site( $token->token_name, $site_url );
+					if ( $token->type == 1 && ( ! isset( $return[ $token->token_name ] ) || empty( $return[ $token->token_name ] ) ) ) {
+						if ( ! isset( $return[ $token->token_name ] ) ) {
+							$return[ $token->token_name ] = new stdClass();
 						}
-					} else {
-						if ( $token->type == 1 && ( ! isset( $return[ $token->token_name ] ) || empty( $return[ $token->token_name ] ) ) ) {
-							if ( ! isset( $return[ $token->token_name ] ) ) {
-								$return[ $token->token_name ] = new stdClass(); }
-							$return[ $token->token_name ]->token_value = $this->_get_default_token_site( $token->token_name, $site_url );
-						}
+						$return[ $token->token_name ]->token_value = isset( $default_tokens[ $token->token_name ] ) ? $default_tokens[ $token->token_name ] : '';
 					}
 				}
 			}
 		}
+
 		return $return;
 	}
 
 	public function _get_default_token_site( $token_name, $site_url ) {
 		$website = apply_filters( 'mainwp_getwebsitesbyurl', $site_url );
 		if ( empty( $this->default_tokens[ $token_name ] ) || ! $website ) {
-			return false; }
+			return false;
+		}
 		$website = current( $website );
 		if ( is_object( $website ) ) {
 			$url_site  = $website->url;
 			$name_site = $website->name;
 		} else {
-			return false; }
+			return false;
+		}
 
 		switch ( $token_name ) {
 			case 'client.site.url':
@@ -578,60 +610,50 @@ We hope that this report was useful and we look forward to managing your website
 		return $token_value;
 	}
 
-	public function add_token_site( $token_id, $token_value, $site_url ) {
+	public function add_token_site( $token_id, $token_value, $site_id ) {
 		/** @var $wpdb wpdb */
 		global $wpdb;
-
-		if ( empty( $token_id ) ) {
-			return false; }
-
-		$website = apply_filters( 'mainwp_getwebsitesbyurl', $site_url );
-		if ( empty( $website ) ) {
-			return false; }
 
 		if ( $wpdb->insert(
 			$this->table_name( 'client_report_site_token' ),
 			array(
 				'token_id'    => $token_id,
 				'token_value' => $token_value,
-				'site_url'    => $site_url,
+				'site_id'     => $site_id,
 			)
 		) ) {
-			return $this->get_tokens_by( 'id', $token_id, $site_url );
+			return true;
 		}
 
 		return false;
 	}
 
-	public function update_token_site( $token_id, $token_value, $site_url ) {
+	public function update_token_site( $token_id, $token_value, $site_id ) {
 		/** @var $wpdb wpdb */
 		global $wpdb;
-
-		if ( empty( $token_id ) ) {
-			return false; }
-
-		$website = apply_filters( 'mainwp_getwebsitesbyurl', $site_url );
-		if ( empty( $website ) ) {
-			return false; }
 
 		$sql = 'UPDATE ' . $this->table_name( 'client_report_site_token' ) .
 				" SET token_value = '" . $this->escape( $token_value ) . "' " .
 				' WHERE token_id = ' . intval( $token_id ) .
-				" AND site_url = '" . $this->escape( $site_url ) . "'";
-		// echo $sql."<br />";
-		if ( $wpdb->query( $sql ) ) {
-			return $this->get_tokens_by( 'id', $token_id, $site_url );
-		}
+				" AND site_id = '" . $this->escape( $site_id ) . "'";
 
+		// to fix empty data.
+		$wpdb->query( 'DELETE FROM ' . $this->table_name( 'client_report_site_token' ) . ' WHERE site_id = 0 ' );
+
+		if ( $wpdb->query( $sql ) ) {
+			return true;
+		}
 		return false;
 	}
 
-	public function delete_site_tokens( $token_id = null, $site_url = null ) {
+	public function delete_site_tokens( $token_id = null, $site_id = null ) {
 		global $wpdb;
 		if ( ! empty( $token_id ) ) {
-			return $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $this->table_name( 'client_report_site_token' ) . ' WHERE token_id = %d ', $token_id ) ); } elseif ( ! empty( $site_url ) ) {
-			return $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $this->table_name( 'client_report_site_token' ) . ' WHERE site_url = %s ', $site_url ) ); }
-			return false;
+			return $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $this->table_name( 'client_report_site_token' ) . ' WHERE token_id = %d ', $token_id ) );
+		} elseif ( ! empty( $site_id ) ) {
+			return $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $this->table_name( 'client_report_site_token' ) . ' WHERE site_id = %s ', $site_id ) );
+		}
+		return false;
 	}
 
 	public function delete_token_by( $by = 'id', $value = null ) {
