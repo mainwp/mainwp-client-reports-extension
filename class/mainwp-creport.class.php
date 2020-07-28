@@ -906,20 +906,9 @@ class MainWP_CReport {
 	}
 
 	public function init_cron() {
-//		add_action( 'mainwp_creport_cron_archive_reports', array( 'MainWP_CReport', 'cron_archive_reports' ) );
 		add_action( 'mainwp_creport_cron_send_reports', array('MainWP_CReport', 'cron_send_reports') );
 		add_action( 'mainwp_creport_cron_continue_send_reports', array('MainWP_CReport', 'cron_continue_send_reports') );
 		$useWPCron = (false === get_option( 'mainwp_wp_cron' )) || (1 == get_option( 'mainwp_wp_cron' ));
-//        if ( ($sched = wp_next_scheduled( 'mainwp_creport_cron_archive_reports' )) == false ) {
-//            if ( $useWPCron ) {
-//                $time = strtotime( date( 'Y-m-d' ) . ' 23:59:59' );
-//                wp_schedule_event( $time, 'daily', 'mainwp_creport_cron_archive_reports' );
-//            }
-//        } else {
-//            if ( ! $useWPCron ) {
-//                wp_unschedule_event( $sched, 'mainwp_creport_cron_archive_reports' );
-//            }
-//        }
 
 		if ( ($sched = wp_next_scheduled( 'mainwp_creport_cron_send_reports' )) == false ) {
 			if ( $useWPCron ) {
