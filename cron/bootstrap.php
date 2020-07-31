@@ -7,6 +7,12 @@ $mem =  '512M';
 @ini_set('memory_limit', $mem);
 @ini_set('max_execution_time', 0);
 
+/**
+ * Checks whether cron is in progress.
+ *
+ * @const ( bool ) Default: true
+ * @source https://code-reference.mainwp.com/
+ */
 define('DOING_CRON', true);
 $included = false;
 
