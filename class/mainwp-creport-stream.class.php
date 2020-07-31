@@ -1,43 +1,92 @@
 <?php
+/** MainWP Client Reports Stream. */
 
+/**
+ * Class MainWP_CReport_Stream
+ */
 class MainWP_CReport_Stream {
 
-	private $option_handle = 'mainwp_creport_branding_option';
-	private $option = array();
-	private static $order = '';
-	private static $orderby = '';
-	//Singleton
-	private static $instance = null;
+    /** @var string MainWP Client Reports brnading option handle. */
+    private $option_handle = 'mainwp_creport_branding_option';
 
-	static function get_instance() {
+    /** @var array Options array. */
+    private $option = array();
+
+    /** @var string Order. */
+    private static $order = '';
+
+    /** @var string Order by. */
+    private static $orderby = '';
+
+    /**
+     * Create public static instance for MainWP_CReport_Stream.
+     *
+     * @return MainWP_CReport_Stream|null
+     */
+    private static $instance = null;
+
+    /**
+     * Method get_instance()
+     *
+     * Create a public static instance.
+     *
+     * @return mixed Class instance.
+     */
+    static function get_instance() {
 		if ( null == MainWP_CReport_Stream::$instance ) {
 			MainWP_CReport_Stream::$instance = new MainWP_CReport_Stream();
 		}
 		return MainWP_CReport_Stream::$instance;
 	}
 
-	public function __construct() {
+    /**
+     * MainWP_CReport_Stream constructor.
+     */
+    public function __construct() {
 		$this->option = get_option( $this->option_handle );
 	}
 
-	public function admin_init() {
+    /**
+     * Initiate admin.
+     */
+    public function admin_init() {
 		add_action( 'wp_ajax_mainwp_creport_active_plugin', array( $this, 'ajax_active_plugin' ) );
 		add_action( 'wp_ajax_mainwp_creport_upgrade_plugin', array( $this, 'ajax_upgrade_plugin' ) );
 		add_action( 'wp_ajax_mainwp_creport_showhide_stream', array( $this, 'ajax_showhide_stream' ) );
 	}
 
-	public function get_option( $key = null, $default = '' ) {
+    /**
+     * Get option.
+     *
+     * @param null|string $key Option key.
+     * @param string $default Holds the default option.
+     * @return mixed|string Return default option.
+     */
+    public function get_option($key = null, $default = '' ) {
 		if ( isset( $this->option[ $key ] ) ) {
 			return $this->option[ $key ]; }
 		return $default;
 	}
 
-	public function set_option( $key, $value ) {
+    /**
+     * Set option.
+     *
+     * @param string $key Option key.
+     * @param $value Option value.
+     *
+     * @return mixed Return FALSE if value was not updated and TRUE if value was updated.
+     */
+    public function set_option( $key, $value ) {
 		$this->option[ $key ] = $value;
 		return update_option( $this->option_handle, $this->option );
 	}
 
-	public static function gen_dashboard_tab( $websites ) {
+    /**
+     * Render dashboard tab.
+     *
+     * @param array $websites Child Sites array.
+     */
+    public static function gen_dashboard_tab( $websites ) {
 		?>
 		<div class="ui segment">
 			<table id="mainwp-client-reports-sites-table" class="ui single line table" style="width: 100%">
@@ -94,7 +143,12 @@ class MainWP_CReport_Stream {
 		<?php
 	}
 
-	public static function gen_dashboard_table_rows( $websites ) {
+    /**
+     * Render dashboard table rows.
+     *
+     * @param array $websites Child Sites array.
+     */
+    public static function gen_dashboard_table_rows($websites ) {
 		$location = 'options-general.php?page=mainwp-reports-page';
 		$plugin_slug = 'mainwp-child-reports/mainwp-child-reports.php';
 		$plugin_name = 'MainWP Child Reports';
@@ -157,7 +211,15 @@ class MainWP_CReport_Stream {
       }
 	}
 
-	public function get_websites_stream( $websites, $selected_group = 0, $lastReportsSites = array() ) {
+    /**
+     * Get Child Sites Stream.
+     *
+     * @param array $websites Child Sites array.
+     * @param int $selected_group Selected sites group.
+     * @param array $lastReportsSites Last reported sites array.
+     * @return array Child Sites Stream.
+     */
+    public function get_websites_stream( $websites, $selected_group = 0, $lastReportsSites = array() ) {
 		$websites_stream = array();
 		$streamHide = $this->get_option( 'hide_stream_plugin' );
                 if ( ! is_array( $streamHide ) ) {
@@ -192,7 +254,7 @@ class MainWP_CReport_Stream {
                                                                         } else {
 										$site['plugin_activated'] = 0;
                                                                         }
-                                                                        // get upgrade info
+                                                                        // get upgrade info.
                                                                         $site['plugin_version'] = $plugin['version'];
                                                                         $plugin_upgrades = json_decode( $website->plugin_upgrades, 1 );
                                                                         if ( is_array( $plugin_upgrades ) && count( $plugin_upgrades ) > 0 ) {
@@ -221,6 +283,8 @@ class MainWP_CReport_Stream {
 					}
 				}
 			} else {
+
+			    /** @global object $mainWPCReportExtensionActivator MainWP Client Reports Extension Activator instance. */
 				global $mainWPCReportExtensionActivator;
 
 				$group_websites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array(), array( $selected_group ) );
@@ -253,7 +317,7 @@ class MainWP_CReport_Stream {
 
                                                                         $site['plugin_version'] = $plugin['version'];
 
-                                                                        // get upgrade info
+                                                                        // get upgrade info.
                                                                         $plugin_upgrades = json_decode( $website->plugin_upgrades, 1 );
                                                                         if ( is_array( $plugin_upgrades ) && count( $plugin_upgrades ) > 0 ) {
                                                                                 if ( isset( $plugin_upgrades['mainwp-child-reports/mainwp-child-reports.php'] ) ) {
@@ -282,7 +346,7 @@ class MainWP_CReport_Stream {
 			}
 		}
 
-		// if search action
+		// if search action.
 		$search_sites = array();
 		if ( isset( $_GET['s'] ) && ! empty( $_GET['s'] ) ) {
 			$find = trim( $_GET['s'] );
@@ -298,7 +362,10 @@ class MainWP_CReport_Stream {
 		return $websites_stream;
 	}
 
-	public static function gen_actions_rows() {
+    /**
+     * Generate action rows.
+     */
+    public static function gen_actions_rows() {
 		?>
 		<div class="mainwp-actions-bar">
 			<div class="ui grid">
@@ -323,19 +390,28 @@ class MainWP_CReport_Stream {
 		<?php
 	}
 
-	public function ajax_active_plugin() {
+    /**
+     * Ajax activate plugin.
+     */
+    public function ajax_active_plugin() {
                 MainWP_CReport::verify_nonce();
 		do_action( 'mainwp_activePlugin' );
 		die();
 	}
 
-	public function ajax_upgrade_plugin() {
+    /**
+     * Ajax upgrade plugin.
+     */
+    public function ajax_upgrade_plugin() {
                 MainWP_CReport::verify_nonce();
 		do_action( 'mainwp_upgradePluginTheme' );
 		die();
 	}
 
-	public function ajax_showhide_stream() {
+    /**
+     * Ajax show|hide stream.
+     */
+    public function ajax_showhide_stream() {
                 MainWP_CReport::verify_nonce();
 		$siteid = isset( $_POST['websiteId'] ) ? $_POST['websiteId'] : null;
 		$showhide = isset( $_POST['showhide'] ) ? $_POST['showhide'] : null;
