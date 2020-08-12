@@ -1,4 +1,6 @@
 <?php
+/** MainWP Client Reports Extension */
+
 /*
   Plugin Name: MainWP Client Reports Extension
   Plugin URI: https://mainwp.com
@@ -8,21 +10,55 @@
   Author URI: https://mainwp.com
   Documentation URI: https://mainwp.com/help/category/mainwp-extensions/client-reports/
  */
+
 if ( ! defined( 'MAINWP_CLIENT_REPORTS_PLUGIN_FILE' ) ) {
-	define( 'MAINWP_CLIENT_REPORTS_PLUGIN_FILE', __FILE__ );
+
+    /**
+     * Define MAINWP_CLIENT_REPORTS_PLUGIN_FILE with MainWP client reports extension.
+     */
+    define( 'MAINWP_CLIENT_REPORTS_PLUGIN_FILE', __FILE__ );
 }
 
+/**
+ * Class MainWP_CReport_Extension
+ */
 class MainWP_CReport_Extension {
 
-	public static $instance = null;
-	public $plugin_handle = 'mainwp-wpcreport-extension';
-	public static $plugin_url;
-	public $plugin_slug;
-	public $plugin_dir;
-	protected $option;
-	protected $option_handle = 'mainwp_wpcreport_extension';
-	public $version = '1.6';
+    /**
+     * Method instance()
+     *
+     * Create a public static instance.
+     *
+     * @return mixed Class instance.
+     */
+    public static $instance = null;
 
+    /** @var string Hold the extension handle. */
+    public $plugin_handle = 'mainwp-wpcreport-extension';
+
+    /** @var string Hold the entension URL. */
+    public static $plugin_url;
+
+    /** @var string Holds the extension's slug. */
+    public $plugin_slug;
+
+    /** @var string Hold the extension's directory location. */
+    public $plugin_dir;
+
+    /** @var string Hold extension option. */
+    protected $option;
+
+    /** @var string Holds option handle. */
+    protected $option_handle = 'mainwp_wpcreport_extension';
+
+    /** @var string Extension version. */
+    public $version = '1.6';
+
+    /**
+     * Create a public static instance.
+     *
+     * @return mixed Class instance.
+     */
     static function get_instance() {
 		if ( null == MainWP_CReport_Extension::$instance ) {
 			MainWP_CReport_Extension::$instance = new MainWP_CReport_Extension();
@@ -30,7 +66,10 @@ class MainWP_CReport_Extension {
 		return MainWP_CReport_Extension::$instance;
 	}
 
-	public function __construct() {
+    /**
+     * MainWP_CReport_Extension constructor.
+     */
+    public function __construct() {
 
 		$this->plugin_dir = plugin_dir_path( __FILE__ );
 		self::$plugin_url = plugin_dir_url( __FILE__ );
@@ -44,14 +83,15 @@ class MainWP_CReport_Extension {
 		add_filter( 'mainwp-sync-others-data', array( $this, 'sync_others_data' ), 10, 2 );
 		add_action( 'mainwp-site-synced', array( &$this, 'site_synced' ), 10, 2 );
 		add_action( 'mainwp_delete_site', array( &$this, 'on_delete_site' ), 10, 1 );
-		// not used
-		add_action( 'mainwp_sucuri_scan_done', array( &$this, 'sucuri_scan_done' ), 10, 3 ); // to fix action for wp cli
+
+        // to fix action for wp cli.
+		add_action( 'mainwp_sucuri_scan_done', array( &$this, 'sucuri_scan_done' ), 10, 3 );
 
     /**
-		 * This hook allows you to generate report content via the 'mainwp_client_report_generate' filter.
-		 *
+     * This hook allows you to generate report content via the 'mainwp_client_report_generate' filter.
+     *
      * @see \MainWP_CReport::hook_generate_report();
-		 */
+     */
     add_filter( 'mainwp_client_report_generate', array( 'MainWP_CReport', 'hook_generate_report' ), 10, 5 );
 
     if ( isset( $_GET['page'] ) && ('Extensions-Mainwp-Client-Reports-Extension' == $_GET['page']) && isset($_GET['tab']) && $_GET['page'] == 'report' ) {
@@ -64,17 +104,31 @@ class MainWP_CReport_Extension {
 		add_filter( 'cron_schedules', array( $this, 'getCronSchedules' ) );
 	}
 
-	public function localization() {
+    /**
+     * Initiate extension localization.
+     */
+    public function localization() {
 		load_plugin_textdomain( 'mainwp-client-reports-extension', false,  dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 	}
 
-	public function init() {
+    /**
+     * Initiate MainWP Client reports instance.
+     */
+    public function init() {
 
 		$mwp_creport = new MainWP_CReport();
 		$mwp_creport->init_cron();
 	}
 
-	public function plugin_row_meta( $plugin_meta, $plugin_file ) {
+    /**
+     * Plugin meta row.
+     *
+     * @param array $plugin_meta Plugin Meta data.
+     * @param string $plugin_file Plugin file.
+     *
+     * @return array Return plugin meta array.
+     */
+    public function plugin_row_meta( $plugin_meta, $plugin_file ) {
 
 		if ( $this->plugin_slug != $plugin_file ) {
 			return $plugin_meta;
@@ -90,6 +144,14 @@ class MainWP_CReport_Extension {
 		return $plugin_meta;
 	}
 
+    /**
+     * Sync client reports data.
+     *
+     * @param array $data Client reports data.
+     * @param array $pWebsite Child Site data.
+     *
+     * @return array Return client reports data.
+     */
     public function sync_others_data( $data, $pWebsite = null ) {
 		if ( ! is_array( $data ) ) {
                     $data = array();
@@ -98,7 +160,13 @@ class MainWP_CReport_Extension {
 		return $data;
 	}
 
-	public function site_synced( $website, $information = array()) {
+    /**
+     * Sync Client reports data.
+     *
+     * @param array $website Child site data.
+     * @param array $information Information data.
+     */
+    public function site_synced( $website, $information = array()) {
 		$website_id = $website->id;
 	    if ( is_array( $information ) && isset( $information['syncClientReportData'] ) && is_array( $information['syncClientReportData'] ) ) {
         $data = $information['syncClientReportData'];
@@ -112,13 +180,25 @@ class MainWP_CReport_Extension {
 	    }
 	}
 
+    /**
+     * On delete site.
+     *
+     * @param array $website Child site array.
+     */
     public function on_delete_site( $website ) {
 		if ( $website ) {
 			MainWP_CReport_DB::get_instance()->delete_group_report_content( 0, $website->id );
 		}
 	}
 
-	public function sucuri_scan_done( $website_id, $scan_status, $data ) {
+    /**
+     * Sucuri scan done.
+     *
+     * @param string $website_id Child Site ID.
+     * @param string $scan_status Scan status.
+     * @param array $data Return scan data.
+     */
+    public function sucuri_scan_done( $website_id, $scan_status, $data ) {
 		$scan_result = array();
 		if ( is_array( $data ) ) {
 			$blacklisted = isset( $data['BLACKLIST']['WARN'] ) ? true : false;
@@ -139,17 +219,23 @@ class MainWP_CReport_Extension {
             'malware_exists' => $malware_exists
         );
 
-		// save results to child site stream
+		// save results to child site stream.
 		$post_data = array(
             'mwp_action' => 'save_sucuri_stream',
 			'result' => base64_encode( serialize( $scan_result ) ),
 			'scan_status' => $scan_status,
             'scan_data' => base64_encode( serialize( $scan_data ) )
 		);
+
+		/** @global object $mainWPCReportExtensionActivator Instance of MainWP CReports Extension Activator. */
 		global $mainWPCReportExtensionActivator;
+
 		apply_filters( 'mainwp_fetchurlauthed', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $website_id, 'client_report', $post_data );
 	}
 
+    /**
+     * Initiate Admin page.
+     */
     public function admin_init() {
 
         if ( isset( $_GET['page'] ) && ('Extensions-Mainwp-Client-Reports-Extension' == $_GET['page']) &&
@@ -176,17 +262,29 @@ class MainWP_CReport_Extension {
 		$mwp_creport_stream->admin_init();
 	}
 
+    /**
+     * Set cron schedules to once every 5 minuets.
+     *
+     * @param array $schedules Holds the Cron job schedules.
+     * @return array Return array of cron jobs schedules.
+     */
     public static function getCronSchedules( $schedules ) {
 
 		$schedules['5minutely']  = array(
-			'interval' => 5 * 60, // 5 minute in seconds
+			'interval' => 5 * 60, // 5 minute in seconds.
 			'display'  => __( 'Once every 5 minutes', 'mainwp' ),
 		);
 
 		return $schedules;
 	}
 
-	function mainwp_sync_extensions_options($values = array()) {
+    /**
+     * Sync extensions options.
+     *
+     * @param array $values Option values array.
+     * @return array Return option values array.
+     */
+    function mainwp_sync_extensions_options( $values = array() ) {
 		$values['mainwp-client-reports-extension'] = array(
 			'plugin_name' => 'MainWP Child Reports',
 			'plugin_slug' => 'mainwp-child-reports/mainwp-child-reports.php',
@@ -195,14 +293,28 @@ class MainWP_CReport_Extension {
 		return $values;
 	}
 
-	public function get_option( $key, $default = '' ) {
+    /**
+     * Get option value by given key.
+     *
+     * @param string $key Option array key.
+     * @param string $default Default option key.
+     * @return string Return option string.
+     */
+    public function get_option( $key, $default = '' ) {
 		if ( isset( $this->option[ $key ] ) ) {
 			return $this->option[ $key ];
 		}
 		return $default;
 	}
 
-	public function set_option( $key, $value ) {
+    /**
+     * Set options by given key.
+     *
+     * @param string $key Option array key.
+     * @param string $value New option value.
+     * @return bool True if the value was updated, false otherwise.
+     */
+    public function set_option( $key, $value ) {
 		$this->option[ $key ] = $value;
 		return update_option( $this->option_handle, $this->option );
 	}
@@ -210,17 +322,37 @@ class MainWP_CReport_Extension {
 
 }
 
+/**
+ * Class MainWP_CReport_Extension_Activator.
+ */
 class MainWP_CReport_Extension_Activator {
 
-	protected $mainwpMainActivated = false;
-	protected $childEnabled = false;
-	protected $childKey = false;
-	protected $childFile;
-	protected $plugin_handle = 'mainwp-client-reports-extension';
-	protected $product_id = 'MainWP Client Reports Extension';
-	protected $software_version = '4.0.3';
+    /** @var bool Whether MainWP is active or not. */
+    protected $mainwpMainActivated = false;
 
-	public function __construct() {
+    /** @var bool Whether MainWP Child Plugin is activated. */
+    protected $childEnabled = false;
+
+    /** @var bool Whether or not there is a Child Key. */
+    protected $childKey = false;
+
+    /** @var string Holds the Child File. */
+    protected $childFile;
+
+    /** @var string Plugin handle. */
+    protected $plugin_handle = 'mainwp-client-reports-extension';
+
+    /** @var string MainWP extension name. */
+    protected $product_id = 'MainWP Client Reports Extension';
+
+    /** @var string MainWP extension version. */
+    protected $software_version = '4.0.3';
+
+
+    /**
+     * MainWP_CReport_Extension_Activator constructor.
+     */
+    public function __construct() {
 
 		$this->childFile = __FILE__;
 
@@ -241,6 +373,11 @@ class MainWP_CReport_Extension_Activator {
 		add_action( 'mainwp_cronload_action', array( $this, 'load_cron_actions' ) );
 	}
 
+    /**
+     * Class Autoloader.
+     *
+     * @param string $class_name Class name to load.
+     */
     function autoload( $class_name ) {
         $allowedLoadingTypes = array( 'class' );
         $class_name = str_replace( '_', '-', strtolower( $class_name ) );
@@ -252,23 +389,39 @@ class MainWP_CReport_Extension_Activator {
         }
     }
 
-	function load_cron_actions() {
+    /**
+     * Load cron actions.
+     */
+    function load_cron_actions() {
 		add_action( 'mainwp_managesite_schedule_backup', array( 'MainWP_CReport', 'managesite_schedule_backup' ), 10, 3 );
 	}
 
-	function get_this_extension( $pArray ) {
+    /**
+     * Get this extension array.
+     *
+     * @param array $pArray Hold the extension array.
+     *
+     * @return array Return this extension array.
+     */
+    function get_this_extension( $pArray ) {
 
 		$pArray[] = array( 'plugin' => __FILE__, 'api' => $this->plugin_handle, 'mainwp' => true, 'callback' => array( &$this, 'settings' ), 'apiManager' => true );
 		return $pArray;
 	}
 
-	function settings() {
+    /**
+     * MainWP Client Report settings.
+     */
+    function settings() {
 		do_action( 'mainwp-pageheader-extensions', __FILE__ );
 		MainWP_CReport::render();
 		do_action( 'mainwp-pagefooter-extensions', __FILE__ );
 	}
 
-	function activate_this_plugin() {
+    /**
+     * Activate MainWP Client Reports Plugin.
+     */
+    function activate_this_plugin() {
 
 		$this->mainwpMainActivated = apply_filters( 'mainwp-activated-check', $this->mainwpMainActivated );
 		$this->childEnabled = apply_filters( 'mainwp-extension-enabled-check', __FILE__ );
@@ -283,25 +436,43 @@ class MainWP_CReport_Extension_Activator {
 		new MainWP_CReport_Extension();
 	}
 
+    /**
+     * Get Child key.
+     *
+     * @return string|bool Return Child Key or FALSE on failure.
+     */
     public function get_child_key() {
 
 		return $this->childKey;
 	}
 
-	public function get_child_file() {
+    /**
+     * Get child file.
+     *
+     * @return string Return child file.
+     */
+    public function get_child_file() {
 
 		return $this->childFile;
 	}
 
-	function mainwp_error_notice() {
+    /**
+     * MainWP error notices.
+     */
+    function mainwp_error_notice() {
 
+        /** @global string $current_screen Current page. */
 		global $current_screen;
+
 		if ( $current_screen->parent_base == 'plugins' && $this->mainwpMainActivated == false ) {
 			echo '<div class="error"><p>MainWP Client Reports Extension ' . __( 'requires <a href="http://mainwp.com/" target="_blank">MainWP Dashboard Plugin</a> to be activated in order to work. Please install and activate <a href="http://mainwp.com/" target="_blank">MainWP Dashboard Plugin</a> first.' ) . '</p></div>';
 		}
 	}
 
-	public function activate() {
+    /**
+     * Activate MainWP Extension.
+     */
+    public function activate() {
 	    $options = array(
             'product_id' => $this->product_id,
 			'software_version' => $this->software_version,
@@ -309,10 +480,25 @@ class MainWP_CReport_Extension_Activator {
         do_action( 'mainwp_activate_extention', $this->plugin_handle , $options );
 	}
 
-	public function deactivate() {
+    /**
+     * Deactivate MainWP Extension.
+     */
+    public function deactivate() {
+        /**
+         * MainWP Deactivate Extension action.
+         *
+         * This action is responsible for deactivating the MainWP Client Reports Extension.
+         *
+         * @since unknown
+         *
+         * @param string $plugin_handle The handle of the plugin to be deactivated.
+         *
+         */
         do_action( 'mainwp_deactivate_extention', $this->plugin_handle );
 	}
 }
 
+/** @global object $mainWPCReportExtensionActivator Extension activator class instance. */
 global $mainWPCReportExtensionActivator;
+
 $mainWPCReportExtensionActivator = new MainWP_CReport_Extension_Activator();
