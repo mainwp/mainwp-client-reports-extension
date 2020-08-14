@@ -1,38 +1,72 @@
 <?php
+/** MainWP Client Reports Database class. */
 
+/**
+ * Class MainWP_CReport_DB
+ */
 class MainWP_CReport_DB {
 
+   /** @var string MainWP Client Reports DB version. */
 	private $mainwp_wpcreport_db_version = '6.2';
+  
+  /** @var string Database table prefix. */
 	private $table_prefix;
-	// Singleton
+      
+ /**
+   * Public static variable to hold the single instance of the class.
+   *
+   * @var mixed Default null
+   */
 	private static $instance = null;
-		private $wpdb;
+      
+  /** @var object Holds WordPress Database instance. */
+	private $wpdb;
 
-	// Constructor
+ /**
+   * MainWP_CReport_DB constructor.
+   */
 	function __construct() {
+    
+    /** @var object Holds WordPress Database instance. */
 		global $wpdb;
+
 		$this->table_prefix = $wpdb->prefix . 'mainwp_';
 		$this->init_default_data();
 		$this->wpdb = &$wpdb;
 	}
 
-	function table_name( $suffix ) {
+    /**
+     * Get table name suffix.
+     *
+     * @param string $suffix Hold table name suffix.
+     *
+     * @return string Return table name suffix.
+     */
+    function table_name( $suffix ) {
 		return $this->table_prefix . $suffix;
 	}
 
-	// Support old & new versions of WordPress (3.9+)
+	/**
+   * Support old & new versions of wordpress (3.9+).
+   *
+   * @return bool
+   */
 	public static function use_mysqli() {
-		/** @var $wpdb wpdb */
+		
 		if ( ! function_exists( 'mysqli_connect' ) ) {
 			return false; }
-
+  
+     /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 		return ( $wpdb->dbh instanceof mysqli );
 	}
 
 	// Installs new DB
 	function install() {
+    
+    /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
+
 		$currentVersion = get_site_option( 'mainwp_wpcreport_db_version' );
 
 		if ( $currentVersion == $this->mainwp_wpcreport_db_version ) {
@@ -170,13 +204,15 @@ PRIMARY KEY  (`id`)  ';
 
 		$sql[] = $tbl;
 
-		error_reporting( 0 ); // make sure to disable any error output
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    // make sure to disable any error output.
+		error_reporting( 0 );
+
+		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 		foreach ( $sql as $query ) {
 			dbDelta( $query );
 		}
 
-		// create default client
+		// create default client.
 		$client_tokens = $this->get_client_by( 'email', '[client.email]' );
 		if ( empty( $client_tokens ) ) {
 			$update_client = array(
@@ -185,10 +221,12 @@ PRIMARY KEY  (`id`)  ';
 				'company' => '[client.company]	',
 				'email'   => '[client.email]',
 			);
-			$this->update_client( $update_client ); // create client with tokens
+      
+      // create client with tokens
+			$this->update_client( $update_client );
 		}
 
-				// create or update default token
+		// create or update default token.
 		foreach ( $this->default_tokens as $token_name => $token_description ) {
 			$token = array(
 				'type'              => 1,
@@ -201,8 +239,8 @@ PRIMARY KEY  (`id`)  ';
 				$this->add_token( $token );
 			}
 		}
-
-				// create or update default reports
+    
+		// Create or update default reports.
 		foreach ( $this->default_reports as $report ) {
 			// update values
 			$report['client']  = '[client.name]';
@@ -219,7 +257,7 @@ PRIMARY KEY  (`id`)  ';
 			}
 		}
 
-				// create or update default format
+		// create or update default format.
 		foreach ( $this->default_formats as $format ) {
 			if ( $current = $this->get_format_by( 'title', $format['title'], $format['type'] ) ) {
 				$format['id'] = $current->id;
@@ -235,15 +273,28 @@ PRIMARY KEY  (`id`)  ';
 
 	}
 
+  /**
+   * Create a public static instance of MainWP_CReport_DB.
+   *
+   * @return MainWP_CReport_DB|null
+   */
 	static function get_instance() {
 		if ( null == self::$instance ) {
 			self::$instance = new MainWP_CReport_DB();
+
 		}
 		return self::$instance;
 	}
 
+ /**
+   * Check extension version.
+   *
+   * @param string $check_version Extension version.
+   */
 	function check_update( $check_version ) {
-			global $wpdb;
+  
+    /** @global object $wpdb WordPress Database instance. */
+    global $wpdb;
 
 		if ( empty( $check_version ) ) {
 			return;
@@ -265,7 +316,10 @@ PRIMARY KEY  (`id`)  ';
 		}
 
 	}
-
+      
+ /**
+   * Initiate default data.
+   */
 	public function init_default_data() {
 
 		$this->default_tokens = array(
@@ -283,7 +337,7 @@ PRIMARY KEY  (`id`)  ';
 			'client.email'             => 'Displays the Client Email',
 		);
 
-			$header_img = plugins_url( 'images/templateMWP.jpg', dirname( __FILE__ ) );
+		$header_img = plugins_url( 'images/templateMWP.jpg', dirname( __FILE__ ) );
 		$analytics_img  = plugins_url( 'images/Analytics.jpg', dirname( __FILE__ ) );
 		$backups_img    = plugins_url( 'images/Backups.jpg', dirname( __FILE__ ) );
 		$security_img   = plugins_url( 'images/Security.jpg', dirname( __FILE__ ) );
@@ -449,9 +503,18 @@ We hope that this report was useful and we look forward to managing your website
 
 	}
 
-	public function add_token( $token ) {
-		/** @var $wpdb wpdb */
+    /**
+     * Add Client Report Token.
+     *
+     * @param string $token Client report token.
+     *
+     * @return false|null Return FALSE on failure.
+     */
+    public function add_token( $token ) {
+
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
+
 		if ( ! empty( $token['token_name'] ) && ! empty( $token['token_description'] ) ) {
 			if ( $current = $this->get_tokens_by( 'token_name', $token['token_name'] ) ) {
 				return false; }
@@ -462,9 +525,18 @@ We hope that this report was useful and we look forward to managing your website
 		return false;
 	}
 
-	public function update_token( $id, $token ) {
-		/** @var $wpdb wpdb */
+    /**
+     * Update Client Report Token.
+     *
+     * @param int $id Client Report ID.
+     * @param string $token Client report token.
+     * @return false|null Return FALSE on failure.
+     */
+    public function update_token( $id, $token ) {
+
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
+
 		if ( MainWP_CReport_Utility::ctype_digit( $id ) && ! empty( $token['token_name'] ) && ! empty( $token['token_description'] ) ) {
 			if ( $wpdb->update( $this->table_name( 'client_report_token' ), $token, array( 'id' => intval( $id ) ) ) ) {
 				return $this->get_tokens_by( 'id', $id );
@@ -473,7 +545,18 @@ We hope that this report was useful and we look forward to managing your website
 		return false;
 	}
 
-	public function get_tokens_by( $by = 'id', $value = null, $site_id = false ) {
+    /**
+     * Get client report token by 'token_name' or 'id'.
+     *
+     * @param string $by Get by 'token_name' or 'id'.
+     * @param string $value Holds token value. Default: null.
+     * @param string $site_url Child Site URL.
+     *
+     * @return string|null return Client report token or NULL on failure.
+     */
+   public function get_tokens_by( $by = 'id', $value = null, $site_id = false ) {
+
+    /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		if ( empty( $by ) || empty( $value ) ) {
@@ -518,13 +601,31 @@ We hope that this report was useful and we look forward to managing your website
 		return null;
 	}
 
-	public function get_tokens() {
+    /**
+     * Get client report tokens.
+     *
+     * @return mixed Return client report token.
+     */
+    public function get_tokens() {
+
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
+
 		return $wpdb->get_results( 'SELECT * FROM ' . $this->table_name( 'client_report_token' ) . ' WHERE 1 = 1 ORDER BY type DESC, token_name ASC' );
 	}
 
-	public function get_site_token_values( $id ) {
+    /**
+     * Get Child Site token values.
+     *
+     * @param int $id Child Site ID.
+     *
+     * @return string|false Return token or FALSE on failure.
+     */
+    public function get_site_token_values( $id ) {
+
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
+
 		if ( empty( $id ) ) {
 			return false; }
 		$qry = ' SELECT st.* FROM ' . $this->table_name( 'client_report_site_token' ) . ' st ' .
@@ -532,8 +633,17 @@ We hope that this report was useful and we look forward to managing your website
 		return $wpdb->get_results( $qry );
 	}
 
+ /**
+   * Get Child Site tokens.
+   *
+   * @param string $site_url Child Sit URL.
+   * @param string $index DB index.
+   *
+   * @return array|false Return query results or FALSE on failure.
+   */
 	public function get_site_tokens_by_site( $website ) {
-
+    
+    /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		if ( empty( $website ) || ! is_array( $website ) ) {
@@ -564,10 +674,12 @@ We hope that this report was useful and we look forward to managing your website
 				$return[ $token->token_name ] = $token;
 			}
 		}
-		// get default token value if empty
+
+		// get default token value if empty.
 		$tokens = $this->get_tokens();
 		if ( is_array( $tokens ) ) {
 			foreach ( $tokens as $token ) {
+        
 				// check default tokens if it is empty.
 				if ( is_object( $token ) ) {
 					if ( $token->type == 1 && ( ! isset( $return[ $token->token_name ] ) || empty( $return[ $token->token_name ] ) ) ) {
@@ -583,7 +695,15 @@ We hope that this report was useful and we look forward to managing your website
 		return $return;
 	}
 
-	public function _get_default_token_site( $token_name, $site_url ) {
+    /**
+     * Get default site token.
+     *
+     * @param string $token_name Default token name.
+     * @param string $site_url Child Site URL.
+     *
+     * @return false|string Return defult token or FALSE on failure.
+     */
+    public function _get_default_token_site($token_name, $site_url ) {
 		$website = apply_filters( 'mainwp_getwebsitesbyurl', $site_url );
 		if ( empty( $this->default_tokens[ $token_name ] ) || ! $website ) {
 			return false;
@@ -610,8 +730,18 @@ We hope that this report was useful and we look forward to managing your website
 		return $token_value;
 	}
 
+/**
+   * Add site token.
+   *
+   * @param $token_id Token ID.
+   * @param $token_value Token value.
+   * @param $site_url Child Site URL.
+   *
+   * @return false|null Return FALSE on failure.
+   */
 	public function add_token_site( $token_id, $token_value, $site_id ) {
-		/** @var $wpdb wpdb */
+    
+		/** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		if ( $wpdb->insert(
@@ -628,8 +758,18 @@ We hope that this report was useful and we look forward to managing your website
 		return false;
 	}
 
+ /**
+   * Update site token.
+   *
+   * @param int $token_id Token ID.
+   * @param string $token_value Token value.
+   * @param string $site_url Child Site URL.
+   *
+   * @return false|null Return FALSE on failure.
+   */
 	public function update_token_site( $token_id, $token_value, $site_id ) {
-		/** @var $wpdb wpdb */
+    
+		/** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		$sql = 'UPDATE ' . $this->table_name( 'client_report_site_token' ) .
@@ -646,8 +786,17 @@ We hope that this report was useful and we look forward to managing your website
 		return false;
 	}
 
+/**
+   * Delete site tokens.
+   *
+   * @param int $token_id Token ID.
+   * @param int $site_url Child Site URL.
+   * @return false Return FALSE on failure.
+   */
 	public function delete_site_tokens( $token_id = null, $site_id = null ) {
+    /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
+
 		if ( ! empty( $token_id ) ) {
 			return $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $this->table_name( 'client_report_site_token' ) . ' WHERE token_id = %d ', $token_id ) );
 		} elseif ( ! empty( $site_id ) ) {
@@ -656,8 +805,18 @@ We hope that this report was useful and we look forward to managing your website
 		return false;
 	}
 
-	public function delete_token_by( $by = 'id', $value = null ) {
+    /**
+     * Delete token by ID.
+     *
+     * @param string $by By ID.
+     * @param string $value Token value.
+     * @return bool Return TRUE|FALSE.
+     */
+    public function delete_token_by($by = 'id', $value = null ) {
+
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
+
 		if ( 'id' == $by ) {
 			if ( $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $this->table_name( 'client_report_token' ) . ' WHERE id=%d ', $value ) ) ) {
 				$this->delete_site_tokens( $value );
@@ -667,13 +826,25 @@ We hope that this report was useful and we look forward to managing your website
 		return false;
 	}
 
-	public function update_report( $report ) {
-		/** @var $wpdb wpdb */
+    /**
+     * Update report.
+     *
+     * @param array $report Report array.
+     *
+     * @return false Return FALSE on failure.
+     */
+    public function update_report($report ) {
+
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
+
 		$id            = isset( $report['id'] ) ? $report['id'] : 0;
 		$updatedClient = false;
 
-		// THIS IS SMART create or update client
+		/**
+     * THIS IS SMART create or update client.
+     * client may be content tokens.
+     */
 		if ( ! empty( $report['email'] ) ) { // client may be content tokens
 
 				$update_client = array(
@@ -684,7 +855,7 @@ We hope that this report was useful and we look forward to managing your website
 				);
 
 				$client_id = ( isset( $report['client_id'] ) && ! empty( $report['client_id'] ) ) ? intval( $report['client_id'] ) : 0;
-				// update client
+				// update client.
 				if ( $client_id ) {
 					$client_tokens = $this->get_client_by( 'email', '[client.email]' );
 					// check if trying update default client with tokens in email
@@ -709,7 +880,7 @@ We hope that this report was useful and we look forward to managing your website
 					}
 				}
 
-				// create new client
+				// create new client.
 				if ( empty( $client_id ) ) {
 					// check client with tokens
 					if ( $update_client['email'] == '[client.email]' ) {
@@ -788,8 +959,16 @@ We hope that this report was useful and we look forward to managing your website
 
 	}
 
+/**
+   * Udate group report content.
+   *
+   * @param array $report Report array.
+   *
+   * @return false Return FALSE on failure.
+   */
 	public function update_group_report_content( $report ) {
-		/** @var $wpdb wpdb */
+    
+		 /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		$report_id = isset( $report['report_id'] ) ? $report['report_id'] : 0;
@@ -810,7 +989,17 @@ We hope that this report was useful and we look forward to managing your website
 		return false;
 	}
 
+  /**
+   * Get group report content.
+   *
+   * @param int $report_id Report ID.
+   * @param int $site_id Child Site ID.
+   *
+   * @return false Return FALSE on failure.
+   */
 	public function get_group_report_content( $report_id, $site_id = null ) {
+    
+    /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		if ( empty( $report_id ) ) {
@@ -836,8 +1025,19 @@ We hope that this report was useful and we look forward to managing your website
 
 	}
 
+  /**
+     * Delete group report content.
+     *
+     * @param int $report_id Report ID.
+     * @param int $site_id Child Site ID.
+     *
+     * @return mixed Return query results.
+     */
 	public function delete_group_report_content( $report_id = null, $site_id = null ) {
+  
+   /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
+  
 		if ( ! empty( $report_id ) && ! empty( $site_id ) ) {
 			$sql = $wpdb->prepare(
 				'DELETE FROM ' . $this->table_name( 'client_group_report_content' )
@@ -863,8 +1063,35 @@ We hope that this report was useful and we look forward to managing your website
 		}
 	}
 
+        if (!empty($report_id) && !empty($site_id)) {
+            $sql = $wpdb->prepare('DELETE FROM ' . $this->table_name( 'client_group_report_content' )
+                    . ' WHERE `report_id` = %d AND `site_id` = %d ', $report_id, $site_id );
+            return $wpdb->get_row( $sql );
+        } else if (!empty($report_id)) {
+            $sql = $wpdb->prepare('DELETE FROM ' . $this->table_name( 'client_group_report_content' )
+                    . ' WHERE `report_id` = %d ', $report_id );
+            return $wpdb->get_results( $sql );
+        } else if (!empty($site_id)) {
+            $sql = $wpdb->prepare('DELETE FROM ' . $this->table_name( 'client_group_report_content' )
+                    . ' WHERE `site_id` = %d ', $site_id );
+            return $wpdb->get_results( $sql );
+        }
+	}
 
-	public function get_report_by( $by = 'id', $value = null, $orderby = null, $order = null, $output = OBJECT ) {
+    /**
+     * Get report by.
+     *
+     * @param string $by Get by id, client, site_id or title. Default: id.
+     * @param string $value If not empty then checking by value.
+     * @param string $orderby Order by client, name, ORDER BY.
+     * @param string $order Default order.
+     * @param string $output Query output type.
+     *
+     * @return array|false Return Client report or FALSE on failure.
+     */
+    public function get_report_by( $by = 'id', $value = null, $orderby = null, $order = null, $output = OBJECT ) {
+
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		if ( empty( $by ) || ( 'all' !== $by && empty( $value ) ) ) {
@@ -924,8 +1151,10 @@ We hope that this report was useful and we look forward to managing your website
 						if ( ! is_array( $groups ) ) {
 							$groups = array();
 						}
-
+            
+             /** @global object $mainWPCReportExtensionActivator MainW CReport Extension Activator instance. */
 						global $mainWPCReportExtensionActivator;
+            
 						$dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array(), $groups );
 
 						foreach ( $dbwebsites as $pSite ) {
@@ -965,14 +1194,25 @@ We hope that this report was useful and we look forward to managing your website
 					. ' WHERE 1 = 1 ' . $_order_by;
 			return $wpdb->get_results( $sql, $output );
 		}
+
 		// echo $sql;
+
 		if ( ! empty( $sql ) ) {
 					return $wpdb->get_row( $sql, $output ); }
 
 		return false;
 	}
 
+  /**
+     * Check if Child Site has report.
+     *
+     * @param int $site_id Child Site ID.
+     *
+     * @return bool Return TRUE|FALSE.
+     */
 	public function checked_if_site_have_report( $site_id ) {
+
+   /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		if ( empty( $site_id ) ) {
@@ -1025,8 +1265,15 @@ We hope that this report was useful and we look forward to managing your website
 		return $found;
 	}
 
-
+   /**
+     * Update Website Option.
+     *
+     * @param int $website_id Child Site ID.
+     * @param string $option Website option.
+     * @param string $value Option value.
+     */
 	public function updateWebsiteOption( $website_id, $option, $value ) {
+
 		$rslt = $this->wpdb->get_results( 'SELECT name FROM ' . $this->table_name( 'wp_options' ) . ' WHERE wpid = ' . $website_id . ' AND name = "' . $this->escape( $option ) . '"' );
 		if ( count( $rslt ) > 0 ) {
 			$this->wpdb->delete(
@@ -1060,7 +1307,16 @@ We hope that this report was useful and we look forward to managing your website
 		}
 	}
 
+  /**
+     * Get Website value.
+     *
+     * @param array $website Child Site array.
+     * @param $option Wbsit option.
+     *
+     * @return mixed Return website value.
+     */
 	public function getWebsiteOption( $website, $option ) {
+
 		if ( property_exists( $website, $option ) ) {
 			return $website->{$option};
 		}
@@ -1068,16 +1324,34 @@ We hope that this report was useful and we look forward to managing your website
 		return $this->wpdb->get_var( 'SELECT value FROM ' . $this->table_name( 'wp_options' ) . ' WHERE wpid = ' . $website->id . ' AND name = "' . $this->escape( $option ) . '"' );
 	}
 
+   /**
+     * Get Child Site wp_options.
+     *
+     * @param array $websiteIds Child site IDs.
+     * @param string $option Option to get.
+     *
+     * @return array Return array of options.
+     */
 	public function getOptionOfWebsites( $websiteIds, $option ) {
 		if ( ! is_array( $websiteIds ) || count( $websiteIds ) == 0 ) {
 			return array();
 		}
 		return $this->wpdb->get_results( 'SELECT wpid, value FROM ' . $this->table_name( 'wp_options' ) . ' WHERE wpid IN (' . implode( ',', $websiteIds ) . ') AND name = "' . $this->escape( $option ) . '"' );
 	}
-
+   /**
+     * Get Child Site wp_options.
+     *
+     * @param array $websiteIds Child site IDs.
+     * @param string $option Option to get.
+     *
+     * @return array Return array of options.
+     */
 	public function get_scheduled_reports_to_send( $timestamp_offset ) {
+
+    /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
-		 /*
+
+		 /**
 		 * For testing, to force the schedule reports start run.
 		 * Reset values: `schedule_nextsend`, `schedule_lastsend` and option 'mainwp_creport_sendcheck_last',
 		 * to corresponding values ( values one day ago, for example )
@@ -1092,19 +1366,38 @@ We hope that this report was useful and we look forward to managing your website
 		return $wpdb->get_results( $sql );
 	}
 
-
+   /**
+     * Get scheduled reports to continue to send.
+     *
+     * @param int $limit Interval limit.
+     *
+     * @return mixed Return query results.
+     */
 	public function get_scheduled_reports_to_continue_send( $limit = 1 ) {
+
+  /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
+
 		$sql = 'SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
 				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
 				. ' ON rp.client_id = c.clientid '
 				. " WHERE rp.recurring_schedule != '' AND rp.scheduled = 1 "
 				. ' AND rp.completed < rp.schedule_lastsend LIMIT 0, ' . intval( $limit ); // do not send if completed > schedule_lastsend
 		// echo $sql;
+
 		return $wpdb->get_results( $sql );
 	}
 
-	public function get_completed_sites( $id ) {
+    /**
+     * Get completed sites.
+     *
+     * @param int $id Client report ID.
+     *
+     * @return array|mixed Return completed sites.
+     */
+    public function get_completed_sites( $id ) {
+
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		if ( empty( $id ) ) {
@@ -1124,18 +1417,38 @@ We hope that this report was useful and we look forward to managing your website
 		return $com_sites;
 	}
 
+  /**
+     * Update report with values.
+     *
+     * @param int $id Client report ID.
+     * @param array $values Array of values to update.
+     *
+     * @return false Return FALSE on failure.
+     */
 	public function update_reports_with_values( $id, $values ) {
+
 		if ( ! is_array( $values ) ) {
 			return false;
 		}
 
-		global $wpdb;
+    /** @global object $wpdb WordPress Database instance. */
+    global $wpdb;
+    
 		return $wpdb->update( $this->table_name( 'client_report' ), $values, array( 'id' => $id ) );
 	}
 
-
+  /**
+     * Update reports last sent.
+     *
+     * @param $id Client report ID.
+     *
+     * @return false Return FALSE on failure.
+     */
 	public function update_reports_send( $id ) {
+  
+        /** @global object $wpdb WordPress Database instance. */
 				global $wpdb;
+  
 				return $wpdb->update(
 					$this->table_name( 'client_report' ),
 					array(
@@ -1146,19 +1459,50 @@ We hope that this report was useful and we look forward to managing your website
 				);
 		return false;
 	}
-
+      
+`` /**
+     * Update reports completed.
+     *
+     * @param $id Client Reports ID.
+     *
+     * @return mixed Return query results.
+     */
 	public function update_reports_completed( $id ) {
+  
+       /** @global object $wpdb WordPress Database instance. */
 				global $wpdb;
 				return $wpdb->update( $this->table_name( 'client_report' ), array( 'completed' => time() ), array( 'id' => $id ) );
 	}
-
+      
+   /**
+     * Update reports completed sites.
+     *
+     * @param int $id Client reports ID.
+     * @param array $pCompletedSites Completed sites array.
+     *
+     * @return mixed Return query results.
+     */
 	public function update_reports_completed_sites( $id, $pCompletedSites ) {
+    
+       /** @global object $wpdb WordPress Database instance. */
 			global $wpdb;
+    
 			return $wpdb->update( $this->table_name( 'client_report' ), array( 'completed_sites' => json_encode( $pCompletedSites ) ), array( 'id' => $id ) );
+
 	}
 
-	public function delete_report_by( $by = 'id', $report_id = null ) {
+    /**
+     * Delete report by ID.
+     *
+     * @param string $by Delete by ID.
+     * @param int $report_id Client report ID.
+     * @return bool Return TRUE|FALSE.
+     */
+    public function delete_report_by( $by = 'id', $report_id = null ) {
+
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
+
 		if ( 'id' == $by ) {
 			if ( $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $this->table_name( 'client_report' ) . ' WHERE id=%d ', $report_id ) ) ) {
 								$this->delete_group_report_content( $report_id );
@@ -1168,12 +1512,30 @@ We hope that this report was useful and we look forward to managing your website
 		return false;
 	}
 
-	public function get_clients() {
+    /**
+     * Get list of clients.
+     *
+     * @return mixed Return list ordered by clients.
+     */
+    public function get_clients() {
+
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
+
 		return $wpdb->get_results( 'SELECT * FROM ' . $this->table_name( 'client_report_client' ) . ' WHERE 1 = 1 ORDER BY client ASC' );
 	}
 
-	public function get_client_by( $by = 'clientid', $value = null ) {
+    /**
+     * Get client by clientid, client, email.
+     *
+     * @param string $by By clientid, client, email.
+     * @param string $value Holds return value.
+     *
+     * @return false Return query or FALSE if empty.
+     */
+    public function get_client_by( $by = 'clientid', $value = null ) {
+
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		if ( empty( $value ) ) {
@@ -1206,9 +1568,18 @@ We hope that this report was useful and we look forward to managing your website
 		return false;
 	}
 
-	public function update_client( $client ) {
-		/** @var $wpdb wpdb */
+    /**
+     * Update Client.
+     *
+     * @param array $client Client array.
+     *
+     * @return false Return FASLE on failure.
+     */
+    public function update_client( $client ) {
+
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
+
 		$id = isset( $client['clientid'] ) ? $client['clientid'] : 0;
 
 		if ( ! empty( $id ) ) {
@@ -1225,8 +1596,19 @@ We hope that this report was useful and we look forward to managing your website
 		return false;
 	}
 
-	public function delete_client( $by, $value ) {
+    /**
+     * Delete client.
+     *
+     * @param int $by By client ID.
+     * @param string $value Value to delete.
+     *
+     * @return bool TRUE|FALSE.
+     */
+    public function delete_client( $by, $value ) {
+
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
+
 		if ( 'clientid' == $by ) {
 			if ( $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $this->table_name( 'client_report_client' ) . ' WHERE clientid=%d ', $value ) ) ) {
 				return true;
@@ -1235,13 +1617,35 @@ We hope that this report was useful and we look forward to managing your website
 		return false;
 	}
 
-	public function get_formats( $type = null ) {
+    /**
+     * Get report format.
+     *
+     * @param null $type Reprot type.
+     *
+     * @return mixed Return query result.
+     */
+    public function get_formats( $type = null ) {
+
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
+
 		return $wpdb->get_results( 'SELECT * FROM ' . $this->table_name( 'client_report_format' ) . " WHERE type = '" . $type . "' ORDER BY title" );
 	}
 
-	public function get_format_by( $by, $value, $type = null ) {
+    /**
+     * Get format by id or title.
+     *
+     * @param mixed $by Get by id or title.
+     * @param string $value Format value.
+     * @param string $type Reort type.
+     *
+     * @return false Return FALSE on failure.
+     */
+    public function get_format_by( $by, $value, $type = null ) {
+
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
+
 		if ( empty( $value ) ) {
 			return false; }
 		$sql = '';
@@ -1265,9 +1669,18 @@ We hope that this report was useful and we look forward to managing your website
 		return false;
 	}
 
-	public function update_format( $format ) {
-		/** @var $wpdb wpdb */
+    /**
+     * Update format.
+     *
+     * @param array $format Report format.
+     *
+     * @return false Return FALSE on failure.
+     */
+    public function update_format( $format ) {
+
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
+
 		$id = isset( $format['id'] ) ? $format['id'] : 0;
 
 		if ( ! empty( $id ) ) {
@@ -1283,8 +1696,17 @@ We hope that this report was useful and we look forward to managing your website
 		return false;
 	}
 
-	public function delete_format_by( $by = 'id', $value = null ) {
+    /**
+     * Delete format by id.
+     * @param string $by Delete by ID.
+     * @param null $value optional argument.
+     * @return bool Return TRUE|FALSE.
+     */
+    public function delete_format_by( $by = 'id', $value = null ) {
+
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
+
 		if ( 'id' == $by ) {
 			if ( $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $this->table_name( 'client_report_format' ) . ' WHERE id=%d ', $value ) ) ) {
 				return true;
@@ -1293,9 +1715,18 @@ We hope that this report was useful and we look forward to managing your website
 		return false;
 	}
 
-	protected function escape( $data ) {
-		/** @var $wpdb wpdb */
+    /**
+     * Escape data.
+     *
+     * @param string $data Data to escape.
+     *
+     * @return string Return escaped data.
+     */
+    protected function escape( $data ) {
+
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
+
 		if ( function_exists( 'esc_sql' ) ) {
 			return esc_sql( $data );
 		} else {
@@ -1303,11 +1734,20 @@ We hope that this report was useful and we look forward to managing your website
 		}
 	}
 
-	public function query( $sql ) {
+    /**
+     * Database query.
+     *
+     * @param string $sql SQL Query.
+     *
+     * @return bool|resource|mysqli_result Return FALSE on failure, or Resource & mysqli_result object on success.
+     */
+    public function query( $sql ) {
 		if ( null == $sql ) {
 			return false; }
-		/** @var $wpdb wpdb */
+
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
+
 		$result = @self::_query( $sql, $wpdb->dbh );
 
 		if ( ! $result || ( @self::num_rows( $result ) == 0 ) ) {
@@ -1316,7 +1756,15 @@ We hope that this report was useful and we look forward to managing your website
 		return $result;
 	}
 
-	public static function _query( $query, $link ) {
+    /**
+     * MySQLi Query.
+     *
+     * @param string $query Query string.
+     * @param string $link Query link.
+     *
+     * @return bool|mysqli_result|resource Return mysql query results or FALSE on failure.
+     */
+    public static function _query( $query, $link ) {
 		if ( self::use_mysqli() ) {
 			return mysqli_query( $link, $query );
 		} else {
@@ -1324,7 +1772,14 @@ We hope that this report was useful and we look forward to managing your website
 		}
 	}
 
-	public static function fetch_object( $result ) {
+    /**
+     * Fetch object.
+     *
+     * @param string $result Holds query results.
+     *
+     * @return object|stdClass|null Return object, stdClass or NULL on failure.
+     */
+    public static function fetch_object($result ) {
 		if ( self::use_mysqli() ) {
 			return mysqli_fetch_object( $result );
 		} else {
@@ -1332,7 +1787,14 @@ We hope that this report was useful and we look forward to managing your website
 		}
 	}
 
-	public static function free_result( $result ) {
+    /**
+     * Free up query results.
+     *
+     * @param $result Holds query result.
+     *
+     * @return bool|void Return mysqli results or FALSE on failure.
+     */
+    public static function free_result( $result ) {
 		if ( self::use_mysqli() ) {
 			return mysqli_free_result( $result );
 		} else {
@@ -1340,7 +1802,15 @@ We hope that this report was useful and we look forward to managing your website
 		}
 	}
 
-	public static function data_seek( $result, $offset ) {
+    /**
+     * Mysqli data seek.
+     *
+     * @param $result Holds query result.
+     * @param $offset Query offset.
+     *
+     * @return bool Return TRUE|FALSE.
+     */
+    public static function data_seek( $result, $offset ) {
 		if ( self::use_mysqli() ) {
 			return mysqli_data_seek( $result, $offset );
 		} else {
@@ -1348,7 +1818,15 @@ We hope that this report was useful and we look forward to managing your website
 		}
 	}
 
-	public static function fetch_array( $result, $result_type = null ) {
+    /**
+     * Fetch array.
+     *
+     * @param string $result Holds query result.
+     * @param null $result_type Result type.
+     *
+     * @return array|false|null Return query result or FALSE on failure.
+     */
+    public static function fetch_array( $result, $result_type = null ) {
 		if ( self::use_mysqli() ) {
 			return mysqli_fetch_array( $result, ( null == $result_type ? MYSQLI_BOTH : $result_type ) );
 		} else {
@@ -1356,7 +1834,14 @@ We hope that this report was useful and we look forward to managing your website
 		}
 	}
 
-	public static function num_rows( $result ) {
+    /**
+     * Count rows.
+     *
+     * @param int $result Query result.
+     *
+     * @return false|int Return number of rows of FALSE on failure.
+     */
+    public static function num_rows( $result ) {
 		if ( self::use_mysqli() ) {
 			return mysqli_num_rows( $result );
 		} else {
@@ -1364,7 +1849,14 @@ We hope that this report was useful and we look forward to managing your website
 		}
 	}
 
-	public static function is_result( $result ) {
+    /**
+     * Check if there is a query result.
+     *
+     * @param string $result Holds query result.
+     *
+     * @return bool Return TRUE|FALSE.
+     */
+    public static function is_result( $result ) {
 		if ( self::use_mysqli() ) {
 			return ( $result instanceof mysqli_result );
 		} else {
@@ -1372,11 +1864,20 @@ We hope that this report was useful and we look forward to managing your website
 		}
 	}
 
-	public function get_results_result( $sql ) {
+    /**
+     * Get myslq query results result.
+     *
+     * @param string $sql Query string.
+     *
+     * @return string|null Return query result or NULL on failure.
+     */
+    public function get_results_result( $sql ) {
 		if ( null == $sql ) {
 			return null; }
-		/** @var $wpdb wpdb */
+
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
+
 		return $wpdb->get_results( $sql, OBJECT_K );
 	}
 }
