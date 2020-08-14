@@ -981,25 +981,14 @@ class MainWP_CReport {
 
 		return $output;
 	}
-
-    /**
-     * Initiate reports cron.
-     */
-    public function init_cron() {
-//		add_action( 'mainwp_creport_cron_archive_reports', array( 'MainWP_CReport', 'cron_archive_reports' ) );
+  
+  /**
+   * Initiate reports cron.
+   */
+	public function init_cron() {
 		add_action( 'mainwp_creport_cron_send_reports', array('MainWP_CReport', 'cron_send_reports') );
 		add_action( 'mainwp_creport_cron_continue_send_reports', array('MainWP_CReport', 'cron_continue_send_reports') );
 		$useWPCron = (false === get_option( 'mainwp_wp_cron' )) || (1 == get_option( 'mainwp_wp_cron' ));
-//        if ( ($sched = wp_next_scheduled( 'mainwp_creport_cron_archive_reports' )) == false ) {
-//            if ( $useWPCron ) {
-//                $time = strtotime( date( 'Y-m-d' ) . ' 23:59:59' );
-//                wp_schedule_event( $time, 'daily', 'mainwp_creport_cron_archive_reports' );
-//            }
-//        } else {
-//            if ( ! $useWPCron ) {
-//                wp_unschedule_event( $sched, 'mainwp_creport_cron_archive_reports' );
-//            }
-//        }
 
 		if ( ($sched = wp_next_scheduled( 'mainwp_creport_cron_send_reports' )) == false ) {
 			if ( $useWPCron ) {
@@ -1457,14 +1446,119 @@ class MainWP_CReport {
 		}
 		return $content;
 	}
+  
+		/**
+	 * Method hook_generate_content().
+	 * 
+	 * @param int      $templ_content The content with tokens.
+	 * @param int      $site_id The id of the site
+	 * @param string|0 $from_date String of from date, date format 'Y-m-d H:i:s'
+	 * @param string|0 $to_date String of to date, date format 'Y-m-d H:i:s'
+	 * @param string   $type String of type.
+	 *
+	 * @return html content of generated content. False when something goes wrong.
+	 */
+	public static function hook_generate_content( $templ_content, $site_id, $from_date = 0, $to_date = 0, $type = '' ) {
+		
+		if ( empty( $site_id ) || empty( $from_date ) || empty( $to_date ) ) {
+			return $templ_content;
+		}
+		
+		global $mainWPCReportExtensionActivator;
 
-    /**
-     * Save report.
-     *
-     * @return array|null Return report array or NULL on error.
-     * @throws Exception Error message.
-     */
-    public static function save_report() {
+		$website = apply_filters( 'mainwp-getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $site_id );
+
+		if ( $website && is_array( $website ) ) {
+			$website = current( $website );
+		} else {
+			return $templ_content;
+		}
+
+		// simulate report.
+		$report = new stdClass();
+		$report->id = 0;
+		$report->body = $templ_content;
+		$report->header = '';
+		$report->footer = '';
+
+		$filtered_reports = self::filter_report_website( $report, $website, $from_date, $to_date, $type );
+	
+		// to avoid error.
+		if ( is_array( $filtered_reports ) && isset( $filtered_reports['error'] ) ) {
+			return $templ_content;
+		}
+
+		if ( $type == 'raw' ) {
+			return $filtered_reports;
+		} else {
+			$content = self::gen_report_content( $filtered_reports );
+		}
+		
+		return $content;	
+	}
+	
+	/**
+	 * Method hook_get_site_tokens().
+	 * 
+	 * @param int $false input value.
+	 * @param int $site_id The id of site
+	 * 
+	 * @return array Site's tokens.
+	 * 
+	 */
+	public static function hook_get_site_tokens( $false, $site_id ) {
+		return self::get_tokens_of_site( false, $site_id );
+	}
+
+	/**
+	 * Method get_tokens_of_site().
+	 * 
+	 * @param object $report The report.
+	 * @param int $site_id The id of site
+	 * 
+	 * @return array Site's tokens.
+	 * 
+	 */
+	public static function get_tokens_of_site( $report, $site_id ) {
+
+		global $mainWPCReportExtensionActivator;
+
+		$website = apply_filters( 'mainwp-getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $site_id );
+
+		if ( $website && is_array( $website ) ) {
+			$website = current( $website );
+		} else {
+			return array();
+		}
+
+		// get tokens of the site
+		$sites_token = MainWP_CReport_DB::get_instance()->get_site_tokens_by_site( $website );
+		
+		if ( ! is_array( $sites_token ) ) {
+			$sites_token = array();
+		}
+
+		$now                                 = time();
+		$tokens_values                       = array();
+		
+		if ( $report && is_object( $report ) ) {
+			$tokens_values['[report.daterange]'] = MainWP_CReport_Utility::format_timestamp( $report->date_from ) . ' - ' . MainWP_CReport_Utility::format_timestamp( $report->date_to );			
+			$tokens_values['[report.send.date]'] = MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $now ) );
+		}
+		
+		foreach ( $sites_token as $token_name => $token ) {
+			$tokens_values[ '[' . $token_name . ']' ] = $token->token_value;
+		}
+		return $tokens_values;
+	}
+  
+	/**
+   * Save report.
+   *
+   * @return array|null Return report array or NULL on error.
+   * @throws Exception Error message.
+   */
+   public static function save_report() {
 		if ( isset( $_REQUEST['action'] ) && 'editreport' == $_REQUEST['action'] && isset( $_REQUEST['nonce'] ) && wp_verify_nonce( $_REQUEST['nonce'], 'mwp_creport_nonce' ) ) {
 			$messages				 = $errors					 = array();
 			$report					 = array();
@@ -1910,13 +2004,14 @@ class MainWP_CReport {
 
 			foreach ( $dbwebsites as $dbsite ) {
 				if ( $email_has_token ) {
-					$token = MainWP_CReport_DB::get_instance()->get_tokens_by( 'token_name', $send_to_email, $dbsite->url );
+					$token = MainWP_CReport_DB::get_instance()->get_tokens_by( 'token_name', $send_to_email, $dbsite->id );
 					if ( $token ) {
 						$emails_token[$dbsite->id] = $token->site_token->token_value;
 					}
 				}
 				if ( $subject_has_token ) {
-					$sites_token[$dbsite->id] = MainWP_CReport_DB::get_instance()->get_site_tokens( $dbsite->url, 'token_name' );
+					$wpsite = array( 'id' => $dbsite->id, 'name' => $dbsite->name, 'url' => $dbsite->url );
+					$sites_token[$dbsite->id] = MainWP_CReport_DB::get_instance()->get_site_tokens_by_site( $wpsite );
 				}
 			}
 		}
@@ -1996,32 +2091,20 @@ class MainWP_CReport {
 
 		$send_subject = $email_subject;
 		if ( $subject_has_token ) {
-			
-//			$search_token	 = $replace_value	 = array();
-			//to support report tokens
-//			$search_token[]	 = '[report.daterange]';
-//			$replace_value[] = MainWP_CReport_Utility::format_timestamp( $report->date_from ) . ' - ' . MainWP_CReport_Utility::format_timestamp( $report->date_to );
-//			$search_token[]	 = '[report.send.date]';
 			$now			 = time();			
-//			$replace_value[] = MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $now ) );
-			
 			$tokens_values = array();
+
 			$tokens_values['[report.daterange]'] = MainWP_CReport_Utility::format_timestamp( $report->date_from ) . ' - ' . MainWP_CReport_Utility::format_timestamp( $report->date_to );
 			$tokens_values['[report.send.date]'] = MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $now ) );
 			
 			if ( isset( $sites_token[$site_id] ) && is_array( $sites_token[$site_id] ) ) {
 				foreach ( $sites_token[$site_id] as $token_name => $token ) {
-					
-//					$search_token[]	 = '[' . $token_name . ']';
-//					$replace_value[] = $token->token_value;
-					
 					$tokens_values['[' . $token_name . ']'] = $token->token_value;
 				}
 			}
-			
-			//$send_subject = str_replace( $search_token, $replace_value, $send_subject );			
+
 			$tokens_values = apply_filters('mainwp_client_reports_custom_tokens', $tokens_values, $report, $site );
-			$send_subject = self::replace_tokens_value( $send_subject, $tokens_values );
+			$send_subject = self::replace_site_tokens( $send_subject, $tokens_values );
 		}
 
 
@@ -2040,15 +2123,15 @@ class MainWP_CReport {
 		return $data;
 	}
 
-    /**
-     * Replace token values.
-     *
-     * @param string $string Token replacement.
-     * @param array $replace_tokens Tokens array.
-     *
-     * @return string|string[] Return updated tokens array.
-     */
-    public static function replace_tokens_value( $string, $replace_tokens ) {
+  /**
+   * Replace token values.
+   *
+   * @param string $string Token replacement.
+   * @param array $replace_tokens Tokens array.
+   *
+   * @return string|string[] Return updated tokens array.
+   */
+	public static function replace_site_tokens( $string, $replace_tokens ) {
 		$tokens		 = array_keys( $replace_tokens );
 		$values		 = array_values( $replace_tokens );		
 		return str_replace( $tokens, $values, $string );		
@@ -2789,16 +2872,13 @@ class MainWP_CReport {
 		$get_aum_tokens			 = ((strpos( $report->header, '[aum.' ) !== false) || (strpos( $report->body, '[aum.' ) !== false) || (strpos( $report->footer, '[aum.' ) !== false)) ? true : false;
 		$get_woocom_tokens		 = ((strpos( $report->header, '[wcomstatus.' ) !== false) || (strpos( $report->body, '[wcomstatus.' ) !== false) || (strpos( $report->footer, '[wcomstatus.' ) !== false)) ? true : false;
 		$get_pagespeed_tokens	 = ((strpos( $report->header, '[pagespeed.' ) !== false) || (strpos( $report->body, '[pagespeed.' ) !== false) || (strpos( $report->footer, '[pagespeed.' ) !== false)) ? true : false;
-
-		// Broken Links.
-		//$get_brokenlinks_tokens = ((strpos( $report->header, '[brokenlinks.' ) !== false) || (strpos( $report->body, '[brokenlinks.' ) !== false) || (strpos( $report->footer, '[brokenlinks.' ) !== false)) ? true : false;
-
-        if ( !empty( $website ) ) {
+		
+		if ( !empty( $website ) ) {
 			$tokens					 = MainWP_CReport_DB::get_instance()->get_tokens();
-			$site_tokens			 = MainWP_CReport_DB::get_instance()->get_site_tokens( $website['url'] );
+			$site_tokens			 = MainWP_CReport_DB::get_instance()->get_site_tokens_by_site( $website );
 			$replace_tokens_values	 = array();
 			foreach ( $tokens as $token ) {
-				$replace_tokens_values['[' . $token->token_name . ']'] = isset( $site_tokens[$token->id] ) ? $site_tokens[$token->id]->token_value : '';
+				$replace_tokens_values['[' . $token->token_name . ']'] = isset( $site_tokens[$token->token_name] ) ? $site_tokens[$token->token_name]->token_value : '';
 			}
 
 			$client_addition_tokens = self::get_addition_tokens( $website['id'] );
@@ -2852,16 +2932,6 @@ class MainWP_CReport {
 					}
 				}
 			}
-
-//            if ( $get_brokenlinks_tokens ) {
-//				$brokenlinks_tokens = self::brokenlinks_tokens( $website['id'], $date_from, $date_to );
-//				if ( is_array( $brokenlinks_tokens ) ) {
-//					foreach ( $brokenlinks_tokens as $token => $value ) {
-//						$replace_tokens_values['[' . $token . ']'] = $value;
-//					}
-//				}
-//			}
-
 
 			$replace_tokens_values['[report.daterange]']	 = MainWP_CReport_Utility::format_date( $date_from, true ) . ' - ' . MainWP_CReport_Utility::format_date( $date_to, true );
 			$now											 = time();
@@ -3993,43 +4063,12 @@ class MainWP_CReport {
 		}
 	}
 
-    /**
-     * Update tootip token.
-     *
-     * @param array $matches Tooltip matches.
-     *
-     * @return string Return tooltip.
-     */
-    static function tooltip_mark_token( $matches ) {
-		$token_name	 = $matches[0];
-		$token		 = MainWP_CReport_DB::get_instance()->get_tokens_by( 'token_name', $token_name );
-		$tooltip	 = '';
-		if ( $token ) {
-			$token_site_values = MainWP_CReport_DB::get_instance()->get_site_token_values( $token->id );
-			if ( is_array( $token_site_values ) && count( $token_site_values ) > 0 ) {
-				foreach ( $token_site_values as $tok ) {
-					if ( !empty( $tok->token_value ) ) {
-						$tooltip .= $tok->token_value . '<br>';
-					}
-				}
-				if ( !empty( $tooltip ) ) {
-					$tooltip = rtrim( $tooltip, '<br>' );
-					$tooltip = '<span class="mwp_creport_tooltip_content">' . $tooltip . '</span>';
-				}
-			}
-		}
-		if ( !empty( $tooltip ) ) {
-			return '<span class="mwp_creport_tooltip_container"><span class="mwp_creport_token_tooltip">' . $matches[0] . '</span>' . $tooltip . '</span>';
-		}
-		return $matches[0] . $tooltip;
-	}
-
-    /**
-     * New report tab.
-     *
-     * @param array $report Report array. Default: null.
-     */
-    public static function new_report_tab( $report = null ) {
+ /**
+   * New report tab.
+   *
+   * @param array $report Report array. Default: null.
+   */
+	public static function new_report_tab( $report = null ) {
 		self::new_report_setting( $report );
 		self::new_report_format( $report );
 	}
@@ -4782,7 +4821,7 @@ class MainWP_CReport {
 		$site_tokens = array();
 
 		if ( $website ) {
-			$site_tokens = MainWP_CReport_DB::get_instance()->get_site_tokens( $website['url'] );
+			$site_tokens = MainWP_CReport_DB::get_instance()->get_site_tokens_by_site( $website );			
 		}
 
 		$html = '';
@@ -4797,8 +4836,8 @@ class MainWP_CReport {
 					continue;
 				}
 				$token_value = '';
-				if ( isset( $site_tokens[$token->id] ) && $site_tokens[$token->id] ) {
-					$token_value = htmlspecialchars( stripslashes( $site_tokens[$token->id]->token_value ) );
+				if ( isset( $site_tokens[$token->token_name] ) && $site_tokens[$token->token_name] ) {
+					$token_value = htmlspecialchars( stripslashes( $site_tokens[$token->token_name]->token_value ) );
 				}
 
 				$input_name = 'creport_token_' . str_replace( array('.', ' ', '-'), '_', $token->token_name );
@@ -4844,11 +4883,11 @@ class MainWP_CReport {
 				$input_name = 'creport_token_' . str_replace( array('.', ' ', '-'), '_', $token->token_name );
 				if ( isset( $_POST[$input_name] ) ) {
 					$token_value = $_POST[$input_name];
-					$current	 = MainWP_CReport_DB::get_instance()->get_tokens_by( 'id', $token->id, $website['url'] );
+					$current	 = MainWP_CReport_DB::get_instance()->get_tokens_by( 'id', $token->id, $website['id'] );
 					if ( $current ) {
-						MainWP_CReport_DB::get_instance()->update_token_site( $token->id, $token_value, $website['url'] );
+						MainWP_CReport_DB::get_instance()->update_token_site( $token->id, $token_value, $website['id'] );
 					} else {
-						MainWP_CReport_DB::get_instance()->add_token_site( $token->id, $token_value, $website['url'] );
+						MainWP_CReport_DB::get_instance()->add_token_site( $token->id, $token_value, $website['id'] );
 					}
 				}
 			}
@@ -4862,7 +4901,7 @@ class MainWP_CReport {
      */
     public function delete_site_delete_tokens( $website ) {
 		if ( $website ) {
-			MainWP_CReport_DB::get_instance()->delete_site_tokens( $website->url );
+			MainWP_CReport_DB::get_instance()->delete_site_tokens( false, $website->id );
 		}
 	}
 
@@ -4992,11 +5031,11 @@ class MainWP_CReport {
 			if ( is_array( $website ) && isset( $website['url'] ) ) {
 				$client_tokens			 = MainWP_CReport_DB::get_instance()->get_tokens();
 				$client_tokens_values	 = array();
-				$site_tokens			 = MainWP_CReport_DB::get_instance()->get_site_tokens( $website['url'] );
+				$site_tokens			 = MainWP_CReport_DB::get_instance()->get_site_tokens_by_site( $website );
 				foreach ( $client_tokens as $token ) {
 					$client_tokens_values[$token->token_name] = array(
 						'token_name'	 => $token->token_name,
-						'token_value'	 => isset( $site_tokens[$token->id] ) ? $site_tokens[$token->id]->token_value : '',
+						'token_value'	 => isset( $site_tokens[$token->token_name] ) ? $site_tokens[$token->token_name]->token_value : '',
 					);
 				}
 

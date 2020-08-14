@@ -33,10 +33,10 @@ class MainWP_CReport_Stream {
      * @return mixed Class instance.
      */
     static function get_instance() {
-		if ( null == MainWP_CReport_Stream::$instance ) {
-			MainWP_CReport_Stream::$instance = new MainWP_CReport_Stream();
+		if ( null == self::$instance ) {
+			self::$instance = new MainWP_CReport_Stream();
 		}
-		return MainWP_CReport_Stream::$instance;
+		return self::$instance;
 	}
 
     /**
@@ -143,13 +143,13 @@ class MainWP_CReport_Stream {
 		<?php
 	}
 
-    /**
-     * Render dashboard table rows.
-     *
-     * @param array $websites Child Sites array.
-     */
-    public static function gen_dashboard_table_rows($websites ) {
-		$location = 'options-general.php?page=mainwp-reports-page';
+  /**
+   * Render dashboard table rows.
+   *
+   * @param array $websites Child Sites array.
+   */
+	public static function gen_dashboard_table_rows( $websites ) {
+		$location    = 'options-general.php?page=mainwp-reports-page';
 		$plugin_slug = 'mainwp-child-reports/mainwp-child-reports.php';
 		$plugin_name = 'MainWP Child Reports';
 
@@ -158,7 +158,7 @@ class MainWP_CReport_Stream {
 
 			$class_active = ( isset( $website['plugin_activated'] ) && ! empty( $website['plugin_activated'] ) ) ? '' : 'negative';
 			$class_update = ( isset( $website['reports_upgrade'] ) ) ? 'warning' : '';
-			$class_update = ( 'negative' == $class_active) ? 'negative' : $class_update;
+			$class_update = ( 'negative' == $class_active ) ? 'negative' : $class_update;
 
 			$version = '';
 			if ( isset( $website['reports_upgrade'] ) ) {
@@ -166,10 +166,10 @@ class MainWP_CReport_Stream {
 					$version = $website['reports_upgrade']['new_version'];
 				}
 			}
-			//echo var_dump( $website );
+			// echo var_dump( $website );
 			?>
 			<tr class="<?php echo $class_active . ' ' . $class_update; ?>" website-id="<?php echo $website_id; ?>" plugin-name="<?php echo $plugin_name; ?>" plugin-slug="<?php echo $plugin_slug; ?>" version="<?php echo ( isset( $website['plugin_version'] ) ) ? $website['plugin_version'] : 'N/A'; ?>">
-        <td class="check-column"><span class="ui checkbox"><input type="checkbox" name="checked[]"></span></td>
+		<td class="check-column"><span class="ui checkbox"><input type="checkbox" name="checked[]"></span></td>
 				<td class="website-name"><a href="admin.php?page=managesites&dashboard=<?php echo $website_id; ?>"><?php echo stripslashes( $website['name'] ); ?></a></td>
 				<td><a target="_blank" href="admin.php?page=SiteOpen&newWindow=yes&websiteid=<?php echo $website_id; ?>"><i class="sign in icon"></i></a></td>
 				<td><a href="<?php echo $website['url']; ?>" target="_blank"><?php echo $website['url']; ?></a></td>
@@ -177,13 +177,13 @@ class MainWP_CReport_Stream {
 				<td class="wp-reports-visibility"><span class="visibility"></span> <?php echo ( 1 == $website['hide_stream'] ) ? __( 'Yes', 'mainwp-client-reports-extension' ) : __( 'No', 'mainwp-client-reports-extension' ); ?></td>
 				<td>
 					<?php if ( $website['last_report'] ) : ?>
-	          <?php echo MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $website['last_report'] ) ); ?>
-	        <?php endif; ?>
+						<?php echo MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $website['last_report'] ) ); ?>
+			<?php endif; ?>
 				</td>
 				<td>
-					<?php if ( isset( $website['first_time'] ) && !empty( $website['first_time'] ) ) : ?>
-          	<?php echo MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $website['first_time'] ) ); ?>
-	        <?php endif; ?>
+					<?php if ( isset( $website['first_time'] ) && ! empty( $website['first_time'] ) ) : ?>
+						<?php echo MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $website['first_time'] ) ); ?>
+			<?php endif; ?>
 				</td>
 				<td>
 					<div class="ui left pointing dropdown icon mini basic green button" style="z-index:999">
@@ -205,10 +205,10 @@ class MainWP_CReport_Stream {
 							<?php endif; ?>
 						</div>
 					</div>
-        </td>
-      </tr>
+		</td>
+	  </tr>
 			<?php
-      }
+		}
 	}
 
     /**
@@ -221,15 +221,15 @@ class MainWP_CReport_Stream {
      */
     public function get_websites_stream( $websites, $selected_group = 0, $lastReportsSites = array() ) {
 		$websites_stream = array();
-		$streamHide = $this->get_option( 'hide_stream_plugin' );
-                if ( ! is_array( $streamHide ) ) {
+		$streamHide      = $this->get_option( 'hide_stream_plugin' );
+		if ( ! is_array( $streamHide ) ) {
 			$streamHide = array();
-                }
+		}
 
-                $creportSettings = $this->get_option( 'settings' );
-                if (!is_array($creportSettings)) {
-                    $creportSettings = array();
-                }
+				$creportSettings = $this->get_option( 'settings' );
+		if ( ! is_array( $creportSettings ) ) {
+			$creportSettings = array();
+		}
 
 		if ( is_array( $websites ) && count( $websites ) ) {
 			if ( empty( $selected_group ) ) {
@@ -237,46 +237,49 @@ class MainWP_CReport_Stream {
 					if ( $website && $website->plugins != '' ) {
 						$plugins = json_decode( $website->plugins, 1 );
 						if ( is_array( $plugins ) && count( $plugins ) != 0 ) {
-                                                        $creportSiteSettings = array();
+														$creportSiteSettings = array();
 
-                                                        if (isset($creportSettings[ $website->id ]))
-                                                            $creportSiteSettings = $creportSettings[ $website->id ];
+							if ( isset( $creportSettings[ $website->id ] ) ) {
+								$creportSiteSettings = $creportSettings[ $website->id ];
+							}
 
-                                                        if (!is_array($creportSiteSettings))
-                                                            $creportSiteSettings = array();
+							if ( ! is_array( $creportSiteSettings ) ) {
+								$creportSiteSettings = array();
+							}
 
 							foreach ( $plugins as $plugin ) {
-								if ('mainwp-child-reports/mainwp-child-reports.php' == $plugin['slug'] ) {
+								if ( 'mainwp-child-reports/mainwp-child-reports.php' == $plugin['slug'] ) {
 
 									$site = MainWP_CReport_Utility::map_site( $website, array( 'id', 'name', 'url' ) );
 									if ( $plugin['active'] ) {
 										$site['plugin_activated'] = 1;
-                                                                        } else {
+									} else {
 										$site['plugin_activated'] = 0;
-                                                                        }
-                                                                        // get upgrade info.
-                                                                        $site['plugin_version'] = $plugin['version'];
-                                                                        $plugin_upgrades = json_decode( $website->plugin_upgrades, 1 );
-                                                                        if ( is_array( $plugin_upgrades ) && count( $plugin_upgrades ) > 0 ) {
-                                                                                if ( isset( $plugin_upgrades['mainwp-child-reports/mainwp-child-reports.php'] ) ) {
-                                                                                    $upgrade = $plugin_upgrades['mainwp-child-reports/mainwp-child-reports.php'];
-                                                                                    if ( isset( $upgrade['update'] ) ) {
-                                                                                            $site['reports_upgrade'] = $upgrade['update'];
-                                                                                    }
-                                                                                }
-                                                                        }
 
-                                                                        $site['hide_stream'] = 0;
-                                                                        if ( isset( $streamHide[ $website->id ] ) && $streamHide[ $website->id ] ) {
-                                                                                $site['hide_stream'] = 1;
-                                                                        }
+									}
+                  // get upgrade info
+                  $site['plugin_version'] = $plugin['version'];
+                  $plugin_upgrades        = json_decode( $website->plugin_upgrades, 1 );
+									if ( is_array( $plugin_upgrades ) && count( $plugin_upgrades ) > 0 ) {
+										if ( isset( $plugin_upgrades['mainwp-child-reports/mainwp-child-reports.php'] ) ) {
+																			$upgrade = $plugin_upgrades['mainwp-child-reports/mainwp-child-reports.php'];
+											if ( isset( $upgrade['update'] ) ) {
+												$site['reports_upgrade'] = $upgrade['update'];
+											}
+										}
+									}
 
-                                                                        if ( isset( $creportSiteSettings['first_time'] ) ) {
-                                                                                $site['first_time'] = $creportSiteSettings['first_time'];
-                                                                        }
-                                                                        $site['last_report'] = isset($lastReportsSites[$website->id]) ? $lastReportsSites[$website->id] : 0;
-                                                                        $websites_stream[] = $site;
-                                                                        break;
+																		$site['hide_stream'] = 0;
+									if ( isset( $streamHide[ $website->id ] ) && $streamHide[ $website->id ] ) {
+											$site['hide_stream'] = 1;
+									}
+
+									if ( isset( $creportSiteSettings['first_time'] ) ) {
+											$site['first_time'] = $creportSiteSettings['first_time'];
+									}
+                  $site['last_report'] = isset( $lastReportsSites[ $website->id ] ) ? $lastReportsSites[ $website->id ] : 0;
+                  $websites_stream[]   = $site;
+                  break;
 								}
 							}
 						}
@@ -288,7 +291,7 @@ class MainWP_CReport_Stream {
 				global $mainWPCReportExtensionActivator;
 
 				$group_websites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array(), array( $selected_group ) );
-				$sites = array();
+				$sites          = array();
 				foreach ( $group_websites as $site ) {
 					$sites[] = $site->id;
 				}
@@ -296,48 +299,51 @@ class MainWP_CReport_Stream {
 					if ( $website && $website->plugins != '' && in_array( $website->id, $sites ) ) {
 						$plugins = json_decode( $website->plugins, 1 );
 						if ( is_array( $plugins ) && count( $plugins ) != 0 ) {
-                                                        $creportSiteSettings = array();
+														$creportSiteSettings = array();
 
-                                                        if (isset($creportSettings[ $website->id ]))
-                                                            $creportSiteSettings = $creportSettings[ $website->id ];
+							if ( isset( $creportSettings[ $website->id ] ) ) {
+								$creportSiteSettings = $creportSettings[ $website->id ];
+							}
 
-                                                        if (!is_array($creportSiteSettings))
-                                                            $creportSiteSettings = array();
+							if ( ! is_array( $creportSiteSettings ) ) {
+								$creportSiteSettings = array();
+							}
 
 							foreach ( $plugins as $plugin ) {
 								if ( 'mainwp-child-reports/mainwp-child-reports.php' == $plugin['slug'] ) {
 
-                                                                        $site = MainWP_CReport_Utility::map_site( $website, array( 'id', 'name', 'url' ) );
+																		$site = MainWP_CReport_Utility::map_site( $website, array( 'id', 'name', 'url' ) );
 
 									if ( $plugin['active'] ) {
 										$site['plugin_activated'] = 1;
-                                                                        } else {
+									} else {
 										$site['plugin_activated'] = 0;
-                                                                        }
 
-                                                                        $site['plugin_version'] = $plugin['version'];
+									}
 
-                                                                        // get upgrade info.
-                                                                        $plugin_upgrades = json_decode( $website->plugin_upgrades, 1 );
-                                                                        if ( is_array( $plugin_upgrades ) && count( $plugin_upgrades ) > 0 ) {
-                                                                                if ( isset( $plugin_upgrades['mainwp-child-reports/mainwp-child-reports.php'] ) ) {
-                                                                                        $upgrade = $plugin_upgrades['mainwp-child-reports/mainwp-child-reports.php'];
-                                                                                        if ( isset( $upgrade['update'] ) ) {
-                                                                                                $site['reports_upgrade'] = $upgrade['update'];
-                                                                                        }
-                                                                                }
-                                                                        }
+                  $site['plugin_version'] = $plugin['version'];
 
-                                                                        $site['hide_stream'] = 0;
-                                                                        if ( isset( $streamHide[ $website->id ] ) && $streamHide[ $website->id ] ) {
-                                                                                $site['hide_stream'] = 1;
-                                                                        }
-                                                                        if ( isset( $creportSiteSettings['first_time'] ) ) {
-                                                                                $site['first_time'] = $creportSiteSettings['first_time'];
-                                                                        }
-                                                                        $site['last_report'] = isset($lastReportsSites[$website->id]) ? $lastReportsSites[$website->id] : 0;
-                                                                        $websites_stream[] = $site;
-                                                                        break;
+                  // get upgrade info
+                  $plugin_upgrades = json_decode( $website->plugin_upgrades, 1 );
+									if ( is_array( $plugin_upgrades ) && count( $plugin_upgrades ) > 0 ) {
+										if ( isset( $plugin_upgrades['mainwp-child-reports/mainwp-child-reports.php'] ) ) {
+																				$upgrade = $plugin_upgrades['mainwp-child-reports/mainwp-child-reports.php'];
+											if ( isset( $upgrade['update'] ) ) {
+												$site['reports_upgrade'] = $upgrade['update'];
+											}
+										}
+									}
+
+																		$site['hide_stream'] = 0;
+									if ( isset( $streamHide[ $website->id ] ) && $streamHide[ $website->id ] ) {
+											$site['hide_stream'] = 1;
+									}
+									if ( isset( $creportSiteSettings['first_time'] ) ) {
+											$site['first_time'] = $creportSiteSettings['first_time'];
+									}
+                  $site['last_report'] = isset( $lastReportsSites[ $website->id ] ) ? $lastReportsSites[ $website->id ] : 0;
+                  $websites_stream[]   = $site;
+                  break;
 								}
 							}
 						}
@@ -377,49 +383,49 @@ class MainWP_CReport_Stream {
 							<option value="update-selected"><?php _e( 'Update', 'mainwp-backupwordpress-extension' ); ?></option>
 							<option value="hide-selected"><?php _e( 'Hide', 'mainwp-backupwordpress-extension' ); ?></option>
 							<option value="show-selected"><?php _e( 'Unhide', 'mainwp-backupwordpress-extension' ); ?></option>
-            </select>
+			</select>
 						<input type="button" value="<?php _e( 'Apply' ); ?>" class="ui basic button action" id="creport_stream_doaction_btn" name="creport_stream_doaction_btn">
 						<?php do_action( 'mainwp_client_reports_actions_bar_left' ); ?>
-	        </div>
+			</div>
 					<div class="right aligned column">
 						<?php do_action( 'mainwp_client_reports_actions_bar_right' ); ?>
-	        </div>
-        </div>
+			</div>
+		</div>
 			</div>
 		</div>
 		<?php
 	}
 
-    /**
-     * Ajax activate plugin.
-     */
-    public function ajax_active_plugin() {
-                MainWP_CReport::verify_nonce();
+  /**
+   * Ajax activate plugin.
+   */
+	public function ajax_active_plugin() {
+		MainWP_CReport::verify_nonce();
 		do_action( 'mainwp_activePlugin' );
 		die();
 	}
 
-    /**
-     * Ajax upgrade plugin.
-     */
-    public function ajax_upgrade_plugin() {
-                MainWP_CReport::verify_nonce();
+  /**
+   * Ajax upgrade plugin.
+   */
+	public function ajax_upgrade_plugin() {
+		MainWP_CReport::verify_nonce();
 		do_action( 'mainwp_upgradePluginTheme' );
 		die();
 	}
 
-    /**
-     * Ajax show|hide stream.
-     */
-    public function ajax_showhide_stream() {
-                MainWP_CReport::verify_nonce();
-		$siteid = isset( $_POST['websiteId'] ) ? $_POST['websiteId'] : null;
+  /**
+   * Ajax show|hide stream.
+   */
+	public function ajax_showhide_stream() {
+		MainWP_CReport::verify_nonce();
+		$siteid   = isset( $_POST['websiteId'] ) ? $_POST['websiteId'] : null;
 		$showhide = isset( $_POST['showhide'] ) ? $_POST['showhide'] : null;
 		if ( null !== $siteid && null !== $showhide ) {
 			global $mainWPCReportExtensionActivator;
-			$post_data = array(
-			'mwp_action' => 'set_showhide',
-				'showhide' => $showhide,
+			$post_data   = array(
+				'mwp_action' => 'set_showhide',
+				'showhide'   => $showhide,
 			);
 			$information = apply_filters( 'mainwp_fetchurlauthed', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $siteid, 'client_report', $post_data );
 
@@ -427,7 +433,7 @@ class MainWP_CReport_Stream {
 				$hide_stream = $this->get_option( 'hide_stream_plugin' );
 				if ( ! is_array( $hide_stream ) ) {
 					$hide_stream = array(); }
-				$hide_stream[ $siteid ] = ('hide' === $showhide) ? 1 : 0;
+				$hide_stream[ $siteid ] = ( 'hide' === $showhide ) ? 1 : 0;
 				$this->set_option( 'hide_stream_plugin', $hide_stream );
 			}
 

@@ -5,10 +5,10 @@
   Plugin Name: MainWP Client Reports Extension
   Plugin URI: https://mainwp.com
   Description: MainWP Client Reports Extension allows you to generate activity reports for your clients sites. Requires MainWP Dashboard.
-  Version: 4.0.3
+  Version: 4.0.4
   Author: MainWP
   Author URI: https://mainwp.com
-  Documentation URI: https://mainwp.com/help/category/mainwp-extensions/client-reports/
+  Documentation URI: https://mainwp.com/help/docs/category/mainwp-extensions/client-reports/
  */
 
 if ( ! defined( 'MAINWP_CLIENT_REPORTS_PLUGIN_FILE' ) ) {
@@ -54,16 +54,16 @@ class MainWP_CReport_Extension {
     /** @var string Extension version. */
     public $version = '1.6';
 
-    /**
-     * Create a public static instance.
-     *
-     * @return mixed Class instance.
-     */
-    static function get_instance() {
-		if ( null == MainWP_CReport_Extension::$instance ) {
-			MainWP_CReport_Extension::$instance = new MainWP_CReport_Extension();
+  /**
+   * Create a public static instance.
+   *
+   * @return mixed Class instance.
+   */
+	static function get_instance() {
+		if ( null == self::$instance ) {
+			self::$instance = new MainWP_CReport_Extension();
 		}
-		return MainWP_CReport_Extension::$instance;
+		return self::$instance;
 	}
 
     /**
@@ -71,10 +71,10 @@ class MainWP_CReport_Extension {
      */
     public function __construct() {
 
-		$this->plugin_dir = plugin_dir_path( __FILE__ );
-		self::$plugin_url = plugin_dir_url( __FILE__ );
+		$this->plugin_dir  = plugin_dir_path( __FILE__ );
+		self::$plugin_url  = plugin_dir_url( __FILE__ );
 		$this->plugin_slug = plugin_basename( __FILE__ );
-		$this->option = get_option( $this->option_handle );
+		$this->option      = get_option( $this->option_handle );
 		add_action( 'init', array( &$this, 'localization' ) );
 		add_action( 'init', array( &$this, 'init' ) );
 		add_filter( 'plugin_row_meta', array( &$this, 'plugin_row_meta' ), 10, 2 );
@@ -84,7 +84,7 @@ class MainWP_CReport_Extension {
 		add_action( 'mainwp-site-synced', array( &$this, 'site_synced' ), 10, 2 );
 		add_action( 'mainwp_delete_site', array( &$this, 'on_delete_site' ), 10, 1 );
 
-        // to fix action for wp cli.
+    // to fix action for wp cli.
 		add_action( 'mainwp_sucuri_scan_done', array( &$this, 'sucuri_scan_done' ), 10, 3 );
 
     /**
@@ -94,21 +94,25 @@ class MainWP_CReport_Extension {
      */
     add_filter( 'mainwp_client_report_generate', array( 'MainWP_CReport', 'hook_generate_report' ), 10, 5 );
 
-    if ( isset( $_GET['page'] ) && ('Extensions-Mainwp-Client-Reports-Extension' == $_GET['page']) && isset($_GET['tab']) && $_GET['page'] == 'report' ) {
-	    require_once 'includes/functions.php';
-	    add_action( 'admin_print_footer_scripts', 'mainwp_creport_admin_print_footer_scripts');
-    }
+		add_filter( 'mainwp_client_report_get_site_tokens', array( 'MainWP_CReport', 'hook_get_site_tokens' ), 10, 2 );
+		add_filter( 'mainwp_client_report_generate_content', array( 'MainWP_CReport', 'hook_generate_content' ), 10, 5 );
+
+
+		if ( isset( $_GET['page'] ) && ( 'Extensions-Mainwp-Client-Reports-Extension' == $_GET['page'] ) && isset( $_GET['tab'] ) && $_GET['page'] == 'report' ) {
+			require_once 'includes/functions.php';
+			add_action( 'admin_print_footer_scripts', 'mainwp_creport_admin_print_footer_scripts' );
+		}
 
 		MainWP_CReport_DB::get_instance()->install();
 
 		add_filter( 'cron_schedules', array( $this, 'getCronSchedules' ) );
 	}
 
-    /**
-     * Initiate extension localization.
-     */
-    public function localization() {
-		load_plugin_textdomain( 'mainwp-client-reports-extension', false,  dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+  /**
+   * Initiate extension localization.
+   */
+	public function localization() {
+		load_plugin_textdomain( 'mainwp-client-reports-extension', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 	}
 
     /**
@@ -134,9 +138,9 @@ class MainWP_CReport_Extension {
 			return $plugin_meta;
 		}
 
-		$slug = basename($plugin_file, ".php");
-		$api_data = get_option( $slug. '_APIManAdder');
-		if (!is_array($api_data) || !isset($api_data['activated_key']) || $api_data['activated_key'] != 'Activated' || !isset($api_data['api_key']) || empty($api_data['api_key']) ) {
+		$slug     = basename( $plugin_file, '.php' );
+		$api_data = get_option( $slug . '_APIManAdder' );
+		if ( ! is_array( $api_data ) || ! isset( $api_data['activated_key'] ) || $api_data['activated_key'] != 'Activated' || ! isset( $api_data['api_key'] ) || empty( $api_data['api_key'] ) ) {
 			return $plugin_meta;
 		}
 
@@ -144,48 +148,49 @@ class MainWP_CReport_Extension {
 		return $plugin_meta;
 	}
 
-    /**
-     * Sync client reports data.
-     *
-     * @param array $data Client reports data.
-     * @param array $pWebsite Child Site data.
-     *
-     * @return array Return client reports data.
-     */
-    public function sync_others_data( $data, $pWebsite = null ) {
+  /**
+   * Sync client reports data.
+   *
+   * @param array $data Client reports data.
+   * @param array $pWebsite Child Site data.
+   *
+   * @return array Return client reports data.
+   */
+	public function sync_others_data( $data, $pWebsite = null ) {
 		if ( ! is_array( $data ) ) {
-                    $data = array();
-                }
+					$data = array();
+		}
 		$data['syncClientReportData'] = 1;
 		return $data;
 	}
 
-    /**
-     * Sync Client reports data.
-     *
-     * @param array $website Child site data.
-     * @param array $information Information data.
-     */
-    public function site_synced( $website, $information = array()) {
+  /**
+   * Sync Client reports data.
+   *
+   * @param array $website Child site data.
+   * @param array $information Information data.
+   */
+	public function site_synced( $website, $information = array() ) {
 		$website_id = $website->id;
-	    if ( is_array( $information ) && isset( $information['syncClientReportData'] ) && is_array( $information['syncClientReportData'] ) ) {
-        $data = $information['syncClientReportData'];
-        if (isset($data['firsttime_activated'])) {
-          $creportSettings = MainWP_CReport_Stream::get_instance()->get_option( 'settings' );
-          if (!is_array($creportSettings))
-            $creportSettings = array();
-          $creportSettings[$website_id]['first_time'] = $data['firsttime_activated'];
-          MainWP_CReport_Stream::get_instance()->set_option( 'settings', $creportSettings );
-        }
-	    }
+		if ( is_array( $information ) && isset( $information['syncClientReportData'] ) && is_array( $information['syncClientReportData'] ) ) {
+			$data = $information['syncClientReportData'];
+			if ( isset( $data['firsttime_activated'] ) ) {
+				$creportSettings = MainWP_CReport_Stream::get_instance()->get_option( 'settings' );
+				if ( ! is_array( $creportSettings ) ) {
+					$creportSettings = array();
+				}
+				$creportSettings[ $website_id ]['first_time'] = $data['firsttime_activated'];
+				MainWP_CReport_Stream::get_instance()->set_option( 'settings', $creportSettings );
+			}
+		}
 	}
 
-    /**
-     * On delete site.
-     *
-     * @param array $website Child site array.
-     */
-    public function on_delete_site( $website ) {
+  /**
+   * On delete site.
+   *
+   * @param array $website Child site array.
+   */
+	public function on_delete_site( $website ) {
 		if ( $website ) {
 			MainWP_CReport_DB::get_instance()->delete_group_report_content( 0, $website->id );
 		}
@@ -201,7 +206,7 @@ class MainWP_CReport_Extension {
     public function sucuri_scan_done( $website_id, $scan_status, $data ) {
 		$scan_result = array();
 		if ( is_array( $data ) ) {
-			$blacklisted = isset( $data['BLACKLIST']['WARN'] ) ? true : false;
+			$blacklisted    = isset( $data['BLACKLIST']['WARN'] ) ? true : false;
 			$malware_exists = isset( $data['MALWARE']['WARN'] ) ? true : false;
 
 			$status = array();
@@ -210,21 +215,21 @@ class MainWP_CReport_Extension {
 			if ( $malware_exists ) {
 				$status[] = __( 'Site With Warnings', 'mainwp-client-reports-extension' ); }
 
-			$scan_result['status'] = count( $status ) > 0 ? implode( ', ', $status ) : __( 'Verified Clear', 'mainwp-client-reports-extension' );
+			$scan_result['status']   = count( $status ) > 0 ? implode( ', ', $status ) : __( 'Verified Clear', 'mainwp-client-reports-extension' );
 			$scan_result['webtrust'] = $blacklisted ? __( 'Site Blacklisted', 'mainwp-client-reports-extension' ) : __( 'Trusted', 'mainwp-client-reports-extension' );
 		}
 
-        $scan_data = array(
-            'blacklisted' => $blacklisted,
-            'malware_exists' => $malware_exists
-        );
+		$scan_data = array(
+			'blacklisted'    => $blacklisted,
+			'malware_exists' => $malware_exists,
+		);
 
 		// save results to child site stream.
 		$post_data = array(
-            'mwp_action' => 'save_sucuri_stream',
-			'result' => base64_encode( serialize( $scan_result ) ),
+			'mwp_action'  => 'save_sucuri_stream',
+			'result'      => base64_encode( serialize( $scan_result ) ),
 			'scan_status' => $scan_status,
-            'scan_data' => base64_encode( serialize( $scan_data ) )
+			'scan_data'   => base64_encode( serialize( $scan_data ) ),
 		);
 
 		/** @global object $mainWPCReportExtensionActivator Instance of MainWP CReports Extension Activator. */
@@ -233,25 +238,27 @@ class MainWP_CReport_Extension {
 		apply_filters( 'mainwp_fetchurlauthed', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $website_id, 'client_report', $post_data );
 	}
 
-    /**
-     * Initiate Admin page.
-     */
-    public function admin_init() {
+  /**
+   * Initiate Admin page.
+   */
+	public function admin_init() {
 
-        if ( isset( $_GET['page'] ) && ('Extensions-Mainwp-Client-Reports-Extension' == $_GET['page']) &&
-				isset( $_GET['action'] ) && ('savepdf' == $_GET['action'])
-                && isset($_GET['_noncesave']) && wp_verify_nonce( $_REQUEST['_noncesave'], '_noncesave' )
-				&& isset( $_GET['id'] ) && !empty($_GET['id']) ) {
+		if ( isset( $_GET['page'] ) && ( 'Extensions-Mainwp-Client-Reports-Extension' == $_GET['page'] ) &&
+				isset( $_GET['action'] ) && ( 'savepdf' == $_GET['action'] )
+				&& isset( $_GET['_noncesave'] ) && wp_verify_nonce( $_REQUEST['_noncesave'], '_noncesave' )
+				&& isset( $_GET['id'] ) && ! empty( $_GET['id'] ) ) {
 			require_once $this->plugin_dir . '/libs/save-as-pdf.php';
 			exit();
 		}
 
-		wp_enqueue_style( 'mainwp-creport-extension', self::$plugin_url . 'css/mainwp-reporting.css', array(), $this->version);
+		wp_enqueue_style( 'mainwp-creport-extension', self::$plugin_url . 'css/mainwp-reporting.css', array(), $this->version );
 		wp_enqueue_script( 'mainwp-creport-extension', self::$plugin_url . 'js/mainwp-reporting.js', array(), $this->version );
 
 		wp_localize_script(
-			'mainwp-creport-extension', 'mainwp_clientreport_loc', array(
-			'nonce' => wp_create_nonce( '_wpnonce_creport' ),
+			'mainwp-creport-extension',
+			'mainwp_clientreport_loc',
+			array(
+				'nonce' => wp_create_nonce( '_wpnonce_creport' ),
 			)
 		);
 
@@ -262,33 +269,34 @@ class MainWP_CReport_Extension {
 		$mwp_creport_stream->admin_init();
 	}
 
-    /**
-     * Set cron schedules to once every 5 minuets.
-     *
-     * @param array $schedules Holds the Cron job schedules.
-     * @return array Return array of cron jobs schedules.
-     */
-    public static function getCronSchedules( $schedules ) {
+  /**
+   * Set cron schedules to once every 5 minuets.
+   *
+   * @param array $schedules Holds the Cron job schedules.
+   * @return array Return array of cron jobs schedules.
+   */
+	public static function getCronSchedules( $schedules ) {
 
-		$schedules['5minutely']  = array(
-			'interval' => 5 * 60, // 5 minute in seconds.
+		$schedules['5minutely'] = array(
+			'interval' => 5 * 60, // 5 minute in seconds
 			'display'  => __( 'Once every 5 minutes', 'mainwp' ),
 		);
 
 		return $schedules;
 	}
 
-    /**
-     * Sync extensions options.
-     *
-     * @param array $values Option values array.
-     * @return array Return option values array.
-     */
-    function mainwp_sync_extensions_options( $values = array() ) {
+
+  /**
+   * Sync extensions options.
+   *
+   * @param array $values Option values array.
+   * @return array Return option values array.
+   */
+	function mainwp_sync_extensions_options( $values = array() ) {
 		$values['mainwp-client-reports-extension'] = array(
 			'plugin_name' => 'MainWP Child Reports',
 			'plugin_slug' => 'mainwp-child-reports/mainwp-child-reports.php',
-			'no_setting' => true
+			'no_setting'  => true,
 		);
 		return $values;
 	}
@@ -346,8 +354,7 @@ class MainWP_CReport_Extension_Activator {
     protected $product_id = 'MainWP Client Reports Extension';
 
     /** @var string MainWP extension version. */
-    protected $software_version = '4.0.3';
-
+    protected $software_version = '4.0.4';
 
     /**
      * MainWP_CReport_Extension_Activator constructor.
@@ -356,9 +363,9 @@ class MainWP_CReport_Extension_Activator {
 
 		$this->childFile = __FILE__;
 
-        spl_autoload_register( array( $this, 'autoload' ) );
-        register_activation_hook( __FILE__, array($this, 'activate') );
-        register_deactivation_hook( __FILE__, array($this, 'deactivate') );
+		spl_autoload_register( array( $this, 'autoload' ) );
+		register_activation_hook( __FILE__, array( $this, 'activate' ) );
+		register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
 
 		add_filter( 'mainwp-getextensions', array( &$this, 'get_this_extension' ) );
 		$this->mainwpMainActivated = apply_filters( 'mainwp-activated-check', false );
@@ -373,21 +380,21 @@ class MainWP_CReport_Extension_Activator {
 		add_action( 'mainwp_cronload_action', array( $this, 'load_cron_actions' ) );
 	}
 
-    /**
-     * Class Autoloader.
-     *
-     * @param string $class_name Class name to load.
-     */
-    function autoload( $class_name ) {
-        $allowedLoadingTypes = array( 'class' );
-        $class_name = str_replace( '_', '-', strtolower( $class_name ) );
-        foreach ( $allowedLoadingTypes as $allowedLoadingType ) {
-            $class_file = WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . str_replace( basename( __FILE__ ), '', plugin_basename( __FILE__ ) ) . $allowedLoadingType . DIRECTORY_SEPARATOR . $class_name . '.' . $allowedLoadingType . '.php';
-            if ( file_exists( $class_file ) ) {
-                require_once( $class_file );
-            }
-        }
-    }
+  /**
+   * Class Autoloader.
+   *
+   * @param string $class_name Class name to load.
+   */
+	function autoload( $class_name ) {
+		$allowedLoadingTypes = array( 'class' );
+		$class_name          = str_replace( '_', '-', strtolower( $class_name ) );
+		foreach ( $allowedLoadingTypes as $allowedLoadingType ) {
+			$class_file = WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . str_replace( basename( __FILE__ ), '', plugin_basename( __FILE__ ) ) . $allowedLoadingType . DIRECTORY_SEPARATOR . $class_name . '.' . $allowedLoadingType . '.php';
+			if ( file_exists( $class_file ) ) {
+				require_once $class_file;
+			}
+		}
+	}
 
     /**
      * Load cron actions.
@@ -405,7 +412,13 @@ class MainWP_CReport_Extension_Activator {
      */
     function get_this_extension( $pArray ) {
 
-		$pArray[] = array( 'plugin' => __FILE__, 'api' => $this->plugin_handle, 'mainwp' => true, 'callback' => array( &$this, 'settings' ), 'apiManager' => true );
+		$pArray[] = array(
+			'plugin'     => __FILE__,
+			'api'        => $this->plugin_handle,
+			'mainwp'     => true,
+			'callback'   => array( &$this, 'settings' ),
+			'apiManager' => true,
+		);
 		return $pArray;
 	}
 
@@ -424,25 +437,24 @@ class MainWP_CReport_Extension_Activator {
     function activate_this_plugin() {
 
 		$this->mainwpMainActivated = apply_filters( 'mainwp-activated-check', $this->mainwpMainActivated );
-		$this->childEnabled = apply_filters( 'mainwp-extension-enabled-check', __FILE__ );
-		$this->childKey = $this->childEnabled['key'];
+		$this->childEnabled        = apply_filters( 'mainwp-extension-enabled-check', __FILE__ );
+		$this->childKey            = $this->childEnabled['key'];
 
 		if ( function_exists( 'mainwp_current_user_can' ) && ! mainwp_current_user_can( 'extension', 'mainwp-client-reports-extension' ) ) {
 			return;
 		}
 
-		add_action( 'mainwp_extension_sites_edit_tablerow', array( 'MainWP_CReport', 'renderClientReportsSiteTokens'), 10, 1); // to do change to: mainwp-manage-sites-edit
+		add_action( 'mainwp_extension_sites_edit_tablerow', array( 'MainWP_CReport', 'renderClientReportsSiteTokens' ), 10, 1 ); // to do change to: mainwp-manage-sites-edit
 
 		new MainWP_CReport_Extension();
 	}
 
-    /**
-     * Get Child key.
-     *
-     * @return string|bool Return Child Key or FALSE on failure.
-     */
-    public function get_child_key() {
-
+  /**
+   * Get Child key.
+   *
+   * @return string|bool Return Child Key or FALSE on failure.
+   */
+	public function get_child_key() {
 		return $this->childKey;
 	}
 
@@ -469,32 +481,23 @@ class MainWP_CReport_Extension_Activator {
 		}
 	}
 
-    /**
-     * Activate MainWP Extension.
-     */
-    public function activate() {
-	    $options = array(
-            'product_id' => $this->product_id,
+  /**
+   * Activate MainWP Extension.
+   */
+	public function activate() {
+		$options = array(
+			'product_id'       => $this->product_id,
+
 			'software_version' => $this->software_version,
 		);
-        do_action( 'mainwp_activate_extention', $this->plugin_handle , $options );
+		do_action( 'mainwp_activate_extention', $this->plugin_handle, $options );
 	}
 
-    /**
-     * Deactivate MainWP Extension.
-     */
-    public function deactivate() {
-        /**
-         * MainWP Deactivate Extension action.
-         *
-         * This action is responsible for deactivating the MainWP Client Reports Extension.
-         *
-         * @since unknown
-         *
-         * @param string $plugin_handle The handle of the plugin to be deactivated.
-         *
-         */
-        do_action( 'mainwp_deactivate_extention', $this->plugin_handle );
+  /**
+   * Deactivate MainWP Extension.
+   */
+	public function deactivate() {
+		do_action( 'mainwp_deactivate_extention', $this->plugin_handle );
 	}
 }
 

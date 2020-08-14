@@ -6,33 +6,33 @@
  */
 class MainWP_CReport_DB {
 
-    /** @var string MainWP Client Reports DB version. */
-    private $mainwp_wpcreport_db_version = '6.1';
+   /** @var string MainWP Client Reports DB version. */
+	private $mainwp_wpcreport_db_version = '6.2';
+  
+  /** @var string Database table prefix. */
+	private $table_prefix;
+      
+ /**
+   * Public static variable to hold the single instance of the class.
+   *
+   * @var mixed Default null
+   */
+	private static $instance = null;
+      
+  /** @var object Holds WordPress Database instance. */
+	private $wpdb;
 
-    /** @var string Database table prefix. */
-    private $table_prefix;
-
-    /**
-     * Public static variable to hold the single instance of the class.
-     *
-     * @var mixed Default null
-     */
-    private static $instance = null;
-
+ /**
+   * MainWP_CReport_DB constructor.
+   */
+	function __construct() {
+    
     /** @var object Holds WordPress Database instance. */
-    private $wpdb;
-
-    /**
-     * MainWP_CReport_DB constructor.
-     */
-    function __construct() {
-
-        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		$this->table_prefix = $wpdb->prefix . 'mainwp_';
-        $this->init_default_data();
-		$this->wpdb         = &$wpdb;
+		$this->init_default_data();
+		$this->wpdb = &$wpdb;
 	}
 
     /**
@@ -46,71 +46,71 @@ class MainWP_CReport_DB {
 		return $this->table_prefix . $suffix;
 	}
 
-    /**
-     * Support old & new versions of wordpress (3.9+).
-     *
-     * @return bool
-     */
-    public static function use_mysqli() {
-
+	/**
+   * Support old & new versions of wordpress (3.9+).
+   *
+   * @return bool
+   */
+	public static function use_mysqli() {
+		
 		if ( ! function_exists( 'mysqli_connect' ) ) {
 			return false; }
-
-        /** @global object $wpdb WordPress Database instance. */
-        global $wpdb;
-
-		return ($wpdb->dbh instanceof mysqli);
+  
+     /** @global object $wpdb WordPress Database instance. */
+		global $wpdb;
+		return ( $wpdb->dbh instanceof mysqli );
 	}
 
-    /** Installs new DB. */
-    function install() {
-
-        /** @global object $wpdb WordPress Database instance. */
+	// Installs new DB
+	function install() {
+    
+    /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		$currentVersion = get_site_option( 'mainwp_wpcreport_db_version' );
 
 		if ( $currentVersion == $this->mainwp_wpcreport_db_version ) {
 			return;
-                }
+		}
 
 		$charset_collate = $wpdb->get_charset_collate();
-		$sql = array();
+		$sql             = array();
 
-        $rslt = $this->query( "SHOW TABLES LIKE '" . $this->table_name( 'client_report_token' ) . "'" );
-        $table_existed = !empty( $rslt ) ? true : false;
+		$rslt          = $this->query( "SHOW TABLES LIKE '" . $this->table_name( 'client_report_token' ) . "'" );
+		$table_existed = ! empty( $rslt ) ? true : false;
 
 		$tbl = 'CREATE TABLE `' . $this->table_name( 'client_report_token' ) . '` (
 `id` int(11) NOT NULL AUTO_INCREMENT,
 `token_name` varchar(512) NOT NULL DEFAULT "",
 `token_description` text NOT NULL,
 `type` tinyint(1) NOT NULL DEFAULT 0';
-		if ( '' == $currentVersion || !$table_existed ) {
+		if ( '' == $currentVersion || ! $table_existed ) {
 			$tbl .= ',
 PRIMARY KEY  (`id`)  ';
-                }
+		}
 
-		$tbl .= ') ' . $charset_collate;
+		$tbl  .= ') ' . $charset_collate;
 		$sql[] = $tbl;
 
-        $rslt = $this->query( "SHOW TABLES LIKE '" . $this->table_name( 'client_report_site_token' ) . "'" );
-        $table_existed = !empty( $rslt ) ? true : false;
+		$rslt          = $this->query( "SHOW TABLES LIKE '" . $this->table_name( 'client_report_site_token' ) . "'" );
+		$table_existed = ! empty( $rslt ) ? true : false;
 
 		$tbl = 'CREATE TABLE `' . $this->table_name( 'client_report_site_token' ) . '` (
 `id` int(11) NOT NULL AUTO_INCREMENT,
 `site_url` varchar(255) NOT NULL,
+`site_id` int(11) NOT NULL,
 `token_id` int(12) NOT NULL,
 `token_value` varchar(512) NOT NULL';
-		if ( '' == $currentVersion || !$table_existed ) {
+		if ( '' == $currentVersion || ! $table_existed ) {
 			$tbl .= ',
 PRIMARY KEY  (`id`)  ';
-                }
+		}
 
-		$tbl .= ') ' . $charset_collate;
+		$tbl  .= ') ' . $charset_collate;
 		$sql[] = $tbl;
 
-        $rslt = $this->query( "SHOW TABLES LIKE '" . $this->table_name( 'client_report' ) . "'" );
-        $table_existed = !empty( $rslt ) ? true : false;
+		$rslt          = $this->query( "SHOW TABLES LIKE '" . $this->table_name( 'client_report' ) . "'" );
+		$table_existed = ! empty( $rslt ) ? true : false;
 
 		$tbl = 'CREATE TABLE `' . $this->table_name( 'client_report' ) . '` (
 `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -144,16 +144,16 @@ PRIMARY KEY  (`id`)  ';
 `sites` text NOT NULL,
 `groups` text NOT NULL';
 
-		if ( '' == $currentVersion || !$table_existed ) {
+		if ( '' == $currentVersion || ! $table_existed ) {
 			$tbl .= ',
 PRIMARY KEY  (`id`)  ';
-                }
+		}
 
-		$tbl .= ') ' . $charset_collate;
+		$tbl  .= ') ' . $charset_collate;
 		$sql[] = $tbl;
 
-        $rslt = $this->query( "SHOW TABLES LIKE '" . $this->table_name( 'client_report_client' ) . "'" );
-        $table_existed = !empty( $rslt ) ? true : false;
+		$rslt          = $this->query( "SHOW TABLES LIKE '" . $this->table_name( 'client_report_client' ) . "'" );
+		$table_existed = ! empty( $rslt ) ? true : false;
 
 		$tbl = 'CREATE TABLE `' . $this->table_name( 'client_report_client' ) . '` (
 `clientid` int(11) NOT NULL AUTO_INCREMENT,
@@ -161,16 +161,16 @@ PRIMARY KEY  (`id`)  ';
 `name` VARCHAR(512),
 `company` VARCHAR(512),
 `email` text NOT NULL';
-		if ( '' == $currentVersion || !$table_existed ) {
+		if ( '' == $currentVersion || ! $table_existed ) {
 			$tbl .= ',
 PRIMARY KEY  (`clientid`)  ';
-                }
+		}
 
-		$tbl .= ') ' . $charset_collate;
+		$tbl  .= ') ' . $charset_collate;
 		$sql[] = $tbl;
 
-        $rslt = $this->query( "SHOW TABLES LIKE '" . $this->table_name( 'client_report_format' ) . "'" );
-        $table_existed = !empty( $rslt ) ? true : false;
+		$rslt          = $this->query( "SHOW TABLES LIKE '" . $this->table_name( 'client_report_format' ) . "'" );
+		$table_existed = ! empty( $rslt ) ? true : false;
 
 		$tbl = 'CREATE TABLE `' . $this->table_name( 'client_report_format' ) . '` (
 `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -180,31 +180,31 @@ PRIMARY KEY  (`clientid`)  ';
 		if ( '' == $currentVersion || ! $table_existed ) {
 			$tbl .= ',
 PRIMARY KEY  (`id`)  ';
-                }
+		}
 
 		$tbl .= ') ' . $charset_collate;
 
 		$sql[] = $tbl;
 
-        $rslt = $this->query( "SHOW TABLES LIKE '" . $this->table_name( 'client_group_report_content' ) . "'" );
-        $table_existed = !empty( $rslt ) ? true : false;
+		$rslt          = $this->query( "SHOW TABLES LIKE '" . $this->table_name( 'client_group_report_content' ) . "'" );
+		$table_existed = ! empty( $rslt ) ? true : false;
 
-                $tbl = 'CREATE TABLE `' . $this->table_name( 'client_group_report_content' ) . '` (
+				$tbl = 'CREATE TABLE `' . $this->table_name( 'client_group_report_content' ) . '` (
 `id` int(11) NOT NULL AUTO_INCREMENT,
 `report_id` int(11) NOT NULL,
 `site_id` int(11) NOT NULL,
 `report_content` longtext NOT NULL,
 `report_content_pdf` longtext NOT NULL';
-		if ( '' == $currentVersion || !$table_existed ) {
+		if ( '' == $currentVersion || ! $table_existed ) {
 			$tbl .= ',
 PRIMARY KEY  (`id`)  ';
-                }
+		}
 
 		$tbl .= ') ' . $charset_collate;
 
 		$sql[] = $tbl;
 
-        // make sure to disable any error output.
+    // make sure to disable any error output.
 		error_reporting( 0 );
 
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
@@ -212,25 +212,25 @@ PRIMARY KEY  (`id`)  ';
 			dbDelta( $query );
 		}
 
-        // create default client.
-        $client_tokens = $this->get_client_by( 'email', '[client.email]' );
-        if (empty($client_tokens )) {
-            $update_client = array(
-                'client' => '[client.name]',
-                'name' => '[client.name]',
-                'company' => '[client.company]	',
-                'email' => '[client.email]',
-            );
+		// create default client.
+		$client_tokens = $this->get_client_by( 'email', '[client.email]' );
+		if ( empty( $client_tokens ) ) {
+			$update_client = array(
+				'client'  => '[client.name]',
+				'name'    => '[client.name]',
+				'company' => '[client.company]	',
+				'email'   => '[client.email]',
+			);
+      
+      // create client with tokens
+			$this->update_client( $update_client );
+		}
 
-            // create client with tokens.
-            $this->update_client( $update_client );
-        }
-
-        // create or update default token.
+		// create or update default token.
 		foreach ( $this->default_tokens as $token_name => $token_description ) {
 			$token = array(
-                'type' => 1,
-				'token_name' => $token_name,
+				'type'              => 1,
+				'token_name'        => $token_name,
 				'token_description' => $token_description,
 			);
 			if ( $current = $this->get_tokens_by( 'token_name', $token_name ) ) {
@@ -239,17 +239,17 @@ PRIMARY KEY  (`id`)  ';
 				$this->add_token( $token );
 			}
 		}
-
-		// create or update default reports.
+    
+		// Create or update default reports.
 		foreach ( $this->default_reports as $report ) {
-            // update values
-            $report['client'] = '[client.name]';
-            $report['name'] = '[client.name]';
-            $report['company'] = '[client.company]';
-            $report['email'] = '[client.email]';
+			// update values
+			$report['client']  = '[client.name]';
+			$report['name']    = '[client.name]';
+			$report['company'] = '[client.company]';
+			$report['email']   = '[client.email]';
 			if ( $current = $this->get_report_by( 'title', $report['title'] ) ) {
-				$current = current( $current );
-				$report['id'] = $current->id;
+				$current               = current( $current );
+				$report['id']          = $current->id;
 				$report['is_archived'] = 0;
 				$this->update_report( $report );
 			} else {
@@ -269,72 +269,90 @@ PRIMARY KEY  (`id`)  ';
 
 		update_option( 'mainwp_wpcreport_db_version', $this->mainwp_wpcreport_db_version );
 
-        $this->check_update($currentVersion);
+		$this->check_update( $currentVersion );
 
 	}
 
-    /**
-     * Create a public static instance of MainWP_CReport_DB.
-     *
-     * @return MainWP_CReport_DB|null
-     */
-    static function get_instance() {
-		if ( null == MainWP_CReport_DB::$instance ) {
-			MainWP_CReport_DB::$instance = new MainWP_CReport_DB();
+  /**
+   * Create a public static instance of MainWP_CReport_DB.
+   *
+   * @return MainWP_CReport_DB|null
+   */
+	static function get_instance() {
+		if ( null == self::$instance ) {
+			self::$instance = new MainWP_CReport_DB();
+
 		}
-		return MainWP_CReport_DB::$instance;
+		return self::$instance;
 	}
 
-    /**
-     * Check extension version.
-     *
-     * @param string $check_version Extension version.
-     *
-     * @deprecated Unused.
-     */
-    function check_update( $check_version ) {
+ /**
+   * Check extension version.
+   *
+   * @param string $check_version Extension version.
+   */
+	function check_update( $check_version ) {
+  
+    /** @global object $wpdb WordPress Database instance. */
+    global $wpdb;
 
-        /** @global object $wpdb WordPress Database instance. */
-        global $wpdb;
+		if ( empty( $check_version ) ) {
+			return;
+		}
+
+		if ( version_compare( $check_version, '6.2' ) < 0 ) {
+			$tokens = $wpdb->get_results( ' SELECT st.* FROM ' . $this->table_name( 'client_report_site_token' ) . ' st WHERE 1 = 1 ' );
+			foreach ( $tokens as $item ) {
+				$site_url = $item->site_url;
+				$website  = apply_filters( 'mainwp_getwebsitesbyurl', $site_url );
+				if ( $website ) {
+					$website = current( $website );
+					$sql     = 'UPDATE ' . $this->table_name( 'client_report_site_token' ) . '
+								SET site_id = ' . $this->escape( $website->id ) . ' 
+								WHERE id = ' . $item->id;
+					$wpdb->query( $sql );
+				}
+			}
+		}
 
 	}
+      
+ /**
+   * Initiate default data.
+   */
+	public function init_default_data() {
 
-    /**
-     * Initiate default data.
-     */
-    public function init_default_data() {
-
-        $this->default_tokens = array(
-            'client.site.name' => 'Displays the Site Name',
-			'client.site.url' => 'Displays the Site Url',
-			'client.name' => 'Displays the Client Name',
-			'client.contact.name' => 'Displays the Client Contact Name',
+		$this->default_tokens = array(
+			'client.site.name'         => 'Displays the Site Name',
+			'client.site.url'          => 'Displays the Site Url',
+			'client.name'              => 'Displays the Client Name',
+			'client.contact.name'      => 'Displays the Client Contact Name',
 			'client.contact.address.1' => 'Displays the Client Contact Address 1',
 			'client.contact.address.2' => 'Displays the Client Contact Address 2',
-			'client.company' => 'Displays the Client Company',
-			'client.city' => 'Displays the Client City',
-			'client.state' => 'Displays the Client State',
-			'client.zip' => 'Displays the Client Zip',
-			'client.phone' => 'Displays the Client Phone',
-			'client.email' => 'Displays the Client Email',
+			'client.company'           => 'Displays the Client Company',
+			'client.city'              => 'Displays the Client City',
+			'client.state'             => 'Displays the Client State',
+			'client.zip'               => 'Displays the Client Zip',
+			'client.phone'             => 'Displays the Client Phone',
+			'client.email'             => 'Displays the Client Email',
 		);
 
-                $header_img =  plugins_url( 'images/templateMWP.jpg', dirname( __FILE__ ) );
-$analytics_img =  plugins_url( 'images/Analytics.jpg', dirname( __FILE__ ) );
-$backups_img =  plugins_url( 'images/Backups.jpg', dirname( __FILE__ ) );
-$security_img =  plugins_url( 'images/Security.jpg', dirname( __FILE__ ) );
-$uptime_img =  plugins_url( 'images/UPtime.jpg', dirname( __FILE__ ) );
-$updates_img =  plugins_url( 'images/Updates.jpg', dirname( __FILE__ ) );
+		$header_img = plugins_url( 'images/templateMWP.jpg', dirname( __FILE__ ) );
+		$analytics_img  = plugins_url( 'images/Analytics.jpg', dirname( __FILE__ ) );
+		$backups_img    = plugins_url( 'images/Backups.jpg', dirname( __FILE__ ) );
+		$security_img   = plugins_url( 'images/Security.jpg', dirname( __FILE__ ) );
+		$uptime_img     = plugins_url( 'images/UPtime.jpg', dirname( __FILE__ ) );
+		$updates_img    = plugins_url( 'images/Updates.jpg', dirname( __FILE__ ) );
 
 		$this->default_reports[] = array(
-			'title' => 'MainWP Report (Basic)',
+			'title'  => 'MainWP Report (Basic)',
 			'header' => '<div id="report-header" style="width: 600px; margin-left: auto; margin-right: auto;">
 <img class="aligncenter wp-image-24" src="' . $header_img . '" alt="templatemwp" width="600" height="381" />
 <p style="text-align: center; font-weight: 200; font-size: 2em; padding: 0px; margin: 0px;">Website Care Report</p>
 <p style="text-align: center; font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px;"> [client.site.name]</p>
 <p style="text-align: center; font-size: 1em; color: #000; font-weight: 200; padding: 0px; margin: 0px;">[report.daterange]</p>
 </div>',
-			'body' => '<div id="report-body" style="width: 600px; margin-left: auto; margin-right: auto;">
+			'body'   => '<div id="report-body" style="width: 600px; margin-left: auto; margin-right: auto;">
 <p style="page-break-before: always; text-align: left; font-weight: 200; font-size: 18px; padding: 0px; margin: 0px;">Dear [client.name]</p>
 <p style="text-align: left; font-weight: 200; font-size: 1.2em; padding: 0px; margin: 0px;">Thank you for trusting your website to us.
 We hope you find this report useful.
@@ -363,21 +381,21 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 [/section.themes.updated]
 
 </div>',
-        'footer' => '<p style="page-break-before: always;text-align: left; font-weight: 200; font-size: 1.2em; padding: 0px; margin: 0px;">Thank you for trusting your website to us.
+			'footer' => '<p style="page-break-before: always;text-align: left; font-weight: 200; font-size: 1.2em; padding: 0px; margin: 0px;">Thank you for trusting your website to us.
 We hope that this report was useful and we look forward to managing your website for another month.</p>
 <p style="text-align: left; font-weight: 200; font-size: 1.2em; padding: 0px; margin: 0px;">Kind Regards
-#Your Company#</p>'
-				);
+#Your Company#</p>',
+		);
 
-                $this->default_reports[] = array(
-			'title' => 'MainWP Report (Full)',
-			'header' => '<div id="report-header" style="width: 600px; margin-left: auto; margin-right: auto;">
+			$this->default_reports[] = array(
+				'title'  => 'MainWP Report (Full)',
+				'header' => '<div id="report-header" style="width: 600px; margin-left: auto; margin-right: auto;">
 <img class="aligncenter wp-image-24" src="' . $header_img . '" alt="templatemwp" width="600" height="381" />
 <p style="text-align: center; font-weight: 200; font-size: 2em; padding: 0px; margin: 0px;">Website Care Report</p>
 <p style="text-align: center; font-size: 2em; color: #7fb100; font-weight: 200; padding: 0px; margin: 0px;"> [client.site.name]</p>
 <p style="text-align: center; font-size: 1em; color: #000; font-weight: 200; padding: 0px; margin: 0px;">[report.daterange]</p>
 </div>',
-			'body' => '<div id="report-body" style="width: 600px; margin-left: auto; margin-right: auto;">
+				'body'   => '<div id="report-body" style="width: 600px; margin-left: auto; margin-right: auto;">
 <p style="page-break-before: always; text-align: left; font-weight: 200; font-size: 18px; padding: 0px; margin: 0px;">Dear [client.name]</p>
 <p style="text-align: left; font-weight: 200; font-size: 1.2em; padding: 0px; margin: 0px;">Thank you for trusting your website to us.
 We hope you find this report useful.
@@ -441,50 +459,49 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 [/section.themes.updated]
 
 </div>',
-                    'footer' => '<div id="report-footer" style="width: 600px; margin-left: auto; margin-right: auto;">
+				'footer' => '<div id="report-footer" style="width: 600px; margin-left: auto; margin-right: auto;">
 <p style="page-break-before: always; text-align: left; font-weight: 200; font-size: 1.2em; padding: 0px; margin: 0px;">Thank you for trusting your website to us.
 We hope that this report was useful and we look forward to managing your website for another month.</p>
 <p style="text-align: left; font-weight: 200; font-size: 1.2em; padding: 0px; margin: 0px;">Kind Regards
 #Your Company#</p>
 
-</div>'
-				);
+</div>',
+			);
 
+			$this->default_formats = array(
+				array(
+					'title'   => 'MainWP Report (Basic) Header',
+					'type'    => 'H',
+					'content' => $this->default_reports[0]['header'],
+				),
+				array(
+					'title'   => 'MainWP Report (Basic)',
+					'type'    => 'B',
+					'content' => $this->default_reports[0]['body'],
+				),
+				array(
+					'title'   => 'MainWP Report (Basic) Footer',
+					'type'    => 'F',
+					'content' => $this->default_reports[0]['footer'],
+				),
+				array(
+					'title'   => 'MainWP Report (Full) Header',
+					'type'    => 'H',
+					'content' => $this->default_reports[1]['header'],
+				),
+				array(
+					'title'   => 'MainWP Report (Full)',
+					'type'    => 'B',
+					'content' => $this->default_reports[1]['body'],
+				),
+				array(
+					'title'   => 'MainWP Report (Full) Footer',
+					'type'    => 'F',
+					'content' => $this->default_reports[1]['footer'],
+				),
+			);
 
-$this->default_formats = array(
-		array(
-				'title' => 'MainWP Report (Basic) Header',
-				'type' => 'H',
-				'content' => $this->default_reports[0]['header'],
-			),
-			array(
-				'title' => 'MainWP Report (Basic)',
-				'type' => 'B',
-				'content' => $this->default_reports[0]['body'],
-			),
-                        array(
-				'title' => 'MainWP Report (Basic) Footer',
-				'type' => 'F',
-				'content' => $this->default_reports[0]['footer'],
-			),
-                        array(
-				'title' => 'MainWP Report (Full) Header',
-				'type' => 'H',
-				'content' => $this->default_reports[1]['header'],
-			),
-			array(
-				'title' => 'MainWP Report (Full)',
-				'type' => 'B',
-				'content' => $this->default_reports[1]['body'],
-			),
-                        array(
-				'title' => 'MainWP Report (Full) Footer',
-				'type' => 'F',
-				'content' => $this->default_reports[1]['footer'],
-			)
-		);
-
-        }
+	}
 
     /**
      * Add Client Report Token.
@@ -522,7 +539,8 @@ $this->default_formats = array(
 
 		if ( MainWP_CReport_Utility::ctype_digit( $id ) && ! empty( $token['token_name'] ) && ! empty( $token['token_description'] ) ) {
 			if ( $wpdb->update( $this->table_name( 'client_report_token' ), $token, array( 'id' => intval( $id ) ) ) ) {
-				return $this->get_tokens_by( 'id', $id ); }
+				return $this->get_tokens_by( 'id', $id );
+			}
 		}
 		return false;
 	}
@@ -536,9 +554,9 @@ $this->default_formats = array(
      *
      * @return string|null return Client report token or NULL on failure.
      */
-    public function get_tokens_by( $by = 'id', $value = null, $site_url = '' ) {
+   public function get_tokens_by( $by = 'id', $value = null, $site_id = false ) {
 
-        /** @global object $wpdb WordPress Database instance. */
+    /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		if ( empty( $by ) || empty( $value ) ) {
@@ -549,32 +567,37 @@ $this->default_formats = array(
 		}
 
 		$sql = '';
+
 		if ( 'id' == $by ) {
 			$sql = $wpdb->prepare( 'SELECT * FROM ' . $this->table_name( 'client_report_token' ) . ' WHERE `id`=%d ', $value );
-		} else if ( 'token_name' == $by ) {
+		} elseif ( 'token_name' == $by ) {
 			$sql = $wpdb->prepare( 'SELECT * FROM ' . $this->table_name( 'client_report_token' ) . " WHERE `token_name` = '%s' ", $value );
 		}
 
 		$token = null;
 		if ( ! empty( $sql ) ) {
-			$token = $wpdb->get_row( $sql ); }
+			$token = $wpdb->get_row( $sql );
+		}
 
-		$site_url = trim( $site_url );
+		if ( empty( $site_id ) ) {
+			return $token;
+		}
 
-		if ( empty( $site_url ) ) {
-			return $token; }
+		if ( $token && ! empty( $site_id ) ) {
+			$sql = 'SELECT * FROM ' .
+					$this->table_name( 'client_report_site_token' ) . " 
+					WHERE site_id = '" . $this->escape( $site_id ) . "' 
+					AND token_id = " . $token->id;
 
-		if ( $token && ! empty( $site_url ) ) {
-			$sql = 'SELECT * FROM ' . $this->table_name( 'client_report_site_token' ) .
-					" WHERE site_url = '" . $this->escape( $site_url ) . "' AND token_id = " . $token->id;
 			$site_token = $wpdb->get_row( $sql );
 			if ( $site_token ) {
 				$token->site_token = $site_token;
 				return $token;
 			} else {
-                return null;
-            }
+				return null;
+			}
 		}
+
 		return null;
 	}
 
@@ -610,37 +633,45 @@ $this->default_formats = array(
 		return $wpdb->get_results( $qry );
 	}
 
-    /**
-     * Get Child Site tokens.
-     *
-     * @param string $site_url Child Sit URL.
-     * @param string $index DB index.
-     *
-     * @return array|false Return query results or FALSE on failure.
-     */
-    public function get_site_tokens( $site_url, $index = 'id' ) {
-
-        /** @global object $wpdb WordPress Database instance. */
+ /**
+   * Get Child Site tokens.
+   *
+   * @param string $site_url Child Sit URL.
+   * @param string $index DB index.
+   *
+   * @return array|false Return query results or FALSE on failure.
+   */
+	public function get_site_tokens_by_site( $website ) {
+    
+    /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
-        $site_url = trim( $site_url );
-        if ( empty( $site_url ) ) {
-            return false;
-        }
+		if ( empty( $website ) || ! is_array( $website ) ) {
+			return array();
+		}
 
-		$qry = ' SELECT st.*, t.token_name FROM ' . $this->table_name( 'client_report_site_token' ) . ' st , ' . $this->table_name( 'client_report_token' ) . ' t ' .
-				" WHERE st.site_url = '" . $site_url . "' AND st.token_id = t.id 
-		";
+		$site_url  = $website['url'];
+		$site_name = $website['name'];
+		$site_id   = $website['id'];
+
+		$default_tokens = array(
+			'client.site.url'  => $site_url,
+			'client.site.name' => $site_name,
+		);
+
+		$qry = ' SELECT st.*, t.token_name FROM ' .
+					$this->table_name( 'client_report_site_token' ) . ' st , ' .
+					$this->table_name( 'client_report_token' ) . ' t ' . " 
+					WHERE ( st.site_url = '" . $site_url . "' OR st.site_id = '" . $site_id . "' )  
+					AND st.token_id = t.id "; // st.site_url for compatible data.
 
 		$site_tokens = $wpdb->get_results( $qry );
+
 		$return = array();
+
 		if ( is_array( $site_tokens ) ) {
 			foreach ( $site_tokens as $token ) {
-				if ( 'id' == $index ) {
-					$return[ $token->token_id ] = $token;
-				} else {
-					$return[ $token->token_name ] = $token;
-				}
+				$return[ $token->token_name ] = $token;
 			}
 		}
 
@@ -648,25 +679,19 @@ $this->default_formats = array(
 		$tokens = $this->get_tokens();
 		if ( is_array( $tokens ) ) {
 			foreach ( $tokens as $token ) {
-
+        
 				// check default tokens if it is empty.
 				if ( is_object( $token ) ) {
-					if ( 'id' == $index ) {
-						if ( 1 == $token->type && ( ! isset( $return[ $token->id ] ) || empty( $return[ $token->id ] )) ) {
-							if ( ! isset( $return[ $token->id ] ) ) {
-								$return[ $token->id ] = new stdClass(); }
-							$return[ $token->id ]->token_value = $this->_get_default_token_site( $token->token_name, $site_url );
+					if ( $token->type == 1 && ( ! isset( $return[ $token->token_name ] ) || empty( $return[ $token->token_name ] ) ) ) {
+						if ( ! isset( $return[ $token->token_name ] ) ) {
+							$return[ $token->token_name ] = new stdClass();
 						}
-					} else {
-						if ( $token->type == 1 && ( ! isset( $return[ $token->token_name ] ) || empty( $return[ $token->token_name ] )) ) {
-							if ( ! isset( $return[ $token->token_name ] ) ) {
-								$return[ $token->token_name ] = new stdClass(); }
-							$return[ $token->token_name ]->token_value = $this->_get_default_token_site( $token->token_name, $site_url );
-						}
+						$return[ $token->token_name ]->token_value = isset( $default_tokens[ $token->token_name ] ) ? $default_tokens[ $token->token_name ] : '';
 					}
 				}
 			}
 		}
+
 		return $return;
 	}
 
@@ -681,12 +706,15 @@ $this->default_formats = array(
     public function _get_default_token_site($token_name, $site_url ) {
 		$website = apply_filters( 'mainwp_getwebsitesbyurl', $site_url );
 		if ( empty( $this->default_tokens[ $token_name ] ) || ! $website ) {
-			return false; }
+			return false;
+		}
 		$website = current( $website );
 		if ( is_object( $website ) ) {
-			$url_site = $website->url;
+			$url_site  = $website->url;
 			$name_site = $website->name;
-		} else { 			return false; }
+		} else {
+			return false;
+		}
 
 		switch ( $token_name ) {
 			case 'client.site.url':
@@ -702,87 +730,79 @@ $this->default_formats = array(
 		return $token_value;
 	}
 
-    /**
-     * Add site token.
-     *
-     * @param $token_id Token ID.
-     * @param $token_value Token value.
-     * @param $site_url Child Site URL.
-     *
-     * @return false|null Return FALSE on failure.
-     */
-    public function add_token_site($token_id, $token_value, $site_url ) {
-
-        /** @global object $wpdb WordPress Database instance. */
+/**
+   * Add site token.
+   *
+   * @param $token_id Token ID.
+   * @param $token_value Token value.
+   * @param $site_url Child Site URL.
+   *
+   * @return false|null Return FALSE on failure.
+   */
+	public function add_token_site( $token_id, $token_value, $site_id ) {
+    
+		/** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
-		if ( empty( $token_id ) ) {
-			return false; }
-
-		$website = apply_filters( 'mainwp_getwebsitesbyurl', $site_url );
-		if ( empty( $website ) ) {
-			return false; }
-
-		if ( $wpdb->insert($this->table_name( 'client_report_site_token' ), array(
-			'token_id' => $token_id,
-					'token_value' => $token_value,
-					'site_url' => $site_url,
-		)) ) {
-			return $this->get_tokens_by( 'id', $token_id, $site_url );
+		if ( $wpdb->insert(
+			$this->table_name( 'client_report_site_token' ),
+			array(
+				'token_id'    => $token_id,
+				'token_value' => $token_value,
+				'site_id'     => $site_id,
+			)
+		) ) {
+			return true;
 		}
 
 		return false;
 	}
 
-    /**
-     * Update site token.
-     *
-     * @param int $token_id Token ID.
-     * @param string $token_value Token value.
-     * @param string $site_url Child Site URL.
-     *
-     * @return false|null Return FALSE on failure.
-     */
-    public function update_token_site($token_id, $token_value, $site_url ) {
-
-        /** @global object $wpdb WordPress Database instance. */
+ /**
+   * Update site token.
+   *
+   * @param int $token_id Token ID.
+   * @param string $token_value Token value.
+   * @param string $site_url Child Site URL.
+   *
+   * @return false|null Return FALSE on failure.
+   */
+	public function update_token_site( $token_id, $token_value, $site_id ) {
+    
+		/** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
-
-		if ( empty( $token_id ) ) {
-			return false; }
-
-		$website = apply_filters( 'mainwp_getwebsitesbyurl', $site_url );
-		if ( empty( $website ) ) {
-			return false; }
 
 		$sql = 'UPDATE ' . $this->table_name( 'client_report_site_token' ) .
 				" SET token_value = '" . $this->escape( $token_value ) . "' " .
 				' WHERE token_id = ' . intval( $token_id ) .
-				" AND site_url = '" . $this->escape( $site_url ) . "'";
+				" AND site_id = '" . $this->escape( $site_id ) . "'";
+
+		// to fix empty data.
+		$wpdb->query( 'DELETE FROM ' . $this->table_name( 'client_report_site_token' ) . ' WHERE site_id = 0 ' );
 
 		if ( $wpdb->query( $sql ) ) {
-			return $this->get_tokens_by( 'id', $token_id, $site_url );
+			return true;
 		}
-
 		return false;
 	}
 
-    /**
-     * Delete site tokens.
-     *
-     * @param int $token_id Token ID.
-     * @param int $site_url Child Site URL.
-     * @return false Return FALSE on failure.
-     */
-    public function delete_site_tokens( $token_id = null, $site_url = null ) {
-
-        /** @global object $wpdb WordPress Database instance. */
+/**
+   * Delete site tokens.
+   *
+   * @param int $token_id Token ID.
+   * @param int $site_url Child Site URL.
+   * @return false Return FALSE on failure.
+   */
+	public function delete_site_tokens( $token_id = null, $site_id = null ) {
+    /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		if ( ! empty( $token_id ) ) {
-			return $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $this->table_name( 'client_report_site_token' ) . ' WHERE token_id = %d ', $token_id ) ); } else if ( ! empty( $site_url ) ) {
-			return $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $this->table_name( 'client_report_site_token' ) . ' WHERE site_url = %s ', $site_url ) ); }
-			return false;
+			return $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $this->table_name( 'client_report_site_token' ) . ' WHERE token_id = %d ', $token_id ) );
+		} elseif ( ! empty( $site_id ) ) {
+			return $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $this->table_name( 'client_report_site_token' ) . ' WHERE site_id = %s ', $site_id ) );
+		}
+		return false;
 	}
 
     /**
@@ -818,83 +838,79 @@ $this->default_formats = array(
         /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
-		$id = isset( $report['id'] ) ? $report['id'] : 0;
+		$id            = isset( $report['id'] ) ? $report['id'] : 0;
 		$updatedClient = false;
 
-        /**
-         * THIS IS SMART create or update client.
-         * client may be content tokens.
-         */
-        if ( ! empty( $report['email'] ) ) {
+		/**
+     * THIS IS SMART create or update client.
+     * client may be content tokens.
+     */
+		if ( ! empty( $report['email'] ) ) { // client may be content tokens
 
-                $update_client = array(
-                        'client' => isset( $report['client'] ) ? $report['client'] : '',
-                        'name' => isset( $report['name'] ) ? $report['name'] : '',
-                        'company' => isset( $report['company'] ) ? $report['company'] : '',
-                        'email' => isset( $report['email'] ) ? $report['email'] : '',
-                );
+				$update_client = array(
+					'client'  => isset( $report['client'] ) ? $report['client'] : '',
+					'name'    => isset( $report['name'] ) ? $report['name'] : '',
+					'company' => isset( $report['company'] ) ? $report['company'] : '',
+					'email'   => isset( $report['email'] ) ? $report['email'] : '',
+				);
 
-                $client_id = (isset($report['client_id']) && !empty($report['client_id'])) ? intval($report['client_id']) : 0;
-                // update client
-                if ($client_id) {
-                    $client_tokens = $this->get_client_by( 'email', '[client.email]' );
-                    // check if trying update default client with tokens in email.
-                    if ($client_tokens && $client_tokens->clientid == $client_id ) {
-                        // do not override client with email is [client.email], new client will created below if needed.
-                        $client_id = 0;
-                    } else {
-                        if ( $update_client['email'] == '[client.email]') {
-                            if ( $client_tokens ) {
-                                // do not override client with email is [client.email].
-                                $client_id = $client_tokens->clientid;
-                            } else {
-                                $client_id = 0; // to create new
-                            }
-                        } else {
-                            $existed_client = $this->get_client_by( 'email', $update_client['email'] );
-                            if ( $existed_client ) {
-                                // found the existed client.
-                                $update_client['clientid'] = $client_id = $existed_client->clientid;
-                                // update client info.
-                                $this->update_client( $update_client );
-                            } else {
-                                $client_id = 0;
-                            }
-                        }
-                    }
-                }
+				$client_id = ( isset( $report['client_id'] ) && ! empty( $report['client_id'] ) ) ? intval( $report['client_id'] ) : 0;
+				// update client.
+				if ( $client_id ) {
+					$client_tokens = $this->get_client_by( 'email', '[client.email]' );
+					// check if trying update default client with tokens in email
+					if ( $client_tokens && $client_tokens->clientid == $client_id ) {
+						$client_id = 0; // do not override client with email is [client.email], new client will created below if needed
+					} else {
+						if ( $update_client['email'] == '[client.email]' ) {
+							if ( $client_tokens ) {
+								$client_id = $client_tokens->clientid; // do not override client with email is [client.email]
+							} else {
+								$client_id = 0; // to create new
+							}
+						} else {
+							$existed_client = $this->get_client_by( 'email', $update_client['email'] );
+							if ( $existed_client ) {
+								$update_client['clientid'] = $client_id = $existed_client->clientid; // found the existed client
+								$this->update_client( $update_client ); // update client info
+							} else {
+								$client_id = 0;
+							}
+						}
+					}
+				}
 
-                // create new client.
-                if ( empty($client_id) ) {
-                    // check client with tokens.
-                    if ( $update_client['email'] == '[client.email]' ) {
-                        $client_tokens = $this->get_client_by( 'email', '[client.email]' );
-                        if ( $client_tokens ) {
-                            $client_id = $client_tokens->clientid; // do not override client with email is [client.email].
-                        }
-                    } else if ($updatedClient = $this->update_client( $update_client ) ) { // create new client.
-                            $client_id = $updatedClient->clientid;
-                    }
-                }
+				// create new client.
+				if ( empty( $client_id ) ) {
+					// check client with tokens
+					if ( $update_client['email'] == '[client.email]' ) {
+						$client_tokens = $this->get_client_by( 'email', '[client.email]' );
+						if ( $client_tokens ) {
+							$client_id = $client_tokens->clientid; // do not override client with email is [client.email]
+						}
+					} elseif ( $updatedClient = $this->update_client( $update_client ) ) { // create new client
+							$client_id = $updatedClient->clientid;
+					}
+				}
 
-                $report['client_id'] = $client_id;
+				$report['client_id'] = $client_id;
 		} else {
 			if ( isset( $report['client_id'] ) ) {
 				$report['client_id'] = 0;
-            }
+			}
 		}
 
 		$report_fields = array(
-            'id',
+			'id',
 			'title',
 			'date_from',
 			'date_to',
-            'date_from_nextsend',
+			'date_from_nextsend',
 			'date_to_nextsend',
 			'fname',
 			'fcompany',
 			'femail',
-            'bcc_email',
+			'bcc_email',
 			'client_id',
 			'header',
 			'body',
@@ -903,7 +919,7 @@ $this->default_formats = array(
 			'lastsend',
 			'subject',
 			'recurring_schedule',
-            'recurring_day',
+			'recurring_day',
 			'schedule_send_email',
 			'schedule_bcc_me',
 			'is_archived',
@@ -913,94 +929,103 @@ $this->default_formats = array(
 			'schedule_nextsend',
 			'sites',
 			'groups',
-            'completed',
-            'completed_sites'
+			'completed',
+			'completed_sites',
 		);
 
 		$update_report = array();
 		foreach ( $report as $key => $value ) {
 			if ( in_array( $key, $report_fields ) ) {
 				$update_report[ $key ] = $value;
-            }
+			}
 		}
 
-        if ( ! empty( $id ) ) {
-            $wpdb->update( $this->table_name( 'client_report' ), $update_report, array( 'id' => intval( $id ) ) );
-        } else {
-            if (!isset($update_report['title']) || empty($update_report['title']))
-                return false;
-            if ( $wpdb->insert( $this->table_name( 'client_report' ), $update_report ) ) {
-                 $id = $wpdb->insert_id;
-            }
-        }
+		if ( ! empty( $id ) ) {
+			$wpdb->update( $this->table_name( 'client_report' ), $update_report, array( 'id' => intval( $id ) ) );
+		} else {
+			if ( ! isset( $update_report['title'] ) || empty( $update_report['title'] ) ) {
+				return false;
+			}
+			if ( $wpdb->insert( $this->table_name( 'client_report' ), $update_report ) ) {
+				 $id = $wpdb->insert_id;
+			}
+		}
 
-        if ($id)
-            return $this->get_report_by( 'id', $id );
-        else
-            return false;
+		if ( $id ) {
+			return $this->get_report_by( 'id', $id );
+		} else {
+			return false;
+		}
 
 	}
 
-    /**
-     * Udate group report content.
-     *
-     * @param array $report Report array.
-     *
-     * @return false Return FALSE on failure.
-     */
-    public function update_group_report_content( $report ) {
+/**
+   * Udate group report content.
+   *
+   * @param array $report Report array.
+   *
+   * @return false Return FALSE on failure.
+   */
+	public function update_group_report_content( $report ) {
+    
+		 /** @global object $wpdb WordPress Database instance. */
+		global $wpdb;
 
-        /** @global object $wpdb WordPress Database instance. */
-        global $wpdb;
+		$report_id = isset( $report['report_id'] ) ? $report['report_id'] : 0;
+		$site_id   = isset( $report['site_id'] ) ? $report['site_id'] : 0;
 
-        $report_id = isset( $report['report_id'] ) ? $report['report_id'] : 0;
-        $site_id = isset( $report['site_id'] ) ? $report['site_id'] : 0;
+		if ( empty( $report_id ) && empty( $site_id ) ) {
+			return false;
+		}
 
-        if (empty($report_id) && empty($site_id)) {
-            return false;
-        }
+		$current = $this->get_group_report_content( $report_id, $site_id );
+		if ( $current ) {
+			$wpdb->update( $this->table_name( 'client_group_report_content' ), $report, array( 'id' => intval( $current->id ) ) );
+			return $this->get_group_report_content( $report_id, $site_id );
+		} else {
+			return $wpdb->insert( $this->table_name( 'client_group_report_content' ), $report );
+		}
 
-        $current = $this->get_group_report_content( $report_id, $site_id );
-        if ($current) {
-            $wpdb->update( $this->table_name( 'client_group_report_content' ), $report, array( 'id' => intval( $current->id ) ) );
-            return $this->get_group_report_content( $report_id, $site_id );
-        } else {
-            return $wpdb->insert( $this->table_name( 'client_group_report_content' ), $report ) ;
-        }
-
-        return false;
+		return false;
 	}
 
-    /**
-     * Get group report content.
-     *
-     * @param int $report_id Report ID.
-     * @param int $site_id Child Site ID.
-     *
-     * @return false Return FALSE on failure.
-     */
-    public function get_group_report_content( $report_id, $site_id = null) {
-
-        /** @global object $wpdb WordPress Database instance. */
+  /**
+   * Get group report content.
+   *
+   * @param int $report_id Report ID.
+   * @param int $site_id Child Site ID.
+   *
+   * @return false Return FALSE on failure.
+   */
+	public function get_group_report_content( $report_id, $site_id = null ) {
+    
+    /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		if ( empty( $report_id ) ) {
-            return false;
-        }
+			return false;
+		}
 
-        if (!empty($site_id)) {
-            $sql = $wpdb->prepare('SELECT * FROM ' . $this->table_name( 'client_group_report_content' )
-                    . ' WHERE `report_id` = %d AND `site_id` = %d ', $report_id, $site_id );
-            return $wpdb->get_row( $sql );
-        } else {
-            $sql = $wpdb->prepare('SELECT * FROM ' . $this->table_name( 'client_group_report_content' )
-                    . ' WHERE `report_id` = %d ', $report_id );
-            return $wpdb->get_results( $sql );
-        }
+		if ( ! empty( $site_id ) ) {
+			$sql = $wpdb->prepare(
+				'SELECT * FROM ' . $this->table_name( 'client_group_report_content' )
+					. ' WHERE `report_id` = %d AND `site_id` = %d ',
+				$report_id,
+				$site_id
+			);
+			return $wpdb->get_row( $sql );
+		} else {
+			$sql = $wpdb->prepare(
+				'SELECT * FROM ' . $this->table_name( 'client_group_report_content' )
+					. ' WHERE `report_id` = %d ',
+				$report_id
+			);
+			return $wpdb->get_results( $sql );
+		}
 
 	}
 
-    /**
+  /**
      * Delete group report content.
      *
      * @param int $report_id Report ID.
@@ -1008,10 +1033,35 @@ $this->default_formats = array(
      *
      * @return mixed Return query results.
      */
-    public function delete_group_report_content($report_id = null, $site_id = null) {
-
-        /** @global object $wpdb WordPress Database instance. */
+	public function delete_group_report_content( $report_id = null, $site_id = null ) {
+  
+   /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
+  
+		if ( ! empty( $report_id ) && ! empty( $site_id ) ) {
+			$sql = $wpdb->prepare(
+				'DELETE FROM ' . $this->table_name( 'client_group_report_content' )
+					. ' WHERE `report_id` = %d AND `site_id` = %d ',
+				$report_id,
+				$site_id
+			);
+			return $wpdb->get_row( $sql );
+		} elseif ( ! empty( $report_id ) ) {
+			$sql = $wpdb->prepare(
+				'DELETE FROM ' . $this->table_name( 'client_group_report_content' )
+					. ' WHERE `report_id` = %d ',
+				$report_id
+			);
+			return $wpdb->get_results( $sql );
+		} elseif ( ! empty( $site_id ) ) {
+			$sql = $wpdb->prepare(
+				'DELETE FROM ' . $this->table_name( 'client_group_report_content' )
+					. ' WHERE `site_id` = %d ',
+				$site_id
+			);
+			return $wpdb->get_results( $sql );
+		}
+	}
 
         if (!empty($report_id) && !empty($site_id)) {
             $sql = $wpdb->prepare('DELETE FROM ' . $this->table_name( 'client_group_report_content' )
@@ -1044,7 +1094,7 @@ $this->default_formats = array(
         /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
-		if ( empty( $by ) || ('all' !== $by && empty( $value )) ) {
+		if ( empty( $by ) || ( 'all' !== $by && empty( $value ) ) ) {
 			return false; }
 
 		$_order_by = '';
@@ -1061,73 +1111,83 @@ $this->default_formats = array(
 
 		$sql = '';
 		if ( 'id' == $by ) {
-			$sql = $wpdb->prepare('SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
+			$sql = $wpdb->prepare(
+				'SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
 				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
 				. ' ON rp.client_id = c.clientid '
-			. ' WHERE `id`=%d ' . $_order_by, $value);
-		} else if ( 'client' == $by ) {
-			$sql = $wpdb->prepare('SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
+				. ' WHERE `id`=%d ' . $_order_by,
+				$value
+			);
+		} elseif ( 'client' == $by ) {
+			$sql = $wpdb->prepare(
+				'SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
 				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
 				. ' ON rp.client_id = c.clientid '
-			. ' WHERE `client_id` = %d ' . $_order_by, $value);
+				. ' WHERE `client_id` = %d ' . $_order_by,
+				$value
+			);
 			return $wpdb->get_results( $sql, $output );
-		} else if ( 'site_id' == $by ) {
+		} elseif ( 'site_id' == $by ) {
 
-			$sql_all = 'SELECT * FROM ' . $this->table_name( 'client_report' ) . ' WHERE 1 = 1 ';
-                        $all_reports = $wpdb->get_results( $sql_all );
+			$sql_all                 = 'SELECT * FROM ' . $this->table_name( 'client_report' ) . ' WHERE 1 = 1 ';
+						$all_reports = $wpdb->get_results( $sql_all );
 
-                        $sql_report_ids = array(-1);
+						$sql_report_ids = array( -1 );
 
-                        foreach($all_reports as $report) {
-                            if ( $report->sites != '' || $report->groups != '' ) {
+			foreach ( $all_reports as $report ) {
+				if ( $report->sites != '' || $report->groups != '' ) {
 
-                                $sites = unserialize( base64_decode( $report->sites ) );
-                                if (!is_array($sites))
-                                    $sites = array();
+					$sites = unserialize( base64_decode( $report->sites ) );
+					if ( ! is_array( $sites ) ) {
+						$sites = array();
+					}
 
-                                if (in_array($value, $sites)) {
-                                    if (!in_array( $report->id, $sql_report_ids )) {
-                                        $sql_report_ids[] = $report->id;
-                                    }
-                                } else if ($report->groups != '') {
-                                    $groups = unserialize( base64_decode( $report->groups ) );
-                                    if (!is_array($groups))
-                                        $groups = array();
+					if ( in_array( $value, $sites ) ) {
+						if ( ! in_array( $report->id, $sql_report_ids ) ) {
+							$sql_report_ids[] = $report->id;
+						}
+					} elseif ( $report->groups != '' ) {
+						$groups = unserialize( base64_decode( $report->groups ) );
+						if ( ! is_array( $groups ) ) {
+							$groups = array();
+						}
+            
+             /** @global object $mainWPCReportExtensionActivator MainW CReport Extension Activator instance. */
+						global $mainWPCReportExtensionActivator;
+            
+						$dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array(), $groups );
 
-                                    /** @global object $mainWPCReportExtensionActivator MainW CReport Extension Activator instance. */
-                                    global $mainWPCReportExtensionActivator;
+						foreach ( $dbwebsites as $pSite ) {
+							if ( $pSite->id == $value ) {
+								if ( ! in_array( $report->id, $sql_report_ids ) ) {
+									$sql_report_ids[] = $report->id;
+								}
+								break;
+							}
+						}
+					}
+				}
+			}
 
-                                    $dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array(), $groups );
+						$sql_report_ids = implode( ',', $sql_report_ids );
 
-                                    foreach( $dbwebsites as $pSite ) {
-                                        if ( $pSite->id == $value ) {
-                                            if (!in_array( $report->id, $sql_report_ids )) {
-                                                $sql_report_ids[] = $report->id;
-                                            }
-                                            break;
-                                        }
-                                    }
-
-                                }
-                            }
-                        }
-
-                        $sql_report_ids = implode(',', $sql_report_ids );
-
-                        $sql = 'SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
+						$sql = 'SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
 				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
 				. ' ON rp.client_id = c.clientid '
-			. ' WHERE rp.id IN (' .  $sql_report_ids . ') ' . $_order_by ;
+			. ' WHERE rp.id IN (' . $sql_report_ids . ') ' . $_order_by;
 
 			return $wpdb->get_results( $sql, $output );
 
-		} else if ( 'title' == $by ) {
-			$sql = $wpdb->prepare('SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
+		} elseif ( 'title' == $by ) {
+			$sql = $wpdb->prepare(
+				'SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
 				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
 				. ' ON rp.client_id = c.clientid '
-			. ' WHERE `title` = %s ' . $_order_by, $value);
+				. ' WHERE `title` = %s ' . $_order_by,
+				$value
+			);
 			return $wpdb->get_results( $sql, $output );
-		} else if ( 'all' == $by ) {
+		} elseif ( 'all' == $by ) {
 			$sql = 'SELECT * FROM ' . $this->table_name( 'client_report' ) . ' rp '
 					. 'LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
 					. ' ON rp.client_id = c.clientid '
@@ -1135,106 +1195,119 @@ $this->default_formats = array(
 			return $wpdb->get_results( $sql, $output );
 		}
 
+		// echo $sql;
+
 		if ( ! empty( $sql ) ) {
-                    return $wpdb->get_row( $sql, $output ); }
+					return $wpdb->get_row( $sql, $output ); }
 
 		return false;
 	}
 
-    /**
+  /**
      * Check if Child Site has report.
      *
      * @param int $site_id Child Site ID.
      *
      * @return bool Return TRUE|FALSE.
      */
-    public function checked_if_site_have_report($site_id ) {
+	public function checked_if_site_have_report( $site_id ) {
 
-        /** @global object $wpdb WordPress Database instance. */
+   /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		if ( empty( $site_id ) ) {
 			return false;
-        }
+		}
 
-        $sql_all = 'SELECT * FROM ' . $this->table_name( 'client_report' ) . ' WHERE 1 = 1 ';
-        $all_reports = $wpdb->get_results( $sql_all );
-        $sql_report_ids = array();
+		$sql_all        = 'SELECT * FROM ' . $this->table_name( 'client_report' ) . ' WHERE 1 = 1 ';
+		$all_reports    = $wpdb->get_results( $sql_all );
+		$sql_report_ids = array();
 
-        $found  = false;
-        if ( is_array($all_reports) && count($all_reports) > 0 ) {
-            foreach($all_reports as $report) {
-                if ( $report->sites != '' || $report->groups != '' ) {
+		$found = false;
+		if ( is_array( $all_reports ) && count( $all_reports ) > 0 ) {
+			foreach ( $all_reports as $report ) {
+				if ( $report->sites != '' || $report->groups != '' ) {
 
-                    $sites = unserialize( base64_decode( $report->sites ) );
-                    if (!is_array($sites))
-                        $sites = array();
+					$sites = unserialize( base64_decode( $report->sites ) );
+					if ( ! is_array( $sites ) ) {
+						$sites = array();
+					}
 
-                    if (in_array($site_id, $sites)) {
-                        if (!in_array( $report->id, $sql_report_ids )) {
-                            $found = true;
-                            break;
-                        }
-                    } else if ($report->groups != '') {
-                        $groups = unserialize( base64_decode( $report->groups ) );
-                        if (!is_array($groups))
-                            $groups = array();
+					if ( in_array( $site_id, $sites ) ) {
+						if ( ! in_array( $report->id, $sql_report_ids ) ) {
+							$found = true;
+							break;
+						}
+					} elseif ( $report->groups != '' ) {
+						$groups = unserialize( base64_decode( $report->groups ) );
+						if ( ! is_array( $groups ) ) {
+							$groups = array();
+						}
 
-                        global $mainWPCReportExtensionActivator;
-                        $dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array(), $groups );
+						global $mainWPCReportExtensionActivator;
+						$dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array(), $groups );
 
-                        foreach( $dbwebsites as $pSite ) {
-                            if ( $pSite->id == $site_id ) {
-                                 $found = true;
-                                 break;
-                            }
-                        }
+						foreach ( $dbwebsites as $pSite ) {
+							if ( $pSite->id == $site_id ) {
+								 $found = true;
+								 break;
+							}
+						}
+					}
 
-                    }
+					if ( $found ) {
+						break;
+					}
+				}
+			}
+		}
 
-                    if ($found) {
-                        break;
-                    }
-                }
-            }
-
-        }
-
-        return $found;
+		return $found;
 	}
 
-    /**
+   /**
      * Update Website Option.
      *
      * @param int $website_id Child Site ID.
      * @param string $option Website option.
      * @param string $value Option value.
      */
-    public function updateWebsiteOption( $website_id, $option, $value ) {
+	public function updateWebsiteOption( $website_id, $option, $value ) {
+
 		$rslt = $this->wpdb->get_results( 'SELECT name FROM ' . $this->table_name( 'wp_options' ) . ' WHERE wpid = ' . $website_id . ' AND name = "' . $this->escape( $option ) . '"' );
 		if ( count( $rslt ) > 0 ) {
-			$this->wpdb->delete( $this->table_name( 'wp_options' ), array(
-				'wpid' => $website_id,
-				'name' => $this->escape( $option ),
-			) );
+			$this->wpdb->delete(
+				$this->table_name( 'wp_options' ),
+				array(
+					'wpid' => $website_id,
+					'name' => $this->escape( $option ),
+				)
+			);
 			$rslt = $this->wpdb->get_results( 'SELECT name FROM ' . $this->table_name( 'wp_options' ) . ' WHERE wpid = ' . $website_id . ' AND name = "' . $this->escape( $option ) . '"' );
 		}
 
 		if ( count( $rslt ) == 0 ) {
-			$this->wpdb->insert( $this->table_name( 'wp_options' ), array(
-				'wpid'  => $website_id,
-				'name'  => $option,
-				'value' => $value,
-			) );
+			$this->wpdb->insert(
+				$this->table_name( 'wp_options' ),
+				array(
+					'wpid'  => $website_id,
+					'name'  => $option,
+					'value' => $value,
+				)
+			);
 		} else {
-			$this->wpdb->update( $this->table_name( 'wp_options' ), array( 'value' => $value ), array(
-				'wpid' => $website_id,
-				'name' => $option,
-			) );
+			$this->wpdb->update(
+				$this->table_name( 'wp_options' ),
+				array( 'value' => $value ),
+				array(
+					'wpid' => $website_id,
+					'name' => $option,
+				)
+			);
 		}
 	}
 
-    /**
+  /**
      * Get Website value.
      *
      * @param array $website Child Site array.
@@ -1242,7 +1315,8 @@ $this->default_formats = array(
      *
      * @return mixed Return website value.
      */
-    public function getWebsiteOption($website, $option ) {
+	public function getWebsiteOption( $website, $option ) {
+
 		if ( property_exists( $website, $option ) ) {
 			return $website->{$option};
 		}
@@ -1250,7 +1324,7 @@ $this->default_formats = array(
 		return $this->wpdb->get_var( 'SELECT value FROM ' . $this->table_name( 'wp_options' ) . ' WHERE wpid = ' . $website->id . ' AND name = "' . $this->escape( $option ) . '"' );
 	}
 
-    /**
+   /**
      * Get Child Site wp_options.
      *
      * @param array $websiteIds Child site IDs.
@@ -1258,22 +1332,23 @@ $this->default_formats = array(
      *
      * @return array Return array of options.
      */
-    public function getOptionOfWebsites($websiteIds, $option ) {
-        if (!is_array($websiteIds) || count($websiteIds) == 0)
-            return array();
-		return $this->wpdb->get_results( 'SELECT wpid, value FROM ' . $this->table_name( 'wp_options' ) . ' WHERE wpid IN (' . implode(',', $websiteIds) . ') AND name = "' . $this->escape( $option ) . '"' );
+	public function getOptionOfWebsites( $websiteIds, $option ) {
+		if ( ! is_array( $websiteIds ) || count( $websiteIds ) == 0 ) {
+			return array();
+		}
+		return $this->wpdb->get_results( 'SELECT wpid, value FROM ' . $this->table_name( 'wp_options' ) . ' WHERE wpid IN (' . implode( ',', $websiteIds ) . ') AND name = "' . $this->escape( $option ) . '"' );
 	}
-
-    /**
-     * Get schedualed reports to send.
+   /**
+     * Get Child Site wp_options.
      *
-     * @param string $timestamp_offset Timestamp offset.
+     * @param array $websiteIds Child site IDs.
+     * @param string $option Option to get.
      *
-     * @return mixed Return query results.
+     * @return array Return array of options.
      */
-    public function get_scheduled_reports_to_send( $timestamp_offset ) {
+	public function get_scheduled_reports_to_send( $timestamp_offset ) {
 
-        /** @global object $wpdb WordPress Database instance. */
+    /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		 /**
@@ -1283,32 +1358,33 @@ $this->default_formats = array(
 		 * cron job will update 'schedule_lastsend' to current time, and 'completed_sites' to empty array().
 		 *
 		 */
-        $sql = 'SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
+		$sql = 'SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
 				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
 				. ' ON rp.client_id = c.clientid '
 				. " WHERE rp.recurring_schedule != '' AND rp.scheduled = 1 "
-                . " AND rp.schedule_nextsend < " . ( time() + $timestamp_offset ); // this conditional to check time to send scheduled reports,  support send report at local time.
+				. ' AND rp.schedule_nextsend < ' . ( time() + $timestamp_offset ); // this conditional to check time to send scheduled reports,  support send report at local time.
 		return $wpdb->get_results( $sql );
 	}
 
-
-    /**
+   /**
      * Get scheduled reports to continue to send.
      *
      * @param int $limit Interval limit.
      *
      * @return mixed Return query results.
      */
-    public function get_scheduled_reports_to_continue_send( $limit = 1) {
+	public function get_scheduled_reports_to_continue_send( $limit = 1 ) {
 
-        /** @global object $wpdb WordPress Database instance. */
+  /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		$sql = 'SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
 				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
 				. ' ON rp.client_id = c.clientid '
 				. " WHERE rp.recurring_schedule != '' AND rp.scheduled = 1 "
-                . " AND rp.completed < rp.schedule_lastsend LIMIT 0, " . intval($limit); // do not send if completed > schedule_lastsend
+				. ' AND rp.completed < rp.schedule_lastsend LIMIT 0, ' . intval( $limit ); // do not send if completed > schedule_lastsend
+		// echo $sql;
+
 		return $wpdb->get_results( $sql );
 	}
 
@@ -1323,25 +1399,25 @@ $this->default_formats = array(
 
         /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
-		
+
 		if ( empty( $id ) ) {
 			return array();
 		}
-		
-		$qry = ' SELECT completed_sites FROM ' . $this->table_name( 'client_report' ) . " WHERE id = " . intval( $id ) . " ";
-		
-		$com_sites =  $wpdb->get_var( $qry );
-		
+
+		$qry = ' SELECT completed_sites FROM ' . $this->table_name( 'client_report' ) . ' WHERE id = ' . intval( $id ) . ' ';
+
+		$com_sites = $wpdb->get_var( $qry );
+
 		if ( $com_sites != '' ) {
 			$com_sites = json_decode( $com_sites, true );
 		}
 		if ( ! is_array( $com_sites ) ) {
 			$com_sites = array();
-		}		
+		}
 		return $com_sites;
 	}
 
-    /**
+  /**
      * Update report with values.
      *
      * @param int $id Client report ID.
@@ -1349,53 +1425,56 @@ $this->default_formats = array(
      *
      * @return false Return FALSE on failure.
      */
-    public function update_reports_with_values( $id, $values ) {
+	public function update_reports_with_values( $id, $values ) {
+
 		if ( ! is_array( $values ) ) {
 			return false;
 		}
 
-        /** @global object $wpdb WordPress Database instance. */
-        global $wpdb;
-
+    /** @global object $wpdb WordPress Database instance. */
+    global $wpdb;
+    
 		return $wpdb->update( $this->table_name( 'client_report' ), $values, array( 'id' => $id ) );
 	}
 
-
-    /**
+  /**
      * Update reports last sent.
      *
      * @param $id Client report ID.
      *
      * @return false Return FALSE on failure.
      */
-    public function update_reports_send( $id ) {
-
+	public function update_reports_send( $id ) {
+  
         /** @global object $wpdb WordPress Database instance. */
-        global $wpdb;
-
-        return $wpdb->update( $this->table_name( 'client_report' ), array(
-                'schedule_lastsend'     => time(),
-                'completed_sites'       => json_encode( array() ),
-        ), array( 'id' => $id ) );
+				global $wpdb;
+  
+				return $wpdb->update(
+					$this->table_name( 'client_report' ),
+					array(
+						'schedule_lastsend' => time(),
+						'completed_sites'   => json_encode( array() ),
+					),
+					array( 'id' => $id )
+				);
 		return false;
 	}
-
-    /**
+      
+`` /**
      * Update reports completed.
      *
      * @param $id Client Reports ID.
      *
      * @return mixed Return query results.
      */
-    public function update_reports_completed( $id ) {
-
-        /** @global object $wpdb WordPress Database instance. */
-        global $wpdb;
-
-        return $wpdb->update( $this->table_name( 'client_report' ), array( 'completed' => time() ), array( 'id' => $id ) );
+	public function update_reports_completed( $id ) {
+  
+       /** @global object $wpdb WordPress Database instance. */
+				global $wpdb;
+				return $wpdb->update( $this->table_name( 'client_report' ), array( 'completed' => time() ), array( 'id' => $id ) );
 	}
-
-    /**
+      
+   /**
      * Update reports completed sites.
      *
      * @param int $id Client reports ID.
@@ -1403,12 +1482,13 @@ $this->default_formats = array(
      *
      * @return mixed Return query results.
      */
-    public function update_reports_completed_sites( $id, $pCompletedSites ) {
+	public function update_reports_completed_sites( $id, $pCompletedSites ) {
+    
+       /** @global object $wpdb WordPress Database instance. */
+			global $wpdb;
+    
+			return $wpdb->update( $this->table_name( 'client_report' ), array( 'completed_sites' => json_encode( $pCompletedSites ) ), array( 'id' => $id ) );
 
-        /** @global object $wpdb WordPress Database instance. */
-        global $wpdb;
-
-        return $wpdb->update( $this->table_name( 'client_report' ), array( 'completed_sites' => json_encode( $pCompletedSites ) ), array( 'id' => $id ) );
 	}
 
     /**
@@ -1425,7 +1505,7 @@ $this->default_formats = array(
 
 		if ( 'id' == $by ) {
 			if ( $wpdb->query( $wpdb->prepare( 'DELETE FROM ' . $this->table_name( 'client_report' ) . ' WHERE id=%d ', $report_id ) ) ) {
-                                $this->delete_group_report_content($report_id);
+								$this->delete_group_report_content( $report_id );
 				return true;
 			}
 		}
@@ -1463,14 +1543,23 @@ $this->default_formats = array(
 
 		$sql = '';
 		if ( 'clientid' == $by ) {
-			$sql = $wpdb->prepare('SELECT * FROM ' . $this->table_name( 'client_report_client' )
-			. ' WHERE `clientid` =%d ', $value);
-		} else if ( 'client' == $by ) {
-			$sql = $wpdb->prepare('SELECT * FROM ' . $this->table_name( 'client_report_client' )
-			. ' WHERE `client` = %s ', $value);
-		} else if ( 'email' == $by ) {
-			$sql = $wpdb->prepare('SELECT * FROM ' . $this->table_name( 'client_report_client' )
-			. ' WHERE `email` = %s ', $value);
+			$sql = $wpdb->prepare(
+				'SELECT * FROM ' . $this->table_name( 'client_report_client' )
+				. ' WHERE `clientid` =%d ',
+				$value
+			);
+		} elseif ( 'client' == $by ) {
+			$sql = $wpdb->prepare(
+				'SELECT * FROM ' . $this->table_name( 'client_report_client' )
+				. ' WHERE `client` = %s ',
+				$value
+			);
+		} elseif ( 'email' == $by ) {
+			$sql = $wpdb->prepare(
+				'SELECT * FROM ' . $this->table_name( 'client_report_client' )
+				. ' WHERE `email` = %s ',
+				$value
+			);
 		}
 
 		if ( ! empty( $sql ) ) {
@@ -1496,12 +1585,13 @@ $this->default_formats = array(
 		if ( ! empty( $id ) ) {
 			if ( $wpdb->update( $this->table_name( 'client_report_client' ), $client, array( 'clientid' => intval( $id ) ) ) ) {
 				return $this->get_client_by( 'clientid', $id );
-            }
+			}
 		} else {
 			if ( $wpdb->insert( $this->table_name( 'client_report_client' ), $client ) ) {
-                //echo $wpdb->last_error;
-                return $this->get_client_by('clientid', $wpdb->insert_id);
-            }
+				// echo $wpdb->last_error;
+				return $this->get_client_by( 'clientid', $wpdb->insert_id );
+			}
+			// echo $wpdb->last_error;
 		}
 		return false;
 	}
@@ -1560,13 +1650,20 @@ $this->default_formats = array(
 			return false; }
 		$sql = '';
 		if ( 'id' == $by ) {
-			$sql = $wpdb->prepare('SELECT * FROM ' . $this->table_name( 'client_report_format' )
-			. ' WHERE `id` =%d ', $value);
-		} else if ( 'title' == $by ) {
-			$sql = $wpdb->prepare('SELECT * FROM ' . $this->table_name( 'client_report_format' )
-			. ' WHERE `title` =%s AND type = %s', $value, $type);
+			$sql = $wpdb->prepare(
+				'SELECT * FROM ' . $this->table_name( 'client_report_format' )
+				. ' WHERE `id` =%d ',
+				$value
+			);
+		} elseif ( 'title' == $by ) {
+			$sql = $wpdb->prepare(
+				'SELECT * FROM ' . $this->table_name( 'client_report_format' )
+				. ' WHERE `title` =%s AND type = %s',
+				$value,
+				$type
+			);
 		}
-
+		// echo $sql;
 		if ( ! empty( $sql ) ) {
 			return $wpdb->get_row( $sql ); }
 		return false;
@@ -1591,10 +1688,10 @@ $this->default_formats = array(
 				return $this->get_format_by( 'id', $id ); }
 		} else {
 			if ( $wpdb->insert( $this->table_name( 'client_report_format' ), $format ) ) {
-
+				// echo $wpdb->last_error;
 				return $this->get_format_by( 'id', $wpdb->insert_id );
 			}
-
+			// echo $wpdb->last_error;
 		}
 		return false;
 	}
@@ -1632,9 +1729,9 @@ $this->default_formats = array(
 
 		if ( function_exists( 'esc_sql' ) ) {
 			return esc_sql( $data );
-                } else {
-                    return $wpdb->escape( $data );
-                }
+		} else {
+			return $wpdb->escape( $data );
+		}
 	}
 
     /**
@@ -1653,9 +1750,9 @@ $this->default_formats = array(
 
 		$result = @self::_query( $sql, $wpdb->dbh );
 
-		if ( ! $result || (@self::num_rows( $result ) == 0) ) {
+		if ( ! $result || ( @self::num_rows( $result ) == 0 ) ) {
 			return false;
-                }
+		}
 		return $result;
 	}
 
@@ -1731,9 +1828,9 @@ $this->default_formats = array(
      */
     public static function fetch_array( $result, $result_type = null ) {
 		if ( self::use_mysqli() ) {
-			return mysqli_fetch_array( $result, (null == $result_type ? MYSQLI_BOTH : $result_type) );
+			return mysqli_fetch_array( $result, ( null == $result_type ? MYSQLI_BOTH : $result_type ) );
 		} else {
-			return mysql_fetch_array( $result, (null == $result_type ? MYSQL_BOTH : $result_type) );
+			return mysql_fetch_array( $result, ( null == $result_type ? MYSQL_BOTH : $result_type ) );
 		}
 	}
 
@@ -1761,7 +1858,7 @@ $this->default_formats = array(
      */
     public static function is_result( $result ) {
 		if ( self::use_mysqli() ) {
-			return ($result instanceof mysqli_result);
+			return ( $result instanceof mysqli_result );
 		} else {
 			return is_resource( $result );
 		}
