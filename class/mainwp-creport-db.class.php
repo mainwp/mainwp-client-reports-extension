@@ -2,32 +2,32 @@
 /** MainWP Client Reports Database class. */
 
 /**
- * Class MainWP_CReport_DB
- */
+* Class MainWP_CReport_DB
+*/
 class MainWP_CReport_DB {
 
-   /** @var string MainWP Client Reports DB version. */
+	/** @var string MainWP Client Reports DB version. */
 	private $mainwp_wpcreport_db_version = '6.2';
   
-  /** @var string Database table prefix. */
+	/** @var string Database table prefix. */
 	private $table_prefix;
       
- /**
-   * Public static variable to hold the single instance of the class.
-   *
-   * @var mixed Default null
-   */
+	/**
+	* Public static variable to hold the single instance of the class.
+	*
+	* @var mixed Default null
+	*/
 	private static $instance = null;
       
-  /** @var object Holds WordPress Database instance. */
+	/** @var object Holds WordPress Database instance. */
 	private $wpdb;
 
- /**
-   * MainWP_CReport_DB constructor.
-   */
+	/**
+	* MainWP_CReport_DB constructor.
+	*/
 	function __construct() {
     
-    /** @var object Holds WordPress Database instance. */
+		/** @var object Holds WordPress Database instance. */
 		global $wpdb;
 
 		$this->table_prefix = $wpdb->prefix . 'mainwp_';
@@ -35,22 +35,22 @@ class MainWP_CReport_DB {
 		$this->wpdb = &$wpdb;
 	}
 
-    /**
-     * Get table name suffix.
-     *
-     * @param string $suffix Hold table name suffix.
-     *
-     * @return string Return table name suffix.
-     */
+	/**
+	 * Get table name suffix.
+	 *
+	 * @param string $suffix Hold table name suffix.
+	 *
+	 * @return string Return table name suffix.
+	 */
     function table_name( $suffix ) {
 		return $this->table_prefix . $suffix;
 	}
 
 	/**
-   * Support old & new versions of wordpress (3.9+).
-   *
-   * @return bool
-   */
+	* Support old & new versions of wordpress (3.9+).
+	*
+	* @return bool
+	*/
 	public static function use_mysqli() {
 		
 		if ( ! function_exists( 'mysqli_connect' ) ) {
@@ -64,7 +64,7 @@ class MainWP_CReport_DB {
 	// Installs new DB
 	function install() {
     
-    /** @global object $wpdb WordPress Database instance. */
+		/** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		$currentVersion = get_site_option( 'mainwp_wpcreport_db_version' );
@@ -204,7 +204,7 @@ PRIMARY KEY  (`id`)  ';
 
 		$sql[] = $tbl;
 
-    // make sure to disable any error output.
+        // make sure to disable any error output.
 		error_reporting( 0 );
 
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
@@ -273,11 +273,11 @@ PRIMARY KEY  (`id`)  ';
 
 	}
 
-  /**
-   * Create a public static instance of MainWP_CReport_DB.
-   *
-   * @return MainWP_CReport_DB|null
-   */
+	/**
+	* Create a public static instance of MainWP_CReport_DB.
+	*
+	* @return MainWP_CReport_DB|null
+	*/
 	static function get_instance() {
 		if ( null == self::$instance ) {
 			self::$instance = new MainWP_CReport_DB();
@@ -286,11 +286,11 @@ PRIMARY KEY  (`id`)  ';
 		return self::$instance;
 	}
 
- /**
-   * Check extension version.
-   *
-   * @param string $check_version Extension version.
-   */
+	/**
+	* Check extension version.
+	*
+	* @param string $check_version Extension version.
+	*/
 	function check_update( $check_version ) {
   
     /** @global object $wpdb WordPress Database instance. */
@@ -317,9 +317,9 @@ PRIMARY KEY  (`id`)  ';
 
 	}
       
- /**
-   * Initiate default data.
-   */
+	/**
+	* Initiate default data.
+	*/
 	public function init_default_data() {
 
 		$this->default_tokens = array(
@@ -545,22 +545,23 @@ We hope that this report was useful and we look forward to managing your website
 		return false;
 	}
 
-    /**
-     * Get client report token by 'token_name' or 'id'.
-     *
-     * @param string $by Get by 'token_name' or 'id'.
-     * @param string $value Holds token value. Default: null.
-     * @param string $site_url Child Site URL.
-     *
-     * @return string|null return Client report token or NULL on failure.
-     */
-   public function get_tokens_by( $by = 'id', $value = null, $site_id = false ) {
+	/**
+	* Get client report token by 'token_name' or 'id'.
+	*
+	* @param string $by Get by 'token_name' or 'id'.
+	* @param string $value Holds token value. Default: null.
+	* @param string $site_url Child Site URL.
+	*
+	* @return string|null return Client report token or NULL on failure.
+	*/
+	public function get_tokens_by( $by = 'id', $value = null, $site_id = false ) {
 
-    /** @global object $wpdb WordPress Database instance. */
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		if ( empty( $by ) || empty( $value ) ) {
-			return null; }
+			return null;
+		}
 
 		if ( 'token_name' == $by ) {
 			$value = str_replace( array( '[', ']' ), '', $value );
@@ -601,26 +602,26 @@ We hope that this report was useful and we look forward to managing your website
 		return null;
 	}
 
-    /**
-     * Get client report tokens.
-     *
-     * @return mixed Return client report token.
-     */
-    public function get_tokens() {
+	/**
+	 * Get client report tokens.
+	 *
+	 * @return mixed Return client report token.
+	 */
+	public function get_tokens() {
 
-        /** @global object $wpdb WordPress Database instance. */
+	    /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		return $wpdb->get_results( 'SELECT * FROM ' . $this->table_name( 'client_report_token' ) . ' WHERE 1 = 1 ORDER BY type DESC, token_name ASC' );
 	}
 
-    /**
-     * Get Child Site token values.
-     *
-     * @param int $id Child Site ID.
-     *
-     * @return string|false Return token or FALSE on failure.
-     */
+	/**
+	 * Get Child Site token values.
+	 *
+	 * @param int $id Child Site ID.
+	 *
+	 * @return string|false Return token or FALSE on failure.
+	 */
     public function get_site_token_values( $id ) {
 
         /** @global object $wpdb WordPress Database instance. */
@@ -633,17 +634,17 @@ We hope that this report was useful and we look forward to managing your website
 		return $wpdb->get_results( $qry );
 	}
 
- /**
-   * Get Child Site tokens.
-   *
-   * @param string $site_url Child Sit URL.
-   * @param string $index DB index.
-   *
-   * @return array|false Return query results or FALSE on failure.
-   */
+	/**
+	* Get Child Site tokens.
+	*
+	* @param string $site_url Child Sit URL.
+	* @param string $index DB index.
+	*
+	* @return array|false Return query results or FALSE on failure.
+	*/
 	public function get_site_tokens_by_site( $website ) {
     
-    /** @global object $wpdb WordPress Database instance. */
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		if ( empty( $website ) || ! is_array( $website ) ) {
@@ -695,14 +696,14 @@ We hope that this report was useful and we look forward to managing your website
 		return $return;
 	}
 
-    /**
-     * Get default site token.
-     *
-     * @param string $token_name Default token name.
-     * @param string $site_url Child Site URL.
-     *
-     * @return false|string Return defult token or FALSE on failure.
-     */
+	/**
+	 * Get default site token.
+	 *
+	 * @param string $token_name Default token name.
+	 * @param string $site_url Child Site URL.
+	 *
+	 * @return false|string Return defult token or FALSE on failure.
+	 */
     public function _get_default_token_site($token_name, $site_url ) {
 		$website = apply_filters( 'mainwp_getwebsitesbyurl', $site_url );
 		if ( empty( $this->default_tokens[ $token_name ] ) || ! $website ) {
@@ -730,15 +731,15 @@ We hope that this report was useful and we look forward to managing your website
 		return $token_value;
 	}
 
-/**
-   * Add site token.
-   *
-   * @param $token_id Token ID.
-   * @param $token_value Token value.
-   * @param $site_url Child Site URL.
-   *
-   * @return false|null Return FALSE on failure.
-   */
+	/**
+	* Add site token.
+	*
+	* @param $token_id Token ID.
+	* @param $token_value Token value.
+	* @param $site_url Child Site URL.
+	*
+	* @return false|null Return FALSE on failure.
+	*/
 	public function add_token_site( $token_id, $token_value, $site_id ) {
     
 		/** @global object $wpdb WordPress Database instance. */
@@ -758,15 +759,15 @@ We hope that this report was useful and we look forward to managing your website
 		return false;
 	}
 
- /**
-   * Update site token.
-   *
-   * @param int $token_id Token ID.
-   * @param string $token_value Token value.
-   * @param string $site_url Child Site URL.
-   *
-   * @return false|null Return FALSE on failure.
-   */
+	/**
+	* Update site token.
+	*
+	* @param int $token_id Token ID.
+	* @param string $token_value Token value.
+	* @param string $site_url Child Site URL.
+	*
+	* @return false|null Return FALSE on failure.
+	*/
 	public function update_token_site( $token_id, $token_value, $site_id ) {
     
 		/** @global object $wpdb WordPress Database instance. */
@@ -786,15 +787,15 @@ We hope that this report was useful and we look forward to managing your website
 		return false;
 	}
 
-/**
-   * Delete site tokens.
-   *
-   * @param int $token_id Token ID.
-   * @param int $site_url Child Site URL.
-   * @return false Return FALSE on failure.
-   */
+	/**
+	* Delete site tokens.
+	*
+	* @param int $token_id Token ID.
+	* @param int $site_url Child Site URL.
+	* @return false Return FALSE on failure.
+	*/
 	public function delete_site_tokens( $token_id = null, $site_id = null ) {
-    /** @global object $wpdb WordPress Database instance. */
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		if ( ! empty( $token_id ) ) {
@@ -805,13 +806,13 @@ We hope that this report was useful and we look forward to managing your website
 		return false;
 	}
 
-    /**
-     * Delete token by ID.
-     *
-     * @param string $by By ID.
-     * @param string $value Token value.
-     * @return bool Return TRUE|FALSE.
-     */
+	/**
+	* Delete token by ID.
+	*
+	* @param string $by By ID.
+	* @param string $value Token value.
+	* @return bool Return TRUE|FALSE.
+	*/
     public function delete_token_by($by = 'id', $value = null ) {
 
         /** @global object $wpdb WordPress Database instance. */
@@ -826,13 +827,13 @@ We hope that this report was useful and we look forward to managing your website
 		return false;
 	}
 
-    /**
-     * Update report.
-     *
-     * @param array $report Report array.
-     *
-     * @return false Return FALSE on failure.
-     */
+	/**
+	* Update report.
+	*
+	* @param array $report Report array.
+	*
+	* @return false Return FALSE on failure.
+	*/
     public function update_report($report ) {
 
         /** @global object $wpdb WordPress Database instance. */
@@ -842,9 +843,9 @@ We hope that this report was useful and we look forward to managing your website
 		$updatedClient = false;
 
 		/**
-     * THIS IS SMART create or update client.
-     * client may be content tokens.
-     */
+		 * THIS IS SMART create or update client.
+		 * client may be content tokens.
+		 */
 		if ( ! empty( $report['email'] ) ) { // client may be content tokens
 
 				$update_client = array(
@@ -959,13 +960,13 @@ We hope that this report was useful and we look forward to managing your website
 
 	}
 
-/**
-   * Udate group report content.
-   *
-   * @param array $report Report array.
-   *
-   * @return false Return FALSE on failure.
-   */
+	/**
+	* Udate group report content.
+	*
+	* @param array $report Report array.
+	*
+	* @return false Return FALSE on failure.
+	*/
 	public function update_group_report_content( $report ) {
     
 		 /** @global object $wpdb WordPress Database instance. */
@@ -989,14 +990,14 @@ We hope that this report was useful and we look forward to managing your website
 		return false;
 	}
 
-  /**
-   * Get group report content.
-   *
-   * @param int $report_id Report ID.
-   * @param int $site_id Child Site ID.
-   *
-   * @return false Return FALSE on failure.
-   */
+	/**
+	* Get group report content.
+	*
+	* @param int $report_id Report ID.
+	* @param int $site_id Child Site ID.
+	*
+	* @return false Return FALSE on failure.
+	*/
 	public function get_group_report_content( $report_id, $site_id = null ) {
     
     /** @global object $wpdb WordPress Database instance. */
@@ -1025,17 +1026,17 @@ We hope that this report was useful and we look forward to managing your website
 
 	}
 
-  /**
-     * Delete group report content.
-     *
-     * @param int $report_id Report ID.
-     * @param int $site_id Child Site ID.
-     *
-     * @return mixed Return query results.
-     */
+	/**
+	* Delete group report content.
+	*
+	* @param int $report_id Report ID.
+	* @param int $site_id Child Site ID.
+	*
+	* @return mixed Return query results.
+	*/
 	public function delete_group_report_content( $report_id = null, $site_id = null ) {
   
-   /** @global object $wpdb WordPress Database instance. */
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
   
 		if ( ! empty( $report_id ) && ! empty( $site_id ) ) {
@@ -1061,21 +1062,6 @@ We hope that this report was useful and we look forward to managing your website
 			);
 			return $wpdb->get_results( $sql );
 		}
-	}
-
-        if (!empty($report_id) && !empty($site_id)) {
-            $sql = $wpdb->prepare('DELETE FROM ' . $this->table_name( 'client_group_report_content' )
-                    . ' WHERE `report_id` = %d AND `site_id` = %d ', $report_id, $site_id );
-            return $wpdb->get_row( $sql );
-        } else if (!empty($report_id)) {
-            $sql = $wpdb->prepare('DELETE FROM ' . $this->table_name( 'client_group_report_content' )
-                    . ' WHERE `report_id` = %d ', $report_id );
-            return $wpdb->get_results( $sql );
-        } else if (!empty($site_id)) {
-            $sql = $wpdb->prepare('DELETE FROM ' . $this->table_name( 'client_group_report_content' )
-                    . ' WHERE `site_id` = %d ', $site_id );
-            return $wpdb->get_results( $sql );
-        }
 	}
 
     /**
@@ -1129,10 +1115,10 @@ We hope that this report was useful and we look forward to managing your website
 			return $wpdb->get_results( $sql, $output );
 		} elseif ( 'site_id' == $by ) {
 
-			$sql_all                 = 'SELECT * FROM ' . $this->table_name( 'client_report' ) . ' WHERE 1 = 1 ';
-						$all_reports = $wpdb->get_results( $sql_all );
+			$sql_all        = 'SELECT * FROM ' . $this->table_name( 'client_report' ) . ' WHERE 1 = 1 ';
+			$all_reports    = $wpdb->get_results( $sql_all );
 
-						$sql_report_ids = array( -1 );
+			$sql_report_ids = array( -1 );
 
 			foreach ( $all_reports as $report ) {
 				if ( $report->sites != '' || $report->groups != '' ) {
@@ -1152,7 +1138,7 @@ We hope that this report was useful and we look forward to managing your website
 							$groups = array();
 						}
             
-             /** @global object $mainWPCReportExtensionActivator MainW CReport Extension Activator instance. */
+                        /** @global object $mainWPCReportExtensionActivator MainWP CReport Extension Activator instance. */
 						global $mainWPCReportExtensionActivator;
             
 						$dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array(), $groups );
@@ -1203,16 +1189,16 @@ We hope that this report was useful and we look forward to managing your website
 		return false;
 	}
 
-  /**
-     * Check if Child Site has report.
-     *
-     * @param int $site_id Child Site ID.
-     *
-     * @return bool Return TRUE|FALSE.
-     */
+	/**
+	 * Check if Child Site has report.
+	 *
+	 * @param int $site_id Child Site ID.
+	 *
+	 * @return bool Return TRUE|FALSE.
+	 */
 	public function checked_if_site_have_report( $site_id ) {
 
-   /** @global object $wpdb WordPress Database instance. */
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		if ( empty( $site_id ) ) {
@@ -1265,13 +1251,13 @@ We hope that this report was useful and we look forward to managing your website
 		return $found;
 	}
 
-   /**
-     * Update Website Option.
-     *
-     * @param int $website_id Child Site ID.
-     * @param string $option Website option.
-     * @param string $value Option value.
-     */
+	/**
+	 * Update Website Option.
+	 *
+	 * @param int $website_id Child Site ID.
+	 * @param string $option Website option.
+	 * @param string $value Option value.
+	 */
 	public function updateWebsiteOption( $website_id, $option, $value ) {
 
 		$rslt = $this->wpdb->get_results( 'SELECT name FROM ' . $this->table_name( 'wp_options' ) . ' WHERE wpid = ' . $website_id . ' AND name = "' . $this->escape( $option ) . '"' );
@@ -1307,14 +1293,14 @@ We hope that this report was useful and we look forward to managing your website
 		}
 	}
 
-  /**
-     * Get Website value.
-     *
-     * @param array $website Child Site array.
-     * @param $option Wbsit option.
-     *
-     * @return mixed Return website value.
-     */
+	/**
+	 * Get Website value.
+	 *
+	 * @param array $website Child Site array.
+	 * @param $option Wbsit option.
+	 *
+	 * @return mixed Return website value.
+	 */
 	public function getWebsiteOption( $website, $option ) {
 
 		if ( property_exists( $website, $option ) ) {
@@ -1324,31 +1310,31 @@ We hope that this report was useful and we look forward to managing your website
 		return $this->wpdb->get_var( 'SELECT value FROM ' . $this->table_name( 'wp_options' ) . ' WHERE wpid = ' . $website->id . ' AND name = "' . $this->escape( $option ) . '"' );
 	}
 
-   /**
-     * Get Child Site wp_options.
-     *
-     * @param array $websiteIds Child site IDs.
-     * @param string $option Option to get.
-     *
-     * @return array Return array of options.
-     */
+	/**
+	 * Get Child Site wp_options.
+	 *
+	 * @param array $websiteIds Child site IDs.
+	 * @param string $option Option to get.
+	 *
+	 * @return array Return array of options.
+	 */
 	public function getOptionOfWebsites( $websiteIds, $option ) {
 		if ( ! is_array( $websiteIds ) || count( $websiteIds ) == 0 ) {
 			return array();
 		}
 		return $this->wpdb->get_results( 'SELECT wpid, value FROM ' . $this->table_name( 'wp_options' ) . ' WHERE wpid IN (' . implode( ',', $websiteIds ) . ') AND name = "' . $this->escape( $option ) . '"' );
 	}
-   /**
-     * Get Child Site wp_options.
-     *
-     * @param array $websiteIds Child site IDs.
-     * @param string $option Option to get.
-     *
-     * @return array Return array of options.
-     */
+	/**
+	 * Get Child Site wp_options.
+	 *
+	 * @param array $websiteIds Child site IDs.
+	 * @param string $option Option to get.
+	 *
+	 * @return array Return array of options.
+	 */
 	public function get_scheduled_reports_to_send( $timestamp_offset ) {
 
-    /** @global object $wpdb WordPress Database instance. */
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		 /**
@@ -1366,16 +1352,16 @@ We hope that this report was useful and we look forward to managing your website
 		return $wpdb->get_results( $sql );
 	}
 
-   /**
-     * Get scheduled reports to continue to send.
-     *
-     * @param int $limit Interval limit.
-     *
-     * @return mixed Return query results.
-     */
+	/**
+	 * Get scheduled reports to continue to send.
+	 *
+	 * @param int $limit Interval limit.
+	 *
+	 * @return mixed Return query results.
+	 */
 	public function get_scheduled_reports_to_continue_send( $limit = 1 ) {
 
-  /** @global object $wpdb WordPress Database instance. */
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		$sql = 'SELECT rp.*, c.* FROM ' . $this->table_name( 'client_report' ) . ' rp '
@@ -1417,14 +1403,14 @@ We hope that this report was useful and we look forward to managing your website
 		return $com_sites;
 	}
 
-  /**
-     * Update report with values.
-     *
-     * @param int $id Client report ID.
-     * @param array $values Array of values to update.
-     *
-     * @return false Return FALSE on failure.
-     */
+	/**
+	 * Update report with values.
+	 *
+	 * @param int $id Client report ID.
+	 * @param array $values Array of values to update.
+	 *
+	 * @return false Return FALSE on failure.
+	 */
 	public function update_reports_with_values( $id, $values ) {
 
 		if ( ! is_array( $values ) ) {
@@ -1437,13 +1423,13 @@ We hope that this report was useful and we look forward to managing your website
 		return $wpdb->update( $this->table_name( 'client_report' ), $values, array( 'id' => $id ) );
 	}
 
-  /**
-     * Update reports last sent.
-     *
-     * @param $id Client report ID.
-     *
-     * @return false Return FALSE on failure.
-     */
+	/**
+	 * Update reports last sent.
+	 *
+	 * @param $id Client report ID.
+	 *
+	 * @return false Return FALSE on failure.
+	 */
 	public function update_reports_send( $id ) {
   
         /** @global object $wpdb WordPress Database instance. */
@@ -1459,14 +1445,14 @@ We hope that this report was useful and we look forward to managing your website
 				);
 		return false;
 	}
-      
-`` /**
-     * Update reports completed.
-     *
-     * @param $id Client Reports ID.
-     *
-     * @return mixed Return query results.
-     */
+
+	/**
+	* Update reports completed.
+	*
+	* @param $id Client Reports ID.
+	*
+	* @return mixed Return query results.
+	*/
 	public function update_reports_completed( $id ) {
   
        /** @global object $wpdb WordPress Database instance. */
@@ -1474,20 +1460,20 @@ We hope that this report was useful and we look forward to managing your website
 				return $wpdb->update( $this->table_name( 'client_report' ), array( 'completed' => time() ), array( 'id' => $id ) );
 	}
       
-   /**
-     * Update reports completed sites.
-     *
-     * @param int $id Client reports ID.
-     * @param array $pCompletedSites Completed sites array.
-     *
-     * @return mixed Return query results.
-     */
+	/**
+	 * Update reports completed sites.
+	 *
+	 * @param int $id Client reports ID.
+	 * @param array $pCompletedSites Completed sites array.
+	 *
+	 * @return mixed Return query results.
+	 */
 	public function update_reports_completed_sites( $id, $pCompletedSites ) {
     
-       /** @global object $wpdb WordPress Database instance. */
-			global $wpdb;
-    
-			return $wpdb->update( $this->table_name( 'client_report' ), array( 'completed_sites' => json_encode( $pCompletedSites ) ), array( 'id' => $id ) );
+        /** @global object $wpdb WordPress Database instance. */
+		global $wpdb;
+
+		return $wpdb->update( $this->table_name( 'client_report' ), array( 'completed_sites' => json_encode( $pCompletedSites ) ), array( 'id' => $id ) );
 
 	}
 
