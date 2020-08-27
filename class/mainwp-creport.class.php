@@ -1463,7 +1463,8 @@ class MainWP_CReport {
 		if ( empty( $site_id ) || empty( $from_date ) || empty( $to_date ) ) {
 			return $templ_content;
 		}
-		
+
+		/** @global object $mainWPCReportExtensionActivator MainWP Client Reports Extension Activator instance. */
 		global $mainWPCReportExtensionActivator;
 
 		$website = apply_filters( 'mainwp-getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $site_id );
@@ -1521,6 +1522,7 @@ class MainWP_CReport {
 	 */
 	public static function get_tokens_of_site( $report, $site_id ) {
 
+		/** @global object $mainWPCReportExtensionActivator MainWP Client Reports Extension Activator instance. */
 		global $mainWPCReportExtensionActivator;
 
 		$website = apply_filters( 'mainwp-getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $site_id );

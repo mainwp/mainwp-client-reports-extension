@@ -422,7 +422,10 @@ class MainWP_CReport_Stream {
 		$siteid   = isset( $_POST['websiteId'] ) ? $_POST['websiteId'] : null;
 		$showhide = isset( $_POST['showhide'] ) ? $_POST['showhide'] : null;
 		if ( null !== $siteid && null !== $showhide ) {
+
+			/** @global object $mainWPCReportExtensionActivator MainWP Client Reports Extension Activator instance. */
 			global $mainWPCReportExtensionActivator;
+
 			$post_data   = array(
 				'mwp_action' => 'set_showhide',
 				'showhide'   => $showhide,
