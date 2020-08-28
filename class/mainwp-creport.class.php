@@ -67,7 +67,7 @@ class MainWP_CReport {
      * MainWP_CReport constructor.
      */
     public function __construct() {
-		
+
 	}
 
     /**
@@ -972,7 +972,7 @@ class MainWP_CReport {
      */
     function mainwp_postprocess_backup_sites_feedback( $output, $unique ) {
 		if ( !is_array( $output ) ) {
-			
+
 		} else {
 			foreach ( $output as $key => $value ) {
 				$output[$key] = $value;
@@ -981,7 +981,7 @@ class MainWP_CReport {
 
 		return $output;
 	}
-  
+
   /**
    * Initiate reports cron.
    */
@@ -1015,7 +1015,7 @@ class MainWP_CReport {
      * Send reports cron.
      */
     public static function cron_send_reports() {
-		
+
 		$send_local_time = apply_filters( 'mainwp_client_reports_send_local_time' , false);
 		$timestamp_offset = 0;
 		if ($send_local_time) {
@@ -1170,13 +1170,13 @@ class MainWP_CReport {
 						$idx++; // count to next site.
 						continue;
 					}
-				} 
+				}
 				// Will update to 0 or 1 later after send report mail, to fix delay of send mail.
 				$completedSites[$site_id] = 2;
 
                 // Update  before prepare report content, will re-set later.
 				self::update_completed_websites($report, $completedSites, $total_sites );
-				
+
 
 				$data = self::prepare_content_report_email( $report, false, $website, true );
 
@@ -1274,7 +1274,7 @@ class MainWP_CReport {
 			MainWP_CReport_DB::get_instance()->update_reports_completed_sites( $report->id, $pCompletedSites );
 			// filter completed site ids with completed value = 0 or = 1;
 			$filter_completedSend = array_filter( $pCompletedSites, function( $val ) {
-				return ( $val < 2 ); 
+				return ( $val < 2 );
 			} );
 
 			// Update completed sites.
@@ -1446,10 +1446,10 @@ class MainWP_CReport {
 		}
 		return $content;
 	}
-  
+
 		/**
 	 * Method hook_generate_content().
-	 * 
+	 *
 	 * @param int      $templ_content The content with tokens.
 	 * @param int      $site_id The id of the site
 	 * @param string|0 $from_date String of from date, date format 'Y-m-d H:i:s'
@@ -1459,7 +1459,7 @@ class MainWP_CReport {
 	 * @return html content of generated content. False when something goes wrong.
 	 */
 	public static function hook_generate_content( $templ_content, $site_id, $from_date = 0, $to_date = 0, $type = '' ) {
-		
+
 		if ( empty( $site_id ) || empty( $from_date ) || empty( $to_date ) ) {
 			return $templ_content;
 		}
@@ -1483,7 +1483,7 @@ class MainWP_CReport {
 		$report->footer = '';
 
 		$filtered_reports = self::filter_report_website( $report, $website, $from_date, $to_date, $type );
-	
+
 		// to avoid error.
 		if ( is_array( $filtered_reports ) && isset( $filtered_reports['error'] ) ) {
 			return $templ_content;
@@ -1494,18 +1494,18 @@ class MainWP_CReport {
 		} else {
 			$content = self::gen_report_content( $filtered_reports );
 		}
-		
-		return $content;	
+
+		return $content;
 	}
-	
+
 	/**
 	 * Method hook_get_site_tokens().
-	 * 
+	 *
 	 * @param int $false input value.
 	 * @param int $site_id The id of site
-	 * 
+	 *
 	 * @return array Site's tokens.
-	 * 
+	 *
 	 */
 	public static function hook_get_site_tokens( $false, $site_id ) {
 		return self::get_tokens_of_site( false, $site_id );
@@ -1513,12 +1513,12 @@ class MainWP_CReport {
 
 	/**
 	 * Method get_tokens_of_site().
-	 * 
+	 *
 	 * @param object $report The report.
 	 * @param int $site_id The id of site
-	 * 
+	 *
 	 * @return array Site's tokens.
-	 * 
+	 *
 	 */
 	public static function get_tokens_of_site( $report, $site_id ) {
 
@@ -1535,25 +1535,25 @@ class MainWP_CReport {
 
 		// get tokens of the site
 		$sites_token = MainWP_CReport_DB::get_instance()->get_site_tokens_by_site( $website );
-		
+
 		if ( ! is_array( $sites_token ) ) {
 			$sites_token = array();
 		}
 
 		$now                                 = time();
 		$tokens_values                       = array();
-		
+
 		if ( $report && is_object( $report ) ) {
-			$tokens_values['[report.daterange]'] = MainWP_CReport_Utility::format_timestamp( $report->date_from ) . ' - ' . MainWP_CReport_Utility::format_timestamp( $report->date_to );			
+			$tokens_values['[report.daterange]'] = MainWP_CReport_Utility::format_timestamp( $report->date_from ) . ' - ' . MainWP_CReport_Utility::format_timestamp( $report->date_to );
 			$tokens_values['[report.send.date]'] = MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $now ) );
 		}
-		
+
 		foreach ( $sites_token as $token_name => $token ) {
 			$tokens_values[ '[' . $token_name . ']' ] = $token->token_value;
 		}
 		return $tokens_values;
 	}
-  
+
 	/**
    * Save report.
    *
@@ -2093,12 +2093,12 @@ class MainWP_CReport {
 
 		$send_subject = $email_subject;
 		if ( $subject_has_token ) {
-			$now			 = time();			
+			$now			 = time();
 			$tokens_values = array();
 
 			$tokens_values['[report.daterange]'] = MainWP_CReport_Utility::format_timestamp( $report->date_from ) . ' - ' . MainWP_CReport_Utility::format_timestamp( $report->date_to );
 			$tokens_values['[report.send.date]'] = MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $now ) );
-			
+
 			if ( isset( $sites_token[$site_id] ) && is_array( $sites_token[$site_id] ) ) {
 				foreach ( $sites_token[$site_id] as $token_name => $token ) {
 					$tokens_values['[' . $token_name . ']'] = $token->token_value;
@@ -2135,8 +2135,8 @@ class MainWP_CReport {
    */
 	public static function replace_site_tokens( $string, $replace_tokens ) {
 		$tokens		 = array_keys( $replace_tokens );
-		$values		 = array_values( $replace_tokens );		
-		return str_replace( $tokens, $values, $string );		
+		$values		 = array_values( $replace_tokens );
+		return str_replace( $tokens, $values, $string );
 	}
 
     /**
@@ -2427,7 +2427,7 @@ class MainWP_CReport {
 		$all_creport_sites	 = $sites_with_creport	 = array();
 		foreach ( $dbwebsites as $website ) {
 			if ( $website && $website->plugins != '' ) {
-				$plugins = json_decode( $website->plugins, 1 );				
+				$plugins = json_decode( $website->plugins, 1 );
 				if ( is_array( $plugins ) && count( $plugins ) != 0 ) {
 					foreach ( $plugins as $plugin ) {
 						if ( 'mainwp-child-reports/mainwp-child-reports.php' == $plugin['slug'] ) {
@@ -2441,7 +2441,7 @@ class MainWP_CReport {
 				}
 			}
 		}
-		
+
 		$lastReports		 = MainWP_CReport_DB::get_instance()->getOptionOfWebsites( $sites_with_creport, 'creport_last_report' );
 		$lastReportsSites	 = array();
 		if ( is_array( $lastReports ) ) {
@@ -2643,7 +2643,7 @@ class MainWP_CReport {
      * @deprecated Unused.
      */
     public static function render_tabs() {
-		
+
 	}
 
     /**
@@ -2809,7 +2809,7 @@ class MainWP_CReport {
      * @return array Return tokens array.
      */
     public static function get_addition_tokens( $site_id ) {
-		$tokens_value = array();		
+		$tokens_value = array();
 		$site_info = apply_filters( 'mainwp_getwebsiteoptions', false, $site_id, 'site_info' );
 		if ( $site_info ) {
 			$site_info = json_decode( $site_info, true );
@@ -2828,7 +2828,7 @@ class MainWP_CReport {
 
 		$get_issues = apply_filters( 'mainwp_getwebsiteoptions', false, $site_id, 'health_site_status' );
 		$issue_counts = json_decode( $get_issues, true );
-		$issues_total = $issue_counts['recommended'] + $issue_counts['critical'];	
+		$issues_total = $issue_counts['recommended'] + $issue_counts['critical'];
 		$tokens_value['site.health.score'] = intval( $issues_total );
 
 		return $tokens_value;
@@ -2874,7 +2874,7 @@ class MainWP_CReport {
 		$get_aum_tokens			 = ((strpos( $report->header, '[aum.' ) !== false) || (strpos( $report->body, '[aum.' ) !== false) || (strpos( $report->footer, '[aum.' ) !== false)) ? true : false;
 		$get_woocom_tokens		 = ((strpos( $report->header, '[wcomstatus.' ) !== false) || (strpos( $report->body, '[wcomstatus.' ) !== false) || (strpos( $report->footer, '[wcomstatus.' ) !== false)) ? true : false;
 		$get_pagespeed_tokens	 = ((strpos( $report->header, '[pagespeed.' ) !== false) || (strpos( $report->body, '[pagespeed.' ) !== false) || (strpos( $report->footer, '[pagespeed.' ) !== false)) ? true : false;
-		
+
 		if ( !empty( $website ) ) {
 			$tokens					 = MainWP_CReport_DB::get_instance()->get_tokens();
 			$site_tokens			 = MainWP_CReport_DB::get_instance()->get_site_tokens_by_site( $website );
@@ -3557,7 +3557,7 @@ class MainWP_CReport {
 					$display_maximum_value_date	 = $date1[1] . '.' . $date1[0] . '.'; // day.month
 
 
-					
+
 //$maximum_value_date = $date1[1] . '.' . $date1[0] . '.'; // day.month
 				$output['ga.visits.maximum'] = $maximum_value . ' (' . $display_maximum_value_date . ')';
 			}
@@ -3684,12 +3684,12 @@ class MainWP_CReport {
 			return self::$buffer[$uniq];
 		}
 
-		$values		 = apply_filters( 'mainwp_woocomstatus_get_data', $site_id, $start_date, $end_date );
-		$top_seller	 = 'N/A';
+		$values = apply_filters( 'mainwp_woocomstatus_get_data', $site_id, $start_date, $end_date );
+		$top_seller = 'N/A';
 		if ( is_array( $values ) && isset( $values['wcomstatus.topseller'] ) ) {
 			$top = $values['wcomstatus.topseller'];
-			if ( is_object( $top ) && isset( $top->name ) ) {
-				$top_seller = $top->name;
+			if ( is_array( $top ) && isset( $top['name'] ) ) {
+				$top_seller = $top['name'];
 			}
 		}
 
@@ -3935,7 +3935,7 @@ class MainWP_CReport {
 		);
 
 		$_show_completed_siteids = apply_filters( 'mainwp_client_reports_table_show_completed_site_ids', false );
-		
+
 		foreach ( $reports as $report ) {
 
 			$is_scheduled = $report->scheduled ? true : false;
@@ -4823,7 +4823,7 @@ class MainWP_CReport {
 		$site_tokens = array();
 
 		if ( $website ) {
-			$site_tokens = MainWP_CReport_DB::get_instance()->get_site_tokens_by_site( $website );			
+			$site_tokens = MainWP_CReport_DB::get_instance()->get_site_tokens_by_site( $website );
 		}
 
 		$html = '';
