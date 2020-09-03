@@ -41,6 +41,8 @@ class MainWP_CReport_Stream {
 
     /**
      * MainWP_CReport_Stream constructor.
+     *
+     * Run each time the class is called.
      */
     public function __construct() {
 		$this->option = get_option( $this->option_handle );
@@ -60,6 +62,7 @@ class MainWP_CReport_Stream {
      *
      * @param null|string $key Option key.
      * @param string $default Holds the default option.
+     *
      * @return mixed|string Return default option.
      */
     public function get_option($key = null, $default = '' ) {
@@ -217,6 +220,7 @@ class MainWP_CReport_Stream {
      * @param array $websites Child Sites array.
      * @param int $selected_group Selected sites group.
      * @param array $lastReportsSites Last reported sites array.
+     *
      * @return array Child Sites Stream.
      */
     public function get_websites_stream( $websites, $selected_group = 0, $lastReportsSites = array() ) {

@@ -65,6 +65,8 @@ class MainWP_CReport {
 
     /**
      * MainWP_CReport constructor.
+     *
+     * Run each time the class is called.
      */
     public function __construct() {
 		
@@ -1456,7 +1458,7 @@ class MainWP_CReport {
 	 * @param string|0 $to_date String of to date, date format 'Y-m-d H:i:s'
 	 * @param string   $type String of type.
 	 *
-	 * @return html content of generated content. False when something goes wrong.
+	 * @return string content of generated content. False when something goes wrong.
 	 */
 	public static function hook_generate_content( $templ_content, $site_id, $from_date = 0, $to_date = 0, $type = '' ) {
 		

@@ -68,6 +68,8 @@ class MainWP_CReport_Extension {
 
     /**
      * MainWP_CReport_Extension constructor.
+     *
+     * Run each time the class is called.
      */
     public function __construct() {
 
@@ -358,6 +360,8 @@ class MainWP_CReport_Extension_Activator {
 
     /**
      * MainWP_CReport_Extension_Activator constructor.
+     *
+     * Run each time the class is called.
      */
     public function __construct() {
 
