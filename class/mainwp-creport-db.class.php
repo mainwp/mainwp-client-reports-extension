@@ -27,7 +27,7 @@ class MainWP_CReport_DB {
 	*/
 	function __construct() {
     
-		/** @var object Holds WordPress Database instance. */
+		/** @global object Holds WordPress Database instance. */
 		global $wpdb;
 
 		$this->table_prefix = $wpdb->prefix . 'mainwp_';
@@ -54,9 +54,10 @@ class MainWP_CReport_DB {
 	public static function use_mysqli() {
 		
 		if ( ! function_exists( 'mysqli_connect' ) ) {
-			return false; }
-  
-     /** @global object $wpdb WordPress Database instance. */
+			return false;
+		}
+
+		/** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 		return ( $wpdb->dbh instanceof mysqli );
 	}
@@ -293,8 +294,8 @@ PRIMARY KEY  (`id`)  ';
 	*/
 	function check_update( $check_version ) {
   
-    /** @global object $wpdb WordPress Database instance. */
-    global $wpdb;
+        /** @global object $wpdb WordPress Database instance. */
+        global $wpdb;
 
 		if ( empty( $check_version ) ) {
 			return;
@@ -795,6 +796,7 @@ We hope that this report was useful and we look forward to managing your website
 	* @return false Return FALSE on failure.
 	*/
 	public function delete_site_tokens( $token_id = null, $site_id = null ) {
+
         /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
@@ -969,7 +971,7 @@ We hope that this report was useful and we look forward to managing your website
 	*/
 	public function update_group_report_content( $report ) {
     
-		 /** @global object $wpdb WordPress Database instance. */
+		/** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		$report_id = isset( $report['report_id'] ) ? $report['report_id'] : 0;
@@ -1000,7 +1002,7 @@ We hope that this report was useful and we look forward to managing your website
 	*/
 	public function get_group_report_content( $report_id, $site_id = null ) {
     
-    /** @global object $wpdb WordPress Database instance. */
+        /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
 
 		if ( empty( $report_id ) ) {
@@ -1137,8 +1139,12 @@ We hope that this report was useful and we look forward to managing your website
 						if ( ! is_array( $groups ) ) {
 							$groups = array();
 						}
-            
-                        /** @global object $mainWPCReportExtensionActivator MainWP CReport Extension Activator instance. */
+
+						/**
+						 * MainWP CReport Extension Activator instance.
+						 *
+						 * @global object $mainWPCReportExtensionActivator
+						 */
 						global $mainWPCReportExtensionActivator;
             
 						$dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array(), $groups );
@@ -1230,7 +1236,13 @@ We hope that this report was useful and we look forward to managing your website
 							$groups = array();
 						}
 
+						/**
+						 * MainWP CReport Extension Activator instance.
+						 *
+						 * @global object $mainWPCReportExtensionActivator
+						 */
 						global $mainWPCReportExtensionActivator;
+
 						$dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array(), $groups );
 
 						foreach ( $dbwebsites as $pSite ) {
@@ -1417,8 +1429,8 @@ We hope that this report was useful and we look forward to managing your website
 			return false;
 		}
 
-    /** @global object $wpdb WordPress Database instance. */
-    global $wpdb;
+        /** @global object $wpdb WordPress Database instance. */
+        global $wpdb;
     
 		return $wpdb->update( $this->table_name( 'client_report' ), $values, array( 'id' => $id ) );
 	}
@@ -1433,16 +1445,16 @@ We hope that this report was useful and we look forward to managing your website
 	public function update_reports_send( $id ) {
   
         /** @global object $wpdb WordPress Database instance. */
-				global $wpdb;
-  
-				return $wpdb->update(
-					$this->table_name( 'client_report' ),
-					array(
-						'schedule_lastsend' => time(),
-						'completed_sites'   => json_encode( array() ),
-					),
-					array( 'id' => $id )
-				);
+		global $wpdb;
+
+		return $wpdb->update(
+			$this->table_name( 'client_report' ),
+			array(
+				'schedule_lastsend' => time(),
+				'completed_sites'   => json_encode( array() ),
+			),
+			array( 'id' => $id )
+		);
 		return false;
 	}
 
@@ -1455,9 +1467,9 @@ We hope that this report was useful and we look forward to managing your website
 	*/
 	public function update_reports_completed( $id ) {
   
-       /** @global object $wpdb WordPress Database instance. */
-				global $wpdb;
-				return $wpdb->update( $this->table_name( 'client_report' ), array( 'completed' => time() ), array( 'id' => $id ) );
+		/** @global object $wpdb WordPress Database instance. */
+		global $wpdb;
+		return $wpdb->update( $this->table_name( 'client_report' ), array( 'completed' => time() ), array( 'id' => $id ) );
 	}
       
 	/**
