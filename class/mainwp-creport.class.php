@@ -772,8 +772,6 @@ class MainWP_CReport {
      * Initiate Admin.
      */
     public function admin_init() {
-		//add_action( 'mainwp-extension-sites-edit', array( &$this, 'site_token' ), 9, 1 );
-		//add_action( 'wp_ajax_mainwp_creport_load_tokens', array( &$this, 'load_tokens' ) );
 		add_action( 'wp_ajax_mainwp_creport_delete_token', array(&$this, 'delete_token') );
 		add_action( 'wp_ajax_mainwp_creport_save_token', array(&$this, 'save_token') );
 		add_action( 'wp_ajax_mainwp_creport_do_action_report', array(&$this, 'ajax_do_action_report') );
@@ -795,15 +793,14 @@ class MainWP_CReport {
 		add_action( 'mainwp_managesite_backup', array(&$this, 'managesite_backup'), 10, 3 );
 		add_action( 'wp_ajax_mainwp_creport_delete_client', array(&$this, 'ajax_delete_client') );
 
-		self::$enabled_piwik		 = apply_filters( 'mainwp-extension-available-check', 'mainwp-piwik-extension' );
-		self::$enabled_sucuri		 = apply_filters( 'mainwp-extension-available-check', 'mainwp-sucuri-extension' );
-		self::$enabled_ga			 = apply_filters( 'mainwp-extension-available-check', 'mainwp-google-analytics-extension' );
-		self::$enabled_aum			 = apply_filters( 'mainwp-extension-available-check', 'advanced-uptime-monitor-extension' );
-		self::$enabled_woocomstatus	 = apply_filters( 'mainwp-extension-available-check', 'mainwp-woocommerce-status-extension' );
-		self::$enabled_wordfence	 = apply_filters( 'mainwp-extension-available-check', 'mainwp-wordfence-extension' );
-		self::$enabled_maintenance	 = apply_filters( 'mainwp-extension-available-check', 'mainwp-maintenance-extension' );
-		self::$enabled_pagespeed	 = apply_filters( 'mainwp-extension-available-check', 'mainwp-page-speed-extension' );
-//		self::$enabled_brokenlinks = apply_filters( 'mainwp-extension-available-check', 'mainwp-broken-links-checker-extension' );
+		self::$enabled_piwik		 = is_plugin_active( 'mainwp-piwik-extension/mainwp-piwik-extension.php' );
+		self::$enabled_sucuri		 = is_plugin_active( 'mainwp-sucuri-extension/mainwp-sucuri-extension.php' );
+		self::$enabled_ga			 = is_plugin_active( 'mainwp-google-analytics-extension/mainwp-google-analytics-extension.php' );
+		self::$enabled_aum			 = is_plugin_active( 'advanced-uptime-monitor-extension/advanced-uptime-monitor-extension.php' );
+		self::$enabled_woocomstatus	 = is_plugin_active( 'mainwp-woocommerce-status-extension/mainwp-woocommerce-status-extension.php' );
+		self::$enabled_wordfence	 = is_plugin_active( 'mainwp-wordfence-extension/mainwp-wordfence-extension.php' );
+		self::$enabled_maintenance	 = is_plugin_active( 'mainwp-maintenance-extension/mainwp-maintenance-extension.php' );
+		self::$enabled_pagespeed	 = is_plugin_active( 'mainwp-page-speed-extension/mainwp-page-speed-extension.php' );
 		self::$stream_tokens		 = apply_filters( 'mainwp_client_reports_tokens_groups', self::$stream_tokens );
 		self::$tokens_nav_top		 = apply_filters( 'mainwp_client_reports_tokens_nav_top', self::$tokens_nav_top );
 	}
@@ -1142,7 +1139,7 @@ class MainWP_CReport {
         /** @global object $mainWPCReportExtensionActivator MainWP Client Reports Extension Activator instance. */
 		global $mainWPCReportExtensionActivator;
 
-		$dbwebsites_indexed = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sites, $groups );
+		$dbwebsites_indexed = apply_filters( 'mainwp_getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sites, $groups );
 
 		$total_sites = !empty( $dbwebsites_indexed ) ? count( $dbwebsites_indexed ) : 0;
 
@@ -1423,7 +1420,7 @@ class MainWP_CReport {
         /** @global object $mainWPCReportExtensionActivator MainWP Client Reports Extension Activator instance. */
 		global $mainWPCReportExtensionActivator;
 
-		$website = apply_filters( 'mainwp-getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $site_id );
+		$website = apply_filters( 'mainwp_getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $site_id );
 		if ( $website && is_array( $website ) ) {
 			$website = current( $website );
 		}
@@ -1467,7 +1464,7 @@ class MainWP_CReport {
 		/** @global object $mainWPCReportExtensionActivator MainWP Client Reports Extension Activator instance. */
 		global $mainWPCReportExtensionActivator;
 
-		$website = apply_filters( 'mainwp-getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $site_id );
+		$website = apply_filters( 'mainwp_getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $site_id );
 
 		if ( $website && is_array( $website ) ) {
 			$website = current( $website );
@@ -1525,7 +1522,7 @@ class MainWP_CReport {
 		/** @global object $mainWPCReportExtensionActivator MainWP Client Reports Extension Activator instance. */
 		global $mainWPCReportExtensionActivator;
 
-		$website = apply_filters( 'mainwp-getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $site_id );
+		$website = apply_filters( 'mainwp_getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $site_id );
 
 		if ( $website && is_array( $website ) ) {
 			$website = current( $website );
@@ -2002,7 +1999,7 @@ class MainWP_CReport {
 				}
 			}
 
-			$dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sites, $groups );
+			$dbwebsites = apply_filters( 'mainwp_getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sites, $groups );
 
 			foreach ( $dbwebsites as $dbsite ) {
 				if ( $email_has_token ) {
@@ -2412,7 +2409,7 @@ class MainWP_CReport {
         /** @global object $mainWPCReportExtensionActivator MainWP Client Reports Extension Activator instance. */
 		global $mainWPCReportExtensionActivator;
 
-		$websites	 = apply_filters( 'mainwp-getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), null );
+		$websites	 = apply_filters( 'mainwp_getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), null );
 		$sites_ids	 = array();
 		if ( is_array( $websites ) ) {
 			foreach ( $websites as $website ) {
@@ -2423,7 +2420,7 @@ class MainWP_CReport {
 			'plugin_upgrades'	 => true,
 			'plugins'			 => true,
 		);
-		$dbwebsites			 = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sites_ids, array(), $option );
+		$dbwebsites			 = apply_filters( 'mainwp_getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sites_ids, array(), $option );
 		$all_creport_sites	 = $sites_with_creport	 = array();
 		foreach ( $dbwebsites as $website ) {
 			if ( $website && $website->plugins != '' ) {
@@ -3352,7 +3349,7 @@ class MainWP_CReport {
 
 		// Fixes cron job bug.
 		if ( null === self::$enabled_ga ) {
-			self::$enabled_ga = apply_filters( 'mainwp-extension-available-check', 'mainwp-google-analytics-extension' );
+			self::$enabled_ga = is_plugin_active( 'mainwp-google-analytics-extension/mainwp-google-analytics-extension.php' );
 		}
 
 		if ( !self::$enabled_ga ) {
@@ -3585,7 +3582,7 @@ class MainWP_CReport {
 
 		// Fixes cron job bug.
 		if ( null === self::$enabled_piwik ) {
-			self::$enabled_piwik = apply_filters( 'mainwp-extension-available-check', 'mainwp-piwik-extension' );
+			self::$enabled_piwik = is_plugin_active( 'mainwp-piwik-extension/mainwp-piwik-extension.php' );
 		}
 
 		if ( !self::$enabled_piwik ) {
@@ -3625,7 +3622,7 @@ class MainWP_CReport {
     static function aum_data( $site_id, $start_date, $end_date ) {
 
 		if ( null === self::$enabled_aum ) {
-			self::$enabled_aum = apply_filters( 'mainwp-extension-available-check', 'advanced-uptime-monitor-extension' );
+			self::$enabled_aum = is_plugin_active( 'advanced-uptime-monitor-extension/advanced-uptime-monitor-extension.php' );
 		}
 
 		if ( !self::$enabled_aum ) {
@@ -3669,7 +3666,7 @@ class MainWP_CReport {
 
 		// Fixes cron job bug
 		if ( null === self::$enabled_woocomstatus ) {
-			self::$enabled_woocomstatus = apply_filters( 'mainwp-extension-available-check', 'mainwp-woocommerce-status-extension' );
+			self::$enabled_woocomstatus = is_plugin_active( 'mainwp-woocommerce-status-extension/mainwp-woocommerce-status-extension.php' );
 		}
 
 		if ( !self::$enabled_woocomstatus ) {
@@ -3718,7 +3715,7 @@ class MainWP_CReport {
 
 		// Fixes cron job bug.
 		if ( null === self::$enabled_pagespeed ) {
-			self::$enabled_pagespeed = apply_filters( 'mainwp-extension-available-check', 'mainwp-page-speed-extension' );
+			self::$enabled_pagespeed = is_plugin_active( 'mainwp-page-speed-extension/mainwp-page-speed-extension.php' );
 		}
 
 		if ( !self::$enabled_pagespeed ) {
@@ -3752,7 +3749,7 @@ class MainWP_CReport {
 
 		// Fixes cron job bug.
 		if ( null === self::$enabled_brokenlinks ) {
-			self::$enabled_brokenlinks = apply_filters( 'mainwp-extension-available-check', 'mainwp-broken-links-checker-extension' );
+			self::$enabled_brokenlinks = is_plugin_active( 'mainwp-broken-links-checker-extension/mainwp-broken-links-checker-extension.php' );
 		}
 
 		if ( !self::$enabled_brokenlinks ) {
@@ -4809,7 +4806,7 @@ class MainWP_CReport {
 		$website	 = null;
 
 		if ( $websiteid ) {
-			$website = apply_filters( 'mainwp-getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $websiteid );
+			$website = apply_filters( 'mainwp_getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $websiteid );
 			if ( $website && is_array( $website ) ) {
 				$website = current( $website );
 			}
@@ -4871,7 +4868,7 @@ class MainWP_CReport {
 		global $mainWPCReportExtensionActivator;
 
 		if ( $websiteId ) {
-			$website = apply_filters( 'mainwp-getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $websiteId );
+			$website = apply_filters( 'mainwp_getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $websiteId );
 			if ( $website && is_array( $website ) ) {
 				$website = current( $website );
 			}
@@ -5025,7 +5022,7 @@ class MainWP_CReport {
             /** @global object $mainWPCReportExtensionActivator MainWP Client Reports Extension Activator instance. */
 			global $mainWPCReportExtensionActivator;
 
-			$website = apply_filters( 'mainwp-getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $site_id );
+			$website = apply_filters( 'mainwp_getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $site_id );
 			if ( $website && is_array( $website ) ) {
 				$website = current( $website );
 			}
@@ -5168,7 +5165,7 @@ class MainWP_CReport {
 		global $mainWPCReportExtensionActivator;
 
 		$what		 = $_POST['what'];
-		$websites	 = apply_filters( 'mainwp-getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), null );
+		$websites	 = apply_filters( 'mainwp_getsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), null );
 		$sites_ids	 = array();
 		if ( is_array( $websites ) ) {
 			foreach ( $websites as $website ) {
@@ -5180,7 +5177,7 @@ class MainWP_CReport {
 			'plugin_upgrades'	 => true,
 			'plugins'			 => true,
 		);
-		$dbwebsites			 = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sites_ids, array(), $option );
+		$dbwebsites			 = apply_filters( 'mainwp_getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sites_ids, array(), $option );
 		$dbwebsites_reports	 = self::get_sites_with_reports( $dbwebsites );
 
 		unset( $dbwebsites );
@@ -5275,7 +5272,7 @@ class MainWP_CReport {
 				if ( !is_array( $sel_groups ) ) {
 					$sel_groups = array();
 				}
-				$dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sel_sites, $sel_groups );
+				$dbwebsites = apply_filters( 'mainwp_getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sel_sites, $sel_groups );
 				if ( is_array( $dbwebsites ) ) {
 					foreach ( $dbwebsites as $site ) {
 						$websites[] = MainWP_CReport_Utility::map_site( $site, array('id', 'name', 'url') );
@@ -5350,7 +5347,7 @@ class MainWP_CReport {
         /** @global object $mainWPCReportExtensionActivator MainWP Client Reports Extension Activator instance. */
 		global $mainWPCReportExtensionActivator;
 
-		$dbwebsites	 = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array($site_id), array() );
+		$dbwebsites	 = apply_filters( 'mainwp_getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array($site_id), array() );
 		$site		 = array();
 		if ( is_array( $dbwebsites ) ) {
 			$site			 = current( $dbwebsites );

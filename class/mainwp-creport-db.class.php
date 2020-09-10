@@ -1143,7 +1143,7 @@ We hope that this report was useful and we look forward to managing your website
                         /** @global object $mainWPCReportExtensionActivator MainWP CReport Extension Activator instance. */
 						global $mainWPCReportExtensionActivator;
             
-						$dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array(), $groups );
+						$dbwebsites = apply_filters( 'mainwp_getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array(), $groups );
 
 						foreach ( $dbwebsites as $pSite ) {
 							if ( $pSite->id == $value ) {
@@ -1233,7 +1233,7 @@ We hope that this report was useful and we look forward to managing your website
 						}
 
 						global $mainWPCReportExtensionActivator;
-						$dbwebsites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array(), $groups );
+						$dbwebsites = apply_filters( 'mainwp_getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array(), $groups );
 
 						foreach ( $dbwebsites as $pSite ) {
 							if ( $pSite->id == $site_id ) {
