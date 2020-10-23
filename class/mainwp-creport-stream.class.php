@@ -131,19 +131,27 @@ class MainWP_CReport_Stream {
 			</table>
 		</div>
 		<script type="text/javascript">
-		jQuery( '#mainwp-client-reports-sites-table' ).DataTable( {
-			"stateSave": true,
-			"stateDuration": 0, // forever
-			"scrollX": true,
-			"colReorder" : true,
-			"columnDefs": [ { "orderable": false, "targets": "no-sort" } ],
-			"order": [ [ 1, "asc" ] ],
-			"language": { "emptyTable": "No websites were found with the MainWP Child Reports plugin installed." },
-			"drawCallback": function( settings ) {
-				jQuery('#mainwp-client-reports-sites-table .ui.checkbox').checkbox();
-				jQuery( '#mainwp-client-reports-sites-table .ui.dropdown').dropdown();
-			},
-		} );
+			jQuery( document ).ready( function () {
+				jQuery( '#mainwp-client-reports-sites-table' ).DataTable( {
+					"stateSave": true,
+					"stateDuration": 0, // forever
+					"scrollX": true,
+					"colReorder" : true,
+					"columnDefs": [ { "orderable": false, "targets": "no-sort" } ],
+					"order": [ [ 1, "asc" ] ],
+					"language": { "emptyTable": "No websites were found with the MainWP Child Reports plugin installed." },
+					"drawCallback": function( settings ) {
+						jQuery('#mainwp-client-reports-sites-table .ui.checkbox').checkbox();
+						jQuery( '#mainwp-client-reports-sites-table .ui.dropdown').dropdown();
+						if ( typeof mainwp_datatable_fix_menu_overflow != 'undefined' ) {
+							mainwp_datatable_fix_menu_overflow();
+						}
+					},
+				} );
+			});
+			if ( typeof mainwp_datatable_fix_menu_overflow != 'undefined' ) {
+				mainwp_datatable_fix_menu_overflow();
+			}
 		</script>
 		<?php
 	}
@@ -304,7 +312,7 @@ class MainWP_CReport_Stream {
 				 */
 				global $mainWPCReportExtensionActivator;
 
-				$group_websites = apply_filters( 'mainwp-getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array(), array( $selected_group ) );
+				$group_websites = apply_filters( 'mainwp_getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array(), array( $selected_group ) );
 				$sites          = array();
 				foreach ( $group_websites as $site ) {
 					$sites[] = $site->id;
@@ -443,12 +451,14 @@ class MainWP_CReport_Stream {
 		$showhide = isset( $_POST['showhide'] ) ? $_POST['showhide'] : null;
 		if ( null !== $siteid && null !== $showhide ) {
 
+
 			/**
 			 * MainWP Client Reports Extension Activator instance.
 			 *
 			 * @global object $mainWPCReportExtensionActivator
 			 */
 			global $mainWPCReportExtensionActivator;
+
 			$post_data   = array(
 				'mwp_action' => 'set_showhide',
 				'showhide'   => $showhide,
