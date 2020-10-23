@@ -278,6 +278,8 @@ PRIMARY KEY  (`id`)  ';
 	* Create a public static instance of MainWP_CReport_DB.
 	*
 	* @return MainWP_CReport_DB|null
+	*
+	* @uses MainWP_CReport_DB()
 	*/
 	static function get_instance() {
 		if ( null == self::$instance ) {
@@ -532,6 +534,8 @@ We hope that this report was useful and we look forward to managing your website
      * @param int $id Client Report ID.
      * @param string $token Client report token.
      * @return false|null Return FALSE on failure.
+     *
+     * @uses MainWP_CReport_Utility::ctype_digit()
      */
     public function update_token( $id, $token ) {
 
