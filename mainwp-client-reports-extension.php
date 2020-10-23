@@ -58,6 +58,8 @@ class MainWP_CReport_Extension {
    * Create a public static instance.
    *
    * @return mixed Class instance.
+   *
+   * @uses MainWP_CReport_Extension()
    */
 	static function get_instance() {
 		if ( null == self::$instance ) {
@@ -68,6 +70,13 @@ class MainWP_CReport_Extension {
 
     /**
      * MainWP_CReport_Extension constructor.
+     *
+     * Run each time the class is called.
+     *
+     * @uses MainWP_CReport::hook_generate_report()
+     * @uses MainWP_CReport::hook_get_site_tokens()
+     * @uses MainWP_CReport::hook_generate_content()
+     * @uses MainWP_CReport_DB::install()
      */
     public function __construct() {
 
@@ -84,15 +93,15 @@ class MainWP_CReport_Extension {
 		add_action( 'mainwp_site_synced', array( &$this, 'site_synced' ), 10, 2 );
 		add_action( 'mainwp_delete_site', array( &$this, 'on_delete_site' ), 10, 1 );
 
-    // to fix action for wp cli.
+        // to fix action for wp cli.
 		add_action( 'mainwp_sucuri_scan_done', array( &$this, 'sucuri_scan_done' ), 10, 3 );
 
-    /**
-     * This hook allows you to generate report content via the 'mainwp_client_report_generate' filter.
-     *
-     * @see \MainWP_CReport::hook_generate_report();
-     */
-    add_filter( 'mainwp_client_report_generate', array( 'MainWP_CReport', 'hook_generate_report' ), 10, 5 );
+        /**
+         * This hook allows you to generate report content via the 'mainwp_client_report_generate' filter.
+         *
+         * @see \MainWP_CReport::hook_generate_report();
+         */
+        add_filter( 'mainwp_client_report_generate', array( 'MainWP_CReport', 'hook_generate_report' ), 10, 5 );
 
 		add_filter( 'mainwp_client_report_get_site_tokens', array( 'MainWP_CReport', 'hook_get_site_tokens' ), 10, 2 );
 		add_filter( 'mainwp_client_report_generate_content', array( 'MainWP_CReport', 'hook_generate_content' ), 10, 5 );
@@ -117,6 +126,8 @@ class MainWP_CReport_Extension {
 
     /**
      * Initiate MainWP Client reports instance.
+     *
+     * @uses MainWP_CReport()
      */
     public function init() {
 
@@ -169,6 +180,9 @@ class MainWP_CReport_Extension {
    *
    * @param array $website Child site data.
    * @param array $information Information data.
+   *
+   * @uses MainWP_CReport_Stream::get_option()
+   * @uses MainWP_CReport_Stream::set_option()
    */
 	public function site_synced( $website, $information = array() ) {
 		$website_id = $website->id;
@@ -189,6 +203,8 @@ class MainWP_CReport_Extension {
    * On delete site.
    *
    * @param array $website Child site array.
+   *
+   * @uses MainWP_CReport_DB::delete_group_report_content()
    */
 	public function on_delete_site( $website ) {
 		if ( $website ) {
@@ -240,6 +256,10 @@ class MainWP_CReport_Extension {
 
   /**
    * Initiate Admin page.
+   *
+   * @uses MainWP_CReport::init()
+   * @uses MainWP_CReport()
+   * @uses MainWP_CReport_Stream()
    */
 	public function admin_init() {
 
@@ -358,6 +378,8 @@ class MainWP_CReport_Extension_Activator {
 
     /**
      * MainWP_CReport_Extension_Activator constructor.
+     *
+     * Run each time the class is called.
      */
     public function __construct() {
 
@@ -398,6 +420,8 @@ class MainWP_CReport_Extension_Activator {
 
     /**
      * Load cron actions.
+     *
+     * @uses MainWP_CReport::managesite_schedule_backup()
      */
     function load_cron_actions() {
 		add_action( 'mainwp_managesite_schedule_backup', array( 'MainWP_CReport', 'managesite_schedule_backup' ), 10, 3 );
@@ -424,6 +448,8 @@ class MainWP_CReport_Extension_Activator {
 
     /**
      * MainWP Client Report settings.
+     *
+     * @uses MainWP_CReport::render()
      */
     function settings() {
 		do_action( 'mainwp_pageheader_extensions', __FILE__ );
@@ -433,6 +459,9 @@ class MainWP_CReport_Extension_Activator {
 
     /**
      * Activate MainWP Client Reports Plugin.
+     *
+     * @uses MainWP_CReport::renderClientReportsSiteTokens()
+     * @uses MainWP_CReport_Extension()
      */
     function activate_this_plugin() {
 

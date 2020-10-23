@@ -65,6 +65,8 @@ class MainWP_CReport {
 
     /**
      * MainWP_CReport constructor.
+     *
+     * Run each time the class is called.
      */
     public function __construct() {
 
@@ -981,6 +983,9 @@ class MainWP_CReport {
 
   /**
    * Initiate reports cron.
+   *
+   * @uses MainWP_CReport::cron_send_reports()
+   * @uses MainWP_CReport::cron_continue_send_reports()
    */
 	public function init_cron() {
 		add_action( 'mainwp_creport_cron_send_reports', array('MainWP_CReport', 'cron_send_reports') );
@@ -1010,6 +1015,10 @@ class MainWP_CReport {
 
     /**
      * Send reports cron.
+     *
+     * @uses MainWP_CReport_DB::get_scheduled_reports_to_send()
+     * @uses MainWP_CReport_DB::update_reports_with_values()
+     * @uses MainWP_CReport_DB::update_reports_send()
      */
     public static function cron_send_reports() {
 
@@ -1094,6 +1103,12 @@ class MainWP_CReport {
 
     /**
      * Continue sending reports cron.
+     *
+     * @uses MainWP_CReport_DB::get_scheduled_reports_to_continue_send()
+     * @uses MainWP_CReport_DB::get_completed_sites()
+     * @uses MainWP_CReport_DB::update_reports_with_values()
+     * @uses MainWP_CReport_DB::updateWebsiteOption()
+     * @uses MainWP_CReport_Utility::map_site()
      */
     public static function cron_continue_send_reports() {
 
@@ -1257,6 +1272,9 @@ class MainWP_CReport {
      * @param array $website Child Site array. Default: null.
      *
      * @return bool Return response. TRUE|FALSE.
+     *
+     * @uses MainWP_CReport_DB::update_reports_with_values()
+     * @uses MainWP_CReport_DB::updateWebsiteOption()
      */
     function send_onetime_report_email( $data, $report, $send_test = false, $website = null ) {
 
@@ -1292,6 +1310,9 @@ class MainWP_CReport {
      * @param array $pCompletedSites Completed sites array.
      * @param string $total_sites Total sites count.
      * @param bool $forced_log Whether to force a log. Default: false.
+     *
+     * @uses MainWP_CReport_DB::update_reports_completed_sites()
+     * @uses MainWP_CReport_DB::update_reports_completed()
      */
     public static function update_completed_websites( $report, $pCompletedSites, $all_siteids, $forced_log = false ) {
 		$total_sites = count( $all_siteids );
@@ -1437,6 +1458,8 @@ class MainWP_CReport {
 	 * @param string $type Report type.
      *
 	 * @return string Content of generated report. False when something goes wrong.
+     *
+     * @uses MainWP_CReport_DB::get_report_by()
 	 */
 	public static function hook_generate_report(
 	        $report_id,
@@ -1490,7 +1513,7 @@ class MainWP_CReport {
 	 * @param string|0 $to_date String of to date, date format 'Y-m-d H:i:s'
 	 * @param string   $type String of type.
 	 *
-	 * @return html content of generated content. False when something goes wrong.
+	 * @return string content of generated content. False when something goes wrong.
 	 */
 	public static function hook_generate_content( $templ_content, $site_id, $from_date = 0, $to_date = 0, $type = '' ) {
 
@@ -1553,6 +1576,9 @@ class MainWP_CReport {
 	 *
 	 * @return array Site's tokens.
 	 *
+     * @uses MainWP_CReport_DB::get_site_tokens_by_site()
+     * @uses MainWP_CReport_Utility::format_timestamp()
+     * @uses MainWP_CReport_Utility::get_timestamp()
 	 */
 	public static function get_tokens_of_site( $report, $site_id ) {
 
@@ -1589,11 +1615,15 @@ class MainWP_CReport {
 	}
 
 	/**
-   * Save report.
-   *
-   * @return array|null Return report array or NULL on error.
-   * @throws Exception Error message.
-   */
+    * Save report.
+    *
+    * @return array|null Return report array or NULL on error.
+    * @throws Exception Error message.
+    *
+	* @uses MainWP_CReport_DB::get_report_by()
+	* @uses MainWP_CReport_DB::update_report()
+    * @uses MainWP_CReport_DB::delete_group_report_content()
+	*/
    public static function save_report() {
 		if ( isset( $_REQUEST['action'] ) && 'editreport' == $_REQUEST['action'] && isset( $_REQUEST['nonce'] ) && wp_verify_nonce( $_REQUEST['nonce'], 'mwp_creport_nonce' ) ) {
 			$messages				 = $errors					 = array();
@@ -1897,7 +1927,7 @@ class MainWP_CReport {
 			return $return;
 		}
 		return null;
-	}
+   }
 
     /**
      * Delete file attachments.
@@ -1968,6 +1998,13 @@ class MainWP_CReport {
      * @param array $site Child site array. Default: null.
      *
      * @return false
+     *
+     * @uses MainWP_CReport::update_group_report_site()
+     * @uses MainWP_CReport_DB::get_tokens_by()
+     * @uses MainWP_CReport_DB::get_site_tokens_by_site()
+     * @uses MainWP_CReport_DB::get_group_report_content()
+     * @uses MainWP_CReport_Utility::format_timestamp()
+     * @uses MainWP_CReport_Utility::get_timestamp()
      */
     public static function prepare_content_report_email( $report, $send_test = false, $site = null ) {
 
@@ -2281,6 +2318,15 @@ class MainWP_CReport {
      *  download_pdf_group.
      *
      * @throws Exception
+     *
+     * @uses MainWP_CReport::un_archive_report()
+     * @uses MainWP_CReport::gen_content_pdf()
+     * @uses MainWP_CReport_DB::get_report_by()
+     * @uses MainWP_CReport_DB::getOptionOfWebsites()
+     * @uses MainWP_CReport_Stream::get_websites_stream()
+     * @uses MainWP_CReport_Stream::gen_actions_rows()
+     * @uses MainWP_CReport_Stream::gen_dashboard_tab()
+     * @uses MainWP_CReport_Utility::map_site()
      */
     public static function render() {
 		$messages					 = $errors						 = $reporttab_messages			 = array();
@@ -2690,6 +2736,9 @@ class MainWP_CReport {
      * @param array $report Report array.
      *
      * @return bool Return TRUE|FALSE.
+     *
+     * @uses MainWP_CReport_DB::get_report_by()
+     * @uses MainWP_CReport_DB::update_report()
      */
     public static function un_archive_report( $report ) {
 		if ( !empty( $report ) && !is_object( $report ) ) {
@@ -2728,6 +2777,8 @@ class MainWP_CReport {
      * @param array $report Report array.
      *
      * @return false|string Return report or FALSE on failure.
+     *
+     * @uses MainWP_CReport_DB::get_group_report_content()
      */
     public static function gen_preview_report($report ) {
 		self::set_init_params();
@@ -2782,6 +2833,8 @@ class MainWP_CReport {
      * @param array $report Report array.
      *
      * @return string Return PDF content.
+     *
+     * @uses MainWP_CReport_DB::get_group_report_content()
      */
     public static function gen_content_pdf( $report ) {
 
@@ -2882,6 +2935,14 @@ class MainWP_CReport {
      * @param string $type Type of report.
      *
      * @return array|mixed|stdClass Return filtered report array.
+     *
+     * @uses MainWP_CReport::section_mark_body()
+     * @uses MainWP_CReport::section_mark_header()
+     * @uses MainWP_CReport::section_mark_footer()
+     * @uses MainWP_CReport_DB::get_tokens()
+     * @uses MainWP_CReport_DB::get_site_tokens_by_site()
+     * @uses MainWP_CReport_Utility::format_date()
+     * @uses MainWP_CReport_Utility::format_timestamp()
      */
     public static function filter_report_website(
             $report,
@@ -3205,6 +3266,8 @@ class MainWP_CReport {
 
     /**
      * Ajax delete client.
+     *
+     * @uses MainWP_CReport_DB::delete_client()
      */
     function ajax_delete_client() {
 		self::verify_nonce();
@@ -3385,6 +3448,8 @@ class MainWP_CReport {
      * @param bool $chart Default: false.
      *
      * @return false|mixed|string[] Return Google Analytics data or FALSE on failure.
+     *
+     * @uses MainWP_CReport_Utility::format_datestamp()
      */
     static function ga_data($site_id, $start_date, $end_date, $chart = false ) {
 
@@ -3820,6 +3885,10 @@ class MainWP_CReport {
      * @param bool $showAsTime Whether or not to convert to time. Default: false.
      *
      * @return float|string Return formatted value.
+     *
+     * @uses MainWP_CReport_Utility::format_date()
+     * @uses MainWP_CReport_Utility::format_timestamp()
+     * @uses MainWP_CReport_Utility::sec2hms()
      */
     private static function format_stats_values(
             $value,
@@ -3897,6 +3966,8 @@ class MainWP_CReport {
      *
      * @param array $websites Child Sites array.
      * @param int $type Report type.
+     *
+     * @uses MainWP_CReport_DB::get_report_by()
      */
     public static function report_tab( $websites, $type = 0 ) {
 
@@ -3962,6 +4033,10 @@ class MainWP_CReport {
      * Reports table content.
      *
      * @param array $reports Available reports data array.
+     *
+     * @uses MainWP_CReport_Utility::format_timestamp()
+     * @uses MainWP_CReport_Utility::format_datestamp()
+     * @uses MainWP_CReport_Utility::get_timestamp()
      */
     public static function report_table_content($reports ) {
 
@@ -4385,6 +4460,8 @@ class MainWP_CReport {
      * New report email settings table content.
      *
      * @param array $report Report array. Default: null.
+     *
+     * @uses MainWP_CReport_DB::get_client_by()
      */
     public static function new_report_email_setting_table_content( $report = null ) {
 		$from_name		 = $from_company	 = $from_email		 = '';
@@ -4495,6 +4572,9 @@ class MainWP_CReport {
      * New report format table content.
      *
      * @param array $report Report array. Default: null.
+     *
+     * @uses MainWP_CReport_DB::get_tokens()
+     * @uses MainWP_CReport_DB::get_formats()
      */
     public static function new_report_format_table_content($report = null ) {
 		$header		 = $body		 = $footer		 = $file_logo	 = '';
@@ -4856,6 +4936,9 @@ class MainWP_CReport {
 
     /**
      * Render Client Reports site tokens.
+     *
+     * @uses MainWP_CReport_DB::get_tokens()
+     * @uses MainWP_CReport_DB::get_site_tokens_by_site()
      */
     public static function renderClientReportsSiteTokens() {
 
@@ -4921,6 +5004,10 @@ class MainWP_CReport {
      * Update site tokens.
      *
      * @param int $websiteId Child Site ID.
+     *
+     * @uses MainWP_CReport_DB::get_tokens()
+     * @uses MainWP_CReport_DB::get_tokens_by()
+     * @uses MainWP_CReport_DB::update_token_site()
      */
     public function update_site_update_tokens( $websiteId ) {
 
@@ -4957,6 +5044,8 @@ class MainWP_CReport {
      * Delete site tokens.
      *
      * @param int $website Child Site ID.
+     *
+     * @uses MainWP_CReport_DB::delete_site_tokens()
      */
     public function delete_site_delete_tokens( $website ) {
 		if ( $website ) {
@@ -4966,6 +5055,8 @@ class MainWP_CReport {
 
     /**
      * Load tokens table.
+     *
+     * @uses MainWP_CReport_DB::get_tokens()
      */
     public static function load_tokens() {
 		$tokens = MainWP_CReport_DB::get_instance()->get_tokens();
@@ -5071,7 +5162,10 @@ class MainWP_CReport {
 	}
 
     /**
-     * Load site tokens
+     * Load site tokens.
+     *
+     * @uses MainWP_CReport_DB::get_tokens()
+     * @uses MainWP_CReport_DB::get_site_tokens_by_site()
      */
     public function load_site_tokens() {
 		self::verify_nonce();
@@ -5122,6 +5216,8 @@ class MainWP_CReport {
 
     /**
      * Get report format.
+     *
+     * @uses MainWP_CReport_DB::get_format_by()
      */
     public function get_format() {
 		self::verify_nonce();
@@ -5141,6 +5237,8 @@ class MainWP_CReport {
 
     /**
      * Save report format.
+     *
+     * @uses MainWP_CReport_DB::update_format()
      */
     public function save_format() {
 		self::verify_nonce();
@@ -5161,6 +5259,8 @@ class MainWP_CReport {
 
     /**
      * Delete report format.
+     *
+     * @uses MainWP_CReport_DB::delete_format_by()
      */
     public function delete_format() {
 		self::verify_nonce();
@@ -5181,6 +5281,8 @@ class MainWP_CReport {
      * @param array $websites Child Sites array.
      *
      * @return array Return Child Sites array.
+     *
+     * @uses MainWP_CReport_Utility::map_site()
      */
     public function get_sites_with_reports($websites ) {
 		$sites = array();
@@ -5310,6 +5412,9 @@ class MainWP_CReport {
 
     /**
      * Ajax load sites for groups report.
+     *
+     * @uses MainWP_CReport_DB::get_report_by()
+     * @uses MainWP_CReport_Utility::map_site()
      */
     public static function ajax_load_sites_for_group_report() {
 		self::verify_nonce();
@@ -5384,6 +5489,9 @@ class MainWP_CReport {
 
     /**
      * Ajax generate report.
+     *
+     * @uses MainWP_CReport_DB::get_report_by()
+     * @uses MainWP_CReport_Utility::map_site()
      */
     public function ajax_generate_report() {
 		self::verify_nonce();
@@ -5455,16 +5563,18 @@ class MainWP_CReport {
 		die( json_encode( array('error' => 'Site could not be found') ) );
 	}
 
-    /**
-     * Update group report title.
+	/**
+	 * Update group report title.
+	 *
+	 * @param array $report         Report array.
+	 * @param array $site           Child site array.
+	 * @param int   $cust_from_date Custom from date.
+	 * @param int   $cust_to_date   Custom to date.
+	 *
+	 * @return bool Return TRUEon successful update & FALSE on failure.
      *
-     * @param array $report Report array.
-     * @param array $site Child site array.
-     * @param string $cust_from_date Custom from date.
-     * @param string $cust_to_date Custom to date.
-     *
-     * @return bool Return TRUEon succesful update & FALSE on failure.
-     */
+     * @uses MainWP_CReport_DB::update_group_report_content()
+	 */
     public static function update_group_report_site(
             $report,
             $site,
@@ -5513,6 +5623,8 @@ class MainWP_CReport {
 
     /**
      * Delete token.
+     *
+     * @uses MainWP_CReport_DB::delete_token_by()
      */
     public function delete_token() {
 		self::verify_nonce();
@@ -5527,6 +5639,10 @@ class MainWP_CReport {
 
     /**
      * Save token.
+     *
+     * @uses MainWP_CReport_DB::get_tokens_by()
+     * @uses MainWP_CReport_DB::update_token()
+     * @uses MainWP_CReport_DB::add_token()
      */
     public function save_token() {
 
@@ -5566,6 +5682,10 @@ class MainWP_CReport {
 
     /**
      * Ajax do action report.
+     *
+     * @uses MainWP_CReport::un_archive_report()
+     * @uses MainWP_CReport_DB::delete_report_by()
+     * @uses MainWP_CReport_DB::update_report()
      */
     public function ajax_do_action_report() {
 		self::verify_nonce();

@@ -6,7 +6,14 @@
 /**
  * MainWP Client Reports print admin footer scripts.
  *
- * @uses MainWP_CReport_DB::get_instance::get_tokens()
+ * @uses MainWP_CReport::$enabled_ga
+ * @uses MainWP_CReport::$enabled_piwik
+ * @uses MainWP_CReport::$enabled_aum
+ * @uses MainWP_CReport::$enabled_woocomstatus
+ * @uses MainWP_CReport::$enabled_wordfence
+ * @uses MainWP_CReport::$enabled_maintenance
+ * @uses MainWP_CReport::$enabled_pagespeed
+ * @uses MainWP_CReport_DB::get_tokens()
  */
 function mainwp_creport_admin_print_footer_scripts() {
     $client_tokens = MainWP_CReport_DB::get_instance()->get_tokens();

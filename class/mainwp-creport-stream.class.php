@@ -31,6 +31,8 @@ class MainWP_CReport_Stream {
      * Create a public static instance.
      *
      * @return mixed Class instance.
+     *
+     * @uses MainWP_CReport_Stream()
      */
     static function get_instance() {
 		if ( null == self::$instance ) {
@@ -41,6 +43,8 @@ class MainWP_CReport_Stream {
 
     /**
      * MainWP_CReport_Stream constructor.
+     *
+     * Run each time the class is called.
      */
     public function __construct() {
 		$this->option = get_option( $this->option_handle );
@@ -60,6 +64,7 @@ class MainWP_CReport_Stream {
      *
      * @param null|string $key Option key.
      * @param string $default Holds the default option.
+     *
      * @return mixed|string Return default option.
      */
     public function get_option($key = null, $default = '' ) {
@@ -155,6 +160,8 @@ class MainWP_CReport_Stream {
    * Render dashboard table rows.
    *
    * @param array $websites Child Sites array.
+   *
+   * @uses MainWP_CReport_Utility::get_timestamp()
    */
 	public static function gen_dashboard_table_rows( $websites ) {
 		$location    = 'options-general.php?page=mainwp-reports-page';
@@ -225,7 +232,10 @@ class MainWP_CReport_Stream {
      * @param array $websites Child Sites array.
      * @param int $selected_group Selected sites group.
      * @param array $lastReportsSites Last reported sites array.
+     *
      * @return array Child Sites Stream.
+     *
+     * @uses MainWP_CReport_Utility::map_site()
      */
     public function get_websites_stream( $websites, $selected_group = 0, $lastReportsSites = array() ) {
 		$websites_stream = array();
@@ -295,7 +305,11 @@ class MainWP_CReport_Stream {
 				}
 			} else {
 
-			    /** @global object $mainWPCReportExtensionActivator MainWP Client Reports Extension Activator instance. */
+				/**
+				 * MainWP Client Reports Extension Activator instance.
+                 *
+				 * @global object $mainWPCReportExtensionActivator
+				 */
 				global $mainWPCReportExtensionActivator;
 
 				$group_websites = apply_filters( 'mainwp_getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array(), array( $selected_group ) );
@@ -406,6 +420,8 @@ class MainWP_CReport_Stream {
 
   /**
    * Ajax activate plugin.
+   *
+   * @uses MainWP_CReport::verify_nonce()
    */
 	public function ajax_active_plugin() {
 		MainWP_CReport::verify_nonce();
@@ -415,6 +431,8 @@ class MainWP_CReport_Stream {
 
   /**
    * Ajax upgrade plugin.
+   *
+   * @uses MainWP_CReport::verify_nonce()
    */
 	public function ajax_upgrade_plugin() {
 		MainWP_CReport::verify_nonce();
@@ -424,6 +442,8 @@ class MainWP_CReport_Stream {
 
   /**
    * Ajax show|hide stream.
+   *
+   * @uses MainWP_CReport::verify_nonce()
    */
 	public function ajax_showhide_stream() {
 		MainWP_CReport::verify_nonce();
@@ -431,7 +451,12 @@ class MainWP_CReport_Stream {
 		$showhide = isset( $_POST['showhide'] ) ? $_POST['showhide'] : null;
 		if ( null !== $siteid && null !== $showhide ) {
 
-			/** @global object $mainWPCReportExtensionActivator MainWP Client Reports Extension Activator instance. */
+
+			/**
+			 * MainWP Client Reports Extension Activator instance.
+			 *
+			 * @global object $mainWPCReportExtensionActivator
+			 */
 			global $mainWPCReportExtensionActivator;
 
 			$post_data   = array(
