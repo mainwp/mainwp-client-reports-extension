@@ -555,14 +555,14 @@ We hope that this report was useful and we look forward to managing your website
 	}
 
 	/**
-	* Get client report token by 'token_name' or 'id'.
-	*
-	* @param string $by Get by 'token_name' or 'id'.
-	* @param string $value Holds token value. Default: null.
-	* @param string $site_url Child Site URL.
-	*
-	* @return string|null return Client report token or NULL on failure.
-	*/
+	 * Get client report token by 'token_name' or 'id'.
+	 *
+	 * @param string $by    Get by 'token_name' or 'id'.
+	 * @param string $value Holds token value. Default: null.
+	 * @param bool   $site_id
+	 *
+	 * @return string|null return Client report token or NULL on failure.
+	 */
 	public function get_tokens_by( $by = 'id', $value = null, $site_id = false ) {
 
         /** @global object $wpdb WordPress Database instance. */
@@ -644,13 +644,12 @@ We hope that this report was useful and we look forward to managing your website
 	}
 
 	/**
-	* Get Child Site tokens.
-	*
-	* @param string $site_url Child Sit URL.
-	* @param string $index DB index.
-	*
-	* @return array|false Return query results or FALSE on failure.
-	*/
+	 * Get Child Site tokens.
+	 *
+	 * @param $website
+	 *
+	 * @return array|false Return query results or FALSE on failure.
+	 */
 	public function get_site_tokens_by_site( $website ) {
     
         /** @global object $wpdb WordPress Database instance. */
@@ -711,7 +710,7 @@ We hope that this report was useful and we look forward to managing your website
 	 * @param string $token_name Default token name.
 	 * @param string $site_url Child Site URL.
 	 *
-	 * @return false|string Return defult token or FALSE on failure.
+	 * @return false|string Return default token or FALSE on failure.
 	 */
     public function _get_default_token_site($token_name, $site_url ) {
 		$website = apply_filters( 'mainwp_getwebsitesbyurl', $site_url );
@@ -741,14 +740,14 @@ We hope that this report was useful and we look forward to managing your website
 	}
 
 	/**
-	* Add site token.
-	*
-	* @param $token_id Token ID.
-	* @param $token_value Token value.
-	* @param $site_url Child Site URL.
-	*
-	* @return false|null Return FALSE on failure.
-	*/
+	 * Add site token.
+	 *
+	 * @param $token_id    Token ID.
+	 * @param $token_value Token value.
+	 * @param $site_id
+	 *
+	 * @return false|null Return FALSE on failure.
+	 */
 	public function add_token_site( $token_id, $token_value, $site_id ) {
     
 		/** @global object $wpdb WordPress Database instance. */
@@ -769,14 +768,14 @@ We hope that this report was useful and we look forward to managing your website
 	}
 
 	/**
-	* Update site token.
-	*
-	* @param int $token_id Token ID.
-	* @param string $token_value Token value.
-	* @param string $site_url Child Site URL.
-	*
-	* @return false|null Return FALSE on failure.
-	*/
+	 * Update site token.
+	 *
+	 * @param int    $token_id    Token ID.
+	 * @param string $token_value Token value.
+	 * @param string $site_id     Site ID.
+	 *
+	 * @return false|null Return FALSE on failure.
+	 */
 	public function update_token_site( $token_id, $token_value, $site_id ) {
     
 		/** @global object $wpdb WordPress Database instance. */
@@ -797,12 +796,13 @@ We hope that this report was useful and we look forward to managing your website
 	}
 
 	/**
-	* Delete site tokens.
-	*
-	* @param int $token_id Token ID.
-	* @param int $site_url Child Site URL.
-	* @return false Return FALSE on failure.
-	*/
+	 * Delete site tokens.
+	 *
+	 * @param int  $token_id Token ID.
+	 * @param null $site_id
+	 *
+	 * @return false Return FALSE on failure.
+	 */
 	public function delete_site_tokens( $token_id = null, $site_id = null ) {
 
         /** @global object $wpdb WordPress Database instance. */
@@ -971,7 +971,7 @@ We hope that this report was useful and we look forward to managing your website
 	}
 
 	/**
-	* Udate group report content.
+	* Update group report content.
 	*
 	* @param array $report Report array.
 	*
@@ -1317,8 +1317,8 @@ We hope that this report was useful and we look forward to managing your website
 	/**
 	 * Get Website value.
 	 *
-	 * @param array $website Child Site array.
-	 * @param $option Wbsit option.
+	 * @param array   $website Child Site array.
+	 * @param stringn $option Website option.
 	 *
 	 * @return mixed Return website value.
 	 */
@@ -1345,11 +1345,11 @@ We hope that this report was useful and we look forward to managing your website
 		}
 		return $this->wpdb->get_results( 'SELECT wpid, value FROM ' . $this->table_name( 'wp_options' ) . ' WHERE wpid IN (' . implode( ',', $websiteIds ) . ') AND name = "' . $this->escape( $option ) . '"' );
 	}
+
 	/**
 	 * Get Child Site wp_options.
 	 *
-	 * @param array $websiteIds Child site IDs.
-	 * @param string $option Option to get.
+	 * @param $timestamp_offset
 	 *
 	 * @return array Return array of options.
 	 */
