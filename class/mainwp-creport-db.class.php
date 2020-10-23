@@ -7,7 +7,7 @@
 class MainWP_CReport_DB {
 
 	/** @var string MainWP Client Reports DB version. */
-	private $mainwp_wpcreport_db_version = '6.2';
+	private $mainwp_wpcreport_db_version = '6.4';
   
 	/** @var string Database table prefix. */
 	private $table_prefix;
@@ -141,6 +141,7 @@ PRIMARY KEY  (`id`)  ';
 `schedule_lastsend` int(11) NOT NULL,
 `completed` int(11) NOT NULL,
 `completed_sites` text NOT NULL,
+`retry_counter` tinyint(1) DEFAULT 0,
 `sending_errors` text NOT NULL,
 `is_archived` tinyint(1) NOT NULL DEFAULT 0,
 `sites` text NOT NULL,
@@ -665,7 +666,7 @@ We hope that this report was useful and we look forward to managing your website
 		$qry = ' SELECT st.*, t.token_name FROM ' .
 					$this->table_name( 'client_report_site_token' ) . ' st , ' .
 					$this->table_name( 'client_report_token' ) . ' t ' . " 
-					WHERE ( st.site_url = '" . $site_url . "' OR st.site_id = '" . $site_id . "' )  
+					WHERE ( st.site_url = '" . $site_url . "' OR st.site_id = " . $site_id . " )  
 					AND st.token_id = t.id "; // st.site_url for compatible data.
 
 		$site_tokens = $wpdb->get_results( $qry );
@@ -1357,11 +1358,9 @@ We hope that this report was useful and we look forward to managing your website
 	/**
 	 * Get scheduled reports to continue to send.
 	 *
-	 * @param int $limit Interval limit.
-	 *
 	 * @return mixed Return query results.
 	 */
-	public function get_scheduled_reports_to_continue_send( $limit = 1 ) {
+	public function get_scheduled_reports_to_continue_send() {
 
         /** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
@@ -1370,9 +1369,15 @@ We hope that this report was useful and we look forward to managing your website
 				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
 				. ' ON rp.client_id = c.clientid '
 				. " WHERE rp.recurring_schedule != '' AND rp.scheduled = 1 "
-				. ' AND rp.completed < rp.schedule_lastsend LIMIT 0, ' . intval( $limit ); // do not send if completed > schedule_lastsend
-		// echo $sql;
-
+				. ' AND rp.completed < rp.schedule_lastsend ' // do not send if completed > schedule_lastsend.
+				. ' AND rp.retry_counter = ( ' 
+				. ' SELECT min( process.retry_counter ) FROM ' . $this->table_name( 'client_report' ) . ' process '
+				. " WHERE process.recurring_schedule != '' AND process.scheduled = 1 "
+				. ' AND process.completed < process.schedule_lastsend '
+				. ' ) '
+				. ' AND rp.retry_counter < 3 ' // try to send three time.
+				. ' LIMIT 1' ; 
+		
 		return $wpdb->get_results( $sql );
 	}
 
