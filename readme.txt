@@ -17,7 +17,7 @@ Author URI: https://mainwp.com
 
 == Changelog ==
 
-= 4.0.6 - 10-30-2020 =
+= 4.0.6 - 12-11-2020 =
 * Fixed: An issue with sending scheduled reports
 * Fixed: An issue with selecting a date range
 * Added: PHP Docs blocks
