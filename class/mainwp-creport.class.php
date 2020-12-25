@@ -2022,19 +2022,19 @@ class MainWP_CReport {
 				$send_to_email	 = $noti_email;
 				$subject		 = 'Send Test Email';
 			}
-		} else {
-			if ( !empty( $report->scheduled ) ) {
-				if ( $report->schedule_send_email == 'email_auto' ) {
-					$send_to_email = empty( $report->email ) ? $report->email : '';
-					if ( $report->schedule_bcc_me ) {
-						$bcc_email = $noti_email;
-					}
-				} else if ( $report->schedule_send_email == 'email_review' && !empty( $noti_email ) ) {
-					$send_to_email		 = $noti_email;
-					$subject			 = 'Review report';
-					$send_to_me_review	 = true;
+		} else if ( !empty( $report->scheduled ) ) {
+			if ( $report->schedule_send_email == 'email_auto' ) {
+				$send_to_email = ! empty( $report->email ) ? $report->email : '';
+				if ( $report->schedule_bcc_me ) {
+					$bcc_email = $noti_email;
 				}
+			} else if ( $report->schedule_send_email == 'email_review' && ! empty( $noti_email ) ) {
+				$send_to_email		 = $noti_email;
+				$subject			 = 'Review report';
+				$send_to_me_review	 = true;
 			}
+		}  else {
+			$send_to_email = $report->email;
 		}
 
 		if ( empty( $send_to_email ) ) {
@@ -4019,6 +4019,8 @@ class MainWP_CReport {
 		<script type="text/javascript">
 			jQuery( '#mainwp-client-reports-reports-table' ).DataTable( {
 				"columnDefs": [ { "orderable": false, "targets": "no-sort" } ],
+				"stateSave": true,
+				"stateDuration": 0, // forever
 				"order": [ [ 1, "asc" ] ],
 				"language": { "emptyTable": "No websites were found with the MainWP Child Reports plugin installed." },
 				"drawCallback": function ( settings ) {
@@ -5141,6 +5143,8 @@ class MainWP_CReport {
 			jQuery( '#mainwp-client-reports-tokens-table' ).DataTable( {
 				"columnDefs": [ { "orderable": false, "targets": "no-sort" } ],
 				"order": [ [ 0, "asc" ] ],
+				"stateSave": true,
+				"stateDuration": 0, // forever
 				"language": { "emptyTable": "No tokens found." },
 				"drawCallback": function ( settings ) {
 					jQuery( '#mainwp-client-reports-tokens-table .ui.dropdown' ).dropdown();
