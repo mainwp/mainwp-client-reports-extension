@@ -3222,7 +3222,6 @@ class MainWP_CReport {
 			$replaced_content	 = '';
 			if ( is_array( $loop ) ) {
 				foreach ( $loop as $replace ) {
-					//$replace = self::sucuri_replace_data($replace);
 					$replaced			 = self::replace_section_content( $sec_content, $search, $replace );
 					$replaced_content	 .= '<p style="margin: 2px 0px 2px 0px">' . $replaced . "</p>";
 					if ( self::$raw_sec_body == true ) {
@@ -3254,7 +3253,6 @@ class MainWP_CReport {
 			$replaced_content	 = '';
 			if ( is_array( $loop ) ) {
 				foreach ( $loop as $replace ) {
-					//$replace = self::sucuri_replace_data($replace);
 					$replaced			 = self::replace_section_content( $sec_content, $search, $replace );
 					$replaced_content	 .= '<p style="margin: 2px 0px 2px 0px">' . $replaced . "</p>";
 				}
@@ -4433,26 +4431,30 @@ class MainWP_CReport {
 		<script>
 			jQuery( document ).ready( function ( $ ) {
 				mainwp_creport_recurring_select_date_init();
-				$('#mainwp-client-reports-report-tab .ui.calendar').calendar({
-                        type: 'date',
-                        monthFirst: false,
-                        formatter: {
-                            date: function ( date ) {
-                                if (!date) return '';
-                                var day = date.getDate();
-                                var month = date.getMonth() + 1;
-                                var year = date.getFullYear();
+				if (mainwpParams.use_wp_datepicker == 1) {
+					jQuery( '#mainwp-client-reports-report-tab .ui.calendar input[type=text]' ).datepicker( { dateFormat: "yy-mm-dd" } );
+				} else {
+					$('#mainwp-client-reports-report-tab .ui.calendar').calendar({
+							type: 'date',
+							monthFirst: false,
+							formatter: {
+								date: function ( date ) {
+									if (!date) return '';
+									var day = date.getDate();
+									var month = date.getMonth() + 1;
+									var year = date.getFullYear();
 
-                                if (month < 10) {
-                                    month = '0' + month;
-                                }
-                                if (day < 10) {
-                                    day = '0' + day;
-                                }
-                                return year + '-' + month + '-' + day;
-                            }
-                        }
-                });
+									if (month < 10) {
+										month = '0' + month;
+									}
+									if (day < 10) {
+										day = '0' + day;
+									}
+									return year + '-' + month + '-' + day;
+								}
+							}
+					});
+				}
 			} );
 		</script>
 		<?php
