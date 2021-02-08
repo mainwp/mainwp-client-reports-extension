@@ -1388,14 +1388,9 @@ We hope that this report was useful and we look forward to managing your website
 				. ' ON rp.client_id = c.clientid '
 				. " WHERE rp.recurring_schedule != '' AND rp.scheduled = 1 "
 				. ' AND rp.completed < rp.schedule_lastsend ' // do not send if completed > schedule_lastsend.
-				. ' AND rp.retry_counter = ( ' 
-				. ' SELECT min( process.retry_counter ) FROM ' . $this->table_name( 'client_report' ) . ' process '
-				. " WHERE process.recurring_schedule != '' AND process.scheduled = 1 "
-				. ' AND process.completed < process.schedule_lastsend '
-				. ' ) '
 				. ' AND rp.retry_counter < 3 ' // try to send three time.
+				. ' ORDER BY rp.lastsend ASC ' 
 				. ' LIMIT 1' ; 
-		
 		return $wpdb->get_results( $sql );
 	}
 
