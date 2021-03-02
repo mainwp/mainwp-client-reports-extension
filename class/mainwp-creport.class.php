@@ -1764,6 +1764,19 @@ class MainWP_CReport {
 				$report['subject'] = trim( $_POST['mwp_creport_email_subject'] );
 			}
 
+			$reply_to_email = '';
+			if ( !empty( $_POST['mwp_creport_reply_to'] ) ) {
+				$reply_to_email = trim( $_POST['mwp_creport_reply_to'] );
+				if ( !preg_match( '/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/is', $reply_to_email ) ) {
+					$reply_to_email	 = '';
+					$errors[]	 = 'Incorrect Email Address in the Reply To filed.';
+				}
+			}
+			$report['reply_to'] = $reply_to_email;
+
+			if ( isset( $_POST['mwp_creport_reply_to_name'] ) ) {
+				$report['reply_to_name'] = trim( $_POST['mwp_creport_reply_to_name'] );
+			}
 
 			$report['recurring_schedule'] = '';
 			if ( isset( $_POST['mainwp_creport_recurring_schedule'] ) ) {
@@ -2123,6 +2136,15 @@ class MainWP_CReport {
 
 		if ( !empty( $report->bcc_email ) ) {
 			$header[] = 'Bcc: ' . $report->bcc_email;
+		}
+
+		$reply_to_name	 = '';
+		if ( !empty( $report->reply_to_name ) ) {
+			$reply_to_name = $report->reply_to_name . ' ';
+		}
+
+		if ( !empty( $report->reply_to ) ) {
+			$header[] = 'Reply-To: ' . $reply_to_name . '<' . $report->reply_to . '>';
 		}
 
 		$files		 = $report->attach_files;
@@ -4478,6 +4500,8 @@ class MainWP_CReport {
 		$to_email		 = '[client.email]';
 		$email_subject	 = 'Report for [client.site.name]';
 		$bcc_email		 = '';
+		$reply_to_email = '';
+		$reply_to_name = '';
 
 		$client_id	 = 0;
 		$attachFiles = '';
@@ -4495,6 +4519,8 @@ class MainWP_CReport {
 			$bcc_email		 = $report->bcc_email;
 			$to_client		 = $report->client;
 			$email_subject	 = $report->subject;
+			$reply_to_email  = $report->reply_to;
+			$reply_to_name  = $report->reply_to_name;
 
 
 			$attachFiles = isset( $report->attach_files ) ? $report->attach_files : '';
@@ -4545,6 +4571,16 @@ class MainWP_CReport {
 			<label class="four wide column middle aligned"><?php echo __( 'BCC', 'mainwp-client-reports-extension' ); ?></label>
 			<div class="twelve wide column">
 				<input type="text" name="mwp_creport_bcc_email" id="mwp_creport_bcc_email" placeholder="Email address (optional)" value="<?php echo esc_attr( stripslashes( $bcc_email ) ); ?>" />
+			</div>
+		</div>
+
+		<div class="ui grid field">
+			<label class="four wide column middle aligned"><?php echo __( 'Reply-to', 'mainwp-client-reports-extension' ); ?></label>
+			<div class="three wide column">
+				<input type="text" name="mwp_creport_reply_to" id="mwp_creport_reply_to" placeholder="Reply-to Email address (optional)" value="<?php echo esc_attr( stripslashes( $reply_to_email ) ); ?>" />
+			</div>
+			<div class="three wide column">
+				<input type="text" name="mwp_creport_reply_to_name" id="mwp_creport_reply_to_name" placeholder="Name" value="<?php echo esc_attr( stripslashes( $reply_to_name ) ); ?>" />
 			</div>
 		</div>
 
