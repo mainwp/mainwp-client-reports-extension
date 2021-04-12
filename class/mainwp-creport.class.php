@@ -39,8 +39,8 @@ class MainWP_CReport {
     /** @var null Whether MainWP PageSpeed Extension is enabled Default: null. */
     public static $enabled_pagespeed	 = null;
 
-    /** @var null Whether MainWP BrokenLink Extension is enabled. Default: null. */
-    public static $enabled_brokenlinks	 = null;
+	/** @var null Whether MainWP Virusdie Extension is enabled. Default: null. */
+	public static $enabled_virusdie	 = null;
 
     /** @var int Header sections count. */
     private static $count_sec_header	 = 0;
@@ -147,6 +147,7 @@ class MainWP_CReport {
 					array('name' => 'plugin.deactivated.count', 'desc' => 'Displays the Number of Deactivated Plugins'),
 					array('name' => 'plugin.deleted.count', 'desc' => 'Displays the Number of Deleted Plugins'),
 					array('name' => 'plugin.updated.count', 'desc' => 'Displays the Number of Updated Plugins'),
+					array('name' => 'installed.plugins', 'desc' => 'Displays Installed Plugins'),
 				),
 			),
 			'themes'		 => array(
@@ -204,6 +205,7 @@ class MainWP_CReport {
 					array('name' => 'theme.activated.count', 'desc' => 'Displays the Number of Activated Themes'),
 					array('name' => 'theme.deleted.count', 'desc' => 'Displays the Number of Deleted Themes'),
 					array('name' => 'theme.updated.count', 'desc' => 'Displays the Number of Updated Themes'),
+					array('name' => 'installed.themes', 'desc' => 'Displays Installed Themes'),
 				),
 			),
 			'posts'			 => array(
@@ -730,20 +732,27 @@ class MainWP_CReport {
 					array('name' => 'pagespeed.average.mobile', 'desc' => 'Displays the average mobile page-speed score at the moment of report creation')
 				),
 			),
-			// Support for the BLC should b e removed soon
-			//'brokenlinks' => array(
-			//	'nav_group_tokens' => array(
-			//		'brokenlinks' => 'Broken Links Checker',
-			//	),
-			//	'brokenlinks' => array(
-			//		array( 'name' => 'brokenlinks.links.broken', 'desc' => 'Displays the number of broken links at the moment of report creation' ),
-			//    array( 'name' => 'brokenlinks.links.redirect', 'desc' => 'Displays the number of redirected links at the moment of report creation' ),
-			//    array( 'name' => 'brokenlinks.links.dismissed', 'desc' => 'Displays the number of dismissed links at the moment of report creation' ),
-			//    array( 'name' => 'brokenlinks.links.all', 'desc' => 'Displays the number of all links at the moment of report creation' )
-			//	),
-			//),
+			'virusdie'	 => array(
+				'nav_group_tokens'	 => array(
+					'sections'	 => 'Sections',
+					'scan'	 => 'Scans',
+					'additional' => 'Additional',
+				),
+				'sections'			 => array(
+					array('name' => 'section.virusdie.scans', 'desc' => 'Loops through scans during the selected period'),
+				),
+				'scan'			 => array(					
+					array('name' => 'virusdie.scan.time', 'desc' => 'Returns the time of scan'),
+					array('name' => 'virusdie.scan.date', 'desc' => 'Returns the date of scan'),					
+					array('name' => 'virusdie.scan.status', 'desc' => 'Returns scan status (there are a few available, Sync Error, Threats were found, and No Threats found)'),
+					array('name' => 'virusdie.scan.details', 'desc' => 'Returns the scan details in a list like: Files scaned: xxx; Malicious: xxx; Suspicious: xxx; .....'),
+				),
+				'additional'		 => array(
+					array('name' => 'virusdie.scans.count', 'desc' => 'Displays the number of scans performed during the selected period'),
+				),
+			),
 		);
-
+		
 		self::$tokens_nav_top = array(
 			'client'		 => 'Client',
 			'report'		 => 'Report',
@@ -766,8 +775,9 @@ class MainWP_CReport {
 			'wordfence'		 => 'Wordfence',
 			'maintenance'	 => 'Maintenance',
 			'pagespeed'		 => 'Page Speed',
-			//'brokenlinks' => 'Broken Links'
+			'virusdie' => 'Virusdie'
 		);
+		
 	}
 
     /**
@@ -803,8 +813,13 @@ class MainWP_CReport {
 		self::$enabled_wordfence	 = is_plugin_active( 'mainwp-wordfence-extension/mainwp-wordfence-extension.php' );
 		self::$enabled_maintenance	 = is_plugin_active( 'mainwp-maintenance-extension/mainwp-maintenance-extension.php' );
 		self::$enabled_pagespeed	 = is_plugin_active( 'mainwp-page-speed-extension/mainwp-page-speed-extension.php' );
+		self::$enabled_virusdie	 = is_plugin_active( 'mainwp-virusdie-extension/mainwp-virusdie-extension.php' );
+		
 		self::$stream_tokens		 = apply_filters( 'mainwp_client_reports_tokens_groups', self::$stream_tokens );
 		self::$tokens_nav_top		 = apply_filters( 'mainwp_client_reports_tokens_nav_top', self::$tokens_nav_top );
+		
+		add_filter( 'mainwp_client_reports_get_tokens_value', array( $this, 'hook_get_tokens_value' ), 10, 5 );
+
 	}
 
     /**
@@ -1061,6 +1076,7 @@ class MainWP_CReport {
             if ( time() - $report->schedule_lastsend < $check_seconds ) {
 				continue;
 			}
+
 			$cal_recurring = self::calc_recurring_date( $report->recurring_schedule, $report->recurring_day );
 
 			if ( empty( $cal_recurring ) )
@@ -1081,10 +1097,8 @@ class MainWP_CReport {
 				// using to generate report content to send now
 				$values['date_from']	 = $date_from;
 				$values['date_to']	 = $date_to;
-			}
-			$values['retry_counter']	 = 0;	// need reset counter.		
+			}				
 			MainWP_CReport_DB::get_instance()->update_reports_with_values( $report->id, $values );
-
 			$allReportsToSend[] = $report;
 		}
 		unset( $allReadyReports );
@@ -1321,22 +1335,19 @@ class MainWP_CReport {
 				$pCompletedSites = array_filter( $pCompletedSites, function( $val ) {
 					return ( $val > 0 && $val != 5 ); // successed or generated failed. 
 				} );
-				if ( count( $pCompletedSites ) >= $total_sites ) {
+				$retried = $report->retry_counter;
+				if ( count( $pCompletedSites ) >= $total_sites || ( $retried >= 3 ) ) {
 					do_action( 'mainp_log_debug', 'MainWP Client Reports :: schedule reports :: count completed sites :: ' . count( $pCompletedSites ), $forced_log );
 					// update to finish sending this report.
 					MainWP_CReport_DB::get_instance()->update_reports_completed( $report->id );
-				} else {
-					// update so countiue to send.
-					$retried = $report->retry_counter + 1; // increase process counter to re-try to send.
+				} else {				
+					$retried = $retried + 1; // increase process counter to re-try to send.
 					$values  = array(
 						'retry_counter' => $retried,
 					);
 					MainWP_CReport_DB::get_instance()->update_reports_with_values( $report->id, $values );
-					if ( $retried < 3 ) {
-						// update so countinue to re-send failed reports.
-						MainWP_CReport_DB::get_instance()->update_reports_completed_sites( $report->id, $pCompletedSites );
-					}
-
+					// update so countinue to re-send failed reports.
+					MainWP_CReport_DB::get_instance()->update_reports_completed_sites( $report->id, $pCompletedSites );
 				}
 			}
 		}
@@ -2943,7 +2954,8 @@ class MainWP_CReport {
 
 		$get_issues = apply_filters( 'mainwp_getwebsiteoptions', false, $site_id, 'health_site_status' );
 		$issue_counts = json_decode( $get_issues, true );
-		$issues_total = $issue_counts['recommended'] + $issue_counts['critical'];
+		$issues_total = isset( $issue_counts['recommended'] ) ? intval( $issue_counts['recommended'] ) : 0;
+		$issues_total = $issues_total + ( isset( $issue_counts['critical'] ) ? intval( $issue_counts['critical'] ) : 0 );
 		$tokens_value['site.health.score'] = intval( $issues_total );
 
 		return $tokens_value;
@@ -2997,8 +3009,15 @@ class MainWP_CReport {
 		$get_aum_tokens			 = ((strpos( $report->header, '[aum.' ) !== false) || (strpos( $report->body, '[aum.' ) !== false) || (strpos( $report->footer, '[aum.' ) !== false)) ? true : false;
 		$get_woocom_tokens		 = ((strpos( $report->header, '[wcomstatus.' ) !== false) || (strpos( $report->body, '[wcomstatus.' ) !== false) || (strpos( $report->footer, '[wcomstatus.' ) !== false)) ? true : false;
 		$get_pagespeed_tokens	 = ((strpos( $report->header, '[pagespeed.' ) !== false) || (strpos( $report->body, '[pagespeed.' ) !== false) || (strpos( $report->footer, '[pagespeed.' ) !== false)) ? true : false;
+		$get_virusdie_tokens	 = ((strpos( $report->header, '[virusdie.' ) !== false) || (strpos( $report->body, '[virusdie.' ) !== false) || (strpos( $report->footer, '[virusdie.' ) !== false)) ? true : false;
+		
+		$get_other_tokens = (strpos( $report->body, '[installed.plugins]' ) !== false) || (strpos( $report->body, '[installed.themes]' ) !== false);
 
-		if ( !empty( $website ) ) {
+		if ( ! $get_other_tokens ){
+			$get_other_tokens = (strpos( $report->header, '[installed.plugins]' ) !== false) || (strpos( $report->header, '[installed.themes]' ) !== false);
+		}
+
+		if ( ! empty( $website ) ) {
 			$tokens					 = MainWP_CReport_DB::get_instance()->get_tokens();
 			$site_tokens			 = MainWP_CReport_DB::get_instance()->get_site_tokens_by_site( $website );
 			$replace_tokens_values	 = array();
@@ -3061,6 +3080,11 @@ class MainWP_CReport {
 			$replace_tokens_values['[report.daterange]']	 = MainWP_CReport_Utility::format_date( $date_from, true ) . ' - ' . MainWP_CReport_Utility::format_date( $date_to, true );
 			$now											 = time();
 			$replace_tokens_values['[report.send.date]']	 = MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $now ), true );
+			
+			if ( $get_other_tokens ) {
+				self::get_other_tokens_value( $replace_tokens_values, $website['id'] );
+			}
+						
 			$replace_tokens_values							 = apply_filters( 'mainwp_client_reports_custom_tokens', $replace_tokens_values, $report, $website );
 
 			$report_header	 = $report->header;
@@ -3068,21 +3092,21 @@ class MainWP_CReport {
 			$report_footer	 = $report->footer;
 
 			$result									 = self::parse_report_content( $report_header, $replace_tokens_values );
-			//print_r($result);
+			
 			self::$buffer['sections']['header']	 = $sections['header']					 = $result['sections'];
 			$other_tokens['header']				 = $result['other_tokens'];
 			$filtered_header						 = $result['filtered_content'];
 			unset( $result );
 
 			$result									 = self::parse_report_content( $report_body, $replace_tokens_values );
-			//print_r($result);
+			
 			self::$buffer['sections']['body']	 = $sections['body']						 = $result['sections'];
 			$other_tokens['body']					 = $result['other_tokens'];
 			$filtered_body							 = $result['filtered_content'];
 			unset( $result );
 
 			$result = self::parse_report_content( $report_footer, $replace_tokens_values );
-			//print_r($result);
+			
 
 			self::$buffer['sections']['footer']	 = $sections['footer']					 = $result['sections'];
 			$other_tokens['footer']				 = $result['other_tokens'];
@@ -3093,12 +3117,54 @@ class MainWP_CReport {
 			// Get data from MainWP Stream.
 			$sections_data							 = $other_tokens_data						 = array();
 			$information							 = self::fetch_stream_data( $website, $report, $sections, $other_tokens, $date_from, $date_to );
+			
+			
+			if ( is_array( $information ) && ! isset( $information['error'] ) ) {
+				// proccess virusdie data.
+				if ( $get_virusdie_tokens ) {					
+					$virusdie_sections = array();
+					$virusdie_other_tokens = array();
+					$section_idx =  array();
 
+					if ( isset( $sections['body'] ) ) {
+						foreach( $sections['body']['section_token'] as $idx => $sec ){
+							if ( false !== strpos( $sec, '[section.virusdie.')) {
+								$virusdie_sections['section_token'][] = $sec;
+								$virusdie_sections['section_content_tokens'][] = $sections['body']['section_content_tokens'][$idx];
+								$section_idx[] = $idx;
+							}
+						}
+						foreach( $other_tokens['body'] as $tok ){
+							if ( false !== strpos( $tok, '[virusdie.')) {
+								$virusdie_other_tokens[] = $tok;
+							}
+						}
+					}
+					
+					$virusdie_data = self::virusdie_tokens( $website['id'], $date_from, $date_to, $virusdie_sections, $virusdie_other_tokens );
+					$virusdie_sections_data	= isset( $virusdie_data['sections_data'] ) ? $virusdie_data['sections_data'] : array();
+					$virusdie_other_tokens_data	= isset( $virusdie_data['other_tokens_data'] ) ? $virusdie_data['other_tokens_data'] : array();
+				
+					$vir_idx = 0;
+					foreach( $section_idx as $idx ) {
+						if (isset($virusdie_sections_data[ $vir_idx ])) {
+							$information['sections_data']['body'][$idx] = $virusdie_sections_data[ $vir_idx ];
+						}
+						$vir_idx++;
+					}
+
+					foreach( $virusdie_other_tokens_data as $tok => $val ) {
+						$information['other_tokens_data']['body'][ $tok ] = $val;
+					}
+				}
+			}
+			
 			$information = self::fix_empty_logs_values( $information );
 
 			//print_r($information);
-			if ( is_array( $information ) && !isset( $information['error'] ) ) {
-				self::$buffer['sections_data'] = $sections_data					 = isset( $information['sections_data'] ) ? $information['sections_data'] : array();
+			if ( is_array( $information ) && ! isset( $information['error'] ) ) {
+				$sections_data = isset( $information['sections_data'] ) ? $information['sections_data'] : array();
+				self::$buffer['sections_data'] = $sections_data;
 				$other_tokens_data				 = isset( $information['other_tokens_data'] ) ? $information['other_tokens_data'] : array();
 			} else {
 				self::$buffer = array();
@@ -3196,6 +3262,52 @@ class MainWP_CReport {
 			self::$buffer			 = array();
 		}
 		return $output;
+	}
+	
+	 /**
+     * Get other tokens value.
+     *
+     * @param array $tokens_values Section matches.
+     *
+     * @return string Return updated header section.
+     */
+    public static function get_other_tokens_value( &$tokens_values, $site_id ) {
+		if ( $site_id )	{
+			$option	= array(
+				'plugins' => true,
+				'themes'  => true,
+			);
+			global $mainWPCReportExtensionActivator;
+			$dbwebsites = apply_filters( 'mainwp_getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array( $site_id ), array(), $option );
+			if ( $dbwebsites ) {
+				$website = current( $dbwebsites );
+				
+				if ( property_exists( $website, 'plugins' ) ) {
+					$installed_plugins = $website->plugins;
+					$installed_plugins = json_decode( $installed_plugins, true );
+					$str = '';
+					if ( ! empty( $installed_plugins ) ) {
+						foreach( $installed_plugins as $item ) {
+							$str .= '<p style="margin: 2px 0px 2px 0px">' . $item['name'] . '-' .  $item['version'] . "</p>";
+						}
+					}
+					$tokens_values['[installed.plugins]'] = $str;
+				}
+
+				if ( property_exists( $website, 'themes' ) ) {
+					$installed_themes = $website->themes;
+					$installed_themes = json_decode( $installed_themes, true );
+					$str = '';
+					if ( ! empty( $installed_themes ) ) {
+						foreach( $installed_themes as $item ) {
+							$str .= '<p style="margin: 2px 0px 2px 0px">' . $item['name'] . ' - ' .  $item['version'] . "</p>";
+						}
+					}
+					$tokens_values['[installed.themes]'] = $str;
+				}
+
+			}			
+		}
 	}
 
     /**
@@ -3864,23 +3976,25 @@ class MainWP_CReport {
 		return $data;
 	}
 
-    /**
-     * Broken links data.
+	/**
+     * Virusdie data.
      *
      * @param int $site_id Child site ID.
      * @param string $start_date Report start date.
      * @param string $end_date Report end date.
+	 * @param array $sections Sections tokens.
+	 * @param array $other_tokens Other tokens.
      *
-     * @return array|false|mixed Return Broken links data or FALSE on failure.
+     * @return array|false|mixed Return Virusdie data or FALSE on failure.
      */
-    static function brokenlinks_tokens( $site_id, $start_date, $end_date ) {
+    static function virusdie_tokens( $site_id, $start_date, $end_date, $sections, $other_tokens ) {
 
 		// Fixes cron job bug.
-		if ( null === self::$enabled_brokenlinks ) {
-			self::$enabled_brokenlinks = is_plugin_active( 'mainwp-broken-links-checker-extension/mainwp-broken-links-checker-extension.php' );
+		if ( null === self::$enabled_virusdie ) {
+			self::$enabled_virusdie = is_plugin_active( 'mainwp-virusdie-extension/mainwp-virusdie-extension.php' );
 		}
 
-		if ( !self::$enabled_brokenlinks ) {
+		if ( !self::$enabled_virusdie ) {
 			return false;
 		}
 
@@ -3888,15 +4002,15 @@ class MainWP_CReport {
 			return false;
 		}
 
-		$uniq = 'brokenlinks_' . $site_id . '_' . $start_date . '_' . $end_date;
+		$uniq = 'virusdie_' . $site_id . '_' . $start_date . '_' . $end_date;
 		if ( isset( self::$buffer[$uniq] ) ) {
 			return self::$buffer[$uniq];
 		}
-
-		$data					 = apply_filters( 'mainwp_brokenlinks_get_data', array(), $site_id, $start_date, $end_date );
+		$data					 = apply_filters( 'mainwp_virusdie_get_data', array(), $site_id, $start_date, $end_date, $sections, $other_tokens );
 		self::$buffer[$uniq]	 = $data;
 		return $data;
 	}
+
 
     /**
      * Format stats values.
@@ -4838,7 +4952,8 @@ class MainWP_CReport {
 							(!self::$enabled_woocomstatus && ('woocomstatus' == $group)) ||
 							(!self::$enabled_wordfence && ('wordfence' == $group)) ||
 							(!self::$enabled_maintenance && ('maintenance' == $group)) ||
-							(!self::$enabled_pagespeed && ('pagespeed' == $group))
+							(!self::$enabled_pagespeed && ('pagespeed' == $group)) ||
+							(!self::$enabled_virusdie && ('virusdie' == $group))
 						) {
 							$disabled = 'disabled';
 						}
@@ -4880,6 +4995,9 @@ class MainWP_CReport {
 						$enabled		 = false;
 					} else if ( !self::$enabled_pagespeed && 'pagespeed' == $group ) {
 						$str_requires	 = 'Requires' . ' <a href="https://mainwp.com/extension/page-speed/" title="MainWP Page Speed Extension">MainWP Page Speed Extension</a>';
+						$enabled		 = false;
+					} else if ( !self::$enabled_virusdie && 'virusdie' == $group ) {
+						$str_requires	 = 'Requires' . ' <a href="https://mainwp.com/extension/virusdie/" title="MainWP Virusdie Extension">MainWP Virusdie Extension</a>';
 						$enabled		 = false;
 					}
 
@@ -5529,6 +5647,40 @@ class MainWP_CReport {
 			die( $error );
 		}
 		die( $html );
+	}
+
+	
+	/**
+     * Hook get tokens value.
+     *
+     */
+    public function hook_get_tokens_value( $input, $website, $tokens, $date_from = false, $date_to = false ) {
+		if ( empty( $date_to )) {
+			$date_to = time();
+		}
+		if ( empty( $date_from )) {
+			$date_from = strtotime("-1 month", $date_to );
+		}
+
+		if ( ! is_array( $tokens ) ) {
+		   $tokens = array();
+		}
+
+		$other_tokens = array(
+			'body' => $tokens
+		);
+
+		if ( is_numeric( $website ) ) {
+			$website = array( 'id' =>  $website );
+		}
+
+		$information  = self::fetch_stream_data( $website , false, array(), $other_tokens, $date_from, $date_to );
+
+		if ( is_array( $information ) && isset( $information['other_tokens_data'])  && isset( $information['other_tokens_data']['body']) ) {
+			return $information['other_tokens_data']['body'];
+		}
+
+		return $information;
 	}
 
     /**

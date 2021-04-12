@@ -1460,6 +1460,7 @@ We hope that this report was useful and we look forward to managing your website
 			array(
 				'schedule_lastsend' => time(),
 				'completed_sites'   => json_encode( array() ),
+				'retry_counter' => 0,
 			),
 			array( 'id' => $id )
 		);
@@ -1489,7 +1490,7 @@ We hope that this report was useful and we look forward to managing your website
 	 *
 	 * @return mixed Return query results.
 	 */
-	public function update_reports_completed_sites( $id, $pCompletedSites ) {
+	public function update_reports_completed_sites( $id, $pCompletedSites = array() ) {
 
 		/** @global object $wpdb WordPress Database instance. */
 		global $wpdb;
