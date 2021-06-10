@@ -42,6 +42,9 @@ class MainWP_CReport {
 	/** @var null Whether MainWP Virusdie Extension is enabled. Default: null. */
 	public static $enabled_virusdie	 = null;
 
+	/** @var null Whether MainWP Vulnerability Checker Extension is enabled. Default: null. */
+	public static $enabled_vulnerable    = null;
+
     /** @var int Header sections count. */
     private static $count_sec_header	 = 0;
 
@@ -751,6 +754,25 @@ class MainWP_CReport {
 					array('name' => 'virusdie.scans.count', 'desc' => 'Displays the number of scans performed during the selected period'),
 				),
 			),
+			'vulnerable'    => array(
+				'nav_group_tokens' => array(
+					'vulnerable'	 => 'Vulnerability',
+				),
+				'vulnerable'        => array(
+					array(
+						'name' => 'vulnerable.plugins',
+						'desc' => 'Displays the vulnerable plugins score at the moment of report generation',
+					),
+					array(
+						'name' => 'vulnerable.themes',
+						'desc' => 'Displays the vulnerable themes score at the moment of report creation',
+					),
+					array(
+						'name' => 'vulnerabilities.count',
+						'desc' => 'Displays the vulnerabilities count score at the moment of report creation',
+					),
+				),
+			),
 		);
 		
 		self::$tokens_nav_top = array(
@@ -805,15 +827,16 @@ class MainWP_CReport {
 		add_action( 'mainwp_managesite_backup', array(&$this, 'managesite_backup'), 10, 3 );
 		add_action( 'wp_ajax_mainwp_creport_delete_client', array(&$this, 'ajax_delete_client') );
 
-		self::$enabled_piwik		 = is_plugin_active( 'mainwp-piwik-extension/mainwp-piwik-extension.php' );
-		self::$enabled_sucuri		 = is_plugin_active( 'mainwp-sucuri-extension/mainwp-sucuri-extension.php' );
-		self::$enabled_ga			 = is_plugin_active( 'mainwp-google-analytics-extension/mainwp-google-analytics-extension.php' );
-		self::$enabled_aum			 = is_plugin_active( 'advanced-uptime-monitor-extension/advanced-uptime-monitor-extension.php' );
-		self::$enabled_woocomstatus	 = is_plugin_active( 'mainwp-woocommerce-status-extension/mainwp-woocommerce-status-extension.php' );
-		self::$enabled_wordfence	 = is_plugin_active( 'mainwp-wordfence-extension/mainwp-wordfence-extension.php' );
-		self::$enabled_maintenance	 = is_plugin_active( 'mainwp-maintenance-extension/mainwp-maintenance-extension.php' );
-		self::$enabled_pagespeed	 = is_plugin_active( 'mainwp-page-speed-extension/mainwp-page-speed-extension.php' );
-		self::$enabled_virusdie	 = is_plugin_active( 'mainwp-virusdie-extension/mainwp-virusdie-extension.php' );
+		self::$enabled_piwik		 = self::is_plugin_active( 'mainwp-piwik-extension/mainwp-piwik-extension.php' );
+		self::$enabled_sucuri		 = self::is_plugin_active( 'mainwp-sucuri-extension/mainwp-sucuri-extension.php' );
+		self::$enabled_ga			 = self::is_plugin_active( 'mainwp-google-analytics-extension/mainwp-google-analytics-extension.php' );
+		self::$enabled_aum			 = self::is_plugin_active( 'advanced-uptime-monitor-extension/advanced-uptime-monitor-extension.php' );
+		self::$enabled_woocomstatus	 = self::is_plugin_active( 'mainwp-woocommerce-status-extension/mainwp-woocommerce-status-extension.php' );
+		self::$enabled_wordfence	 = self::is_plugin_active( 'mainwp-wordfence-extension/mainwp-wordfence-extension.php' );
+		self::$enabled_maintenance	 = self::is_plugin_active( 'mainwp-maintenance-extension/mainwp-maintenance-extension.php' );
+		self::$enabled_pagespeed	 = self::is_plugin_active( 'mainwp-page-speed-extension/mainwp-page-speed-extension.php' );
+		self::$enabled_virusdie	 = self::is_plugin_active( 'mainwp-virusdie-extension/mainwp-virusdie-extension.php' );
+		self::$enabled_vulnerable	 = self::is_plugin_active( 'mainwp-vulnerability-checker-extension/mainwp-vulnerability-checker-extension.php' ) ? true : false;
 		
 		self::$stream_tokens		 = apply_filters( 'mainwp_client_reports_tokens_groups', self::$stream_tokens );
 		self::$tokens_nav_top		 = apply_filters( 'mainwp_client_reports_tokens_nav_top', self::$tokens_nav_top );
@@ -1142,7 +1165,8 @@ class MainWP_CReport {
 		$reports = MainWP_CReport_DB::get_instance()->get_scheduled_reports_to_continue_send();
 
 		do_action( 'mainp_log_debug', 'CRON :: Client Report :: continue send :: Found ' . count( $reports ) . ' to continue.', $forced_log );
-
+		do_action( 'mainwp_log_action', 'CRON :: Client Report :: Continue send :: Found ' . count( $reports ), MAINWP_CLIENT_REPORTS_LOG_PRIORITY_NUMBER );
+	
 		if ( empty( $reports ) ) {
 			return;
 		}
@@ -1150,8 +1174,9 @@ class MainWP_CReport {
 		// Process one report.
 		$report = current( $reports );
 
-		do_action( 'mainp_log_debug', 'CRON :: MainWP Client Reports :: Continue send :: ' . $report->title, $forced_log );
-
+		do_action( 'mainp_log_debug', 'CRON :: MainWP Client Reports :: Continue send :: ' . $report->title, $forced_log );		
+		do_action( 'mainwp_log_action', 'Client Report :: Continue send :: ' . $report->title, MAINWP_CLIENT_REPORTS_LOG_PRIORITY_NUMBER );
+				
 		$sites	 = unserialize( base64_decode( $report->sites ) );
 		$groups	 = unserialize( base64_decode( $report->groups ) );
 
@@ -1214,16 +1239,20 @@ class MainWP_CReport {
 
 				do_action( 'mainp_log_debug', 'CRON :: MainWP Client Reports :: Preparing content :: Site id :: ' . $site_id, $forced_log );
 				
+				do_action( 'mainwp_log_action', 'Client Report :: Preparing content :: Site id :: ' . $site_id, MAINWP_CLIENT_REPORTS_LOG_PRIORITY_NUMBER );
+		
 				$data = self::prepare_content_report_email( $report, false, $website, true );
 
 				$countSend++;
 
 				if (! is_array( $data )){
 					do_action( 'mainp_log_debug', 'CRON :: MainWP Client Reports :: Error :: Generate content :: Site id :: ' . $site_id, $forced_log );
+					do_action( 'mainwp_log_action', 'Client Report :: Error :: Generate content :: Site id :: ' . $site_id, MAINWP_CLIENT_REPORTS_LOG_PRIORITY_NUMBER );
 					$completedSites[$site_id] = 3; // generated content failed.
 					self::update_completed_websites( $report, $completedSites, $all_siteids, $forced_log );	
 				} elseif ( empty( $data['to_email'] ) || ( false === stripos( $data['to_email'], "@") ) ) {
 					do_action( 'mainp_log_debug', 'CRON :: MainWP Client Reports :: Error :: Wrong send to email :: [' . $data['to_email'] . '] :: site id :: ' . $site_id, $forced_log );
+					do_action( 'mainwp_log_action', 'Client Report :: Error :: Wrong send to email :: [' . $data['to_email'] . '] :: site id :: ' . $site_id, MAINWP_CLIENT_REPORTS_LOG_PRIORITY_NUMBER );
 					$completedSites[$site_id] = 4; // wrong email address.
 					self::update_completed_websites( $report, $completedSites, $all_siteids, $forced_log );					
 				} else {					
@@ -1236,13 +1265,17 @@ class MainWP_CReport {
 					$email_subject = stripslashes( $data['subject'] );
 
 					do_action( 'mainp_log_debug', 'CRON :: MainWP Client Reports :: scheduled report :: sending report :: subject[' . $email_subject . ']' );
-					
+					do_action( 'mainwp_log_action', 'Client Report :: Sending report :: subject[' . $email_subject . ']', MAINWP_CLIENT_REPORTS_LOG_PRIORITY_NUMBER );
+
 					if ( wp_mail( $data['to_email'], $email_subject, $content_email, $data['header'], $data['attachments'] ) ) {
 						do_action( 'mainp_log_debug', 'CRON :: MainWP Client Reports :: Send report success - website :: ' . $website['url'] . ' :: Subject :: ' . $email_subject, $forced_log );
+						do_action( 'mainwp_log_action', 'Client Report :: Send report success - website :: ' . $website['url'] . ' :: Subject :: ' . $email_subject, MAINWP_CLIENT_REPORTS_LOG_PRIORITY_NUMBER );
+
 						$completedSites[$site_id] = 1;
 						self::update_completed_websites( $report, $completedSites, $all_siteids, $forced_log );
 					} else {
 						do_action( 'mainp_log_debug', 'CRON :: MainWP Client Reports :: Send report failed - website :: ' . $website['url'] . ' :: Subject :: ' . $email_subject, $forced_log );
+						do_action( 'mainwp_log_action', 'Client Report :: Send report failed - website :: ' . $website['url'] . ' :: Subject :: ' . $email_subject, MAINWP_CLIENT_REPORTS_LOG_PRIORITY_NUMBER );
 
 						/**
 						 * If send report failed update completed sites to prevent re-send report multi-time.
@@ -2221,6 +2254,7 @@ class MainWP_CReport {
 
 
 		do_action( 'mainp_log_debug', 'Client Report :: Sending report to : ' . $to_email . ' :: From: ' . $from_name . ' ' . $from );
+		do_action( 'mainwp_log_action', 'Client Report :: Sending report to : ' . $to_email . ' :: From: ' . $from_name . ' ' . $from, MAINWP_CLIENT_REPORTS_LOG_PRIORITY_NUMBER );
 
 		$data = array(
 			'header'		 => $header,
@@ -3010,6 +3044,7 @@ class MainWP_CReport {
 		$get_woocom_tokens		 = ((strpos( $report->header, '[wcomstatus.' ) !== false) || (strpos( $report->body, '[wcomstatus.' ) !== false) || (strpos( $report->footer, '[wcomstatus.' ) !== false)) ? true : false;
 		$get_pagespeed_tokens	 = ((strpos( $report->header, '[pagespeed.' ) !== false) || (strpos( $report->body, '[pagespeed.' ) !== false) || (strpos( $report->footer, '[pagespeed.' ) !== false)) ? true : false;
 		$get_virusdie_tokens	 = ((strpos( $report->header, '[virusdie.' ) !== false) || (strpos( $report->body, '[virusdie.' ) !== false) || (strpos( $report->footer, '[virusdie.' ) !== false)) ? true : false;
+		$get_vulnerable_tokens	 = ( strpos( $report->header, '[vulnerable.' ) !== false || strpos( $report->header, '[vulnerabilities.' ) !== false || strpos( $report->body, '[vulnerable.' ) !== false || strpos( $report->body, '[vulnerabilities.' ) !== false || strpos( $report->footer, '[vulnerable.' ) !== false || strpos( $report->footer, '[vulnerabilities.' ) !== false ) ? true : false; 
 		
 		$get_other_tokens = (strpos( $report->body, '[installed.plugins]' ) !== false) || (strpos( $report->body, '[installed.themes]' ) !== false);
 
@@ -3073,6 +3108,15 @@ class MainWP_CReport {
 				if ( is_array( $pagespeed_tokens ) ) {
 					foreach ( $pagespeed_tokens as $token => $value ) {
 						$replace_tokens_values['[' . $token . ']'] = $value;
+					}
+				}
+			}
+
+			if ( $get_vulnerable_tokens ) {					
+				$ext_tokens = self::get_ext_tokens_vulnerable( $website['id'], $date_from, $date_to );
+				if ( is_array( $ext_tokens ) ) {
+					foreach ( $ext_tokens as $token => $value ) {
+						$replace_tokens_values[ '[' . $token . ']' ] = $value;
 					}
 				}
 			}
@@ -3589,7 +3633,7 @@ class MainWP_CReport {
 
 		// Fixes cron job bug.
 		if ( null === self::$enabled_ga ) {
-			self::$enabled_ga = is_plugin_active( 'mainwp-google-analytics-extension/mainwp-google-analytics-extension.php' );
+			self::$enabled_ga = self::is_plugin_active( 'mainwp-google-analytics-extension/mainwp-google-analytics-extension.php' );
 		}
 
 		if ( !self::$enabled_ga ) {
@@ -3822,7 +3866,7 @@ class MainWP_CReport {
 
 		// Fixes cron job bug.
 		if ( null === self::$enabled_piwik ) {
-			self::$enabled_piwik = is_plugin_active( 'mainwp-piwik-extension/mainwp-piwik-extension.php' );
+			self::$enabled_piwik = self::is_plugin_active( 'mainwp-piwik-extension/mainwp-piwik-extension.php' );
 		}
 
 		if ( !self::$enabled_piwik ) {
@@ -3862,7 +3906,7 @@ class MainWP_CReport {
     static function aum_data( $site_id, $start_date, $end_date ) {
 
 		if ( null === self::$enabled_aum ) {
-			self::$enabled_aum = is_plugin_active( 'advanced-uptime-monitor-extension/advanced-uptime-monitor-extension.php' );
+			self::$enabled_aum = self::is_plugin_active( 'advanced-uptime-monitor-extension/advanced-uptime-monitor-extension.php' );
 		}
 
 		if ( !self::$enabled_aum ) {
@@ -3906,7 +3950,7 @@ class MainWP_CReport {
 
 		// Fixes cron job bug
 		if ( null === self::$enabled_woocomstatus ) {
-			self::$enabled_woocomstatus = is_plugin_active( 'mainwp-woocommerce-status-extension/mainwp-woocommerce-status-extension.php' );
+			self::$enabled_woocomstatus = self::is_plugin_active( 'mainwp-woocommerce-status-extension/mainwp-woocommerce-status-extension.php' );
 		}
 
 		if ( !self::$enabled_woocomstatus ) {
@@ -3955,7 +3999,7 @@ class MainWP_CReport {
 
 		// Fixes cron job bug.
 		if ( null === self::$enabled_pagespeed ) {
-			self::$enabled_pagespeed = is_plugin_active( 'mainwp-page-speed-extension/mainwp-page-speed-extension.php' );
+			self::$enabled_pagespeed = self::is_plugin_active( 'mainwp-page-speed-extension/mainwp-page-speed-extension.php' );
 		}
 
 		if ( !self::$enabled_pagespeed ) {
@@ -3991,7 +4035,7 @@ class MainWP_CReport {
 
 		// Fixes cron job bug.
 		if ( null === self::$enabled_virusdie ) {
-			self::$enabled_virusdie = is_plugin_active( 'mainwp-virusdie-extension/mainwp-virusdie-extension.php' );
+			self::$enabled_virusdie = self::is_plugin_active( 'mainwp-virusdie-extension/mainwp-virusdie-extension.php' );
 		}
 
 		if ( !self::$enabled_virusdie ) {
@@ -4011,6 +4055,43 @@ class MainWP_CReport {
 		return $data;
 	}
 
+
+	/**
+     * Virusdie data.
+     *
+     * @param int $site_id Child site ID.
+     * @param string $start_date Report start date.
+     * @param string $end_date Report end date.
+	 * @param array $sections Sections tokens.
+	 * @param array $other_tokens Other tokens.
+     *
+     * @return array|false|mixed Return Virusdie data or FALSE on failure.
+     */
+	static function get_ext_tokens_vulnerable( $site_id, $start_date, $end_date ) {
+
+		// fix bug cron job
+		if ( null === self::$enabled_vulnerable ) {
+			self::$enabled_vulnerable = self::is_plugin_active( 'mainwp-vulnerability-checker-extension/mainwp-vulnerability-checker-extension.php' ) ? true : false;
+		}
+
+		if ( ! self::$enabled_vulnerable ) {
+			return false;
+		}
+
+		if ( ! $site_id || ! $start_date || ! $end_date ) {
+			return false;
+		}
+
+		$uniq = 'vulnerable_' . $site_id . '_' . $start_date . '_' . $end_date;
+
+		if ( isset( self::$buffer[ $uniq ] ) ) {
+			return self::$buffer[ $uniq ];
+		}
+
+		$data                  = apply_filters( 'mainwp_vulnerable_get_data', array(), $site_id, $start_date, $end_date );
+		self::$buffer[ $uniq ] = $data;
+		return $data;
+	}
 
     /**
      * Format stats values.
@@ -5921,28 +6002,17 @@ class MainWP_CReport {
 		exit;
 	}
 
-    /**
-     * Show MainWP status messages.
+	 /**
+     * Ajax do action report.
      *
-     * @param string $type Message type.
-     * @param int $notice_id Notice ID.
-     *
-     * @return bool Return TRUE if status is set FALSE if not.
+     * @uses MainWP_CReport::un_archive_report()
+     * @uses MainWP_CReport_DB::delete_report_by()
+     * @uses MainWP_CReport_DB::update_report()
      */
-    public static function showMainWPMessage($type, $notice_id ) {
-		if ( $type == 'tour' ) {
-			$status = get_user_option( 'mainwp_tours_status' );
-		} else {
-			$status = get_user_option( 'mainwp_notice_saved_status' );
+    public static function is_plugin_active( $slug ) {
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			include_once ABSPATH . '/wp-admin/includes/plugin.php';
 		}
-
-		if ( !is_array( $status ) ) {
-			$status = array();
-		}
-		if ( isset( $status[$notice_id] ) ) {
-			return false;
-		}
-		return true;
+		return is_plugin_active( $slug );
 	}
-
 }

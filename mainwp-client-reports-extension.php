@@ -19,6 +19,14 @@ if ( ! defined( 'MAINWP_CLIENT_REPORTS_PLUGIN_FILE' ) ) {
     define( 'MAINWP_CLIENT_REPORTS_PLUGIN_FILE', __FILE__ );
 }
 
+if ( ! defined( 'MAINWP_CLIENT_REPORTS_LOG_PRIORITY_NUMBER' ) ) {
+
+  /**
+   * Define MAINWP_CLIENT_REPORTS_LOG_PRIORITY_NUMBER with MainWP client reports extension.
+   */
+  define( 'MAINWP_CLIENT_REPORTS_LOG_PRIORITY_NUMBER', 55 );
+}
+
 /**
  * Class MainWP_CReport_Extension
  */
