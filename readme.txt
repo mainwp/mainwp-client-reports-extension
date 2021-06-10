@@ -17,6 +17,11 @@ Author URI: https://mainwp.com
 
 == Changelog ==
 
+= 4.0.8 - 4-28-2021 =
+* Fixed: An issue with sending reports for specific setups
+* Added: Support for Virusdie tokens
+* Updated: General performance improvements
+
 = 4.0.7 - 1-15-2021 =
 * Fixed: An issue with sending scheduled reports
 * Updated: Support for default WP datepicker
