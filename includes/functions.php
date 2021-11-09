@@ -19,9 +19,8 @@ function mainwp_creport_admin_print_footer_scripts() {
     $client_tokens = MainWP_CReport_DB::get_instance()->get_tokens();
     ?>
         <script type="text/javascript">
-            jQuery(function ($) {
-                tinymce.on('SetupEditor', function (setup) {
-                    var editor = setup.editor;
+              
+              jQuery(document).on('tinymce-editor-setup', function (event, editor) {
                     if (editor.id === 'mainwp_creport_report_header' || editor.id === 'mainwp_creport_report_body' || editor.id === 'mainwp_creport_report_footer') {
                             editor.addButton('insertsection', {
                                 type: 'menubutton',
@@ -2294,8 +2293,7 @@ function mainwp_creport_admin_print_footer_scripts() {
 
                 });
                     }
-                });
-            });
+            });          
         </script>
     <?php
 }

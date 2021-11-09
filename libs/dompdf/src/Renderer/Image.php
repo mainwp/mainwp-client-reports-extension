@@ -30,6 +30,10 @@ class Image extends Block
         $cb = $frame->get_containing_block();
         list($x, $y, $w, $h) = $frame->get_border_box();
 
+        if ($w === 0.0 || $h === 0.0) {
+            return;
+        }
+
         $this->_set_opacity($frame->get_opacity($style->opacity));
 
         list($tl, $tr, $br, $bl) = $style->get_computed_border_radius($w, $h);
@@ -125,10 +129,12 @@ class Image extends Block
         }
 
         if ($this->_dompdf->getOptions()->getDebugLayout() && $this->_dompdf->getOptions()->getDebugLayoutBlocks()) {
-            $this->_debug_layout($frame->get_border_box(), "blue");
+            $debug_border_box = $frame->get_border_box();
+            $this->_debug_layout([$debug_border_box['x'], $debug_border_box['y'], (float)$debug_border_box['w'], (float)$debug_border_box['h']], "blue");
             if ($this->_dompdf->getOptions()->getDebugLayoutPaddingBox()) {
-                $this->_debug_layout($frame->get_padding_box(), "blue", [0.5, 0.5]);
-            }
+                $debug_padding_box = $frame->get_padding_box();
+                $this->_debug_layout([$debug_padding_box['x'], $debug_padding_box['y'], (float)$debug_padding_box['w'], (float)$debug_padding_box['h']], "blue", [0.5, 0.5]);
+        }
         }
 
         $id = $frame->get_node()->getAttribute("id");

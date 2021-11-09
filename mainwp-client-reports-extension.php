@@ -115,7 +115,7 @@ class MainWP_CReport_Extension {
 		add_filter( 'mainwp_client_report_generate_content', array( 'MainWP_CReport', 'hook_generate_content' ), 10, 5 );
 
 
-		if ( isset( $_GET['page'] ) && ( 'Extensions-Mainwp-Client-Reports-Extension' == $_GET['page'] ) && isset( $_GET['tab'] ) && $_GET['page'] == 'report' ) {
+		if ( isset( $_GET['page'] ) && ( 'Extensions-Mainwp-Client-Reports-Extension' == $_GET['page'] ) && isset( $_GET['tab'] ) && $_GET['tab'] == 'report' ) {
 			require_once 'includes/functions.php';
 			add_action( 'admin_print_footer_scripts', 'mainwp_creport_admin_print_footer_scripts' );
 		}

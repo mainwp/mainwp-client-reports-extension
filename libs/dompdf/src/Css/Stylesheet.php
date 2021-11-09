@@ -360,13 +360,42 @@ class Stylesheet
 
             list($this->_protocol, $this->_base_host, $this->_base_path, $filename) = $parsed_url;
 
-            // Fix submitted by Nick Oostveen for aliased directory support:
-            if ($this->_protocol == "") {
-                $file = $this->_base_path . $filename;
-            } else {
-                $file = Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $filename);
-            }
+            $file = Helpers::build_url($this->_protocol, $this->_base_host, $this->_base_path, $filename);
 
+            $options = $this->_dompdf->getOptions();
+            // Download the remote file
+            if (!$options->isRemoteEnabled() && ($this->_protocol != "" && $this->_protocol !== "file://")) {
+                Helpers::record_warnings(E_USER_WARNING, "Remote CSS resource '$file' referenced, but remote file download is disabled.", __FILE__, __LINE__);
+                return;
+            }
+            if ($this->_protocol == "" || $this->_protocol === "file://") {
+                $realfile = realpath($file);
+
+                $rootDir = realpath($options->getRootDir());
+                if (strpos($realfile, $rootDir) !== 0) {
+                    $chroot = $options->getChroot();
+                    $chrootValid = false;
+                    foreach($chroot as $chrootPath) {
+                        $chrootPath = realpath($chrootPath);
+                        if ($chrootPath !== false && strpos($realfile, $chrootPath) === 0) {
+                            $chrootValid = true;
+                            break;
+                        }
+                    }
+                    if ($chrootValid !== true) {
+                        Helpers::record_warnings(E_USER_WARNING, "Permission denied on $file. The file could not be found under the paths specified by Options::chroot.", __FILE__, __LINE__);
+                        return;
+                    }
+                }
+
+                if (!$realfile) {
+                    Helpers::record_warnings(E_USER_WARNING, "File '$realfile' not found.", __FILE__, __LINE__);
+                    return;
+                }
+
+                $file = $realfile;
+            }
+            
             list($css, $http_response_header) = Helpers::getFileContent($file, $this->_dompdf->getHttpContext());
 
             $good_mime_type = true;
@@ -1399,42 +1428,33 @@ class Stylesheet
         $DEBUGCSS = $this->_dompdf->getOptions()->getDebugCss();
         $parsed_url = "none";
 
-        if (mb_strpos($val, "url") === false) {
+        if (empty($val) || $val === "none") {
+            $path = "none";
+        } elseif (mb_strpos($val, "url") === false) {
             $path = "none"; //Don't resolve no image -> otherwise would prefix path and no longer recognize as none
         } else {
             $val = preg_replace("/url\(\s*['\"]?([^'\")]+)['\"]?\s*\)/", "\\1", trim($val));
 
             // Resolve the url now in the context of the current stylesheet
             $parsed_url = Helpers::explode_url($val);
-            if ($parsed_url["protocol"] == "" && $this->get_protocol() == "") {
-                if ($parsed_url["path"][0] === '/' || $parsed_url["path"][0] === '\\') {
-                    $path = $_SERVER["DOCUMENT_ROOT"] . '/';
-                } else {
-                    $path = $this->get_base_path();
-                }
-
-                $path .= $parsed_url["path"] . $parsed_url["file"];
+            $path = Helpers::build_url($this->_protocol,
+                $this->_base_host,
+                $this->_base_path,
+                $val);
+            if (($parsed_url["protocol"] == "" || $parsed_url["protocol"] == "file://") && ($this->_protocol == "" || $this->_protocol == "file://")) {
                 $path = realpath($path);
                 // If realpath returns FALSE then specifically state that there is no background image
-                // FIXME: Is this causing problems for imported CSS files? There are some './none' references when running the test cases.
                 if (!$path) {
                     $path = 'none';
                 }
-            } else {
-                $path = Helpers::build_url($this->get_protocol(),
-                    $this->get_host(),
-                    $this->get_base_path(),
-                    $val);
             }
         }
-
         if ($DEBUGCSS) {
             print "<pre>[_image\n";
             print_r($parsed_url);
-            print $this->get_protocol() . "\n" . $this->get_base_path() . "\n" . $path . "\n";
-            print "_image]</pre>";;
+            print $this->_protocol . "\n" . $this->_base_path . "\n" . $path . "\n";
+            print "_image]</pre>";
         }
-
         return $path;
     }
 
@@ -1616,7 +1636,6 @@ class Stylesheet
             }
             //For easier debugging, don't use overloading of assignments with __set
             $style->$prop_name = $value;
-            //$style->props_set($prop_name, $value);
         }
         if ($DEBUGCSS) print '_parse_properties]';
 
@@ -1682,10 +1701,11 @@ class Stylesheet
     /**
      * @return string
      */
-    public static function getDefaultStylesheet()
+    public function getDefaultStylesheet()
     {
-        $dir = realpath(__DIR__ . "/../..");
-        return $dir . self::DEFAULT_STYLESHEET;
+        $options = $this->_dompdf->getOptions();
+        $rootDir = realpath($options->getRootDir());
+        return $rootDir . self::DEFAULT_STYLESHEET;
     }
 
     /**

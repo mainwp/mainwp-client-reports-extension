@@ -150,7 +150,7 @@ class Dompdf
     private $basePath = "";
 
     /**
-     * Protcol used to request file (file://, http://, etc)
+     * Protocol used to request file (file://, http://, etc)
      *
      * @var string
      */
@@ -179,11 +179,18 @@ class Dompdf
     private $systemLocale = null;
 
     /**
-     * Tells if the system's locale is the C standard one
+     * The system's mbstring internal encoding
      *
-     * @var bool
+     * @var string
      */
-    private $localeStandard = false;
+    private $mbstringEncoding = null;
+
+    /**
+     * The system's PCRE JIT configuration
+     *
+     * @var string
+     */
+    private $pcreJit = null;
 
     /**
      * The default view of the PDF in the viewer
@@ -210,7 +217,7 @@ class Dompdf
     * Protocol whitelist
     *
     * Protocols and PHP wrappers allowed in URLs. Full support is not
-    * guarantee for the protocols/wrappers contained in this array.
+    * guaranteed for the protocols/wrappers contained in this array.
     *
     * @var array
     */
@@ -272,13 +279,6 @@ class Dompdf
      */
     public function __construct($options = null)
     {
-        mb_internal_encoding('UTF-8');
-
-        if (version_compare(PHP_VERSION, '7.0.0') >= 0)
-        {
-            @ini_set('pcre.jit', 0);
-        }
-
         if (isset($options) && $options instanceof Options) {
             $this->setOptions($options);
         } elseif (is_array($options)) {
@@ -288,12 +288,12 @@ class Dompdf
         }
 
         $versionFile = realpath(__DIR__ . '/../VERSION');
-        if (file_exists($versionFile) && ($version = file_get_contents($versionFile)) !== false && $version !== '$Format:<%h>$') {
+        if (file_exists($versionFile) && ($version = trim(file_get_contents($versionFile))) !== false && $version !== '$Format:<%h>$') {
           $this->version = sprintf('dompdf %s', $version);
         }
 
-        $this->localeStandard = sprintf('%.1f', 1.0) == '1.0';
-        $this->saveLocale();
+        $this->setPhpConfig();
+
         $this->paperSize = $this->options->getDefaultPaperSize();
         $this->paperOrientation = $this->options->getDefaultPaperOrientation();
 
@@ -301,33 +301,48 @@ class Dompdf
         $this->setFontMetrics(new FontMetrics($this->getCanvas(), $this->getOptions()));
         $this->css = new Stylesheet($this);
 
-        $this->restoreLocale();
+        $this->restorePhpConfig();
     }
 
     /**
-     * Save the system's locale configuration and
-     * set the right value for numeric formatting
+     * Save the system's existing locale, PCRE JIT, and MBString encoding
+     * configuration and configure the system for Dompdf processing
      */
-    private function saveLocale()
+    private function setPhpConfig()
     {
-        if ($this->localeStandard) {
-            return;
+        if (sprintf('%.1f', 1.0) !== '1.0') {
+            $this->systemLocale = setlocale(LC_NUMERIC, "0");
+            setlocale(LC_NUMERIC, "C");
         }
 
-        $this->systemLocale = setlocale(LC_NUMERIC, "0");
-        setlocale(LC_NUMERIC, "C");
+        if (version_compare(PHP_VERSION, '7.0.0') >= 0) {
+            $this->pcreJit = @ini_get('pcre.jit');
+            @ini_set('pcre.jit', '0');
+        }
+
+        $this->mbstringEncoding = mb_internal_encoding();
+        mb_internal_encoding('UTF-8');
     }
 
     /**
      * Restore the system's locale configuration
      */
-    private function restoreLocale()
+    private function restorePhpConfig()
     {
-        if ($this->localeStandard) {
-            return;
+        if (!empty($this->systemLocale)) {
+            setlocale(LC_NUMERIC, $this->systemLocale);
+            $this->systemLocale = null;
         }
 
-        setlocale(LC_NUMERIC, $this->systemLocale);
+        if (!empty($this->pcreJit)) {
+            @ini_set('pcre.jit', $this->pcreJit);
+            $this->pcreJit = null;
+        }
+
+        if (!empty($this->mbstringEncoding)) {
+            mb_internal_encoding($this->mbstringEncoding);
+            $this->mbstringEncoding = null;
+        }
     }
 
     /**
@@ -350,12 +365,14 @@ class Dompdf
      */
     public function loadHtmlFile($file, $encoding = null)
     {
-        $this->saveLocale();
+        $this->setPhpConfig();
 
         if (!$this->protocol && !$this->baseHost && !$this->basePath) {
             [$this->protocol, $this->baseHost, $this->basePath] = Helpers::explode_url($file);
         }
         $protocol = strtolower($this->protocol);
+        
+        $uri = Helpers::build_url($this->protocol, $this->baseHost, $this->basePath, $file);
 
         if ( !in_array($protocol, $this->allowedProtocols) ) {
             throw new Exception("Permission denied on $file. The communication protocol is not supported.");
@@ -366,11 +383,19 @@ class Dompdf
         }
 
         if ($protocol == "" || $protocol === "file://") {
-            $realfile = realpath($file);
+            $realfile = realpath($uri);
 
-            $chroot = realpath($this->options->getChroot());
-            if ($chroot && strpos($realfile, $chroot) !== 0) {
-                throw new Exception("Permission denied on $file. The file could not be found under the directory specified by Options::chroot.");
+            $chroot = $this->options->getChroot();
+            $chrootValid = false;
+            foreach($chroot as $chrootPath) {
+                $chrootPath = realpath($chrootPath);
+                if ($chrootPath !== false && strpos($realfile, $chrootPath) === 0) {
+                    $chrootValid = true;
+                    break;
+                }
+            }
+            if ($chrootValid !== true) {
+                throw new Exception("Permission denied on $file. The file could not be found under the paths specified by Options::chroot.");
             }
 
             $ext = strtolower(pathinfo($realfile, PATHINFO_EXTENSION));
@@ -382,10 +407,10 @@ class Dompdf
                 throw new Exception("File '$file' not found.");
             }
 
-            $file = $realfile;
+            $uri = $realfile;
         }
 
-        [$contents, $http_response_header] = Helpers::getFileContent($file, $this->httpContext);
+        [$contents, $http_response_header] = Helpers::getFileContent($uri, $this->httpContext);
         if (empty($contents)) {
             throw new Exception("File '$file' not found.");
         }
@@ -400,7 +425,7 @@ class Dompdf
             }
         }
 
-        $this->restoreLocale();
+        $this->restorePhpConfig();
 
         $this->loadHtml($contents, $encoding);
     }
@@ -415,6 +440,22 @@ class Dompdf
         $this->loadHtml($str, $encoding);
     }
 
+    public function loadDOM($doc, $quirksmode = false) {
+        // Remove #text children nodes in nodes that shouldn't have
+        $tag_names = ["html", "head", "table", "tbody", "thead", "tfoot", "tr"];
+        foreach ($tag_names as $tag_name) {
+            $nodes = $doc->getElementsByTagName($tag_name);
+
+            foreach ($nodes as $node) {
+                self::removeTextNodes($node);
+            }
+        }
+
+        $this->dom = $doc;
+        $this->quirksmode = $quirksmode;
+        $this->tree = new FrameTree($this->dom);
+    }
+
     /**
      * Loads an HTML string
      * Parse errors are stored in the global array _dompdf_warnings.
@@ -424,7 +465,7 @@ class Dompdf
      */
     public function loadHtml($str, $encoding = null)
     {
-        $this->saveLocale();
+        $this->setPhpConfig();
 
         // Determine character encoding when $encoding parameter not used
         if ($encoding === null) {
@@ -484,16 +525,6 @@ class Dompdf
                 $tokenizer->parse();
                 $doc = $tokenizer->save();
 
-                // Remove #text children nodes in nodes that shouldn't have
-                $tag_names = ["html", "head", "table", "tbody", "thead", "tfoot", "tr"];
-                foreach ($tag_names as $tag_name) {
-                    $nodes = $doc->getElementsByTagName($tag_name);
-
-                    foreach ($nodes as $node) {
-                        self::removeTextNodes($node);
-                    }
-                }
-
                 $quirksmode = ($tokenizer->getTree()->getQuirksMode() > HTML5_TreeBuilder::NO_QUIRKS);
             } else {
                 // loadHTML assumes ISO-8859-1 unless otherwise specified on the HTML document header.
@@ -503,16 +534,6 @@ class Dompdf
                 $doc->preserveWhiteSpace = true;
                 $doc->loadHTML($str);
                 $doc->encoding = $encoding;
-
-                // Remove #text children nodes in nodes that shouldn't have
-                $tag_names = ["html", "head", "table", "tbody", "thead", "tfoot", "tr"];
-                foreach ($tag_names as $tag_name) {
-                    $nodes = $doc->getElementsByTagName($tag_name);
-
-                    foreach ($nodes as $node) {
-                        self::removeTextNodes($node);
-                    }
-                }
 
                 // If some text is before the doctype, we are in quirksmode
                 if (preg_match("/^(.+)<!doctype/i", ltrim($str), $matches)) {
@@ -533,13 +554,10 @@ class Dompdf
                 }
             }
 
-            $this->dom = $doc;
-            $this->quirksmode = $quirksmode;
-
-            $this->tree = new FrameTree($this->dom);
+            $this->loadDOM($doc, $quirksmode);
         } finally {
             restore_error_handler();
-            $this->restoreLocale();
+            $this->restorePhpConfig();
         }
     }
 
@@ -578,7 +596,7 @@ class Dompdf
     {
         $this->tree->build_tree();
 
-        $this->css->load_css_file(Stylesheet::getDefaultStylesheet(), Stylesheet::ORIG_UA);
+        $this->css->load_css_file($this->css->getDefaultStylesheet(), Stylesheet::ORIG_UA);
 
         $acceptedmedia = Stylesheet::$ACCEPTED_GENERIC_MEDIA_TYPES;
         $acceptedmedia[] = $this->options->getDefaultMediaType();
@@ -656,9 +674,19 @@ class Dompdf
                         $css = $tag->nodeValue;
                     }
 
+                    // Set the base path of the Stylesheet to that of the file being processed
+                    $this->css->set_protocol($this->protocol);
+                    $this->css->set_host($this->baseHost);
+                    $this->css->set_base_path($this->basePath);
+
                     $this->css->load_css($css, Stylesheet::ORIG_AUTHOR);
                     break;
             }
+
+            // Set the base path of the Stylesheet to that of the file being processed
+            $this->css->set_protocol($this->protocol);
+            $this->css->set_host($this->baseHost);
+            $this->css->set_base_path($this->basePath);
         }
     }
 
@@ -715,7 +743,7 @@ class Dompdf
      */
     public function render()
     {
-        $this->saveLocale();
+        $this->setPhpConfig();
         $options = $this->options;
 
         $logOutputFile = $options->getLogOutputFile();
@@ -762,52 +790,6 @@ class Dompdf
         }
 
         $canvas = $this->getCanvas();
-
-        if ($options->isFontSubsettingEnabled() && $canvas instanceof CPDF) {
-            foreach ($this->tree->get_frames() as $frame) {
-                $style = $frame->get_style();
-                $node = $frame->get_node();
-
-                // Handle text nodes
-                if ($node->nodeName === "#text") {
-                    $chars = mb_strtoupper($node->nodeValue) . mb_strtolower($node->nodeValue);
-                    $canvas->register_string_subset($style->font_family, $chars);
-                    continue;
-                }
-
-                // Handle generated content (list items)
-                if ($style->display === "list-item") {
-                    $chars = ListBullet::get_counter_chars($style->list_style_type);
-                    $canvas->register_string_subset($style->font_family, $chars);
-                    $canvas->register_string_subset($style->font_family, '.');
-                    continue;
-                }
-
-                // Handle other generated content (pseudo elements)
-                // FIXME: This only captures the text of the stylesheet declaration,
-                //        not the actual generated content, and forces all possible counter
-                //        values. See notes in issue #750.
-                if ($frame->get_node()->nodeName == "dompdf_generated") {
-                    // all possible counter values, just in case
-                    $chars = ListBullet::get_counter_chars('decimal');
-                    $canvas->register_string_subset($style->font_family, $chars);
-                    $chars = ListBullet::get_counter_chars('upper-alpha');
-                    $canvas->register_string_subset($style->font_family, $chars);
-                    $chars = ListBullet::get_counter_chars('lower-alpha');
-                    $canvas->register_string_subset($style->font_family, $chars);
-                    $chars = ListBullet::get_counter_chars('lower-greek');
-                    $canvas->register_string_subset($style->font_family, $chars);
-
-                    // the hex-decoded text of the content property, duplicated from AbstrctFrameReflower::_parse_string
-                    $decoded_string = preg_replace_callback("/\\\\([0-9a-fA-F]{0,6})/",
-                        function ($matches) { return \Dompdf\Helpers::unichr(hexdec($matches[1])); },
-                        $style->content);
-                    $chars = mb_strtoupper($style->content) . mb_strtolower($style->content) . mb_strtoupper($decoded_string) . mb_strtolower($decoded_string);
-                    $canvas->register_string_subset($style->font_family, $chars);
-                    continue;
-                }
-            }
-        }
 
         $root = null;
 
@@ -877,7 +859,7 @@ class Dompdf
             ob_end_clean();
         }
 
-        $this->restoreLocale();
+        $this->restorePhpConfig();
     }
 
     /**
@@ -939,14 +921,14 @@ class Dompdf
      */
     public function stream($filename = "document.pdf", $options = [])
     {
-        $this->saveLocale();
+        $this->setPhpConfig();
 
         $canvas = $this->getCanvas();
         if (!is_null($canvas)) {
             $canvas->stream($filename, $options);
         }
 
-        $this->restoreLocale();
+        $this->restorePhpConfig();
     }
 
     /**
@@ -963,7 +945,7 @@ class Dompdf
      */
     public function output($options = [])
     {
-        $this->saveLocale();
+        $this->setPhpConfig();
 
         $canvas = $this->getCanvas();
         if (is_null($canvas)) {
@@ -972,7 +954,7 @@ class Dompdf
 
         $output = $canvas->output($options);
 
-        $this->restoreLocale();
+        $this->restorePhpConfig();
 
         return $output;
     }

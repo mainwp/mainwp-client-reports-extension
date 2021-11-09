@@ -1107,6 +1107,7 @@ class MainWP_CReport {
 
 			$log_time = date( "Y-m-d H:i:s", $cal_recurring['date_send'] );
 			do_action( 'mainp_log_debug', 'CRON :: Client Report :: report id ' . $report->id . ', next send: ' . $log_time );
+			do_action( 'mainwp_log_action', 'Client Report :: report id : ' . $report->id . ', next send: ' . $log_time, MAINWP_CLIENT_REPORTS_LOG_PRIORITY_NUMBER );
 
 			// @TODO: send current day/month/year... issue
 			$values		 = array(
@@ -1165,7 +1166,7 @@ class MainWP_CReport {
 		$reports = MainWP_CReport_DB::get_instance()->get_scheduled_reports_to_continue_send();
 
 		do_action( 'mainp_log_debug', 'CRON :: Client Report :: continue send :: Found ' . count( $reports ) . ' to continue.', $forced_log );
-		do_action( 'mainwp_log_action', 'CRON :: Client Report :: Continue send :: Found ' . count( $reports ), MAINWP_CLIENT_REPORTS_LOG_PRIORITY_NUMBER );
+		//do_action( 'mainwp_log_action', 'CRON :: Client Report :: Continue send :: Found ' . count( $reports ), MAINWP_CLIENT_REPORTS_LOG_PRIORITY_NUMBER );
 	
 		if ( empty( $reports ) ) {
 			return;
@@ -2098,6 +2099,7 @@ class MainWP_CReport {
 
 		if ( empty( $send_to_email ) ) {
 			do_action( 'mainp_log_debug', 'CRON :: MainWP Client Reports :: Error :: empty send_to_email' );
+			do_action( 'mainwp_log_action', 'Client Report :: Error :: empty send_to_email', MAINWP_CLIENT_REPORTS_LOG_PRIORITY_NUMBER );
 			return false;
 		}
 
@@ -5015,8 +5017,7 @@ class MainWP_CReport {
      * @param array $client_tokens Client tokens.
      * @param int $website Child Site ID.
      */
-    public static function gen_insert_tokens_box( $editor, $hide = false,
-                                                 $client_tokens_values, $client_tokens, $website ) {
+    public static function gen_insert_tokens_box( $editor, $hide, $client_tokens_values, $client_tokens, $website ) {
 		?>
 		<div class="creport_format_insert_tokens_box <?php echo $hide ? 'hidden-field' : ''; ?>" editor="<?php echo $editor; ?>">
 			<div class="creport_format_data_tokens">
@@ -5150,7 +5151,7 @@ class MainWP_CReport {
 					}
 
 					$nav_group_bottom	 = '';
-					$group_title		 = self::$tokens_nav_top[$group];
+					$group_title		 = isset( self::$tokens_nav_top[$group] ) ? self::$tokens_nav_top[$group] : '';
 					foreach ( $group_tokens['nav_group_tokens'] as $nav_key => $nav_value ) {
 						$current_nav		 = ($visible . '_' . $visible_nav == $group . '_' . $nav_key) ? 'current' : '';
 						$nav_group_bottom	 .= '<a href="#" group="' . $group . '_' . $nav_key . '" group-title="' . $group_title . '" group2-title="' . $nav_value . '" class="creport_nav_bottom_group_lnk ' . $current_nav . '">' . $nav_value . '</a> | ';
@@ -5161,7 +5162,6 @@ class MainWP_CReport {
 				}
 				$breadcrumb = '<a href="javascript:void(0)" class="group" >' . self::$tokens_nav_top[$visible] .
 					'</a><span class="crp_content_group2 hidden-field"> > ' . '<a href="javascript:void(0)" class="group2">' .
-					//self::$stream_tokens[$visible]['nav_group_tokens'][$visible_nav] .
 					'</a></span>';
 				?>
 				<div class="ui divider"></div>
