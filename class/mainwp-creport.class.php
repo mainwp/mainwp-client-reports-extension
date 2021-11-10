@@ -45,6 +45,9 @@ class MainWP_CReport {
 	/** @var null Whether MainWP Vulnerability Checker Extension is enabled. Default: null. */
 	public static $enabled_vulnerable    = null;
 
+	/** @var null Whether MainWP Lighthouse Extension is enabled. Default: null. */
+	public static $enabled_lighthouse    = null;	
+
     /** @var int Header sections count. */
     private static $count_sec_header	 = 0;
 
@@ -773,6 +776,25 @@ class MainWP_CReport {
 					),
 				),
 			),
+			'lighthouse'		 => array(
+				'nav_group_tokens'	 => array(
+					'lighthouse' => 'Lighthouse',
+				),
+				'lighthouse'	 => array(
+					array('name' => 'lighthouse.performance.desktop', 'desc' => 'Displays the average desktop performance score at the moment of report generation'),
+					array('name' => 'lighthouse.performance.mobile', 'desc' => 'Displays the average mobile performance score at the moment of report creation'),
+					array('name' => 'lighthouse.accessibility.desktop', 'desc' => 'Displays the average desktop accessibility score at the moment of report generation'),
+					array('name' => 'lighthouse.accessibility.mobile', 'desc' => 'Displays the average mobile accessibility score at the moment of report creation'),
+					array('name' => 'lighthouse.bestpractices.desktop', 'desc' => 'Displays the average desktop best practices score at the moment of report generation'),
+					array('name' => 'lighthouse.bestpractices.mobile', 'desc' => 'Displays the average mobile best practices score at the moment of report creation'),
+					array('name' => 'lighthouse.seo.desktop', 'desc' => 'Displays the average desktop seo score at the moment of report generation'),
+					array('name' => 'lighthouse.seo.mobile', 'desc' => 'Displays the average mobile seo score at the moment of report creation'),
+					array('name' => 'lighthouse.audits.desktop', 'desc' => 'Displays the average desktop audits at the moment of report generation'),
+					array('name' => 'lighthouse.audits.mobile', 'desc' => 'Displays the average mobile audits at the moment of report creation'),
+					array('name' => 'lighthouse.lastcheck.desktop', 'desc' => 'Displays the average desktop last check at the moment of report generation'),
+					array('name' => 'lighthouse.lastcheck.mobile', 'desc' => 'Displays the average mobile last check at the moment of report creation')
+				),
+			),
 		);
 		
 		self::$tokens_nav_top = array(
@@ -797,7 +819,8 @@ class MainWP_CReport {
 			'wordfence'		 => 'Wordfence',
 			'maintenance'	 => 'Maintenance',
 			'pagespeed'		 => 'Page Speed',
-			'virusdie' => 'Virusdie'
+			'virusdie' => 'Virusdie',
+			'lighthouse' => 'Lighthouse'
 		);
 		
 	}
@@ -835,8 +858,9 @@ class MainWP_CReport {
 		self::$enabled_wordfence	 = self::is_plugin_active( 'mainwp-wordfence-extension/mainwp-wordfence-extension.php' );
 		self::$enabled_maintenance	 = self::is_plugin_active( 'mainwp-maintenance-extension/mainwp-maintenance-extension.php' );
 		self::$enabled_pagespeed	 = self::is_plugin_active( 'mainwp-page-speed-extension/mainwp-page-speed-extension.php' );
-		self::$enabled_virusdie	 = self::is_plugin_active( 'mainwp-virusdie-extension/mainwp-virusdie-extension.php' );
+		self::$enabled_virusdie		 = self::is_plugin_active( 'mainwp-virusdie-extension/mainwp-virusdie-extension.php' );
 		self::$enabled_vulnerable	 = self::is_plugin_active( 'mainwp-vulnerability-checker-extension/mainwp-vulnerability-checker-extension.php' ) ? true : false;
+		self::$enabled_lighthouse	 = self::is_plugin_active( 'mainwp-lighthouse-extension/mainwp-lighthouse-extension.php' ) ? true : false;
 		
 		self::$stream_tokens		 = apply_filters( 'mainwp_client_reports_tokens_groups', self::$stream_tokens );
 		self::$tokens_nav_top		 = apply_filters( 'mainwp_client_reports_tokens_nav_top', self::$tokens_nav_top );
@@ -3047,6 +3071,7 @@ class MainWP_CReport {
 		$get_pagespeed_tokens	 = ((strpos( $report->header, '[pagespeed.' ) !== false) || (strpos( $report->body, '[pagespeed.' ) !== false) || (strpos( $report->footer, '[pagespeed.' ) !== false)) ? true : false;
 		$get_virusdie_tokens	 = ((strpos( $report->header, '[virusdie.' ) !== false) || (strpos( $report->body, '[virusdie.' ) !== false) || (strpos( $report->footer, '[virusdie.' ) !== false)) ? true : false;
 		$get_vulnerable_tokens	 = ( strpos( $report->header, '[vulnerable.' ) !== false || strpos( $report->header, '[vulnerabilities.' ) !== false || strpos( $report->body, '[vulnerable.' ) !== false || strpos( $report->body, '[vulnerabilities.' ) !== false || strpos( $report->footer, '[vulnerable.' ) !== false || strpos( $report->footer, '[vulnerabilities.' ) !== false ) ? true : false; 
+		$get_lighthouse_tokens	 = ( strpos( $report->header, '[lighthouse.' ) !== false || strpos( $report->body, '[lighthouse.' ) !== false || strpos( $report->footer, '[lighthouse.' ) !== false  ) ? true : false; 
 		
 		$get_other_tokens = (strpos( $report->body, '[installed.plugins]' ) !== false) || (strpos( $report->body, '[installed.themes]' ) !== false);
 
@@ -3116,6 +3141,15 @@ class MainWP_CReport {
 
 			if ( $get_vulnerable_tokens ) {					
 				$ext_tokens = self::get_ext_tokens_vulnerable( $website['id'], $date_from, $date_to );
+				if ( is_array( $ext_tokens ) ) {
+					foreach ( $ext_tokens as $token => $value ) {
+						$replace_tokens_values[ '[' . $token . ']' ] = $value;
+					}
+				}
+			}
+
+			if ( $get_lighthouse_tokens ) {					
+				$ext_tokens = self::get_ext_tokens_lighthouse( $website['id'], $date_from, $date_to );
 				if ( is_array( $ext_tokens ) ) {
 					foreach ( $ext_tokens as $token => $value ) {
 						$replace_tokens_values[ '[' . $token . ']' ] = $value;
@@ -4064,8 +4098,6 @@ class MainWP_CReport {
      * @param int $site_id Child site ID.
      * @param string $start_date Report start date.
      * @param string $end_date Report end date.
-	 * @param array $sections Sections tokens.
-	 * @param array $other_tokens Other tokens.
      *
      * @return array|false|mixed Return Virusdie data or FALSE on failure.
      */
@@ -4091,6 +4123,41 @@ class MainWP_CReport {
 		}
 
 		$data                  = apply_filters( 'mainwp_vulnerable_get_data', array(), $site_id, $start_date, $end_date );
+		self::$buffer[ $uniq ] = $data;
+		return $data;
+	}
+
+	/**
+     * Lighthouse data.
+     *
+     * @param int $site_id Child site ID.
+     * @param string $start_date Report start date.
+     * @param string $end_date Report end date.
+     *
+     * @return array|false|mixed Return Lighthouse data or FALSE on failure.
+     */
+	static function get_ext_tokens_lighthouse( $site_id, $start_date, $end_date ) {
+
+		// fix bug cron job
+		if ( null === self::$enabled_lighthouse ) {
+			self::$enabled_lighthouse = self::is_plugin_active( 'mainwp-lighthouse-extension/mainwp-lighthouse-extension.php' ) ? true : false;
+		}
+
+		if ( ! self::$enabled_lighthouse ) {
+			return false;
+		}
+
+		if ( ! $site_id || ! $start_date || ! $end_date ) {
+			return false;
+		}
+
+		$uniq = 'lighthouse_' . $site_id . '_' . $start_date . '_' . $end_date;
+
+		if ( isset( self::$buffer[ $uniq ] ) ) {
+			return self::$buffer[ $uniq ];
+		}
+
+		$data                  = apply_filters( 'mainwp_lighthouse_get_data', array(), $site_id, $start_date, $end_date );
 		self::$buffer[ $uniq ] = $data;
 		return $data;
 	}
