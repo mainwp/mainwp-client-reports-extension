@@ -17,7 +17,7 @@ Author URI: https://mainwp.com
 
 == Changelog ==
 
-= 4.0.10 - 12-17-2021 =
+= 4.0.10 - 12-20-2021 =
 * Updated: DOMPDF library
 * Updated: PHP 8 compatibility
 * Updated: Support for the Lighthouse extension tokens
