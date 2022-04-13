@@ -78,6 +78,8 @@ class MainWP_CReport_DB {
 		$charset_collate = $wpdb->get_charset_collate();
 		$sql             = array();
 
+		$this->check_before_update( $currentVersion );
+
 		$rslt          = $this->query( "SHOW TABLES LIKE '" . $this->table_name( 'client_report_token' ) . "'" );
 		$table_existed = ! empty( $rslt ) ? true : false;
 
@@ -322,6 +324,18 @@ PRIMARY KEY  (`id`)  ';
 			}
 		}
 
+	}
+
+	/**
+	 * Check before update.
+	 *
+	 * @param string $check_version Extension version.
+	 */
+	function check_before_update( $check_version ) {
+		global $wpdb;
+		if ( version_compare( $check_version, '6.4' ) > 0 && version_compare( $check_version, '6.6' ) < 0 ) {
+			$wpdb->query( 'ALTER TABLE ' . $this->table_name( 'client_report' ) . ' ROW_FORMAT=DYNAMIC' );
+		}
 	}
 
 	/**
@@ -1460,7 +1474,7 @@ We hope that this report was useful and we look forward to managing your website
 			array(
 				'schedule_lastsend' => time(),
 				'completed_sites'   => json_encode( array() ),
-				'retry_counter' => 0,
+				'retry_counter'     => 0,
 			),
 			array( 'id' => $id )
 		);

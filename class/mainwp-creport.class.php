@@ -48,6 +48,9 @@ class MainWP_CReport {
 	/** @var null Whether MainWP Lighthouse Extension is enabled. Default: null. */
 	public static $enabled_lighthouse    = null;	
 
+	/** @var null Whether MainWP Domain Monitor Extension is enabled. Default: null. */
+	public static $enabled_domainmonitor = null;
+
     /** @var int Header sections count. */
     private static $count_sec_header	 = 0;
 
@@ -861,6 +864,7 @@ class MainWP_CReport {
 		self::$enabled_virusdie		 = self::is_plugin_active( 'mainwp-virusdie-extension/mainwp-virusdie-extension.php' );
 		self::$enabled_vulnerable	 = self::is_plugin_active( 'mainwp-vulnerability-checker-extension/mainwp-vulnerability-checker-extension.php' ) ? true : false;
 		self::$enabled_lighthouse	 = self::is_plugin_active( 'mainwp-lighthouse-extension/mainwp-lighthouse-extension.php' ) ? true : false;
+		self::$enabled_domainmonitor = self::is_plugin_active( 'mainwp-domain-monitor-extension/mainwp-domain-monitor-extension.php' ) ? true : false;
 		
 		self::$stream_tokens		 = apply_filters( 'mainwp_client_reports_tokens_groups', self::$stream_tokens );
 		self::$tokens_nav_top		 = apply_filters( 'mainwp_client_reports_tokens_nav_top', self::$tokens_nav_top );
@@ -3072,6 +3076,7 @@ class MainWP_CReport {
 		$get_virusdie_tokens	 = ((strpos( $report->header, '[virusdie.' ) !== false) || (strpos( $report->body, '[virusdie.' ) !== false) || (strpos( $report->footer, '[virusdie.' ) !== false)) ? true : false;
 		$get_vulnerable_tokens	 = ( strpos( $report->header, '[vulnerable.' ) !== false || strpos( $report->header, '[vulnerabilities.' ) !== false || strpos( $report->body, '[vulnerable.' ) !== false || strpos( $report->body, '[vulnerabilities.' ) !== false || strpos( $report->footer, '[vulnerable.' ) !== false || strpos( $report->footer, '[vulnerabilities.' ) !== false ) ? true : false; 
 		$get_lighthouse_tokens	 = ( strpos( $report->header, '[lighthouse.' ) !== false || strpos( $report->body, '[lighthouse.' ) !== false || strpos( $report->footer, '[lighthouse.' ) !== false  ) ? true : false; 
+		$get_domainmonitor_tokens	 = ( strpos( $report->header, '[domain.' ) !== false || strpos( $report->body, '[domain.' ) !== false || strpos( $report->footer, '[domain.' ) !== false  ) ? true : false; 
 		
 		$get_other_tokens = (strpos( $report->body, '[installed.plugins]' ) !== false) || (strpos( $report->body, '[installed.themes]' ) !== false);
 
@@ -3156,6 +3161,16 @@ class MainWP_CReport {
 					}
 				}
 			}
+
+			if ( $get_domainmonitor_tokens ) {
+				$ext_tokens = self::get_ext_tokens_domainmonitor( $website['id'], $date_from, $date_to );
+				if ( is_array( $ext_tokens ) ) {
+					foreach ( $ext_tokens as $token => $value ) {
+						$replace_tokens_values[ '[' . $token . ']' ] = $value;
+					}
+				}
+			}
+			
 
 			$replace_tokens_values['[report.daterange]']	 = MainWP_CReport_Utility::format_date( $date_from, true ) . ' - ' . MainWP_CReport_Utility::format_date( $date_to, true );
 			$now											 = time();
@@ -4144,6 +4159,41 @@ class MainWP_CReport {
 		}
 
 		if ( ! self::$enabled_lighthouse ) {
+			return false;
+		}
+
+		if ( ! $site_id || ! $start_date || ! $end_date ) {
+			return false;
+		}
+
+		$uniq = 'lighthouse_' . $site_id . '_' . $start_date . '_' . $end_date;
+
+		if ( isset( self::$buffer[ $uniq ] ) ) {
+			return self::$buffer[ $uniq ];
+		}
+
+		$data                  = apply_filters( 'mainwp_lighthouse_get_data', array(), $site_id, $start_date, $end_date );
+		self::$buffer[ $uniq ] = $data;
+		return $data;
+	}
+
+	/**
+     * Domain monitor data.
+     *
+     * @param int $site_id Child site ID.
+     * @param string $start_date Report start date.
+     * @param string $end_date Report end date.
+     *
+     * @return array|false|mixed Return Domain monitor data or FALSE on failure.
+     */
+	static function get_ext_tokens_domainmonitor( $site_id, $start_date, $end_date ) {
+
+		// fix bug cron job
+		if ( null === self::$enabled_domainmonitor ) {
+			self::$enabled_domainmonitor = self::is_plugin_active( 'mainwp-domain-monitor-extension/mainwp-domain-monitor-extension.php' ) ? true : false;
+		}
+
+		if ( ! self::$enabled_domainmonitor ) {
 			return false;
 		}
 

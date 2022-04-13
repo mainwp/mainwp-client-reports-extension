@@ -415,7 +415,7 @@ jQuery( document ).ready(function ($) {
 		}
 
 		if (errors.length > 0) {
-			jQuery( '#mwp-creport-error-box', errors.join( '<br />' ) );
+			jQuery( '#mwp-creport-error-box' ).html( errors.join( '<br />' ) ).show();
 			return false;
 		} else {
 			jQuery( '#mwp-creport-error-box' ).html( "" );
