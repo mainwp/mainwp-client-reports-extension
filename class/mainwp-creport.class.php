@@ -798,6 +798,45 @@ class MainWP_CReport {
 					array('name' => 'lighthouse.lastcheck.mobile', 'desc' => 'Displays the average mobile last check at the moment of report creation')
 				),
 			),
+			'domainmonitor' => array(
+				'nav_group_tokens' => array(
+					'domainmonitor' => 'Domain monitor',
+				),
+				'domainmonitor'    => array(
+					array(
+						'name' => 'domain.monitor.domain.name',
+						'desc' => 'Displays the domain name',
+					),
+					array(
+						'name' => 'domain.monitor.registrar',
+						'desc' => 'Displays the domain registrar',
+					),
+					array(
+						'name' => 'domain.monitor.updated.date',
+						'desc' => 'Displays the monitor updated date',
+					),
+					array(
+						'name' => 'domain.monitor.creation.date',
+						'desc' => 'Displays the domain monitor creation date',
+					),
+					array(
+						'name' => 'domain.monitor.expiry.date',
+						'desc' => 'Displays the domain monitor expiry date',
+					),
+					array(
+						'name' => 'domain.monitor.expires',
+						'desc' => 'Displays the domain monitor expires',
+					),
+					array(
+						'name' => 'domain.monitor.status',
+						'desc' => 'Displays the domain monitor status',
+					),
+					array(
+						'name' => 'domain.monitor.last.check',
+						'desc' => 'Displays the domain monitor last check',
+					),
+				),
+			),
 		);
 		
 		self::$tokens_nav_top = array(
@@ -823,7 +862,8 @@ class MainWP_CReport {
 			'maintenance'	 => 'Maintenance',
 			'pagespeed'		 => 'Page Speed',
 			'virusdie' => 'Virusdie',
-			'lighthouse' => 'Lighthouse'
+			'lighthouse' => 'Lighthouse',
+			'domainmonitor' => 'Domain monitor'
 		);
 		
 	}
@@ -4201,13 +4241,13 @@ class MainWP_CReport {
 			return false;
 		}
 
-		$uniq = 'lighthouse_' . $site_id . '_' . $start_date . '_' . $end_date;
+		$uniq = 'domainwp_' . $site_id . '_' . $start_date . '_' . $end_date;
 
 		if ( isset( self::$buffer[ $uniq ] ) ) {
 			return self::$buffer[ $uniq ];
 		}
 
-		$data                  = apply_filters( 'mainwp_lighthouse_get_data', array(), $site_id, $start_date, $end_date );
+		$data                  = apply_filters( 'mainwp_domain_monitor_get_data', array(), $site_id, $start_date, $end_date );
 		self::$buffer[ $uniq ] = $data;
 		return $data;
 	}
