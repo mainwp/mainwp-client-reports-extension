@@ -3720,7 +3720,7 @@ class MainWP_CReport {
      *
      * @uses MainWP_CReport_Utility::format_datestamp()
      */
-    static function ga_data($site_id, $start_date, $end_date, $chart = false ) {
+    static function ga_data( $site_id, $start_date, $end_date, $chart = false ) {
 
 		// Fixes cron job bug.
 		if ( null === self::$enabled_ga ) {
@@ -3746,6 +3746,7 @@ class MainWP_CReport {
 		}
 
 		$result	 = apply_filters( 'mainwp_ga_get_data', $site_id, $start_date, $end_date, $chart );
+		
 		$output	 = array(
 			'ga.visits'			 => 'N/A',
 			'ga.pageviews'		 => 'N/A',
@@ -3755,7 +3756,12 @@ class MainWP_CReport {
 			'ga.avg.time'		 => 'N/A',
 			'ga.visits.chart'	 => 'N/A', //enym new
 			'ga.visits.maximum'	 => 'N/A', //enym new
+			'ga.startdate'	 => 'N/A', //enym new
+			'ga.enddate'	 => 'N/A', //enym new
+			'ga.users'	 => 'N/A', //enym new
+			'ga.new.users'	 => 'N/A', //enym new
 		);
+
 		if ( !empty( $result ) && is_array( $result ) ) {
 
 		    /** @deprecated use 'mainwp-reports-ga-chart-format-date' $custom_date_format */
@@ -3768,8 +3774,10 @@ class MainWP_CReport {
 				$output['ga.bounce.rate']	 = (isset( $values['aggregates'] ) && isset( $values['aggregates']['ga:bounceRate'] )) ? self::format_stats_values( $values['aggregates']['ga:bounceRate'], true, true ) : 'N/A';
 				$output['ga.new.visits']	 = (isset( $values['aggregates'] ) && isset( $values['aggregates']['ga:percentNewSessions'] )) ? self::format_stats_values( $values['aggregates']['ga:percentNewSessions'], true, true ) : 'N/A';
 				$output['ga.avg.time']	 = (isset( $values['aggregates'] ) && isset( $values['aggregates']['ga:avgSessionDuration'] )) ? self::format_stats_values( $values['aggregates']['ga:avgSessionDuration'], false, false, true ) : 'N/A';
+				$output['ga.users']	 = (isset( $values['aggregates'] ) && isset( $values['aggregates']['ga:Users'] )) ? $values['aggregates']['ga:Users'] : 'N/A';
+				$output['ga.new.users']	 = (isset( $values['aggregates'] ) && isset( $values['aggregates']['ga:newUsers'] )) ? $values['aggregates']['ga:newUsers'] : 'N/A';
 			}
-
+           
 			//===============================================================
 			//enym new   requires change in mainWPGA.class.php in Ga extension [send pure graph data in array]
 			//help: http://charts.streitenberger.net/#
@@ -3927,10 +3935,6 @@ class MainWP_CReport {
 				$display_maximum_value_date	 = apply_filters( 'mainwp_client_reports_ga_visits_maximum_date', false, $date1[1], $date1[0] ); // day.month
 				if ( empty( $display_maximum_value_date ) )
 					$display_maximum_value_date	 = $date1[1] . '.' . $date1[0] . '.'; // day.month
-
-
-
-//$maximum_value_date = $date1[1] . '.' . $date1[0] . '.'; // day.month
 				$output['ga.visits.maximum'] = $maximum_value . ' (' . $display_maximum_value_date . ')';
 			}
 

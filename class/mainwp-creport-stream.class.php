@@ -186,7 +186,7 @@ class MainWP_CReport_Stream {
 			<tr class="<?php echo $class_active . ' ' . $class_update; ?>" website-id="<?php echo $website_id; ?>" plugin-name="<?php echo $plugin_name; ?>" plugin-slug="<?php echo $plugin_slug; ?>" version="<?php echo ( isset( $website['plugin_version'] ) ) ? $website['plugin_version'] : 'N/A'; ?>">
 		<td class="check-column"><span class="ui checkbox"><input type="checkbox" name="checked[]"></span></td>
 				<td class="website-name"><a href="admin.php?page=managesites&dashboard=<?php echo $website_id; ?>"><?php echo stripslashes( $website['name'] ); ?></a></td>
-				<td><a target="_blank" href="admin.php?page=SiteOpen&newWindow=yes&websiteid=<?php echo $website_id; ?>"><i class="sign in icon"></i></a></td>
+				<td><a target="_blank" href="admin.php?page=SiteOpen&newWindow=yes&websiteid=<?php echo $website_id; ?>&_opennonce=<?php echo wp_create_nonce( 'mainwp-admin-nonce' ); ?>"><i class="sign in icon"></i></a></td>
 				<td><a href="<?php echo $website['url']; ?>" target="_blank"><?php echo $website['url']; ?></a></td>
 				<td><span class="updating"></span> <?php echo ( isset( $website['reports_upgrade'] ) ) ? '<i class="exclamation circle icon"></i>' : ''; ?> <?php echo ( isset( $website['plugin_version'] ) ) ? $website['plugin_version'] : 'N/A'; ?></td>
 				<td class="wp-reports-visibility"><span class="visibility"></span> <?php echo ( 1 == $website['hide_stream'] ) ? __( 'Yes', 'mainwp-client-reports-extension' ) : __( 'No', 'mainwp-client-reports-extension' ); ?></td>
@@ -206,7 +206,7 @@ class MainWP_CReport_Stream {
 						<div class="menu">
 							<a class="item" href="admin.php?page=managesites&dashboard=<?php echo $website_id; ?>"><?php _e( 'Overview', 'mainwp-client-reports-extension' ); ?></a>
 							<a class="item" href="admin.php?page=managesites&id=<?php echo $website_id; ?>"><?php _e( 'Edit', 'mainwp-client-reports-extension' ); ?></a>
-							<a class="item" href="admin.php?page=SiteOpen&newWindow=yes&websiteid=<?php echo $website_id; ?>&location=<?php echo base64_encode( $location ); ?>" target="_blank"><?php _e( 'Open Child Reports', 'mainwp-client-reports-extension' ); ?></a>
+							<a class="item" href="admin.php?page=SiteOpen&newWindow=yes&websiteid=<?php echo $website_id; ?>&location=<?php echo base64_encode( $location ); ?>&_opennonce=<?php echo wp_create_nonce( 'mainwp-admin-nonce' ); ?>" target="_blank"><?php _e( 'Open Child Reports', 'mainwp-client-reports-extension' ); ?></a>
 							<?php if ( 1 == $website['hide_stream'] ) : ?>
 							<a class="item creport_showhide_plugin" href="#" showhide="show"><?php _e( 'Unhide Plugin', 'mainwp-client-reports-extension' ); ?></a>
 							<?php else : ?>
