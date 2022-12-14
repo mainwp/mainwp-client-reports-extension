@@ -881,7 +881,6 @@ class MainWP_CReport {
 		add_action( 'wp_ajax_mainwp_creport_delete_format', array(&$this, 'delete_format') );
 		add_action( 'wp_ajax_mainwp_creport_group_load_sites', array(&$this, 'ajax_load_sites_for_group_report') );
 		add_action( 'wp_ajax_mainwp_creport_general_load_sites', array(&$this, 'ajax_general_load_sites') );
-		add_action( 'wp_ajax_mainwp_creport_save_settings', array(&$this, 'ajax_save_settings') );
 		add_action( 'wp_ajax_mainwp_creport_generate_report', array(&$this, 'ajax_generate_report') );
 		add_action( 'wp_ajax_mainwp_creport_archive_report', array(&$this, 'ajax_archive_report') );
 
@@ -4316,8 +4315,8 @@ class MainWP_CReport {
 
 		$post_data = array(
 			'mwp_action'	 => 'get_stream',
-			'sections'		 => base64_encode( serialize( $sections ) ),
-			'other_tokens'	 => base64_encode( serialize( $tokens ) ),
+			'sections'		 => base64_encode( wp_json_encode( $sections ) ),
+			'other_tokens'	 => base64_encode( wp_json_encode( $tokens ) ),
 			'date_from'		 => $date_from,
 			'date_to'		 => $date_to,
 		);
@@ -5790,28 +5789,6 @@ class MainWP_CReport {
 
 
 		die( $html );
-	}
-
-    /**
-     * Ajax save settings.
-     */
-    function ajax_save_settings() {
-		self::verify_nonce();
-		$siteid = $_POST['site_id'];
-		if ( empty( $siteid ) ) {
-			die( json_encode( array('error' => 'Error: site id empty') ) );
-		}
-
-        /** @global object $mainWPCReportExtensionActivator MainWP Client Reports Extension Activator instance. */
-		global $mainWPCReportExtensionActivator;
-
-		$settings	 = get_option( 'mainwp_creport_settings', array() );
-		$post_data	 = array('mwp_action' => 'save_settings',
-			'settings'	 => $settings
-		);
-		$information = apply_filters( 'mainwp_fetchurlauthed', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $siteid, 'client_report', $post_data );
-
-		die( json_encode( $information ) );
 	}
 
     /**

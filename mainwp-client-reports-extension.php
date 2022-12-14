@@ -5,7 +5,7 @@
   Plugin Name: MainWP Client Reports Extension
   Plugin URI: https://mainwp.com
   Description: MainWP Client Reports Extension allows you to generate activity reports for your clients sites. Requires MainWP Dashboard.
-  Version: 4.0.12
+  Version: 4.0.13
   Author: MainWP
   Author URI: https://mainwp.com
   Documentation URI: https://mainwp.com/help/docs/category/mainwp-extensions/client-reports/
@@ -125,7 +125,7 @@ class MainWP_CReport_Extension {
 		add_filter( 'cron_schedules', array( $this, 'getCronSchedules' ) );
 	}
 
-  /**
+    /**
    * Initiate extension localization.
    */
 	public function localization() {
@@ -251,9 +251,9 @@ class MainWP_CReport_Extension {
 		// save results to child site stream.
 		$post_data = array(
 			'mwp_action'  => 'save_sucuri_stream',
-			'result'      => base64_encode( serialize( $scan_result ) ),
+			'result'      => base64_encode( wp_json_encode( $scan_result ) ),
 			'scan_status' => $scan_status,
-			'scan_data'   => base64_encode( serialize( $scan_data ) ),
+			'scan_data'   => base64_encode( wp_json_encode( $scan_data ) ),
 		);
 
 		/** @global object $mainWPCReportExtensionActivator Instance of MainWP CReports Extension Activator. */
@@ -382,7 +382,7 @@ class MainWP_CReport_Extension_Activator {
     protected $product_id = 'MainWP Client Reports Extension';
 
     /** @var string MainWP extension version. */
-    protected $software_version = '4.0.12';
+    protected $software_version = '4.0.13';
 
     /**
      * MainWP_CReport_Extension_Activator constructor.

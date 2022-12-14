@@ -10,7 +10,7 @@
  * php-svg-lib
 */
 
-require_once __DIR__ . '/dompdf/autoload.inc.php';
+require_once __DIR__ . '/dompdf/vendor/autoload.php';
 
 use Dompdf\Dompdf;
 use Dompdf\Options;
