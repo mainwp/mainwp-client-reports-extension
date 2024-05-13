@@ -12,6 +12,9 @@ class MainWP_CReport_DB {
 	/** @var string Database table prefix. */
 	private $table_prefix;
 
+	public $default_formats = array();
+	public $default_reports = array();
+
 	/**
 	 * Public static variable to hold the single instance of the class.
 	 *
@@ -317,7 +320,7 @@ PRIMARY KEY  (`id`)  ';
 				if ( $website ) {
 					$website = current( $website );
 					$sql     = 'UPDATE ' . $this->table_name( 'client_report_site_token' ) . '
-								SET site_id = ' . $this->escape( $website->id ) . ' 
+								SET site_id = ' . $this->escape( $website->id ) . '
 								WHERE id = ' . $item->id;
 					$wpdb->query( $sql );
 				}
@@ -609,8 +612,8 @@ We hope that this report was useful and we look forward to managing your website
 
 		if ( $token && ! empty( $site_id ) ) {
 			$sql = 'SELECT * FROM ' .
-					$this->table_name( 'client_report_site_token' ) . " 
-					WHERE site_id = '" . $this->escape( $site_id ) . "' 
+					$this->table_name( 'client_report_site_token' ) . "
+					WHERE site_id = '" . $this->escape( $site_id ) . "'
 					AND token_id = " . $token->id;
 
 			$site_token = $wpdb->get_row( $sql );
@@ -684,8 +687,8 @@ We hope that this report was useful and we look forward to managing your website
 
 		$qry = ' SELECT st.*, t.token_name FROM ' .
 					$this->table_name( 'client_report_site_token' ) . ' st , ' .
-					$this->table_name( 'client_report_token' ) . ' t ' . " 
-					WHERE ( st.site_url = '" . $site_url . "' OR st.site_id = " . $site_id . ' )  
+					$this->table_name( 'client_report_token' ) . ' t ' . "
+					WHERE ( st.site_url = '" . $site_url . "' OR st.site_id = " . $site_id . ' )
 					AND st.token_id = t.id '; // st.site_url for compatible data.
 
 		$site_tokens = $wpdb->get_results( $qry );
@@ -913,8 +916,12 @@ We hope that this report was useful and we look forward to managing your website
 						if ( $client_tokens ) {
 							$client_id = $client_tokens->clientid; // do not override client with email is [client.email]
 						}
-					} elseif ( $updatedClient = $this->update_client( $update_client ) ) { // create new client
+					}
+
+					if( empty( $client_id ) ) {
+						if ( $updatedClient = $this->update_client( $update_client ) ) { // create new client
 							$client_id = $updatedClient->clientid;
+						}
 					}
 				}
 
@@ -1401,7 +1408,7 @@ We hope that this report was useful and we look forward to managing your website
 				. ' LEFT JOIN ' . $this->table_name( 'client_report_client' ) . ' c '
 				. ' ON rp.client_id = c.clientid '
 				. " WHERE rp.recurring_schedule != '' AND rp.scheduled = 1 "
-				. ' AND rp.completed < rp.schedule_lastsend ' // do not send if completed > schedule_lastsend.
+				. ' AND ( rp.schedule_lastsend = 0 OR rp.completed < rp.schedule_lastsend ) '  // do not send if completed > schedule_lastsend.
 				. ' AND rp.retry_counter < 3 ' // try to send three time.
 				. ' ORDER BY rp.lastsend ASC '
 				. ' LIMIT 1';

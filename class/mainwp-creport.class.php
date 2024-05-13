@@ -46,7 +46,7 @@ class MainWP_CReport {
 	public static $enabled_vulnerable    = null;
 
 	/** @var null Whether MainWP Lighthouse Extension is enabled. Default: null. */
-	public static $enabled_lighthouse    = null;	
+	public static $enabled_lighthouse    = null;
 
 	/** @var null Whether MainWP Domain Monitor Extension is enabled. Default: null. */
 	public static $enabled_domainmonitor = null;
@@ -72,6 +72,29 @@ class MainWP_CReport {
     /** @var int Report retry time. */
     static $retry_time					 = 2;
 
+	 /**
+     * Create public static instance for MainWP_CReport_Stream.
+     *
+     * @return MainWP_CReport_Stream|null
+     */
+    private static $instance = null;
+
+    /**
+     * Method get_instance()
+     *
+     * Create a public static instance.
+     *
+     * @return mixed Class instance.
+     *
+     */
+    static function get_instance() {
+		if ( null == self::$instance ) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
+
     /**
      * MainWP_CReport constructor.
      *
@@ -79,766 +102,8 @@ class MainWP_CReport {
      */
     public function __construct() {
 
-	}
+		self::$stream_tokens = MainWP_CReport_Tokens::get_instance()->get_group_reports_tokens();
 
-    /**
-     * Initiate Extension.
-     */
-    public static function init() {
-		self::$stream_tokens = array(
-			'client'		 => array(
-				'nav_group_tokens'	 => array(
-					'tokens' => 'Tokens',
-				),
-				'tokens'			 => array(),
-			),
-			'plugins'		 => array(
-				'sections'			 => array(
-					array('name' => 'section.plugins.installed', 'desc' => 'Loops through Plugins Installed during the selected date range'),
-					array('name' => 'section.plugins.activated', 'desc' => 'Loops through Plugins Activated during the selected date range'),
-					array('name' => 'section.plugins.edited', 'desc' => 'Loops through Plugins Edited during the selected date range'),
-					array('name' => 'section.plugins.deactivated', 'desc' => 'Loops through Plugins Deactivated during the selected date range'),
-					array('name' => 'section.plugins.updated', 'desc' => 'Loops through Plugins Updated during the selected date range'),
-					array('name' => 'section.plugins.deleted', 'desc' => 'Loops through Plugins Deleted during the selected date range'),
-				),
-				'nav_group_tokens'	 => array(
-					'sections'		 => 'Sections',
-					'installed'		 => 'Installed',
-					'activated'		 => 'Activated',
-					'edited'		 => 'Edited',
-					'deactivated'	 => 'Deactivated',
-					'updated'		 => 'Updated',
-					'deleted'		 => 'Deleted',
-					'additional'	 => 'Additional',
-				),
-				'installed'			 => array(
-					array('name' => 'plugin.name', 'desc' => 'Displays the Plugin Name'),
-					array('name' => 'plugin.installed.date', 'desc' => 'Displays the Plugin Installation Date'),
-					array('name' => 'plugin.installed.time', 'desc' => 'Displays the Plugin Installation Time'),
-					array('name' => 'plugin.installed.author', 'desc' => 'Displays the User who Installed the Plugin'),
-				),
-				'activated'			 => array(
-					array('name' => 'plugin.name', 'desc' => 'Displays the Plugin Name'),
-					array('name' => 'plugin.activated.date', 'desc' => 'Displays the Plugin Activation Date'),
-					array('name' => 'plugin.activated.time', 'desc' => 'Displays the Plugin Activation Time'),
-					array('name' => 'plugin.activated.author', 'desc' => 'Displays the User who Activated the Plugin'),
-				),
-				'edited'			 => array(
-					array('name' => 'plugin.name', 'desc' => 'Displays the Plugin Name'),
-					array('name' => 'plugin.edited.date', 'desc' => 'Displays the Plugin Editing Date'),
-					array('name' => 'plugin.edited.time', 'desc' => 'Displays the Plugin Editing time'),
-					array('name' => 'plugin.edited.author', 'desc' => 'Displays the User who Edited the Plugin'),
-				),
-				'deactivated'		 => array(
-					array('name' => 'plugin.name', 'desc' => 'Displays the Plugin Name'),
-					array('name' => 'plugin.deactivated.date', 'desc' => 'Displays the Plugin Deactivation Date'),
-					array('name' => 'plugin.deactivated.time', 'desc' => 'Displays the Plugin Deactivation Time'),
-					array('name' => 'plugin.deactivated.author', 'desc' => 'Displays the User who Deactivated the Plugin'),
-				),
-				'updated'			 => array(
-					array('name' => 'plugin.old.version', 'desc' => 'Displays the Plugin Version Before Update'),
-					array('name' => 'plugin.current.version', 'desc' => 'Displays the Plugin Current Version'),
-					array('name' => 'plugin.name', 'desc' => 'Displays the Plugin Name'),
-					array('name' => 'plugin.updated.date', 'desc' => 'Displays the Plugin Update Date'),
-					array('name' => 'plugin.updated.time', 'desc' => 'Displays the Plugin Update Time'),
-					array('name' => 'plugin.updated.author', 'desc' => 'Displays the User who Updated the Plugin'),
-				),
-				'deleted'			 => array(
-					array('name' => 'plugin.name', 'desc' => 'Displays the Plugin Name'),
-					array('name' => 'plugin.deleted.date', 'desc' => 'Displays the Plugin Deleting Date'),
-					array('name' => 'plugin.deleted.time', 'desc' => 'Displays the Plugin Deleting Time'),
-					array('name' => 'plugin.deleted.author', 'desc' => 'Displays the User who Deleted the Plugin'),
-				),
-				'additional'		 => array(
-					array('name' => 'plugin.installed.count', 'desc' => 'Displays the Number of Installed Plugins'),
-					array('name' => 'plugin.edited.count', 'desc' => 'Displays the Number of Edited Plugins'),
-					array('name' => 'plugin.activated.count', 'desc' => 'Displays the Number of Activated Plugins'),
-					array('name' => 'plugin.deactivated.count', 'desc' => 'Displays the Number of Deactivated Plugins'),
-					array('name' => 'plugin.deleted.count', 'desc' => 'Displays the Number of Deleted Plugins'),
-					array('name' => 'plugin.updated.count', 'desc' => 'Displays the Number of Updated Plugins'),
-					array('name' => 'installed.plugins', 'desc' => 'Displays Installed Plugins'),
-				),
-			),
-			'themes'		 => array(
-				'sections'			 => array(
-					array('name' => 'section.themes.installed', 'desc' => 'Loops through Themes Installed during the selected date range'),
-					array('name' => 'section.themes.activated', 'desc' => 'Loops through Themes Activated during the selected date range'),
-					array('name' => 'section.themes.edited', 'desc' => 'Loops through Themes Edited during the selected date range'),
-					array('name' => 'section.themes.updated', 'desc' => 'Loops through Themes Updated during the selected date range'),
-					array('name' => 'section.themes.deleted', 'desc' => 'Loops through Themes Deleted during the selected date range'),
-				),
-				'nav_group_tokens'	 => array(
-					'sections'	 => 'Sections',
-					'installed'	 => 'Installed',
-					'activated'	 => 'Activated',
-					'edited'	 => 'Edited',
-					'updated'	 => 'Updated',
-					'deleted'	 => 'Deleted',
-					'additional' => 'Additional',
-				),
-				'installed'			 => array(
-					array('name' => 'theme.name', 'desc' => 'Displays the Theme Name'),
-					array('name' => 'theme.installed.date', 'desc' => 'Displays the Theme Installation Date'),
-					array('name' => 'theme.installed.time', 'desc' => 'Displays the Theme Installation Time'),
-					array('name' => 'theme.installed.author', 'desc' => 'Displays the User who Installed the Theme'),
-				),
-				'activated'			 => array(
-					array('name' => 'theme.name', 'desc' => 'Displays the Theme Name'),
-					array('name' => 'theme.activated.date', 'desc' => 'Displays the Theme Activation Date'),
-					array('name' => 'theme.activated.time', 'desc' => 'Displays the Theme Activation Time'),
-					array('name' => 'theme.activated.author', 'desc' => 'Displays the User who Activated the Theme'),
-				),
-				'edited'			 => array(
-					array('name' => 'theme.name', 'desc' => 'Displays the Theme Name'),
-					array('name' => 'theme.edited.date', 'desc' => 'Displays the Theme Editing Date'),
-					array('name' => 'theme.edited.time', 'desc' => 'Displays the Theme Editing Time'),
-					array('name' => 'theme.edited.author', 'desc' => 'Displays the User who Edited the Theme'),
-				),
-				'updated'			 => array(
-					array('name' => 'theme.old.version', 'desc' => 'Displays the Theme Version Before Update'),
-					array('name' => 'theme.current.version', 'desc' => 'Displays the Theme Current Version'),
-					array('name' => 'theme.name', 'desc' => 'Displays the Theme Name'),
-					array('name' => 'theme.updated.date', 'desc' => 'Displays the Theme Update Date'),
-					array('name' => 'theme.updated.time', 'desc' => 'Displays the Theme Update Time'),
-					array('name' => 'theme.updated.author', 'desc' => 'Displays the User who Updated the Theme'),
-				),
-				'deleted'			 => array(
-					array('name' => 'theme.name', 'desc' => 'Displays the Theme Name'),
-					array('name' => 'theme.deleted.date', 'desc' => 'Displays the Theme Deleting Date'),
-					array('name' => 'theme.deleted.time', 'desc' => 'Displays the Theme Deleting Time'),
-					array('name' => 'theme.deleted.author', 'desc' => 'Displays the User who Deleted the Theme'),
-				),
-				'additional'		 => array(
-					array('name' => 'theme.installed.count', 'desc' => 'Displays the Number of Installed Themes'),
-					array('name' => 'theme.edited.count', 'desc' => 'Displays the Number of Edited Themes'),
-					array('name' => 'theme.activated.count', 'desc' => 'Displays the Number of Activated Themes'),
-					array('name' => 'theme.deleted.count', 'desc' => 'Displays the Number of Deleted Themes'),
-					array('name' => 'theme.updated.count', 'desc' => 'Displays the Number of Updated Themes'),
-					array('name' => 'installed.themes', 'desc' => 'Displays Installed Themes'),
-				),
-			),
-			'posts'			 => array(
-				'sections'			 => array(
-					array('name' => 'section.posts.created', 'desc' => 'Loops through Posts Created during the selected date range'),
-					array('name' => 'section.posts.updated', 'desc' => 'Loops through Posts Updated during the selected date range'),
-					array('name' => 'section.posts.trashed', 'desc' => 'Loops through Posts Trashed during the selected date range'),
-					array('name' => 'section.posts.deleted', 'desc' => 'Loops through Posts Deleted during the selected date range'),
-					array('name' => 'section.posts.restored', 'desc' => 'Loops through Posts Restored during the selected date range'),
-				),
-				'nav_group_tokens'	 => array(
-					'sections'	 => 'Sections',
-					'created'	 => 'Created',
-					'updated'	 => 'Updated',
-					'trashed'	 => 'Trashed',
-					'deleted'	 => 'Deleted',
-					'restored'	 => 'Restored',
-					'additional' => 'Additional',
-				),
-				'created'			 => array(
-					array('name' => 'post.title', 'desc' => 'Displays the Post Title'),
-					array('name' => 'post.created.date', 'desc' => 'Displays the Post Creation Date'),
-					array('name' => 'post.created.time', 'desc' => 'Displays the Post Creation Time'),
-					array('name' => 'post.created.author', 'desc' => 'Displays the User who Created the Post'),
-				),
-				'updated'			 => array(
-					array('name' => 'post.title', 'desc' => 'Displays the Post Title'),
-					array('name' => 'post.updated.date', 'desc' => 'Displays the Post Update Date'),
-					array('name' => 'post.updated.time', 'desc' => 'Displays the Post Update Time'),
-					array('name' => 'post.updated.author', 'desc' => 'Displays the User who Updated the Post'),
-				),
-				'trashed'			 => array(
-					array('name' => 'post.title', 'desc' => 'Displays the Post Title'),
-					array('name' => 'post.trashed.date', 'desc' => 'Displays the Post Trashing Date'),
-					array('name' => 'post.trashed.time', 'desc' => 'Displays the Post Trashing Time'),
-					array('name' => 'post.trashed.author', 'desc' => 'Displays the User who Trashed the Post'),
-				),
-				'deleted'			 => array(
-					array('name' => 'post.title', 'desc' => 'Displays the Post Title'),
-					array('name' => 'post.deleted.date', 'desc' => 'Displays the Post Deleting Date'),
-					array('name' => 'post.deleted.time', 'desc' => 'Displays the Post Deleting Time'),
-					array('name' => 'post.deleted.author', 'desc' => 'Displays the User who Deleted the Post'),
-				),
-				'restored'			 => array(
-					array('name' => 'post.title', 'desc' => 'Displays Post Title'),
-					array('name' => 'post.restored.date', 'desc' => 'Displays the Post Restoring Date'),
-					array('name' => 'post.restored.time', 'desc' => 'Displays the Post Restoring Time'),
-					array('name' => 'post.restored.author', 'desc' => 'Displays the User who Restored the Post'),
-				),
-				'additional'		 => array(
-					array('name' => 'post.created.count', 'desc' => 'Displays the Number of Created Posts'),
-					array('name' => 'post.updated.count', 'desc' => 'Displays the Number of Updated Posts'),
-					array('name' => 'post.trashed.count', 'desc' => 'Displays the Number of Trashed Posts'),
-					array('name' => 'post.restored.count', 'desc' => 'Displays the Number of Restored Posts'),
-					array('name' => 'post.deleted.count', 'desc' => 'Displays the Number of Deleted Posts'),
-				),
-			),
-			'pages'			 => array(
-				'sections'			 => array(
-					array('name' => 'section.pages.created', 'desc' => 'Loops through Pages Created during the selected date range'),
-					array('name' => 'section.pages.updated', 'desc' => 'Loops through Pages Updated during the selected date range'),
-					array('name' => 'section.pages.trashed', 'desc' => 'Loops through Pages Trashed during the selected date range'),
-					array('name' => 'section.pages.deleted', 'desc' => 'Loops through Pages Deleted during the selected date range'),
-					array('name' => 'section.pages.restored', 'desc' => 'Loops through Pages Restored during the selected date range'),
-				),
-				'nav_group_tokens'	 => array(
-					'sections'	 => 'Sections',
-					'created'	 => 'Created',
-					'updated'	 => 'Updated',
-					'trashed'	 => 'Trashed',
-					'deleted'	 => 'Deleted',
-					'restored'	 => 'Restored',
-					'additional' => 'Additional',
-				),
-				'created'			 => array(
-					array('name' => 'page.title', 'desc' => 'Displays the Page Title'),
-					array('name' => 'page.created.date', 'desc' => 'Displays the Page Createion Date'),
-					array('name' => 'page.created.time', 'desc' => 'Displays the Page Createion Time'),
-					array('name' => 'page.created.author', 'desc' => 'Displays the User who Created the Page'),
-				),
-				'updated'			 => array(
-					array('name' => 'page.title', 'desc' => 'Displays the Page Title'),
-					array('name' => 'page.updated.date', 'desc' => 'Displays the Page Updating Date'),
-					array('name' => 'page.updated.time', 'desc' => 'Displays the Page Updating Time'),
-					array('name' => 'page.updated.author', 'desc' => 'Displays the User who Updated the Page'),
-				),
-				'trashed'			 => array(
-					array('name' => 'page.title', 'desc' => 'Displays the Page Title'),
-					array('name' => 'page.trashed.date', 'desc' => 'Displays the Page Trashing Date'),
-					array('name' => 'page.trashed.time', 'desc' => 'Displays the Page Trashing Time'),
-					array('name' => 'page.trashed.author', 'desc' => 'Displays the User who Trashed the Page'),
-				),
-				'deleted'			 => array(
-					array('name' => 'page.title', 'desc' => 'Displays the Page Title'),
-					array('name' => 'page.deleted.date', 'desc' => 'Displays the Page Deleting Date'),
-					array('name' => 'page.deleted.time', 'desc' => 'Displays the Page Deleting Time'),
-					array('name' => 'page.deleted.author', 'desc' => 'Displays the User who Deleted the Page'),
-				),
-				'restored'			 => array(
-					array('name' => 'page.title', 'desc' => 'Displays the Page Title'),
-					array('name' => 'page.restored.date', 'desc' => 'Displays the Page Restoring Date'),
-					array('name' => 'page.restored.time', 'desc' => 'Displays the Page Restoring Time'),
-					array('name' => 'page.restored.author', 'desc' => 'Displays the User who Restored the Page'),
-				),
-				'additional'		 => array(
-					array('name' => 'page.created.count', 'desc' => 'Displays the Number of Created Pages'),
-					array('name' => 'page.updated.count', 'desc' => 'Displays the Number of Updated Pages'),
-					array('name' => 'page.trashed.count', 'desc' => 'Displays the Number of Trashed Pages'),
-					array('name' => 'page.restored.count', 'desc' => 'Displays the Number of Restored Pages'),
-					array('name' => 'page.deleted.count', 'desc' => 'Displays the Number of Deleted Pages'),
-				),
-			),
-			'comments'		 => array(
-				'sections'			 => array(
-					array('name' => 'section.comments.created', 'desc' => 'Loops through Comments Created during the selected date range'),
-					array('name' => 'section.comments.updated', 'desc' => 'Loops through Comments Updated during the selected date range'),
-					array('name' => 'section.comments.trashed', 'desc' => 'Loops through Comments Trashed during the selected date range'),
-					array('name' => 'section.comments.deleted', 'desc' => 'Loops through Comments Deleted during the selected date range'),
-					array('name' => 'section.comments.edited', 'desc' => 'Loops through Comments Edited during the selected date range'),
-					array('name' => 'section.comments.restored', 'desc' => 'Loops through Comments Restored during the selected date range'),
-					array('name' => 'section.comments.approved', 'desc' => 'Loops through Comments Approved during the selected date range'),
-					array('name' => 'section.comments.spam', 'desc' => 'Loops through Comments Spammed during the selected date range'),
-					array('name' => 'section.comments.replied', 'desc' => 'Loops through Comments Replied during the selected date range'),
-				),
-				'nav_group_tokens'	 => array(
-					'sections'	 => 'Sections',
-					'created'	 => 'Created',
-					'updated'	 => 'Updated',
-					'trashed'	 => 'Trashed',
-					'deleted'	 => 'Deleted',
-					'edited'	 => 'Edited',
-					'restored'	 => 'Restored',
-					'approved'	 => 'Approved',
-					'spam'		 => 'Spam',
-					'replied'	 => 'Replied',
-					'additional' => 'Additional',
-				),
-				'created'			 => array(
-					array('name' => 'comment.title', 'desc' => 'Displays the Title of the Post or the Page where the Comment is Created'),
-					array('name' => 'comment.created.date', 'desc' => 'Displays the Comment Creating Date'),
-					array('name' => 'comment.created.time', 'desc' => 'Displays the Comment Creating Time'),
-					array('name' => 'comment.created.author', 'desc' => 'Displays the User who Created the Comment'),
-				),
-				'updated'			 => array(
-					array('name' => 'comment.title', 'desc' => 'Displays the Title of the Post or the Page where the Comment is Updated'),
-					array('name' => 'comment.updated.date', 'desc' => 'Displays the Comment Updating Date'),
-					array('name' => 'comment.updated.time', 'desc' => 'Displays the Comment Updating Time'),
-					array('name' => 'comment.updated.author', 'desc' => 'Displays the User who Updated the Comment'),
-				),
-				'trashed'			 => array(
-					array('name' => 'comment.title', 'desc' => 'Displays the Title of the Post or the Page where the Comment is Trashed'),
-					array('name' => 'comment.trashed.date', 'desc' => 'Displays the Comment Trashing Date'),
-					array('name' => 'comment.trashed.time', 'desc' => 'Displays the Comment Trashing Time'),
-					array('name' => 'comment.trashed.author', 'desc' => 'Displays the User who Trashed the Comment'),
-				),
-				'deleted'			 => array(
-					array('name' => 'comment.title', 'desc' => 'Displays the Title of the Post or the Page where the Comment is Deleted'),
-					array('name' => 'comment.deleted.date', 'desc' => 'Displays the Comment Deleting Date'),
-					array('name' => 'comment.deleted.time', 'desc' => 'Displays the Comment Deleting Time'),
-					array('name' => 'comment.deleted.author', 'desc' => 'Displays the User who Deleted the Comment'),
-				),
-				'edited'			 => array(
-					array('name' => 'comment.title', 'desc' => 'Displays the Title of the Post or the Page where the Comment is Edited'),
-					array('name' => 'comment.edited.date', 'desc' => 'Displays the Comment Editing Date'),
-					array('name' => 'comment.edited.time', 'desc' => 'Displays the Comment Editing Time'),
-					array('name' => 'comment.edited.author', 'desc' => 'Displays the User who Edited the Comment'),
-				),
-				'restored'			 => array(
-					array('name' => 'comment.title', 'desc' => 'Displays the Title of the Post or the Page where the Comment is Restored'),
-					array('name' => 'comment.restored.date', 'desc' => 'Displays the Comment Restoring Date'),
-					array('name' => 'comment.restored.time', 'desc' => 'Displays the Comment Restoring Time'),
-					array('name' => 'comment.restored.author', 'desc' => 'Displays the User who Restored the Comment'),
-				),
-				'approved'			 => array(
-					array('name' => 'comment.title', 'desc' => 'Displays the Title of the Post or the Page where the Comment is Approved'),
-					array('name' => 'comment.approved.date', 'desc' => 'Displays the Comment Approving Date'),
-					array('name' => 'comment.approved.time', 'desc' => 'Displays the Comment Approving Time'),
-					array('name' => 'comment.approved.author', 'desc' => 'Displays the User who Approved the Comment'),
-				),
-				'spam'				 => array(
-					array('name' => 'comment.title', 'desc' => 'Displays the Title of the Post or the Page where the Comment is Spammed'),
-					array('name' => 'comment.spam.date', 'desc' => 'Displays the Comment Spamming Date'),
-					array('name' => 'comment.spam.time', 'desc' => 'Displays the Comment Spamming Time'),
-					array('name' => 'comment.spam.author', 'desc' => 'Displays the User who Spammed the Comment'),
-				),
-				'replied'			 => array(
-					array('name' => 'comment.title', 'desc' => 'Displays the Title of the Post or the Page where the Comment is Replied'),
-					array('name' => 'comment.replied.date', 'desc' => 'Displays the Comment Replying Date'),
-					array('name' => 'comment.replied.time', 'desc' => 'Displays the Comment Replying Time'),
-					array('name' => 'comment.replied.author', 'desc' => 'Displays the User who Replied the Comment'),
-				),
-				'additional'		 => array(
-					array('name' => 'comment.created.count', 'desc' => 'Displays the Number of Created Comments'),
-					array('name' => 'comment.trashed.count', 'desc' => 'Displays the Number of Trashed Comments'),
-					array('name' => 'comment.deleted.count', 'desc' => 'Displays the Number of Deleted Comments'),
-					array('name' => 'comment.edited.count', 'desc' => 'Displays the Number of Edited Comments'),
-					array('name' => 'comment.restored.count', 'desc' => 'Displays the Number of Restored Comments'),
-					array('name' => 'comment.deleted.count', 'desc' => 'Displays the Number of Deleted Comments'),
-					array('name' => 'comment.approved.count', 'desc' => 'Displays the Number of Approved Comments'),
-					array('name' => 'comment.spam.count', 'desc' => 'Displays the Number of Spammed Comments'),
-					array('name' => 'comment.replied.count', 'desc' => 'Displays the Number of Replied Comments'),
-				),
-			),
-			'users'			 => array(
-				'sections'			 => array(
-					array('name' => 'section.users.created', 'desc' => 'Loops through Users Created during the selected date range'),
-					array('name' => 'section.users.updated', 'desc' => 'Loops through Users Updated during the selected date range'),
-					array('name' => 'section.users.deleted', 'desc' => 'Loops through Users Deleted during the selected date range'),
-				),
-				'nav_group_tokens'	 => array(
-					'sections'	 => 'Sections',
-					'created'	 => 'Created',
-					'updated'	 => 'Updated',
-					'deleted'	 => 'Deleted',
-					'additional' => 'Additional',
-				),
-				'created'			 => array(
-					array('name' => 'user.name', 'desc' => 'Displays the User Name'),
-					array('name' => 'user.created.date', 'desc' => 'Displays the User Creation Date'),
-					array('name' => 'user.created.time', 'desc' => 'Displays the User Creation Time'),
-					array('name' => 'user.created.author', 'desc' => 'Displays the User who Created the new User'),
-					array('name' => 'user.created.role', 'desc' => 'Displays the Role of the Created User'),
-				),
-				'updated'			 => array(
-					array('name' => 'user.name', 'desc' => 'Displays the User Name'),
-					array('name' => 'user.updated.date', 'desc' => 'Displays the User Updating Date'),
-					array('name' => 'user.updated.time', 'desc' => 'Displays the User Updating Time'),
-					array('name' => 'user.updated.author', 'desc' => 'Displays the User who Updated the new User'),
-					array('name' => 'user.updated.role', 'desc' => 'Displays the Role of the Updated User'),
-				),
-				'deleted'			 => array(
-					array('name' => 'user.name', 'desc' => 'Displays the User Name'),
-					array('name' => 'user.deleted.date', 'desc' => 'Displays the User Deleting Date'),
-					array('name' => 'user.deleted.time', 'desc' => 'Displays the User Deleting Time'),
-					array('name' => 'user.deleted.author', 'desc' => 'Displays the User who Deleted the new User'),
-				),
-				'additional'		 => array(
-					array('name' => 'user.created.count', 'desc' => 'Displays the Number of Created Users'),
-					array('name' => 'user.updated.count', 'desc' => 'Displays the Number of Updated Users'),
-					array('name' => 'user.deleted.count', 'desc' => 'Displays the Number of Deleted Users'),
-				),
-			),
-			'media'			 => array(
-				'sections'			 => array(
-					array('name' => 'section.media.uploaded', 'desc' => 'Loops through Media Uploaded during the selected date range'),
-					array('name' => 'section.media.updated', 'desc' => 'Loops through Media Updated during the selected date range'),
-					array('name' => 'section.media.deleted', 'desc' => 'Loops through Media Deleted during the selected date range'),
-				),
-				'nav_group_tokens'	 => array(
-					'sections'	 => 'Sections',
-					'uploaded'	 => 'Uploaded',
-					'updated'	 => 'Updated',
-					'deleted'	 => 'Deleted',
-					'additional' => 'Additional',
-				),
-				'uploaded'			 => array(
-					array('name' => 'media.name', 'desc' => 'Displays the Media Name'),
-					array('name' => 'media.uploaded.date', 'desc' => 'Displays the Media Uploading Date'),
-					array('name' => 'media.uploaded.time', 'desc' => 'Displays the Media Uploading Time'),
-					array('name' => 'media.uploaded.author', 'desc' => 'Displays the User who Uploaded the Media File'),
-				),
-				'updated'			 => array(
-					array('name' => 'media.name', 'desc' => 'Displays the Media Name'),
-					array('name' => 'media.updated.date', 'desc' => 'Displays the Media Updating Date'),
-					array('name' => 'media.updated.time', 'desc' => 'Displays the Media Updating Time'),
-					array('name' => 'media.updated.author', 'desc' => 'Displays the User who Updted the Media File'),
-				),
-				'deleted'			 => array(
-					array('name' => 'media.name', 'desc' => 'Displays the Media Name'),
-					array('name' => 'media.deleted.date', 'desc' => 'Displays the Media Deleting Date'),
-					array('name' => 'media.deleted.time', 'desc' => 'Displays the Media Deleting Time'),
-					array('name' => 'media.deleted.author', 'desc' => 'Displays the User who Deleted the Media File'),
-				),
-				'additional'		 => array(
-					array('name' => 'media.uploaded.count', 'desc' => 'Displays the Number of Uploaded Media Files'),
-					array('name' => 'media.updated.count', 'desc' => 'Displays the Number of Updated Media Files'),
-					array('name' => 'media.deleted.count', 'desc' => 'Displays the Number of Deleted Media Files'),
-				),
-			),
-			'widgets'		 => array(
-				'sections'			 => array(
-					array('name' => 'section.widgets.added', 'desc' => 'Loops through Widgets Added during the selected date range'),
-					array('name' => 'section.widgets.updated', 'desc' => 'Loops through Widgets Updated during the selected date range'),
-					array('name' => 'section.widgets.deleted', 'desc' => 'Loops through Widgets Deleted during the selected date range'),
-				),
-				'nav_group_tokens'	 => array(
-					'sections'	 => 'Sections',
-					'added'		 => 'Added',
-					'updated'	 => 'Updated',
-					'deleted'	 => 'Deleted',
-					'additional' => 'Additional',
-				),
-				'added'				 => array(
-					array('name' => 'widget.title', 'desc' => 'Displays the Widget Title'),
-					array('name' => 'widget.added.area', 'desc' => 'Displays the Widget Adding Area'),
-					array('name' => 'widget.added.date', 'desc' => 'Displays the Widget Adding Date'),
-					array('name' => 'widget.added.time', 'desc' => 'Displays the Widget Adding Time'),
-					array('name' => 'widget.added.author', 'desc' => 'Displays the User who Added the Widget'),
-				),
-				'updated'			 => array(
-					array('name' => 'widget.title', 'desc' => 'Displays the Widget Name'),
-					array('name' => 'widget.updated.area', 'desc' => 'Displays the Widget Updating Area'),
-					array('name' => 'widget.updated.date', 'desc' => 'Displays the Widget Updating Date'),
-					array('name' => 'widget.updated.time', 'desc' => 'Displays the Widget Updating Time'),
-					array('name' => 'widget.updated.author', 'desc' => 'Displays the User who Updated the Widget'),
-				),
-				'deleted'			 => array(
-					array('name' => 'widget.title', 'desc' => 'Displays the Widget Name'),
-					array('name' => 'widget.deleted.area', 'desc' => 'Displays the Widget Deleting Area'),
-					array('name' => 'widget.deleted.date', 'desc' => 'Displays the Widget Deleting Date'),
-					array('name' => 'widget.deleted.time', 'desc' => 'Displays the Widget Deleting Time'),
-					array('name' => 'widget.deleted.author', 'desc' => 'Displays the User who Deleted the Widget'),
-				),
-				'additional'		 => array(
-					array('name' => 'widget.added.count', 'desc' => 'Displays the Number of Added Widgets'),
-					array('name' => 'widget.updated.count', 'desc' => 'Displays the Number of Updated Widgets'),
-					array('name' => 'widget.deleted.count', 'desc' => 'Displays the Number of Deleted Widgets'),
-				),
-			),
-			'menus'			 => array(
-				'sections'			 => array(
-					array('name' => 'section.menus.created', 'desc' => 'Loops through Menus Created during the selected date range'),
-					array('name' => 'section.menus.updated', 'desc' => 'Loops through Menus Updated during the selected date range'),
-					array('name' => 'section.menus.deleted', 'desc' => 'Loops through Menus Deleted during the selected date range'),
-				),
-				'nav_group_tokens'	 => array(
-					'sections'	 => 'Sections',
-					'created'	 => 'Created',
-					'updated'	 => 'Updated',
-					'deleted'	 => 'Deleted',
-					'additional' => 'Additional',
-				),
-				'created'			 => array(
-					array('name' => 'menu.title', 'desc' => 'Displays the Menu Name'),
-					array('name' => 'menu.created.date', 'desc' => 'Displays the Menu Creation Date'),
-					array('name' => 'menu.created.time', 'desc' => 'Displays the Menu Creation Time'),
-					array('name' => 'menu.created.author', 'desc' => 'Displays the User who Created the Menu'),
-				),
-				'updated'			 => array(
-					array('name' => 'menu.title', 'desc' => 'Displays the Menu Name'),
-					array('name' => 'menu.updated.date', 'desc' => 'Displays the Menu Updating Date'),
-					array('name' => 'menu.updated.time', 'desc' => 'Displays the Menu Updating Time'),
-					array('name' => 'menu.updated.author', 'desc' => 'Displays the User who Updated the Menu'),
-				),
-				'deleted'			 => array(
-					array('name' => 'menu.title', 'desc' => 'Displays the Menu Name'),
-					array('name' => 'menu.deleted.date', 'desc' => 'Displays the Menu Deleting Date'),
-					array('name' => 'menu.deleted.time', 'desc' => 'Displays the Menu Deleting Time'),
-					array('name' => 'menu.deleted.author', 'desc' => 'Displays the User who Deleted the Menu'),
-				),
-				'additional'		 => array(
-					array('name' => 'menu.created.count', 'desc' => 'Displays the Number of Created Menus'),
-					array('name' => 'menu.updated.count', 'desc' => 'Displays the Number of Updated Menus'),
-					array('name' => 'menu.deleted.count', 'desc' => 'Displays the Number of Deleted Menus'),
-				),
-			),
-			'wordpress'		 => array(
-				'sections'			 => array(
-					array('name' => 'section.wordpress.updated', 'desc' => 'Loops through WordPress Updates during the selected date range'),
-				),
-				'nav_group_tokens'	 => array(
-					'sections'	 => 'Sections',
-					'updated'	 => 'Updated',
-					'additional' => 'Additional',
-				),
-				'updated'			 => array(
-					array('name' => 'wordpress.updated.date', 'desc' => 'Displays the WordPress Update Date'),
-					array('name' => 'wordpress.updated.time', 'desc' => 'Displays the WordPress Update Time'),
-					array('name' => 'wordpress.updated.author', 'desc' => 'Displays the User who Updated the Site'),
-				),
-				'additional'		 => array(
-					array('name' => 'wordpress.old.version', 'desc' => 'Displays the WordPress Version Before Update'),
-					array('name' => 'wordpress.current.version', 'desc' => 'Displays the Current WordPress Version'),
-					array('name' => 'wordpress.updated.count', 'desc' => 'Displays the Number of WordPress Updates'),
-				),
-			),
-			'backups'		 => array(
-				'nav_group_tokens'	 => array(
-					'sections'	 => 'Sections',
-					'created'	 => 'Created',
-					'additional' => 'Additional',
-				),
-				'sections'			 => array(
-					array('name' => 'section.backups.created', 'desc' => ' Loops through Backups Created during the selected date range'),
-				),
-				'created'			 => array(
-					array('name' => 'backup.created.type', 'desc' => ' Displays the Created Backup type (Full or Database)'),
-					array('name' => 'backup.created.date', 'desc' => 'Displays the Backups Creation Date'),
-					array('name' => 'backup.created.time', 'desc' => 'Displays the Backups Creation Time'),
-				//array("name" => "backup.created.destination", "desc" => "Displays the Created Backup destination")
-				),
-				'additional'		 => array(
-					array('name' => 'backup.created.count', 'desc' => 'Displays the number of created backups during the selected date range'),
-				),
-			),
-			'report'		 => array(
-				'nav_group_tokens'	 => array('report' => 'Report'),
-				'report'			 => array(
-					array('name' => 'report.daterange', 'desc' => 'Displays the report date range'),
-					array('name' => 'report.send.date', 'desc' => 'Displays the report send date'),
-				),
-			),
-			'sucuri'		 => array(
-				'sections'			 => array(
-					array('name' => 'section.sucuri.checks', 'desc' => 'Loops through Security Checks during the selected date range'),
-				),
-				'nav_group_tokens'	 => array(
-					'sections'	 => 'Sections',
-					'check'		 => 'Checks',
-					'additional' => 'Additional',
-				),
-				'check'				 => array(
-					array('name' => 'sucuri.check.date', 'desc' => 'Displays the Security Check date'),
-					array('name' => 'sucuri.check.time', 'desc' => 'Displays the Security Check time'),
-					array('name' => 'sucuri.check.status', 'desc' => 'Displays the Status info for the Child Site'),
-					array('name' => 'sucuri.check.webtrust', 'desc' => 'Displays the Webtrust info for the Child Site'),
-				//array("name" => "sucuri.check.results", "desc" => "Displays the Security Check details from the Security Scan Report"),
-				),
-				'additional'		 => array(
-					array('name' => 'sucuri.checks.count', 'desc' => 'Displays the number of performed security checks during the selected date range'),
-				),
-			),
-			'ga'			 => array(
-				'nav_group_tokens'	 => array(
-					'ga' => 'GA',
-				),
-				'ga'				 => array(
-					array('name' => 'ga.visits', 'desc' => 'Displays the Number Visits during the selected date range'),
-					array('name' => 'ga.pageviews', 'desc' => 'Displays the Number of Page Views during the selected date range'),
-					array('name' => 'ga.pages.visit', 'desc' => 'Displays the Number of Page visit during the selected date range'),
-					array('name' => 'ga.bounce.rate', 'desc' => 'Displays the Bounce Rate during the selected date range'),
-					array('name' => 'ga.avg.time', 'desc' => 'Displays the Average Visit Time during the selected date range'),
-					array('name' => 'ga.new.visits', 'desc' => 'Displays the Number of New Visits during the selected date range'),
-					array('name' => 'ga.visits.chart', 'desc' => 'Displays a chart for the activity over the past month'),
-					array('name' => 'ga.visits.maximum', 'desc' => "Displays the maximum visitor number and it's day within the past month"),
-					array('name' => 'ga.startdate', 'desc' => 'Displays the startdate for the chart'),
-					array('name' => 'ga.enddate', 'desc' => 'Displays the enddate or the chart'),
-				),
-			),
-			'piwik'			 => array(
-				'nav_group_tokens'	 => array(
-					'piwik' => 'Piwik',
-				),
-				'piwik'				 => array(
-					array('name' => 'piwik.visits', 'desc' => 'Displays the Number Visits during the selected date range'),
-					array('name' => 'piwik.pageviews', 'desc' => 'Displays the Number of Page Views during the selected date range'),
-					array('name' => 'piwik.pages.visit', 'desc' => 'Displays the Number of Page visit during the selected date range'),
-					array('name' => 'piwik.bounce.rate', 'desc' => 'Displays the Bounce Rate during the selected date range'),
-					array('name' => 'piwik.avg.time', 'desc' => 'Displays the Average Visit Time during the selected date range'),
-					array('name' => 'piwik.new.visits', 'desc' => 'Displays the Number of New Visits during the selected date range'),
-				),
-			),
-			'aum'			 => array(
-				'nav_group_tokens'	 => array(
-					'aum' => 'AUM',
-				),
-				'aum'				 => array(
-					array('name' => 'aum.alltimeuptimeratio', 'desc' => 'Displays the Uptime ratio from the moment the monitor has been created'),
-					array('name' => 'aum.uptime7', 'desc' => 'Displays the Uptime ratio for last 7 days'),
-					array('name' => 'aum.uptime15', 'desc' => 'Displays the Uptime ration for last 15 days'),
-					array('name' => 'aum.uptime30', 'desc' => 'Displays the Uptime ration for last 30 days'),
-					array('name' => 'aum.uptime45', 'desc' => 'Displays the Uptime ration for last 45 days'),
-					array('name' => 'aum.uptime60', 'desc' => 'Displays the Uptime ration for last 60 days'),
-					array('name' => 'aum.stats', 'desc' => 'Displays the Uptime Statistics'),
-				),
-			),
-			'woocomstatus'	 => array(
-				'nav_group_tokens'	 => array(
-					'woocomstatus' => 'WooCommerce Status',
-				),
-				'woocomstatus'		 => array(
-					array('name' => 'wcomstatus.sales', 'desc' => 'Displays total sales during the selected data range'),
-					array('name' => 'wcomstatus.topseller', 'desc' => 'Displays the top seller product during the selected data range'),
-					array('name' => 'wcomstatus.awaitingprocessing', 'desc' => 'Displays the number of products currently awaiting for processing'),
-					array('name' => 'wcomstatus.onhold', 'desc' => 'Displays the number of orders currently on hold'),
-					array('name' => 'wcomstatus.lowonstock', 'desc' => 'Displays the number of products currently low on stock'),
-					array('name' => 'wcomstatus.outofstock', 'desc' => 'Displays the number of products currently out of stock'),
-				),
-			),
-			'wordfence'		 => array(
-				'nav_group_tokens'	 => array(
-					'sections'	 => 'Sections',
-					'scan'		 => 'Scan',
-					'additional' => 'Additional',
-				),
-				'sections'			 => array(
-					array('name' => 'section.wordfence.scan', 'desc' => 'Loops through Wordfence scans during the selected date range'),
-				),
-				'scan'				 => array(
-					array('name' => 'wordfence.scan.result', 'desc' => 'Displays the Wordfence scan result'),
-					array('name' => 'wordfence.scan.date', 'desc' => 'Displays the Wordfence scan date'),
-					array('name' => 'wordfence.scan.time', 'desc' => 'Displays the Wordfence scan time'),
-					array('name' => 'wordfence.scan.details', 'desc' => 'Displays the Wordfence scan details'),
-				),
-				'additional'		 => array(
-					array('name' => 'wordfence.scan.count', 'desc' => 'Displays the number of performed Wordfence scans during the selected date range'),
-				),
-			),
-			'maintenance'	 => array(
-				'nav_group_tokens'	 => array(
-					'sections'	 => 'Sections',
-					'process'	 => 'Process',
-					'additional' => 'Additional',
-				),
-				'sections'			 => array(
-					array('name' => 'section.maintenance.process', 'desc' => 'Loops through performed Maintenance actions'),
-				),
-				'process'			 => array(
-					array('name' => 'maintenance.process.result', 'desc' => 'Displays the status of performed Maintenance'),
-					array('name' => 'maintenance.process.date', 'desc' => 'Displays the date of performed Maintenance'),
-					array('name' => 'maintenance.process.time', 'desc' => 'Displays the time of performed Maintenance'),
-					array('name' => 'maintenance.process.details', 'desc' => 'Displays performed actions'),
-				),
-				'additional'		 => array(
-					array('name' => 'maintenance.process.count', 'desc' => 'Displays the number of performed Maintenance actions during the selected date range'),
-				),
-			),
-			'pagespeed'		 => array(
-				'nav_group_tokens'	 => array(
-					'pagespeed' => 'Page speed',
-				),
-				'pagespeed'			 => array(
-					array('name' => 'pagespeed.average.desktop', 'desc' => 'Displays the average desktop page-speed score at the moment of report generation'),
-					array('name' => 'pagespeed.average.mobile', 'desc' => 'Displays the average mobile page-speed score at the moment of report creation')
-				),
-			),
-			'virusdie'	 => array(
-				'nav_group_tokens'	 => array(
-					'sections'	 => 'Sections',
-					'scan'	 => 'Scans',
-					'additional' => 'Additional',
-				),
-				'sections'			 => array(
-					array('name' => 'section.virusdie.scans', 'desc' => 'Loops through scans during the selected period'),
-				),
-				'scan'			 => array(					
-					array('name' => 'virusdie.scan.time', 'desc' => 'Returns the time of scan'),
-					array('name' => 'virusdie.scan.date', 'desc' => 'Returns the date of scan'),					
-					array('name' => 'virusdie.scan.status', 'desc' => 'Returns scan status (there are a few available, Sync Error, Threats were found, and No Threats found)'),
-					array('name' => 'virusdie.scan.details', 'desc' => 'Returns the scan details in a list like: Files scaned: xxx; Malicious: xxx; Suspicious: xxx; .....'),
-				),
-				'additional'		 => array(
-					array('name' => 'virusdie.scans.count', 'desc' => 'Displays the number of scans performed during the selected period'),
-				),
-			),
-			'vulnerable'    => array(
-				'nav_group_tokens' => array(
-					'vulnerable'	 => 'Vulnerability',
-				),
-				'vulnerable'        => array(
-					array(
-						'name' => 'vulnerable.plugins',
-						'desc' => 'Displays the vulnerable plugins score at the moment of report generation',
-					),
-					array(
-						'name' => 'vulnerable.themes',
-						'desc' => 'Displays the vulnerable themes score at the moment of report creation',
-					),
-					array(
-						'name' => 'vulnerabilities.count',
-						'desc' => 'Displays the vulnerabilities count score at the moment of report creation',
-					),
-				),
-			),
-			'lighthouse'		 => array(
-				'nav_group_tokens'	 => array(
-					'lighthouse' => 'Lighthouse',
-				),
-				'lighthouse'	 => array(
-					array('name' => 'lighthouse.performance.desktop', 'desc' => 'Displays the average desktop performance score at the moment of report generation'),
-					array('name' => 'lighthouse.performance.mobile', 'desc' => 'Displays the average mobile performance score at the moment of report creation'),
-					array('name' => 'lighthouse.accessibility.desktop', 'desc' => 'Displays the average desktop accessibility score at the moment of report generation'),
-					array('name' => 'lighthouse.accessibility.mobile', 'desc' => 'Displays the average mobile accessibility score at the moment of report creation'),
-					array('name' => 'lighthouse.bestpractices.desktop', 'desc' => 'Displays the average desktop best practices score at the moment of report generation'),
-					array('name' => 'lighthouse.bestpractices.mobile', 'desc' => 'Displays the average mobile best practices score at the moment of report creation'),
-					array('name' => 'lighthouse.seo.desktop', 'desc' => 'Displays the average desktop seo score at the moment of report generation'),
-					array('name' => 'lighthouse.seo.mobile', 'desc' => 'Displays the average mobile seo score at the moment of report creation'),
-					array('name' => 'lighthouse.audits.desktop', 'desc' => 'Displays the average desktop audits at the moment of report generation'),
-					array('name' => 'lighthouse.audits.mobile', 'desc' => 'Displays the average mobile audits at the moment of report creation'),
-					array('name' => 'lighthouse.lastcheck.desktop', 'desc' => 'Displays the average desktop last check at the moment of report generation'),
-					array('name' => 'lighthouse.lastcheck.mobile', 'desc' => 'Displays the average mobile last check at the moment of report creation')
-				),
-			),
-			'domainmonitor' => array(
-				'nav_group_tokens' => array(
-					'domainmonitor' => 'Domain monitor',
-				),
-				'domainmonitor'    => array(
-					array(
-						'name' => 'domain.monitor.domain.name',
-						'desc' => 'Displays the domain name',
-					),
-					array(
-						'name' => 'domain.monitor.registrar',
-						'desc' => 'Displays the domain registrar',
-					),
-					array(
-						'name' => 'domain.monitor.updated.date',
-						'desc' => 'Displays the monitor updated date',
-					),
-					array(
-						'name' => 'domain.monitor.creation.date',
-						'desc' => 'Displays the domain monitor creation date',
-					),
-					array(
-						'name' => 'domain.monitor.expiry.date',
-						'desc' => 'Displays the domain monitor expiry date',
-					),
-					array(
-						'name' => 'domain.monitor.expires',
-						'desc' => 'Displays the domain monitor expires',
-					),
-					array(
-						'name' => 'domain.monitor.status',
-						'desc' => 'Displays the domain monitor status',
-					),
-					array(
-						'name' => 'domain.monitor.last.check',
-						'desc' => 'Displays the domain monitor last check',
-					),
-				),
-			),
-		);
-		
 		self::$tokens_nav_top = array(
 			'client'		 => 'Client',
 			'report'		 => 'Report',
@@ -865,7 +130,7 @@ class MainWP_CReport {
 			'lighthouse' => 'Lighthouse',
 			'domainmonitor' => 'Domain monitor'
 		);
-		
+
 	}
 
     /**
@@ -904,10 +169,10 @@ class MainWP_CReport {
 		self::$enabled_vulnerable	 = self::is_plugin_active( 'mainwp-vulnerability-checker-extension/mainwp-vulnerability-checker-extension.php' ) ? true : false;
 		self::$enabled_lighthouse	 = self::is_plugin_active( 'mainwp-lighthouse-extension/mainwp-lighthouse-extension.php' ) ? true : false;
 		self::$enabled_domainmonitor = self::is_plugin_active( 'mainwp-domain-monitor-extension/mainwp-domain-monitor-extension.php' ) ? true : false;
-		
+
 		self::$stream_tokens		 = apply_filters( 'mainwp_client_reports_tokens_groups', self::$stream_tokens );
 		self::$tokens_nav_top		 = apply_filters( 'mainwp_client_reports_tokens_nav_top', self::$tokens_nav_top );
-		
+
 		add_filter( 'mainwp_client_reports_get_tokens_value', array( $this, 'hook_get_tokens_value' ), 10, 5 );
 
 	}
@@ -1149,7 +414,7 @@ class MainWP_CReport {
          */
 		$allReportsToSend	 = array();
 		$allReadyReports	 = MainWP_CReport_DB::get_instance()->get_scheduled_reports_to_send( $timestamp_offset );
-	
+
 		if ( empty( $allReadyReports ) ) {
 			update_option( 'mainwp_creport_sendcheck_last', date( 'd/m/Y', time() ) );
 		}
@@ -1188,7 +453,7 @@ class MainWP_CReport {
 				// using to generate report content to send now
 				$values['date_from']	 = $date_from;
 				$values['date_to']	 = $date_to;
-			}				
+			}
 			MainWP_CReport_DB::get_instance()->update_reports_with_values( $report->id, $values );
 			$allReportsToSend[] = $report;
 		}
@@ -1234,7 +499,7 @@ class MainWP_CReport {
 
 		do_action( 'mainp_log_debug', 'CRON :: Client Report :: continue send :: Found ' . count( $reports ) . ' to continue.', $forced_log );
 		//do_action( 'mainwp_log_action', 'CRON :: Client Report :: Continue send :: Found ' . count( $reports ), MAINWP_CLIENT_REPORTS_LOG_PRIORITY_NUMBER );
-	
+
 		if ( empty( $reports ) ) {
 			return;
 		}
@@ -1242,9 +507,9 @@ class MainWP_CReport {
 		// Process one report.
 		$report = current( $reports );
 
-		do_action( 'mainp_log_debug', 'CRON :: MainWP Client Reports :: Continue send :: ' . $report->title, $forced_log );		
+		do_action( 'mainp_log_debug', 'CRON :: MainWP Client Reports :: Continue send :: ' . $report->title, $forced_log );
 		do_action( 'mainwp_log_action', 'Client Report :: Continue send :: ' . $report->title, MAINWP_CLIENT_REPORTS_LOG_PRIORITY_NUMBER );
-				
+
 		$sites	 = unserialize( base64_decode( $report->sites ) );
 		$groups	 = unserialize( base64_decode( $report->groups ) );
 
@@ -1265,9 +530,9 @@ class MainWP_CReport {
 		$dbwebsites_indexed = apply_filters( 'mainwp_getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), $sites, $groups );
 
 		$total_sites = !empty( $dbwebsites_indexed ) ? count( $dbwebsites_indexed ) : 0;
-		
+
 		if ( $total_sites > 0 ) {
-			
+
 			$all_siteids = array();
 			$dbwebsites = array();
 			$completedSites = array();
@@ -1288,7 +553,7 @@ class MainWP_CReport {
 
 				$website = MainWP_CReport_Utility::map_site( $dbsite, array('id', 'name', 'url') );
 				$site_id = $website['id'];
-				
+
 				$lastsend	 = time();
 				$values		 = array(
 					'lastsend' => $lastsend // Displays last send time only.
@@ -1298,17 +563,17 @@ class MainWP_CReport {
 
 				$idx++; // count to next site.
 
-				if ( isset( $completedSites[$site_id] ) ) {					
-					continue;				
+				if ( isset( $completedSites[$site_id] ) ) {
+					continue;
 				}
-				
+
 				$completedSites[ $site_id ] = 5; // preparing content.
 				self::update_completed_websites( $report, $completedSites, $all_siteids );
 
 				do_action( 'mainp_log_debug', 'CRON :: MainWP Client Reports :: Preparing content :: Site id :: ' . $site_id, $forced_log );
-				
+
 				do_action( 'mainwp_log_action', 'Client Report :: Preparing content :: Site id :: ' . $site_id, MAINWP_CLIENT_REPORTS_LOG_PRIORITY_NUMBER );
-		
+
 				$data = self::prepare_content_report_email( $report, false, $website, true );
 
 				$countSend++;
@@ -1317,13 +582,13 @@ class MainWP_CReport {
 					do_action( 'mainp_log_debug', 'CRON :: MainWP Client Reports :: Error :: Generate content :: Site id :: ' . $site_id, $forced_log );
 					do_action( 'mainwp_log_action', 'Client Report :: Error :: Generate content :: Site id :: ' . $site_id, MAINWP_CLIENT_REPORTS_LOG_PRIORITY_NUMBER );
 					$completedSites[$site_id] = 3; // generated content failed.
-					self::update_completed_websites( $report, $completedSites, $all_siteids, $forced_log );	
+					self::update_completed_websites( $report, $completedSites, $all_siteids, $forced_log );
 				} elseif ( empty( $data['to_email'] ) || ( false === stripos( $data['to_email'], "@") ) ) {
 					do_action( 'mainp_log_debug', 'CRON :: MainWP Client Reports :: Error :: Wrong send to email :: [' . $data['to_email'] . '] :: site id :: ' . $site_id, $forced_log );
 					do_action( 'mainwp_log_action', 'Client Report :: Error :: Wrong send to email :: [' . $data['to_email'] . '] :: site id :: ' . $site_id, MAINWP_CLIENT_REPORTS_LOG_PRIORITY_NUMBER );
 					$completedSites[$site_id] = 4; // wrong email address.
-					self::update_completed_websites( $report, $completedSites, $all_siteids, $forced_log );					
-				} else {					
+					self::update_completed_websites( $report, $completedSites, $all_siteids, $forced_log );
+				} else {
 					$content_email = $data['content'];
 
 					/**
@@ -1351,7 +616,7 @@ class MainWP_CReport {
 						$completedSites[$site_id] = 0;
 						self::update_completed_websites( $report, $completedSites, $all_siteids, $forced_log );
 					}
-					/** End send email */				
+					/** End send email */
 				}
 
 				if ( $countSend >= $chunkSend ) {
@@ -1364,7 +629,7 @@ class MainWP_CReport {
 				// check to finished or countinue send the report, one more time.
 				self::update_completed_websites( $report, $completedSites, $all_siteids, $forced_log );
 			}
-		} else {			
+		} else {
 			$lastsend	 = time();
 			$values		 = array(
 				'lastsend' => $lastsend // Displays last send time only.
@@ -1434,14 +699,14 @@ class MainWP_CReport {
 			if ( $total_sites > 0 && count( $pCompletedSites ) >= $total_sites ) {
 				// check to resend failed reports.
 				$pCompletedSites = array_filter( $pCompletedSites, function( $val ) {
-					return ( $val > 0 && $val != 5 ); // successed or generated failed. 
+					return ( $val > 0 && $val != 5 ); // successed or generated failed.
 				} );
 				$retried = $report->retry_counter;
 				if ( count( $pCompletedSites ) >= $total_sites || ( $retried >= 3 ) ) {
 					do_action( 'mainp_log_debug', 'MainWP Client Reports :: schedule reports :: count completed sites :: ' . count( $pCompletedSites ), $forced_log );
 					// update to finish sending this report.
 					MainWP_CReport_DB::get_instance()->update_reports_completed( $report->id );
-				} else {				
+				} else {
 					$retried = $retried + 1; // increase process counter to re-try to send.
 					$values  = array(
 						'retry_counter' => $retried,
@@ -2300,7 +1565,7 @@ class MainWP_CReport {
 			return false;
 		}
 
-		
+
 		$to_email = apply_filters( 'mainwp_client_reports_send_to_email', $to_email, $report->id );
 
 		$send_subject = $email_subject;
@@ -3113,10 +2378,10 @@ class MainWP_CReport {
 		$get_woocom_tokens		 = ((strpos( $report->header, '[wcomstatus.' ) !== false) || (strpos( $report->body, '[wcomstatus.' ) !== false) || (strpos( $report->footer, '[wcomstatus.' ) !== false)) ? true : false;
 		$get_pagespeed_tokens	 = ((strpos( $report->header, '[pagespeed.' ) !== false) || (strpos( $report->body, '[pagespeed.' ) !== false) || (strpos( $report->footer, '[pagespeed.' ) !== false)) ? true : false;
 		$get_virusdie_tokens	 = ((strpos( $report->header, '[virusdie.' ) !== false) || (strpos( $report->body, '[virusdie.' ) !== false) || (strpos( $report->footer, '[virusdie.' ) !== false)) ? true : false;
-		$get_vulnerable_tokens	 = ( strpos( $report->header, '[vulnerable.' ) !== false || strpos( $report->header, '[vulnerabilities.' ) !== false || strpos( $report->body, '[vulnerable.' ) !== false || strpos( $report->body, '[vulnerabilities.' ) !== false || strpos( $report->footer, '[vulnerable.' ) !== false || strpos( $report->footer, '[vulnerabilities.' ) !== false ) ? true : false; 
-		$get_lighthouse_tokens	 = ( strpos( $report->header, '[lighthouse.' ) !== false || strpos( $report->body, '[lighthouse.' ) !== false || strpos( $report->footer, '[lighthouse.' ) !== false  ) ? true : false; 
-		$get_domainmonitor_tokens	 = ( strpos( $report->header, '[domain.' ) !== false || strpos( $report->body, '[domain.' ) !== false || strpos( $report->footer, '[domain.' ) !== false  ) ? true : false; 
-		
+		$get_vulnerable_tokens	 = ( strpos( $report->header, '[vulnerable.' ) !== false || strpos( $report->header, '[vulnerabilities.' ) !== false || strpos( $report->body, '[vulnerable.' ) !== false || strpos( $report->body, '[vulnerabilities.' ) !== false || strpos( $report->footer, '[vulnerable.' ) !== false || strpos( $report->footer, '[vulnerabilities.' ) !== false ) ? true : false;
+		$get_lighthouse_tokens	 = ( strpos( $report->header, '[lighthouse.' ) !== false || strpos( $report->body, '[lighthouse.' ) !== false || strpos( $report->footer, '[lighthouse.' ) !== false  ) ? true : false;
+		$get_domainmonitor_tokens	 = ( strpos( $report->header, '[domain.' ) !== false || strpos( $report->body, '[domain.' ) !== false || strpos( $report->footer, '[domain.' ) !== false  ) ? true : false;
+
 		$get_other_tokens = (strpos( $report->body, '[installed.plugins]' ) !== false) || (strpos( $report->body, '[installed.themes]' ) !== false);
 
 		if ( ! $get_other_tokens ){
@@ -3139,6 +2404,10 @@ class MainWP_CReport {
 			}
 
 			if ( $get_piwik_tokens ) {
+				$default_values = MainWP_CReport_Tokens::get_instance()->get_default_tokens_values( 'piwik', 'piwik' );
+				if( is_array( $default_values ) && ! empty( $default_values)){
+					$replace_tokens_values = array_merge( $replace_tokens_values, $default_values );
+				}
 				$piwik_tokens = self::piwik_data( $website['id'], $date_from, $date_to );
 				if ( is_array( $piwik_tokens ) ) {
 					foreach ( $piwik_tokens as $token => $value ) {
@@ -3148,6 +2417,10 @@ class MainWP_CReport {
 			}
 
 			if ( $get_ga_tokens ) {
+				$default_values = MainWP_CReport_Tokens::get_instance()->get_default_tokens_values( 'ga', 'ga' );
+				if( is_array( $default_values ) && ! empty( $default_values)){
+					$replace_tokens_values = array_merge( $replace_tokens_values, $default_values );
+				}
 				$ga_tokens = self::ga_data( $website['id'], $date_from, $date_to, $get_ga_chart );
 				if ( is_array( $ga_tokens ) ) {
 					foreach ( $ga_tokens as $token => $value ) {
@@ -3157,6 +2430,10 @@ class MainWP_CReport {
 			}
 
 			if ( $get_aum_tokens ) {
+				$default_values = MainWP_CReport_Tokens::get_instance()->get_default_tokens_values( 'aum', 'aum' );
+				if( is_array( $default_values ) && ! empty( $default_values)){
+					$replace_tokens_values = array_merge( $replace_tokens_values, $default_values );
+				}
 				$aum_tokens = self::aum_data( $website['id'], $date_from, $date_to );
 				if ( is_array( $aum_tokens ) ) {
 					foreach ( $aum_tokens as $token => $value ) {
@@ -3166,6 +2443,10 @@ class MainWP_CReport {
 			}
 
 			if ( $get_woocom_tokens ) {
+				$default_values = MainWP_CReport_Tokens::get_instance()->get_default_tokens_values( 'woocomstatus', 'woocomstatus' );
+				if( is_array( $default_values ) && ! empty( $default_values)){
+					$replace_tokens_values = array_merge( $replace_tokens_values, $default_values );
+				}
 				$wcomstatus_tokens = self::woocomstatus_data( $website['id'], $date_from, $date_to );
 				if ( is_array( $wcomstatus_tokens ) ) {
 					foreach ( $wcomstatus_tokens as $token => $value ) {
@@ -3183,7 +2464,7 @@ class MainWP_CReport {
 				}
 			}
 
-			if ( $get_vulnerable_tokens ) {					
+			if ( $get_vulnerable_tokens ) {
 				$ext_tokens = self::get_ext_tokens_vulnerable( $website['id'], $date_from, $date_to );
 				if ( is_array( $ext_tokens ) ) {
 					foreach ( $ext_tokens as $token => $value ) {
@@ -3192,7 +2473,13 @@ class MainWP_CReport {
 				}
 			}
 
-			if ( $get_lighthouse_tokens ) {					
+			if ( $get_lighthouse_tokens ) {
+
+				$default_values = MainWP_CReport_Tokens::get_instance()->get_default_tokens_values( 'lighthouse', 'lighthouse' );
+				if( is_array( $default_values ) && ! empty( $default_values)){
+					$replace_tokens_values = array_merge( $replace_tokens_values, $default_values );
+				}
+
 				$ext_tokens = self::get_ext_tokens_lighthouse( $website['id'], $date_from, $date_to );
 				if ( is_array( $ext_tokens ) ) {
 					foreach ( $ext_tokens as $token => $value ) {
@@ -3202,6 +2489,12 @@ class MainWP_CReport {
 			}
 
 			if ( $get_domainmonitor_tokens ) {
+
+				$default_values = MainWP_CReport_Tokens::get_instance()->get_default_tokens_values( 'domainmonitor', 'domainmonitor' );
+				if( is_array( $default_values ) && ! empty( $default_values)){
+					$replace_tokens_values = array_merge( $replace_tokens_values, $default_values );
+				}
+
 				$ext_tokens = self::get_ext_tokens_domainmonitor( $website['id'], $date_from, $date_to );
 				if ( is_array( $ext_tokens ) ) {
 					foreach ( $ext_tokens as $token => $value ) {
@@ -3209,16 +2502,16 @@ class MainWP_CReport {
 					}
 				}
 			}
-			
+
 
 			$replace_tokens_values['[report.daterange]']	 = MainWP_CReport_Utility::format_date( $date_from, true ) . ' - ' . MainWP_CReport_Utility::format_date( $date_to, true );
 			$now											 = time();
 			$replace_tokens_values['[report.send.date]']	 = MainWP_CReport_Utility::format_timestamp( MainWP_CReport_Utility::get_timestamp( $now ), true );
-			
+
 			if ( $get_other_tokens ) {
 				self::get_other_tokens_value( $replace_tokens_values, $website['id'] );
 			}
-						
+
 			$replace_tokens_values							 = apply_filters( 'mainwp_client_reports_custom_tokens', $replace_tokens_values, $report, $website );
 
 			$report_header	 = $report->header;
@@ -3226,21 +2519,21 @@ class MainWP_CReport {
 			$report_footer	 = $report->footer;
 
 			$result									 = self::parse_report_content( $report_header, $replace_tokens_values );
-			
+
 			self::$buffer['sections']['header']	 = $sections['header']					 = $result['sections'];
 			$other_tokens['header']				 = $result['other_tokens'];
 			$filtered_header						 = $result['filtered_content'];
 			unset( $result );
 
 			$result									 = self::parse_report_content( $report_body, $replace_tokens_values );
-			
+
 			self::$buffer['sections']['body']	 = $sections['body']						 = $result['sections'];
 			$other_tokens['body']					 = $result['other_tokens'];
 			$filtered_body							 = $result['filtered_content'];
 			unset( $result );
 
 			$result = self::parse_report_content( $report_footer, $replace_tokens_values );
-			
+
 
 			self::$buffer['sections']['footer']	 = $sections['footer']					 = $result['sections'];
 			$other_tokens['footer']				 = $result['other_tokens'];
@@ -3251,11 +2544,11 @@ class MainWP_CReport {
 			// Get data from MainWP Stream.
 			$sections_data							 = $other_tokens_data						 = array();
 			$information							 = self::fetch_stream_data( $website, $report, $sections, $other_tokens, $date_from, $date_to );
-			
-			
+
+
 			if ( is_array( $information ) && ! isset( $information['error'] ) ) {
 				// proccess virusdie data.
-				if ( $get_virusdie_tokens ) {					
+				if ( $get_virusdie_tokens ) {
 					$virusdie_sections = array();
 					$virusdie_other_tokens = array();
 					$section_idx =  array();
@@ -3274,11 +2567,11 @@ class MainWP_CReport {
 							}
 						}
 					}
-					
+
 					$virusdie_data = self::virusdie_tokens( $website['id'], $date_from, $date_to, $virusdie_sections, $virusdie_other_tokens );
 					$virusdie_sections_data	= isset( $virusdie_data['sections_data'] ) ? $virusdie_data['sections_data'] : array();
 					$virusdie_other_tokens_data	= isset( $virusdie_data['other_tokens_data'] ) ? $virusdie_data['other_tokens_data'] : array();
-				
+
 					$vir_idx = 0;
 					foreach( $section_idx as $idx ) {
 						if (isset($virusdie_sections_data[ $vir_idx ])) {
@@ -3292,7 +2585,7 @@ class MainWP_CReport {
 					}
 				}
 			}
-			
+
 			$information = self::fix_empty_logs_values( $information );
 
 			//print_r($information);
@@ -3397,7 +2690,7 @@ class MainWP_CReport {
 		}
 		return $output;
 	}
-	
+
 	 /**
      * Get other tokens value.
      *
@@ -3415,7 +2708,7 @@ class MainWP_CReport {
 			$dbwebsites = apply_filters( 'mainwp_getdbsites', $mainWPCReportExtensionActivator->get_child_file(), $mainWPCReportExtensionActivator->get_child_key(), array( $site_id ), array(), $option );
 			if ( $dbwebsites ) {
 				$website = current( $dbwebsites );
-				
+
 				if ( property_exists( $website, 'plugins' ) ) {
 					$installed_plugins = $website->plugins;
 					$installed_plugins = json_decode( $installed_plugins, true );
@@ -3440,7 +2733,7 @@ class MainWP_CReport {
 					$tokens_values['[installed.themes]'] = $str;
 				}
 
-			}			
+			}
 		}
 	}
 
@@ -3745,7 +3038,7 @@ class MainWP_CReport {
 		}
 
 		$result	 = apply_filters( 'mainwp_ga_get_data', $site_id, $start_date, $end_date, $chart );
-		
+
 		$output	 = array(
 			'ga.visits'			 => 'N/A',
 			'ga.pageviews'		 => 'N/A',
@@ -3776,7 +3069,7 @@ class MainWP_CReport {
 				$output['ga.users']	 = (isset( $values['aggregates'] ) && isset( $values['aggregates']['ga:Users'] )) ? $values['aggregates']['ga:Users'] : 'N/A';
 				$output['ga.new.users']	 = (isset( $values['aggregates'] ) && isset( $values['aggregates']['ga:newUsers'] )) ? $values['aggregates']['ga:newUsers'] : 'N/A';
 			}
-           
+
 			//===============================================================
 			//enym new   requires change in mainWPGA.class.php in Ga extension [send pure graph data in array]
 			//help: http://charts.streitenberger.net/#
@@ -4608,7 +3901,7 @@ class MainWP_CReport {
      * @param array $report Report array. Default: null.
      */
     public static function new_report_format($report ) {
-		self::new_report_format_table_content( $report );
+		self::get_instance()->new_report_format_table_content( $report );
 	}
 
     /**
@@ -4975,7 +4268,7 @@ class MainWP_CReport {
      * @uses MainWP_CReport_DB::get_tokens()
      * @uses MainWP_CReport_DB::get_formats()
      */
-    public static function new_report_format_table_content($report = null ) {
+    public function new_report_format_table_content($report = null ) {
 		$header		 = $body		 = $footer		 = $file_logo	 = '';
 
 		if ( $report && is_object( $report ) ) {
@@ -5069,7 +4362,7 @@ class MainWP_CReport {
 				<div class="ui fitted hidden divider"></div>
 				<div class="ui center aligned secondary segment">
 					<a href="#" class="mainwp_creport_show_insert_tokens_book_lnk ui mini green basic button"><?php _e( 'Show Available Tokens', 'mainwp-client-reports-extension' ); ?></a>
-		<?php self::gen_insert_tokens_box( 'header', true, $client_tokens_values, $client_tokens, $website ); ?>
+		<?php $this->gen_insert_tokens_box( 'header', true, $client_tokens_values, $client_tokens, $website ); ?>
 				</div>
 			</div>
 		</div>
@@ -5115,7 +4408,7 @@ class MainWP_CReport {
 				<div class="ui fitted hidden divider"></div>
 				<div class="ui center aligned secondary segment">
 					<a href="#" class="mainwp_creport_show_insert_tokens_book_lnk ui mini green basic button"><?php _e( 'Show Available Tokens', 'mainwp-client-reports-extension' ); ?></a>
-		<?php self::gen_insert_tokens_box( 'body', true, $client_tokens_values, $client_tokens, $website ); ?>
+		<?php $this->gen_insert_tokens_box( 'body', true, $client_tokens_values, $client_tokens, $website ); ?>
 				</div>
 			</div>
 		</div>
@@ -5161,7 +4454,7 @@ class MainWP_CReport {
 				<div class="ui fitted hidden divider"></div>
 				<div class="ui center aligned secondary segment">
 					<a href="#" class="mainwp_creport_show_insert_tokens_book_lnk ui mini green basic button"><?php _e( 'Show Available Tokens', 'mainwp-client-reports-extension' ); ?></a>
-		<?php self::gen_insert_tokens_box( 'footer', true, $client_tokens_values, $client_tokens, $website ); ?>
+		<?php $this->gen_insert_tokens_box( 'footer', true, $client_tokens_values, $client_tokens, $website ); ?>
 				</div>
 			</div>
 		</div>
@@ -5177,7 +4470,7 @@ class MainWP_CReport {
      * @param array $client_tokens Client tokens.
      * @param int $website Child Site ID.
      */
-    public static function gen_insert_tokens_box( $editor, $hide, $client_tokens_values, $client_tokens, $website ) {
+    public function gen_insert_tokens_box( $editor, $hide, $client_tokens_values, $client_tokens, $website ) {
 		?>
 		<div class="creport_format_insert_tokens_box <?php echo $hide ? 'hidden-field' : ''; ?>" editor="<?php echo $editor; ?>">
 			<div class="creport_format_data_tokens">
@@ -5185,6 +4478,7 @@ class MainWP_CReport {
 					<?php
 					$visible	 = 'client';
 					$nav_group	 = '';
+
 					foreach ( self::$tokens_nav_top as $group => $group_title ) {
 						$disabled = '';
 						if ( (!self::$enabled_sucuri && ('sucuri' == $group)) ||
@@ -5868,7 +5162,7 @@ class MainWP_CReport {
 		die( $html );
 	}
 
-	
+
 	/**
      * Hook get tokens value.
      *
